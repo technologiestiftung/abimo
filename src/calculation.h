@@ -50,7 +50,6 @@ signals:
     void processSignal(int, QString);
 
 private:
-    //
     InitValues & initValues;
     QTextStream & protokollStream;
     DbaseReader & dbReader;
@@ -85,7 +84,7 @@ private:
     // potentielle Aufstiegshoehe
     float TAS;
 
-    //Niederschlags-Korrekturfaktor
+    // Niederschlags-Korrekturfaktor
     float niedKorrFaktor;
 
     // Feldlaenge von iTAS
@@ -94,19 +93,19 @@ private:
     // Feldlaenge von inFK_S
     int lenS;
 
-    //total written records
+    // total written records
     int totalRecWrite;
 
-    //total read records
+    // total read records
     int totalRecRead;
 
-    //Anzahl der Records fuer die BER==0 gesetzt werden musste
+    // Anzahl der Records fuer die BER == 0 gesetzt werden musste
     int totalBERtoZeroForced;
 
-    //to stop calc
+    // to stop calc
     bool weiter;
 
-    //functions
+    // functions
     float getTWS (int ert, char nutz);
     float min(float  x,float  y );
     int index (float wert, float *feld, int anz);

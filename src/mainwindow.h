@@ -21,12 +21,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-
 //#include <QtGui>
 #include <QtWidgets>
-
 #include <QLabel>
 #include <QXmlSimpleReader>
+
 #include "saxhandler.h"
 #include "dbaseReader.h"
 #include "calculation.h"

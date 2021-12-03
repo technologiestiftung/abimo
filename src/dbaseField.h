@@ -25,6 +25,7 @@
 
 class DbaseField
 {
+
 public:
     DbaseField();
     DbaseField(QByteArray);

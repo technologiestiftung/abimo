@@ -29,11 +29,11 @@
 
 class DbaseReader
 {
+
 public:
     DbaseReader(const QString&);
     ~DbaseReader();
     bool read();
-
     QString getVersion();
     QString getLanguageDriver();
     QDate getDate();
@@ -47,9 +47,8 @@ public:
     bool isAbimoFile();
 
 private:
-
-    //VARIABLES:
-    ////////////
+    // VARIABLES:
+    /////////////
     QFile file;
     QString version;
     QString languageDriver;
@@ -58,37 +57,37 @@ private:
     QString error;
     QString* vals;
 
-    //count of records in file
+    // count of records in file
     int numberOfRecords;
 
-    //length of the header in byte
+    // length of the header in byte
     int lengthOfHeader;
 
-    //length of a record in byte
+    // length of a record in byte
     int lengthOfEachRecord;
 
-    //count of fields
+    // count of fields
     int countFields;
 
-    //FUNCTIONS:
-    ////////////
+    // FUNCTIONS:
+    /////////////
 
-    //1 byte unsigned give the version
+    // 1 byte unsigned give the version
     QString checkVersion(quint8);
 
-    //1 byte unsigned give the Language Driver (code page)
+    // 1 byte unsigned give the Language Driver (code page)
     QString checkLanguageDriver(quint8 i_byte);
 
-    //3 byte unsigned char give the date of last edit
+    // 3 byte unsigned char give the date of last edit
     QDate checkDate(quint8 i_year, quint8 i_month, quint8 i_day);
 
-    //32 bit unsigned char to int
+    // 32 bit unsigned char to int
     int check32(quint8 i1, quint8 i2, quint8 i3, quint8 i4);
 
-    //16 bit unsigned char to int
+    // 16 bit unsigned char to int
     int check16(quint8 i1, quint8 i2);
 
-    //compute the count of fields
+    // compute the count of fields
     int computeCountFields(int);
 };
 

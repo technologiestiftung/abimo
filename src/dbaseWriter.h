@@ -38,6 +38,7 @@ const int lengthOfHeader = countFields * 32 + 32 + 1;
 
 class DbaseWriter
 {
+
 public:
     DbaseWriter(QString &file, InitValues &initValues);
     bool write();
@@ -49,9 +50,8 @@ public:
     QString getError();
 
 private:
-
-    //VARIABLES:
-    ////////////
+    // VARIABLES:
+    /////////////
     QString fileName;
     QVector< QVector<QString> > record;
     QDate date;
