@@ -20,7 +20,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 #include <QMainWindow>
-#include <QtGui>
+//#include <QtGui>
+#include <QtWidgets>
 #include <QLabel>
 #include <QXmlSimpleReader>
 #include "saxhandler.h"

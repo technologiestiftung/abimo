@@ -100,12 +100,12 @@ bool DbaseWriter::write()
                 QString typ = fields[i].getType();
                 for(int k=0; k<11; k++){
                       if(k<name.size()){
-                              data[headCounter++]= (quint8)(name[k].toAscii());         
+                              data[headCounter++]= (quint8)(name[k].toLatin1());
                       }else{
                               data[headCounter++]= (quint8)0x00;  
                       }  
                 }
-                data[headCounter++] = (quint8)(typ[0].toAscii());
+                data[headCounter++] = (quint8)(typ[0].toLatin1());
                 for(int k=12; k<16; k++){
                         data[headCounter++]= (quint8)0x00;
                 }
