@@ -34,7 +34,7 @@
 void Bagrov::nbagro(float *bage, float *y, float *x)
 {
     /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-    int				_do0, i, i_, ia, ie, j, j_;
+    int				_do0, i, i_, ia, ie, j/*, j_*/;
     float			bag, bag1;
     float			a, a0, a1, a2, b, c, epa, eyn, h, h13, h23, qbag1, s1, s2, w, w13, w23, y0;
     static float	aa[16] =
@@ -101,7 +101,7 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
     /* NUMERISCHE INTEGRATION FUER BAG<0.7 (2.Naeherungsloesung) */
     for (j = 1; j <= 30; j++)
     {
-        j_ = j - 1;
+        /* j_ = j - 1; */
         eyn = (float) exp(bag * log(y0));
         if (eyn > 0.9F) goto L_13;
         if (eyn >= 0.7F && bag > 4.0F) goto L_13;
@@ -164,7 +164,7 @@ void Bagrov::bagrov(float *bagf, float *x0, float *y0)
 {
     /*~~~~~~~~~~~~~~~~~~~~~~~~*/
     bool	doloop; /* LOGICAL16 */
-    int		_do0, i, ii, ii_, j;
+    int		_do0, i, ii, /*ii_, */j;
     /*~~~~~~~~~~~~~~~~~~~~~~~~*/
 
     /* meiko : initialisiere i (einzige Änderung) */
@@ -200,7 +200,7 @@ L_1:
     su = 0.0F;
     for (ii = 1, _do0 = j; ii <= _do0; ii += 2)
     {
-        ii_ = ii - 1;
+        /* ii_ = ii - 1; */
         su = su + 1.0F / (1.0F - (float) exp(*bagf * log(u)));
         u = u + du;
     }
