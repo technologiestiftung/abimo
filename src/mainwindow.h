@@ -19,19 +19,22 @@
 
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
+
 #include <QMainWindow>
+
 //#include <QtGui>
 #include <QtWidgets>
+
 #include <QLabel>
 #include <QXmlSimpleReader>
 #include "saxhandler.h"
 #include "dbaseReader.h"
 #include "calculation.h"
 
-
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+
 public:
     MainWindow(QApplication*);
     ~MainWindow();
@@ -55,6 +58,5 @@ private:
     QString folder;
     QWidget *w;
 };
+
 #endif
-
-

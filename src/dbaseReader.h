@@ -19,10 +19,12 @@
 
 #ifndef DBASEREADER_H
 #define DBASEREADER_H
+
 #include <QFile>
 #include <QDate>
 #include <QBuffer>
 #include <QHash>
+
 #include "dbaseField.h"
 
 class DbaseReader
@@ -44,7 +46,6 @@ public:
     QString getError();
     bool isAbimoFile();
 
-
 private:
 
     //VARIABLES:
@@ -55,7 +56,6 @@ private:
     QDate date;
     QHash<QString, int> hash;
     QString error;
-
     QString* vals;
 
     //count of records in file
@@ -90,7 +90,6 @@ private:
 
     //compute the count of fields
     int computeCountFields(int);
-
-
 };
+
 #endif

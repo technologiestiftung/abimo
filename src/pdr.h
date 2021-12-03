@@ -20,10 +20,9 @@
 #ifndef PDR_H
 #define PDR_H
 
-
-
 class PDR
 {
+
 public:
     PDR();
 
@@ -39,22 +38,22 @@ public:
     // Hauptnutzungsform [L,W,G,B,K,D] ID_NUT 001 C
     char NUT;
 
-    // Langjähriger MW des Gesamtabflusses [mm/a] 004 N
+    // Langjaehriger MW des Gesamtabflusses [mm/a] 004 N
     int R;
 
-    // Langjähriger MW des Regenwasserabflusses [mm/a] 003 N
+    // Langjaehriger MW des Regenwasserabflusses [mm/a] 003 N
     int ROW;
 
-    // Langjähriger MW des unterird. Abflusses [mm/a] 004 N
+    // Langjaehriger MW des unterird. Abflusses [mm/a] 004 N
     int RI;
 
-    // Versiegelungsgrad bebauter Flächen [%] ID_VER 002 N
+    // Versiegelungsgrad bebauter Flaechen [%] ID_VER 002 N
     int VER;
 
-    // ERTragsklasse landw. Nutzflächen ID_ERT 002 N
+    // ERTragsklasse landw. Nutzflaechen ID_ERT 002 N
     int ERT;
 
-    // j. Beregnungshöhe landw. Nutzfl. [mm/a] ID_BER 003 N
+    // j. Beregnungshoehe landw. Nutzfl. [mm/a] ID_BER 003 N
     int BER;
 
     // Niederschlag <MD-Wert> [mm/a] ID_PMD 003 N
@@ -72,4 +71,5 @@ public:
     // potentielle Verdunstung im Sommer ID_ETPS neu
     int ETPS;
 };
+
 #endif

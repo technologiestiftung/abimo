@@ -19,8 +19,10 @@
 
 #ifndef BAGROV_H	/* Prevent multiple includes */
 #define BAGROV_H
+
 #include <math.h>
-class	Bagrov
+
+class Bagrov
 {
     /*
      -----------------------------------------------------------------------------------------------------------------------
@@ -31,8 +33,11 @@ public:
      ===================================================================================================================
      ===================================================================================================================
      */
-    Bagrov()	{ }
-    void	nbagro(float *bage, float *y, float *x);
-    void	bagrov(float *bagf, float *x0, float *y0);
+    Bagrov() {
+    }
+
+    void nbagro(float *bage, float *y, float *x);
+    void bagrov(float *bagf, float *x0, float *y0);
 };
+
 #endif

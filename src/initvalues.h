@@ -19,6 +19,7 @@
 
 #ifndef INITVALUES_H
 #define INITVALUES_H
+
 #include <QHash>
 #include <QString>
 #include <QStringList>
@@ -85,7 +86,6 @@ public:
     QHash<int, int> hashETPS;
     QHash<int, int> hashEG;
 
-
     int getCountSets();
 
 private:
@@ -108,7 +108,6 @@ private:
     int countSets;
 
     void putToHashL(QString bezirkeString, int value, QHash<int, int> &hash);
-
 };
 
 #endif

@@ -19,8 +19,10 @@
 
 #ifndef DBASEFIELD_H
 #define DBASEFIELD_H
+
 #include <QByteArray>
 #include <QString>
+
 class DbaseField
 {
 public:
@@ -40,6 +42,6 @@ private:
     QString type;
     int fieldLength;
     int decimalCount;
-
 };
+
 #endif
