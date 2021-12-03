@@ -19,13 +19,12 @@
  
 #include "dbaseWriter.h"
 #include <QTextStream>
-DbaseWriter::DbaseWriter(QString &file,
-                         InitValues &initValues):
+DbaseWriter::DbaseWriter(QString &file, InitValues &initValues):
   fileName(file), 
   recNum(0)
 {
 
-    //Felder mit Namen, Typ, Nachkommastellen
+    // Felder mit Namen, Typ, Nachkommastellen
     fields[0].set("CODE", "C", 0);
     fields[1].set("R", "N", initValues.getDecR());
     fields[2].set("ROW", "N", initValues.getDecROW());
@@ -39,10 +38,10 @@ DbaseWriter::DbaseWriter(QString &file,
     this->date = QDateTime::currentDateTime().date();
         
     hash = QHash<QString, int>();
-    for(int i=0; i< countFields; i++){            
-            //name
-            QString name = fields[i].getName();
-            hash[name] = i;
+    for (int i = 0; i < countFields; i++) {
+        //name
+        QString name = fields[i].getName();
+        hash[name] = i;
     }                                
 }
 
@@ -59,15 +58,17 @@ bool DbaseWriter::write()
         
      int year = date.year();
      int year2 = year % 100;
-     if(year > 2000){
-                year2 += 100;
+
+     if (year > 2000) {
+         year2 += 100;
      }
+
      int month = date.month();
      int day = date.day();
         
-     data[1] = (quint8)year2;//jahr
-     data[2] = (quint8)month;//monat
-     data[3] = (quint8)day;//tag
+     data[1] = (quint8)year2; // Jahr
+     data[2] = (quint8)month; // Monat
+     data[3] = (quint8)day;   // Tag
         
      data[4] = (quint8)recNum;
      data[5] = (quint8)(recNum >> 8);
@@ -78,80 +79,94 @@ bool DbaseWriter::write()
      data[9] = (quint8)(lengthOfHeader >> 8);
      
      lengthOfEachRecord = 1;
-     for(int i=0; i< countFields; i++){
-             lengthOfEachRecord += fields[i].getFieldLength();        
+
+     for (int i = 0; i < countFields; i++) {
+         lengthOfEachRecord += fields[i].getFieldLength();
      }
         
      data[10] = (quint8)lengthOfEachRecord;
      data[11] = (quint8)(lengthOfEachRecord >> 8);
 
-     for(int i=12; i<=28; i++){
-                data[i] = (quint8)0x00;        
+     for (int i = 12; i <= 28; i++) {
+         data[i] = (quint8)0x00;
      }
         
-     data[29] = (quint8)0x57; //wie in der input-date ???
+     data[29] = (quint8)0x57; // wie in der input-Datei ???
      data[30] = (quint8)0x00;
      data[31] = (quint8)0x00;
         
      int headCounter = 32;
-     for(int i=0; i< countFields; i++){
-                //name
-                QString name = fields[i].getName();
-                QString typ = fields[i].getType();
-                for(int k=0; k<11; k++){
-                      if(k<name.size()){
-                              data[headCounter++]= (quint8)(name[k].toLatin1());
-                      }else{
-                              data[headCounter++]= (quint8)0x00;  
-                      }  
-                }
-                data[headCounter++] = (quint8)(typ[0].toLatin1());
-                for(int k=12; k<16; k++){
-                        data[headCounter++]= (quint8)0x00;
-                }
-                data[headCounter++]=(quint8)fields[i].getFieldLength();                  
-                data[headCounter++]=(quint8)fields[i].getDecimalCount();
-                for(int k=18; k<32; k++){
-                        data[headCounter++]= (quint8)0x00;
-                }
+
+     for (int i = 0; i < countFields; i++) {
+
+         // name
+         QString name = fields[i].getName();
+         QString typ = fields[i].getType();
+
+         for (int k = 0; k < 11; k++) {
+             if (k < name.size()) {
+                 data[headCounter++] = (quint8)(name[k].toLatin1());
+             }
+             else {
+                 data[headCounter++]= (quint8)0x00;
+             }
+         }
+
+         data[headCounter++] = (quint8)(typ[0].toLatin1());
+
+         for (int k = 12; k < 16; k++) {
+             data[headCounter++]= (quint8)0x00;
+         }
+
+         data[headCounter++] = (quint8)fields[i].getFieldLength();
+         data[headCounter++] = (quint8)fields[i].getDecimalCount();
+
+         for(int k = 18; k < 32; k++) {
+             data[headCounter++]= (quint8)0x00;
+         }
      }
-     data[headCounter++]= (quint8)0x0D; 
+
+     data[headCounter++] = (quint8)0x0D;
         
-     for(int rec=0; rec< recNum; rec++){
-             QVector<QString> vec = record.at(rec);
-             data.append(QChar(0x20));
-             for(int field=0; field<countFields; field++){
-                     int fieldLength = fields[field].getFieldLength();
-                     if(fields[field].getDecimalCount() > 0) {
-                         QString str = vec.at(field);
-                         QStringList strlist = str.split(".");
-                         int frontLength = fieldLength - 1 - fields[field].getDecimalCount();
+     for (int rec = 0; rec < recNum; rec++) {
 
-                         if(strlist.at(0).contains('-')) {
-                             data.append(QString("-"));
-                             data.append(strlist.at(0).right(strlist.at(0).length() - 1).rightJustified(frontLength-1, QChar(0x30)));
-                         } else {
+         QVector<QString> vec = record.at(rec);
+         data.append(QChar(0x20));
 
-                             data.append(strlist.at(0).rightJustified(frontLength, QChar(0x30)));
-                         }
-                         data.append(".");
-                         data.append(strlist.at(1).leftJustified(fields[field].getDecimalCount(), QChar(0x30)));
-                     } else {
-                         data.append(vec.at(field).rightJustified(fieldLength, QChar(0x30)));
-                     }
-
-             }        
+         for (int field = 0; field < countFields; field++) {
+             int fieldLength = fields[field].getFieldLength();
+             if (fields[field].getDecimalCount() > 0) {
+                 QString str = vec.at(field);
+                 QStringList strlist = str.split(".");
+                 int frontLength = fieldLength - 1 - fields[field].getDecimalCount();
+                 if (strlist.at(0).contains('-')) {
+                     data.append(QString("-"));
+                     data.append(strlist.at(0).right(strlist.at(0).length() - 1).rightJustified(frontLength-1, QChar(0x30)));
+                 }
+                 else {
+                     data.append(strlist.at(0).rightJustified(frontLength, QChar(0x30)));
+                 }
+                 data.append(".");
+                 data.append(strlist.at(1).leftJustified(fields[field].getDecimalCount(), QChar(0x30)));
+             }
+             else {
+                 data.append(vec.at(field).rightJustified(fieldLength, QChar(0x30)));
+             }
+         }
      }
      
      data.append(QChar(0x1A));
      
      QFile o_file(fileName);
-     if (!o_file.open(QIODevice::WriteOnly)){
+
+     if (!o_file.open(QIODevice::WriteOnly)) {
         error = "kann Out-Datei: '" + fileName + "' nicht oeffnen\n Grund: " + o_file.error();
         return false;
      }
+
      o_file.write(data);
      o_file.close();
+
      return true;
 }
 
@@ -165,16 +180,16 @@ void DbaseWriter::addRecord()
 void DbaseWriter::setRecordField(int num, QString value)
 {
      ((record.last()))[num] = QString(value);
-     if(value.size() > fields[num].getFieldLength()){
-             fields[num].setFieldLength(value.size());        
+     if (value.size() > fields[num].getFieldLength()) {
+         fields[num].setFieldLength(value.size());
      }
 }
 
 void DbaseWriter::setRecordField(QString name, QString value)
 {
-     if(hash.contains(name)){
-           int field = hash[name];
-           setRecordField(field, value);                         
+     if (hash.contains(name)) {
+         int field = hash[name];
+         setRecordField(field, value);
      }
 }
 
@@ -182,8 +197,8 @@ void DbaseWriter::setRecordField(int num, float value)
 {    
      int decimalCount = fields[num].getDecimalCount();
      
-     //round
-     value *= pow( 10, decimalCount);
+     // round
+     value *= pow(10, decimalCount);
      value = round(value);
      value *= pow(10, -decimalCount);
           
@@ -194,9 +209,8 @@ void DbaseWriter::setRecordField(int num, float value)
 
 void DbaseWriter::setRecordField(QString name, float value)
 {
-     if(hash.contains(name)){
-           int field = hash[name];
-           setRecordField(field, value);                         
+     if (hash.contains(name)) {
+         int field = hash[name];
+         setRecordField(field, value);
      }
 }
-

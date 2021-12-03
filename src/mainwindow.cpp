@@ -19,14 +19,13 @@
 
 #include "mainwindow.h"
 
-MainWindow::MainWindow(QApplication* app)
-        :QMainWindow(),
-        userStop(false),
-        calc(0),
-        app(app),
-        folder("/")
+MainWindow::MainWindow(QApplication* app):
+    QMainWindow(),
+    userStop(false),
+    calc(0),
+    app(app),
+    folder("/")
 {
-
     openAct = new QAction(tr("&Compute File"), this);
     openAct->setShortcut(tr("Ctrl+C"));
     connect(openAct, SIGNAL(triggered()), this, SLOT(computeFile()));
@@ -57,7 +56,6 @@ MainWindow::MainWindow(QApplication* app)
 
 MainWindow::~MainWindow()
 {
-
     delete textfield;
     delete openAct;
     delete aboutAct;
@@ -75,9 +73,11 @@ void MainWindow::userCancel()
 {
     userStop = true;
     setText("Berechnungen abgebrochen.");
-    if (calc!=0) {
+
+    if (calc != 0) {
         calc->stop();
     }
+
     app->processEvents(QEventLoop::ExcludeUserInputEvents);
 }
 
@@ -97,19 +97,17 @@ void MainWindow::setText(QString info)
 void MainWindow::critical(QString str)
 {
     progress->close();
-    QMessageBox::critical(
-        this, "Abimo 3.2",
-        str
-    );
+    QMessageBox::critical(this, "Abimo 3.2", str);
 }
 
 void MainWindow::computeFile()
 {
     QString file = QFileDialog::getOpenFileName(
-                       this,
-                       "Daten einlesen von...",
-                       folder,
-                       "dBase (*.dbf)");
+        this,
+        "Daten einlesen von...",
+        folder,
+        "dBase (*.dbf)"
+    );
 
     if (file != NULL) {
 
@@ -117,19 +115,20 @@ void MainWindow::computeFile()
         repaint();
         //processEvent(0, "Lese Datei.");
 
-        //open a DBASE File
+        // Open a DBASE File
         DbaseReader dbReader(file);
+
         if (dbReader.read()) {
 
             if (!dbReader.isAbimoFile()) {
                 critical(
                     "Die Datei '" + file + "' ist kein valider 'Input File',\n" +
-                    "überprüfen sie die Spaltennamen und die Vollständigkeit."
+                    "Ueberpruefen sie die Spaltennamen und die Vollstaendigkeit."
                 );
                 return;
             }
 
-            //read initial values from XML
+            // Read initial values from XML
             InitValues initValues;
             QString configFileName("config.xml");
             QFile initFile(configFileName);
@@ -143,7 +142,7 @@ void MainWindow::computeFile()
                 if (!xmlReader.parse(&data)) {
                     QMessageBox::warning(
                         this, "Abimo 3.2",
-                        "'"+configFileName+"': korrupte Datei.\n"
+                        "'" + configFileName + "': korrupte Datei.\n"
                         "Nutze Standardwerte."
                     );
                 }
@@ -151,8 +150,8 @@ void MainWindow::computeFile()
 
                     QMessageBox::warning(
                         this, "Abimo 3.2",
-                        "'"+configFileName+"': fehlende Werte.\n"
-                        "Ergänze mit Standardwerten."
+                        "'" + configFileName + "': fehlende Werte.\n"
+                        "Ergaenze mit Standardwerten."
                     );
                 }
                 initFile.close();
@@ -160,23 +159,25 @@ void MainWindow::computeFile()
             } else {
                 QMessageBox::warning(
                     this, "Abimo 3.2",
-                    "Keine '"+configFileName+"': gefunden.\n"
+                    "Keine '" + configFileName + "': gefunden.\n"
                     "Nutze Standardwerte."
                 );
             }
 
-            setText("Quelldatei eingelesen, wählen sie eine Zieldatei...");
+            setText("Quelldatei eingelesen, waehlen sie eine Zieldatei...");
             userStop = false;
 
             QFileInfo infoFile(file);
             folder = infoFile.absolutePath();
             QString base = infoFile.baseName();
             QString outFileString(folder + "/" + base + "out.dbf");
+
             QString outFile = QFileDialog::getSaveFileName(
-                                  this,
-                                  "Ergebnisse schreiben nach...",
-                                  outFileString,
-                                  "dBase (*.dbf)");
+                this,
+                "Ergebnisse schreiben nach...",
+                outFileString,
+                "dBase (*.dbf)"
+            );
 
             QFileInfo infoOutFile(outFile);
             QString folderOut = infoOutFile.absolutePath();
@@ -216,32 +217,35 @@ void MainWindow::computeFile()
                                 "Protokoll in Datei: '" + protokollFileName + "' geschrieben."
                             );
                             protokollStream << "\r\nBei der Berechnung traten " << protCount << " Fehler auf.\r\n";
-                            if (calc->getKeineFlaechenAngegeben() != 0)protokollStream << "\r\nBei " + keineFlaechenAngegeben + " Flächen deren Wert 0 war wurde 100 eingesetzt.\r\n";
+                            if (calc->getKeineFlaechenAngegeben() != 0)protokollStream << "\r\nBei " + keineFlaechenAngegeben + " Flaechen deren Wert 0 war wurde 100 eingesetzt.\r\n";
                             if (calc->getNutzungIstNull() != 0)protokollStream << "\r\nBei " + nutzungIstNull + " Records war die Nutzung 0, diese wurden ignoriert.\r\n";
                             if (calc->getTotalBERtoZeroForced() != 0)protokollStream << "\r\nBei " << calc->getTotalBERtoZeroForced() << " Records wurde BER==0 erzwungen.\r\n";
                             protokollStream << "\r\nEingelesene Records: " + readRecCount +"\r\n";
                             protokollStream << "\r\nGeschriebene Records: " + writeRecCount +"\r\n";
                             protokollStream << "\r\nEnde der Berechnung am: " + QDateTime::currentDateTime().toString("dd.MM.yyyy") + " um: " + QDateTime::currentDateTime().toString("hh:mm:ss") + "\r\n";
-
-
                         }
-                    } else {
+                    }
+                    else {
                         critical(calc->getError());
                     }
                     delete calc;
                     calc = 0;
                     protokollFile.close();
-                } else {
+                }
+                else {
                     critical("Konnte Datei: '" + protokollFileName + "' nicht Oeffnen.\n" +initFile.error());
                 }
-            } else {
+            }
+            else {
                 setText("Willkommen...");
             }
 
-        } else {
+        }
+        else {
             critical(
                 "Problem beim Oeffnen der Datei: '" + file + "' aufgetreten.\n"
-                "Grund: " + dbReader.getError());
+                "Grund: " + dbReader.getError()
+            );
         }
     }
 }

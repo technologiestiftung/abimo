@@ -19,26 +19,28 @@
 
 #include "saxhandler.h"
 
-SaxHandler::SaxHandler(InitValues &iV):state(0), initValues(iV) {}
+SaxHandler::SaxHandler(InitValues &iV):
+    state(0),
+    initValues(iV)
+{}
 
-bool SaxHandler::startElement(const QString &, const QString &,
-                              const QString &qName,
-                              const QXmlAttributes &attribs)
-{
+bool SaxHandler::startElement(
+    const QString &, const QString &,
+    const QString &qName,
+    const QXmlAttributes &attribs
+) {
 
     if (qName == "section") {
+
         if (attribs.value("name") == "Infiltrationsfaktoren") {
             state = Infiltrationsfaktoren;
         }
-
         else if (attribs.value("name") == "Bagrovwerte") {
             state = Bagrovwerte;
         }
-
         else if (attribs.value("name") == "ErgebnisNachkommaStellen") {
             state = Nachkomma;
         }
-
         else if (attribs.value("name") == "Diverse") {
             state = Diverse;
         }
@@ -49,6 +51,7 @@ bool SaxHandler::startElement(const QString &, const QString &,
             state = PotVerd;
         }
     }
+
     if (qName == "item") {
         switch (state) {
         case Infiltrationsfaktoren :
@@ -114,8 +117,6 @@ void SaxHandler::gewVerdEntry(const QXmlAttributes &attribs)
 {
     initValues.putToHash(attribs.value("bezirke"), attribs.value("eg").toInt(), 13);
 }
-
-
 
 void SaxHandler::potVerdEntry(const QXmlAttributes &attribs)
 {

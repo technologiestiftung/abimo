@@ -49,7 +49,6 @@ InitValues::InitValues():
         niedKorrF(1.09f),
 
         countSets(0)
-
 {
 
 }
@@ -61,102 +60,102 @@ InitValues::~InitValues()
 
 void InitValues::setInfdach(float v) {
     infdach = v;
-    countSets|=1;
+    countSets |= 1;
 }
 
 void InitValues::setInfbel1(float v) {
     infbel1 = v;
-    countSets|=2;
+    countSets |= 2;
 }
 
 void InitValues::setInfbel2(float v) {
     infbel2 = v;
-    countSets|=4;
+    countSets |= 4;
 }
 
 void InitValues::setInfbel3(float v) {
     infbel3 = v;
-    countSets|=8;
+    countSets |= 8;
 }
 
 void InitValues::setInfbel4(float v) {
     infbel4 = v;
-    countSets|=16;
+    countSets |= 16;
 }
 
 void InitValues::setBagdach(float v) {
     bagdach = v;
-    countSets|=32;
+    countSets |= 32;
 }
 
 void InitValues::setBagbel1(float v) {
     bagbel1 = v;
-    countSets|=64;
+    countSets |= 64;
 }
 
 void InitValues::setBagbel2(float v) {
     bagbel2 = v;
-    countSets|=128;
+    countSets |= 128;
 }
 
 void InitValues::setBagbel3(float v) {
     bagbel3 = v;
-    countSets|=256;
+    countSets |= 256;
 }
 
 void InitValues::setBagbel4(float v) {
     bagbel4 = v;
-    countSets|=512;
+    countSets |= 512;
 }
 
 void InitValues::setDecR(int v) {
     decR = v;
-    countSets|=1024;
+    countSets |= 1024;
 }
 
 void InitValues::setDecROW(int v) {
     decROW = v;
-    countSets|=2048;
+    countSets |= 2048;
 }
 
 void InitValues::setDecRI(int v) {
     decRI = v;
-    countSets|=4096;
+    countSets |= 4096;
 }
 
 void InitValues::setDecRVOL(int v) {
     decRVOL = v;
-    countSets|=8192;
+    countSets |= 8192;
 }
 
 void InitValues::setDecROWVOL(int v) {
     decROWVOL = v;
-    countSets|=16384;
+    countSets |= 16384;
 }
 
 void InitValues::setDecRIVOL(int v) {
     decRIVOL = v;
-    countSets|=32768;
+    countSets |= 32768;
 }
 
 void InitValues::setDecFLAECHE(int v) {
     decFLAECHE = v;
-    countSets|=65536;
+    countSets |= 65536;
 }
 
 void InitValues::setDecVERDUNSTUNG(int v) {
     decVERDUNSTUNG = v;
-    countSets|=131072;
+    countSets |= 131072;
 }
 
 void InitValues::setBERtoZero(bool v) {
     BERtoZero = v;
-    countSets|=262144;
+    countSets |= 262144;
 }
 
 void InitValues::setNiedKorrF(float v) {
     niedKorrF = v;
-    countSets|=524288;
+    countSets |= 524288;
 }
 
 float InitValues::getInfdach()
@@ -252,12 +251,13 @@ void InitValues::putToHash(QString bezirkeString, int value, int hashtyp) {
 
     if (hashtyp == 11) {
         putToHashL(bezirkeString, value, hashETP);
-    } else if (hashtyp == 12) {
+    }
+    else if (hashtyp == 12) {
         putToHashL(bezirkeString, value, hashETPS);
-    } else if (hashtyp == 13) {
+    }
+    else if (hashtyp == 13) {
         putToHashL(bezirkeString, value, hashEG);
     }
-
 }
 
 void InitValues::putToHashL(QString bezirkeString, int value, QHash<int, int> &hash) {
@@ -265,7 +265,9 @@ void InitValues::putToHashL(QString bezirkeString, int value, QHash<int, int> &h
     if (bezirkeString.length() == 0) {
         bezirkeString = "0";
     }
+
     QStringList bezlist = bezirkeString.split(",", QString::SkipEmptyParts);
+
     for (int i = 0; i < bezlist.size(); ++i) {
         QString bezBereich = bezlist.at(i).trimmed();
         if (bezBereich.contains("-")) {
@@ -275,7 +277,8 @@ void InitValues::putToHashL(QString bezirkeString, int value, QHash<int, int> &h
             for (int bezirk=min; bezirk <= max; ++bezirk) {
                 hash[bezirk] = value;
             }
-        } else {
+        }
+        else {
             hash[bezBereich.toInt()] = value;
         }
     }
