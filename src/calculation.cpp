@@ -19,43 +19,65 @@
 
 #include "calculation.h"
 
-static float EKA[]=  {0.04176F  ,-0.647F   ,0.218F    , 0.01472F ,0.0002089F,
-                      0.04594F  ,-0.314F   ,0.417F    , 0.02463F ,0.0001143F,
-                      0.05177F  ,-0.010F   ,0.596F    , 0.02656F ,0.0002786F,
-                      0.05693F  , 0.033F   ,0.676F    , 0.0279F  ,0.00035F  ,
-                      0.06162F  , 0.176F   ,0.773F    , 0.02809F ,0.0004695F,
-                      0.06962F  , 0.24F    ,0.904F    , 0.02562F ,0.0007149F,
-                      0.0796F   , 0.31F    ,1.039F    , 0.0288F  ,0.0008696F,
-                      0.07998F  , 0.7603F  ,1.2F      , 0.0471F  ,0.000293F ,
-                      0.08762F  , 1.019F   ,1.373F    , 0.04099F ,0.0014141F,
-                      0.11833F  , 1.1334F  ,1.95F     , 0.0525F  ,0.00125F  ,
-                      0.155F    , 1.5F     ,2.64999F  , 0.0725F  ,0.001249F ,
-                      0.20041F  , 2.0918F  ,3.69999F  , 0.08F    ,0.001999F ,
-                      0.33895F  , 3.721F   ,6.69999F  ,-0.07F    ,0.013F
-                     };
+static float EKA[]= {
+    0.04176F, -0.647F , 0.218F  ,  0.01472F, 0.0002089F,
+    0.04594F, -0.314F , 0.417F  ,  0.02463F, 0.0001143F,
+    0.05177F, -0.010F , 0.596F  ,  0.02656F, 0.0002786F,
+    0.05693F,  0.033F , 0.676F  ,  0.0279F , 0.00035F  ,
+    0.06162F,  0.176F , 0.773F  ,  0.02809F, 0.0004695F,
+    0.06962F,  0.24F  , 0.904F  ,  0.02562F, 0.0007149F,
+    0.0796F ,  0.31F  , 1.039F  ,  0.0288F , 0.0008696F,
+    0.07998F,  0.7603F, 1.2F    ,  0.0471F , 0.000293F ,
+    0.08762F,  1.019F , 1.373F  ,  0.04099F, 0.0014141F,
+    0.11833F,  1.1334F, 1.95F   ,  0.0525F , 0.00125F  ,
+    0.155F  ,  1.5F   , 2.64999F,  0.0725F , 0.001249F ,
+    0.20041F,  2.0918F, 3.69999F,  0.08F   , 0.001999F ,
+    0.33895F,  3.721F , 6.69999F, -0.07F   , 0.013F
+};
 
-static float iTAS[] = {0.1F, 0.2F, 0.3F, 0.4F, 0.5F, 0.6F, 0.7F, 0.8F,
-                       0.9F, 1.0F, 1.2F, 1.4F, 1.7F, 2.0F, 2.3F
-                      };
+static float iTAS[] = {
+    0.1F, 0.2F, 0.3F, 0.4F, 0.5F, 0.6F, 0.7F, 0.8F,
+    0.9F, 1.0F, 1.2F, 1.4F, 1.7F, 2.0F, 2.3F
+};
 
 // Sande
-static float inFK_S[] = {8.0F, 9.0F, 14.0F, 14.5F, 15.5F, 17.0F, 20.5F };
+static float inFK_S[] = {
+    8.0F, 9.0F, 14.0F, 14.5F, 15.5F, 17.0F, 20.5F
+};
 
-static float ijkr_S[] = {7.0F,6.0F,5.0F,1.5F,0.5F,0.2F,0.1F,0.0F,0.0F,0.0F,0.0F,0.0F,0.0F,0.0F,0.0F,
-                         7.0F,7.0F,6.0F,5.0F,3.0F,1.2F,0.5F,0.2F,0.1F,0.0F,0.0F,0.0F,0.0F,0.0F,0.0F,
-                         7.0F,7.0F,6.0F,6.0F,5.0F,3.0F,1.5F,0.7F,0.3F,0.15F,0.1F,0.0F,0.0F,0.0F,0.0F,
-                         7.0F,7.0F,6.0F,6.0F,5.0F,3.0F,2.0F,1.0F,0.7F,0.4F,0.15F,0.1F,0.0F,0.0F,0.0F,
-                         7.0F,7.0F,6.0F,6.0F,5.0F,4.5F,2.5F,1.5F,0.7F,0.4F,0.15F,0.1F,0.0F,0.0F,0.0F,
-                         7.0F,7.0F,6.0F,6.0F,5.0F,5.0F,3.5F,2.0F,1.5F,0.8F,0.3F,0.1F,0.05F,0.0F,0.0F,
-                         7.0F,7.0F,6.0F,6.0F,6.0F,5.0F,5.0F,5.0F,3.0F,2.0F,1.0F,0.5F,0.15F,0.0F,0.0F
-                        };
+static float ijkr_S[] = {
+    7.0F, 6.0F, 5.0F, 1.5F, 0.5F, 0.2F, 0.1F, 0.0F, 0.0F, 0.0F,  0.0F , 0.0F, 0.0F , 0.0F, 0.0F,
+    7.0F, 7.0F, 6.0F, 5.0F, 3.0F, 1.2F, 0.5F, 0.2F, 0.1F, 0.0F,  0.0F , 0.0F, 0.0F , 0.0F, 0.0F,
+    7.0F, 7.0F, 6.0F, 6.0F, 5.0F, 3.0F, 1.5F, 0.7F, 0.3F, 0.15F, 0.1F , 0.0F, 0.0F , 0.0F, 0.0F,
+    7.0F, 7.0F, 6.0F, 6.0F, 5.0F, 3.0F, 2.0F, 1.0F, 0.7F, 0.4F,  0.15F, 0.1F, 0.0F , 0.0F, 0.0F,
+    7.0F, 7.0F, 6.0F, 6.0F, 5.0F, 4.5F, 2.5F, 1.5F, 0.7F, 0.4F,  0.15F, 0.1F, 0.0F , 0.0F, 0.0F,
+    7.0F, 7.0F, 6.0F, 6.0F, 5.0F, 5.0F, 3.5F, 2.0F, 1.5F, 0.8F,  0.3F , 0.1F, 0.05F, 0.0F, 0.0F,
+    7.0F, 7.0F, 6.0F, 6.0F, 6.0F, 5.0F, 5.0F, 5.0F, 3.0F, 2.0F,  1.0F , 0.5F, 0.15F, 0.0F, 0.0F
+};
 
 Calculation::Calculation(DbaseReader & dbR,InitValues & init, QTextStream & protoStream):
-        initValues(init), protokollStream(protoStream), dbReader(dbR),
-        protcount(0), regenja(0), regenso(0), RDV(0), R1V(0), R2V(0),
-        R3V(0), R4V(0), RUV(0), ROWVOL(0), RIVOL(0), RVOL(0), TAS(0),
-        lenTAS(15), lenS(7), totalRecWrite(0), totalRecRead(0), totalBERtoZeroForced(0),
-        weiter(true)
+    initValues(init),
+    protokollStream(protoStream),
+    dbReader(dbR),
+    protcount(0),
+    regenja(0),
+    regenso(0),
+    RDV(0),
+    R1V(0),
+    R2V(0),
+    R3V(0),
+    R4V(0),
+    RUV(0),
+    ROWVOL(0),
+    RIVOL(0),
+    RVOL(0),
+    TAS(0),
+    lenTAS(15),
+    lenS(7),
+    totalRecWrite(0),
+    totalRecRead(0),
+    totalBERtoZeroForced(0),
+    weiter(true)
 {}
 
 void Calculation::stop() {
@@ -95,14 +117,13 @@ QString Calculation::getError() {
 
 /**
  =======================================================================================================================
-    I m p o r t D B () Diese Funktion importiert die Datensätze aus der DBASE-Datei FileName in das DA Feld ein
-    (GWD-Daten). Parameter: out-file Rückgabewert: BOOL TRUE, wenn das Einlesen der Datei
+    I m p o r t D B () Diese Funktion importiert die Datensaetze aus der DBASE-Datei FileName in das DA Feld ein
+    (GWD-Daten). Parameter: out-file Rueckgabewert: BOOL TRUE, wenn das Einlesen der Datei
     erfolgreich war.
  =======================================================================================================================
  */
 bool Calculation::calc(QString   fileOut)
 {
-
     /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
     /* Variablen zur Berechnung */
     int    index = 0;
@@ -111,19 +132,19 @@ bool Calculation::calc(QString   fileOut)
     float  fb, fs, fbant, fsant;
     float  row1, row2, row3, row4;
     float  ri1, ri2, ri3, ri4;
-    float  rowd, rid;                /* Dachflächen */
-    float  rowuvs, riuvs;        /* unversiegelte Str.-fläche */
-    float  riuv;                        /* unversiegelte Fläche */
-    float  r, ri, row;                /* float-Zwischenwerte */
+    float  rowd, rid;     /* Dachflaechen */
+    float  rowuvs, riuvs; /* unversiegelte Str.-flaeche */
+    float  riuv;          /* unversiegelte Flaeche */
+    float  r, ri, row;    /* float-Zwischenwerte */
 
     niedKorrFaktor = initValues.getNiedKorrF();
 
-    /* zählen der protokolleinträge */
+    /* Zaehlen der Protokolleintraege */
     protcount = 0L;
     keineFlaechenAngegeben = 0L;
     nutzungIstNull = 0L;
 
-    /* Starteintrag ins protokoll */
+    /* Starteintrag ins Protokoll */
 
     DbaseWriter writer(fileOut, initValues);
 
@@ -156,17 +177,17 @@ bool Calculation::calc(QString   fileOut)
             /* cls_6a: an dieser Stelle muss garantiert werden, dass f30 und f150
                als Parameter von getNutz einen definierten Wert erhalten und zwar 0.
 
-               FIXED: alle werte sind definiert... wenn keine 0, sondern nichts b.z.w. leerzeichen angegeben wurden
+               FIXED: alle Werte sind definiert... wenn keine 0, sondern nichts bzw. Leerzeichen angegeben wurden
                wird nun eine 0 eingesetzt
                aber eigentlich war das auch schon so ... ???
             */
 
-            /* Bagrov-Berechnung für versiegelte Flächen */
+            /* Bagrov-Berechnung fuer versiegelte Flaechen */
             getKLIMA((dbReader.getRecord(k, "BEZIRK")).toInt(), codestr);
 
             /* Dateneingabe */
-            vgd = (dbReader.getRecord(k, "PROBAU")).toFloat() / 100.0F; /* Dachflächen */
-            vgb = (dbReader.getRecord(k, "PROVGU")).toFloat() / 100.0F; /* Hofflächen */
+            vgd = (dbReader.getRecord(k, "PROBAU")).toFloat() / 100.0F; /* Dachflaechen */
+            vgb = (dbReader.getRecord(k, "PROVGU")).toFloat() / 100.0F; /* Hofflaechen */
             ptrDA.VER = (int)round((vgd * 100) + (vgb * 100));
             vgs = (dbReader.getRecord(k, "VGSTRASSE")).toFloat() / 100.0F;
             kd = (dbReader.getRecord(k, "KAN_BEB")).toFloat() / 100.0F;
@@ -186,7 +207,7 @@ bool Calculation::calc(QString   fileOut)
 
             if (fb + fs < 0.0001)
             {
-                //*protokollStream << "\r\nDie Fläche des Elements " + codestr + " ist 0 \r\nund wird automatisch auf 100 gesetzt\r\n";
+                //*protokollStream << "\r\nDie Flaeche des Elements " + codestr + " ist 0 \r\nund wird automatisch auf 100 gesetzt\r\n";
                 protcount++;
                 keineFlaechenAngegeben++;
                 fb = 100.0F;
@@ -195,7 +216,7 @@ bool Calculation::calc(QString   fileOut)
             fbant = fb / (fb + fs);
             fsant = fs / (fb + fs);
 
-            /* Abfluss für versiegelte Flächen */
+            /* Abfluss fuer versiegelte Flaechen */
             /* cls_1: Fehler a:
                rowd = (1.0F - initValues.getInfdach()) * vgd * kb * fbant * RDV;
                richtige Zeile folgt (kb ----> kd)
@@ -206,27 +227,27 @@ bool Calculation::calc(QString   fileOut)
             row3 = (1.0F - initValues.getInfbel3()) * (bl3 * kb * vgb * fbant + bls3 * ks * vgs * fsant) * R3V;
             row4 = (1.0F - initValues.getInfbel4()) * (bl4 * kb * vgb * fbant + bls4 * ks * vgs * fsant) * R4V;
 
-            /* Infiltration für versiegelte Flächen */
+            /* Infiltration fuer versiegelte Flaechen */
             rid = (1 - kd) * vgd * fbant * RDV;
             ri1 = (bl1 * vgb * fbant + bls1 * vgs * fsant) * R1V - row1;
             ri2 = (bl2 * vgb * fbant + bls2 * vgs * fsant) * R2V - row2;
             ri3 = (bl3 * vgb * fbant + bls3 * vgs * fsant) * R3V - row3;
             ri4 = (bl4 * vgb * fbant + bls4 * vgs * fsant) * R4V - row4;
 
-            /* Unversiegelte Strassenfläche werden wie Belag 4 behandelt: */
-            rowuvs = 0.0F;        /* old: 0.11F * (1-vgs) * fsant * R4V; */
-            riuvs = (1 - vgs) * fsant * R4V;        /* old: 0.89F * (1-vgs) * fsant * R4V;  */
+            /* Unversiegelte Strassenflaeche werden wie Belag 4 behandelt: */
+            rowuvs = 0.0F;                   /* old: 0.11F * (1-vgs) * fsant * R4V; */
+            riuvs = (1 - vgs) * fsant * R4V; /* old: 0.89F * (1-vgs) * fsant * R4V; */
 
-            /* Abfluss für unversiegelte Fläche rowuv = 0 */
+            /* Abfluss fuer unversiegelte Flaeche rowuv = 0 */
             riuv = (100.0F - (float) ptrDA.VER) / 100.0F * RUV;
 
-            /* Berechnung des Abflusses für die gesamte Blockteilfläche (FLGES+STR_FLGES) */
-            row = (row1 + row2 + row3 + row4 + rowd + rowuvs);        /* mm/a */
+            /* Berechnung des Abflusses fuer die gesamte Blockteilflaeche (FLGES+STR_FLGES) */
+            row = (row1 + row2 + row3 + row4 + rowd + rowuvs); /* mm/a */
             ptrDA.ROW = (int)round(row);
-            ROWVOL = row * 3.171F * (fb + fs) / 100000.0F;                /* qcm/s */
-            ri = (ri1 + ri2 + ri3 + ri4 + rid + riuvs + riuv);        /* mm/a */
+            ROWVOL = row * 3.171F * (fb + fs) / 100000.0F;     /* qcm/s */
+            ri = (ri1 + ri2 + ri3 + ri4 + rid + riuvs + riuv); /* mm/a */
             ptrDA.RI = (int)round(ri);
-            RIVOL = ri * 3.171F * (fb + fs) / 100000.0F;                /* qcm/s */
+            RIVOL = ri * 3.171F * (fb + fs) / 100000.0F;       /* qcm/s */
             r = row + ri;
             ptrDA.R = (int)round(r);
             RVOL = ROWVOL + RIVOL;
@@ -253,24 +274,23 @@ bool Calculation::calc(QString   fileOut)
             nutzungIstNull++;
 
         }
-        /* cls_2: hier könnten falls gewünscht die Flächen dokumentiert werden,
+        /* cls_2: Hier koennten falls gewuenscht die Flaechen dokumentiert werden,
            deren NUTZUNG=NULL (siehe auch cls_3)
         */
         float tmp = (k) * 50;
         float prog = tmp/(float)totalRecRead;
-        emit processSignal((int)(prog),"Berechne");
+        emit processSignal((int)(prog), "Berechne");
     }
 
     totalRecWrite = index;
 
-    emit processSignal(50,"Schreibe Ergebnisse.");
+    emit processSignal(50, "Schreibe Ergebnisse.");
 
     if (!writer.write()) {
         protokollStream << "Error: "+ writer.getError() +"\r\n";
         error = "Fehler beim Schreiben der Ergebnisse.\n" + writer.getError();
         return false;
     }
-
 
     return true;
 }
@@ -282,19 +302,18 @@ bool Calculation::calc(QString   fileOut)
  */
 void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
 {
-
-
-    /* globale Größen für den aktuellen Record */
-    float        TWS;        /* Durchwurzelungstiefe */
-    float        kr;                /* mittlere pot. kapillare Aufstiegsrate d. Sommerhalbjahres */
-    int                dw;                /* mittlere Zahl der Wachstumstage */
+    /* globale Groessen fuer den aktuellen Record */
+    float TWS; /* Durchwurzelungstiefe */
+    float kr;  /* mittlere pot. kapillare Aufstiegsrate d. Sommerhalbjahres */
+    int   dw;  /* mittlere Zahl der Wachstumstage */
 
     /*
-     * Feldlängen von iTAS und inFK_S, L, T, U ;
+     * Feldlaengen von iTAS und inFK_S, L, T, U ;
      * extern int lenTAS, lenS, lenL, lenT, lenU;
      */
     ptrDA.ERT = 0;
     ptrDA.BER = 0;
+
     switch (nutz)
     {
     case 10:
@@ -421,14 +440,14 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
         case 72:
         case 73:
         case 74:
-            /* cls_4: Baustrukturtypen 73 und 74 neu eingeführt - werden behandelt wie 72
+            /* cls_4: Baustrukturtypen 73 und 74 neu eingefuehrt - werden behandelt wie 72
             */
             ptrDA.NUT = 'L';
             ptrDA.ERT = 50;
             break;
 
         default:
-            protokollStream << "\r\nNutzungstyp nicht definiert für Element " + codestr +  "\r\nTyp=72 angenommen\r\n";
+            protokollStream << "\r\nNutzungstyp nicht definiert fuer Element " + codestr +  "\r\nTyp=72 angenommen\r\n";
             protcount++;
             ptrDA.NUT = 'L';
             ptrDA.ERT = 50;
@@ -450,7 +469,7 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
             break;
 
         default:
-            protokollStream << "\r\nNutzungstyp nicht definiert für Element " + codestr + "\r\nTyp=31 angenommen\r\n";
+            protokollStream << "\r\nNutzungstyp nicht definiert fuer Element " + codestr + "\r\nTyp=31 angenommen\r\n";
             protcount++;
             ptrDA.NUT = 'L';
             ptrDA.ERT = 30;
@@ -541,7 +560,7 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
             break;
 
         default:
-            protokollStream << "\r\nNutzungstyp nicht definiert für Element " + codestr + "\r\nTyp=60 angenommen\r\n";
+            protokollStream << "\r\nNutzungstyp nicht definiert fuer Element " + codestr + "\r\nTyp=60 angenommen\r\n";
             protcount++;
             ptrDA.NUT = 'L';
             ptrDA.ERT = 45;
@@ -563,7 +582,7 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
         }
         else
         {
-            protokollStream << "\r\nNutzungstyp nicht definiert für Element " + codestr + "\r\nTyp=59 angenommen\r\n";
+            protokollStream << "\r\nNutzungstyp nicht definiert fuer Element " + codestr + "\r\nTyp=59 angenommen\r\n";
             protcount++;
             ptrDA.NUT = 'K';
             ptrDA.ERT = 40;
@@ -600,7 +619,7 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
             break;
 
         default:
-            protokollStream << "\r\nNutzungstyp nicht definiert für Element " + codestr + "\r\nTyp=99 angenommen\r\n";
+            protokollStream << "\r\nNutzungstyp nicht definiert fuer Element " + codestr + "\r\nTyp=99 angenommen\r\n";
             protcount++;
             ptrDA.NUT = 'L';
             ptrDA.ERT = 10;
@@ -617,7 +636,7 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
         }
         else
         {
-            protokollStream << "\r\nNutzungstyp nicht definiert für Element " + codestr + "\r\nTyp=98 angenommen\r\n";
+            protokollStream << "\r\nNutzungstyp nicht definiert fuer Element " + codestr + "\r\nTyp=98 angenommen\r\n";
             protcount++;
             ptrDA.NUT = 'D';
             ptrDA.ERT = 1;
@@ -630,7 +649,7 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
             ptrDA.NUT = 'W';
         else
         {
-            protokollStream << "\r\nNutzungstyp nicht definiert für Element " + codestr + "\r\nTyp=55 angenommen\r\n";
+            protokollStream << "\r\nNutzungstyp nicht definiert fuer Element " + codestr + "\r\nTyp=55 angenommen\r\n";
             protcount++;
             ptrDA.NUT = 'W';
         }
@@ -738,33 +757,33 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
 
     default:
         /*
-           *protokollStream << "\r\nNutzungstyp nicht definiert für Element " + codestr + "\r\nTyp=200 angenommen\r\n";
+           *protokollStream << "\r\nNutzungstyp nicht definiert fuer Element " + codestr + "\r\nTyp=200 angenommen\r\n";
            protcount++;
            ptrDA.NUT = 'L';
            ptrDA.ERT = 50;
            ptrDA.BER = 50;
            cls_3: dies ist nicht korrekt, da die Nutzung und nicht der Nutzungstyp im switch liegt
-           und ein NULL in NUTZUNG hoffentlich immer zu nutzung=0 führt, wenn oben
+           und ein NULL in NUTZUNG hoffentlich immer zu nutzung=0 fuehrt, wenn oben
            int nutzung = dbReader.getRecord(k, "NUTZUNG").toInt();
            aufgerufen wird (siehe auch cls_2) -
            deshalb folgende Fehlermeldung
         */
-        protokollStream << "\r\nDiese  Meldung sollte nie erscheinen: \r\nNutzung nicht definiert für Element " + codestr + "\r\n";
+        protokollStream << "\r\nDiese  Meldung sollte nie erscheinen: \r\nNutzung nicht definiert fuer Element " + codestr + "\r\n";
         break;
     }
 
     if (ptrDA.NUT != 'G')
     {
-        /* pot. Aufstiegshöhe TAS = FLUR - mittl. Durchwurzelungstiefe TWS */
+        /* pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS */
         TWS = getTWS(ptrDA.ERT, ptrDA.NUT);
         TAS = ptrDA.FLW - TWS;
 
-        /* Feldkapazität */
+        /* Feldkapazitaet */
         /* cls_6b: der Fall der mit NULL belegten FELD_30 und FELD_150 Werte
            wird hier im erten Fall behandelt - ich erwarte dann den Wert 0 */
         if (min(f30, f150)<1)
             ptrDA.nFK = 13.0F;
-        else if (abs(f30 - f150) < min(f30, f150))       /* unwesentliche Abweichung */
+        else if (abs(f30 - f150) < min(f30, f150)) /* unwesentliche Abweichung */
             if (ptrDA.NUT == 'W')
                 ptrDA.nFK = (float) f150;
             else
@@ -777,7 +796,7 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
         /*
          * mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres ;
          * switch (bod) { case S: case U: case L: case T: case LO: case HN: } wird
-         * eingefügt, wenn die Bodenart in das Zahlenmaterial aufgenommen wird vorläufig
+         * eingefuegt, wenn die Bodenart in das Zahlenmaterial aufgenommen wird vorlaeufig
          * wird Sande angenommen ;
          * Sande
          */
@@ -827,32 +846,30 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
  */
 void Calculation::getKLIMA(int bez, QString codestr)
 {
+    /* Effektivitaetsparameter */
+    float nd = initValues.getBagdach();
+    float n1 = initValues.getBagbel1();
+    float n2 = initValues.getBagbel2();
+    float n3 = initValues.getBagbel3();
+    float n4 = initValues.getBagbel4();
+    float n, bag, zw;
 
-    /* Effektivitätsparameter */
-    float        nd = initValues.getBagdach();
-    float        n1 = initValues.getBagbel1();
-    float        n2 = initValues.getBagbel2();
-    float        n3 = initValues.getBagbel3();
-    float        n4 = initValues.getBagbel4();
-    float        n, bag, zw;
-
-    float        ep, p, x, y, etr;
+    float ep, p, x, y, etr;
 
     QString bezString;
     bezString.setNum(bez);
 
     /*
-     * später zeizusätzliche Parameter Hier ;
+     * spaeter zeizusaetzliche Parameter Hier ;
      * ptrDA.P1 = p1;
      * * ptrDA.PS = ps;
      */
     ptrDA.P1 = regenja;
     ptrDA.P1S = regenso;
 
-    /* Parameter für die Bezirke */
+    /* Parameter fuer die Bezirke */
     if (ptrDA.NUT == 'G')
     {
-
         if(initValues.hashEG.contains(bez)) {
             //take from xml
             ptrDA.ETP = initValues.hashEG.value(bez);
@@ -861,13 +878,12 @@ void Calculation::getKLIMA(int bez, QString codestr)
             ptrDA.ETP = initValues.hashEG.contains(0) ? initValues.hashEG.value(0) : 775;
             QString egString;
             egString.setNum(ptrDA.ETP);
-            protokollStream << "\r\nEG unbekannt für " + codestr + " von Bezirk " + bezString + "\r\nEG=" + egString + " angenommen\r\n";
+            protokollStream << "\r\nEG unbekannt fuer " + codestr + " von Bezirk " + bezString + "\r\nEG=" + egString + " angenommen\r\n";
             protcount++;
         }
     }
     else
     {
-
         if(initValues.hashETP.contains(bez)) {
             //take from xml
             ptrDA.ETP = initValues.hashETP.value(bez);
@@ -876,7 +892,7 @@ void Calculation::getKLIMA(int bez, QString codestr)
             ptrDA.ETP = initValues.hashETP.contains(0) ? initValues.hashETP.value(0) : 660;
             QString etpString;
             etpString.setNum(ptrDA.ETP);
-            protokollStream << "\r\nETP unbekannt für " + codestr + " von Bezirk " + bezString + "\r\nETP=" + etpString + " angenommen\r\n";
+            protokollStream << "\r\nETP unbekannt fuer " + codestr + " von Bezirk " + bezString + "\r\nETP=" + etpString + " angenommen\r\n";
             protcount++;
         }
 
@@ -888,18 +904,18 @@ void Calculation::getKLIMA(int bez, QString codestr)
             ptrDA.ETPS = initValues.hashETPS.contains(0) ? initValues.hashETPS.value(0) : 530;
             QString etpsString;
             etpsString.setNum(ptrDA.ETPS);
-            protokollStream << "\r\nETPS unbekannt für " + codestr + " von Bezirk " + bezString + "\r\nETPS=" + etpsString + " angenommen\r\n";
+            protokollStream << "\r\nETPS unbekannt fuer " + codestr + " von Bezirk " + bezString + "\r\nETPS=" + etpsString + " angenommen\r\n";
             protcount++;
         }
     }
 
     ep = (float) ptrDA.ETP;                /* Korrektur mit 1.1 gestrichen */
-    p = (float) ptrDA.P1 * niedKorrFaktor;        /* ptrDA.KF;
+    p = (float) ptrDA.P1 * niedKorrFaktor; /* ptrDA.KF;
                                                                          * */
 
     /*
-     * Berechnung der Abflüsse RDV und R1V bis R4V für versiegelte ;
-     * Teilflächen und unterschiedliche Bagrovwerte ND und N1 bis N4
+     * Berechnung der Abfluesse RDV und R1V bis R4V fuer versiegelte
+     * Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4
      */
     x = p / ep;
 
@@ -916,12 +932,13 @@ void Calculation::getKLIMA(int bez, QString codestr)
     bagrovObj.nbagro(&n4, &y, &x);
     R4V = p - y * ep;
 
-    /* Berechnung des Abflusses RUV für unversiegelte Teilflächen */
+    /* Berechnung des Abflusses RUV fuer unversiegelte Teilflaechen */
     if (ptrDA.NUT == 'G')
         RUV = p - ep;
     else
-    {        /* Ermittlung des Effektivitätsparameters bag für unvers. Flächen */
-        n = getNUV(ptrDA);                /* Modul Raster abgespeckt */
+    {
+        /* Ermittlung des Effektivitaetsparameters bag fuer unvers. Flaechen */
+        n = getNUV(ptrDA); /* Modul Raster abgespeckt */
 
         if (ptrDA.P1S > 0 && ptrDA.ETPS > 0)
         {
@@ -949,7 +966,7 @@ void Calculation::getKLIMA(int bez, QString codestr)
  */
 float Calculation::getTWS(int ert, char nutz)
 {
-    float        TWS;
+    float TWS;
     switch (nutz)
     {
     case 'D':
@@ -991,10 +1008,12 @@ float Calculation::min(float x, float y)
  */
 int Calculation::index(float wert, float *feld, int anz)
 {
-    int                i;
-    float        eps = 0.0001;
+    int i;
+    float eps = 0.0001;
+
     for (i = 0; i < anz; i++)
         if (wert <= feld[i] + eps) return(i);
+
     return(anz - 1);
 }
 
@@ -1005,23 +1024,28 @@ int Calculation::index(float wert, float *feld, int anz)
  */
 float Calculation::getF(float wa)
 {
-    int                i, anz;
-    float        watab[] =
+    int i, anz;
+
+    float watab[] =
     {
         0.45F, 0.50F, 0.55F, 0.60F, 0.65F, 0.70F, 0.75F,
         0.80F, 0.85F, 0.90F, 0.95F, 1.00F, 1.05F, 1.10F
     };
-    float        Ftab[] =
+
+    float Ftab[] =
     {
         0.65F, 0.75F, 0.82F, 0.90F, 1.00F, 1.06F, 1.15F,
         1.22F, 1.30F, 1.38F, 1.47F, 1.55F, 1.63F, 1.70F
     };
 
     anz = 14;
+
     if (wa <= watab[0]) return(Ftab[0]);
     if (wa >= watab[anz - 1]) return(Ftab[anz - 1]);
+
     for (i = 1; i < anz; i++)
         if (wa <= watab[i]) return((Ftab[i - 1] + Ftab[i]) / 2);
+
     return(0);
 }
 
@@ -1032,23 +1056,24 @@ float Calculation::getF(float wa)
  */
 float Calculation::getG02(int nFK)
 {
-    float G02tab [] = { 0.0F,  0.0F,  0.0F,  0.0F,  0.3F,  0.8F,  1.4F,  2.4F,  3.7F,  5.0F,
-                        6.3F,  7.7F,  9.3F, 11.0F, 12.4F, 14.7F, 17.4F, 21.0F, 26.0F, 32.0F,
-                        39.4F, 44.7F, 48.0F, 50.7F, 52.7F, 54.0F, 55.0F, 55.0F, 55.0F, 55.0F, 55.0F
-                      };
+    float G02tab [] = {
+        0.0F,   0.0F,  0.0F,  0.0F,  0.3F,  0.8F,  1.4F,  2.4F,  3.7F,  5.0F,
+        6.3F,   7.7F,  9.3F, 11.0F, 12.4F, 14.7F, 17.4F, 21.0F, 26.0F, 32.0F,
+        39.4F, 44.7F, 48.0F, 50.7F, 52.7F, 54.0F, 55.0F, 55.0F, 55.0F, 55.0F, 55.0F
+    };
 
     return(G02tab[nFK]);
 }
 
 /**
  =======================================================================================================================
-    g e t N U V ( Pointer auf aktuellen DataRecord) Berechnung eines Records (abgespecktes raster
+    g e t N U V ( Pointer auf aktuellen DataRecord) Berechnung eines Records (abgespecktes Raster)
  =======================================================================================================================
  */
 float Calculation::getNUV(PDR &B)        /* DataRecord_t *B) */
 {
-    int                K;
-    float        G020, BAG0;
+    int K;
+    float G020, BAG0;
 
     G020 = getG02((int) (B.nFK + 0.5));
 
