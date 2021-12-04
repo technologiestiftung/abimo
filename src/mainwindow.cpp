@@ -115,14 +115,20 @@ void MainWindow::computeFile()
         return;
     }
 
-        setText("Lese Quelldatei...");
-        repaint();
-        //processEvent(0, "Lese Datei.");
+    setText("Lese Quelldatei...");
+    repaint();
+    //processEvent(0, "Lese Datei.");
 
-        // Open a DBASE File
-        DbaseReader dbReader(file);
+    // Open a DBASE File
+    DbaseReader dbReader(file);
 
-        if (dbReader.read()) {
+    if (! dbReader.read()) {
+        critical(
+            "Problem beim Oeffnen der Datei: '" + file + "' aufgetreten.\n"
+            "Grund: " + dbReader.getError()
+        );
+        return;
+    }
 
             if (!dbReader.isAbimoFile()) {
                 critical(
@@ -260,12 +266,4 @@ void MainWindow::computeFile()
             else {
                 setText("Willkommen...");
             }
-
-        }
-        else {
-            critical(
-                "Problem beim Oeffnen der Datei: '" + file + "' aufgetreten.\n"
-                "Grund: " + dbReader.getError()
-            );
-        }
 }
