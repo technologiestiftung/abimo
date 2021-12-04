@@ -130,140 +130,140 @@ void MainWindow::computeFile()
         return;
     }
 
-            if (!dbReader.isAbimoFile()) {
-                critical(
-                    "Die Datei '" + file + "' ist kein valider 'Input File',\n" +
-                    "Ueberpruefen sie die Spaltennamen und die Vollstaendigkeit."
-                );
-                return;
-            }
+    if (! dbReader.isAbimoFile()) {
+        critical(
+            "Die Datei '" + file + "' ist kein valider 'Input File',\n" +
+            "Ueberpruefen sie die Spaltennamen und die Vollstaendigkeit."
+        );
+        return;
+    }
 
-            // Read initial values from XML
-            InitValues initValues;
-            QString configFileName("config.xml");
-            QFile initFile(configFileName);
+    // Read initial values from XML
+    InitValues initValues;
+    QString configFileName("config.xml");
+    QFile initFile(configFileName);
 
-            if (initFile.exists()) {
-                QXmlSimpleReader xmlReader;
-                QXmlInputSource data(&initFile);
-                SaxHandler handler(initValues);
-                xmlReader.setContentHandler(&handler);
-                xmlReader.setErrorHandler(&handler);
-                if (!xmlReader.parse(&data)) {
-                    QMessageBox::warning(
-                        this, "Abimo 3.2",
-                        "'" + configFileName + "': korrupte Datei.\n"
-                        "Nutze Standardwerte."
-                    );
-                }
-                else if (!initValues.allSet()) {
-                    QMessageBox::warning(
-                        this, "Abimo 3.2",
-                        "'" + configFileName + "': fehlende Werte.\n"
-                        "Ergaenze mit Standardwerten."
-                    );
-                }
-                initFile.close();
-
-            } else {
-                QMessageBox::warning(
-                    this, "Abimo 3.2",
-                    "Keine '" + configFileName + "': gefunden.\n"
-                    "Nutze Standardwerte."
-                );
-            }
-
-            setText("Quelldatei eingelesen, waehlen sie eine Zieldatei...");
-            userStop = false;
-
-            QFileInfo infoFile(file);
-            folder = infoFile.absolutePath();
-            QString base = infoFile.baseName();
-            QString outFileString(folder + "/" + base + "out.dbf");
-
-            QString outFile = QFileDialog::getSaveFileName(
-                this,
-                "Ergebnisse schreiben nach...",
-                outFileString,
-                "dBase (*.dbf)"
+    if (initFile.exists()) {
+        QXmlSimpleReader xmlReader;
+        QXmlInputSource data(&initFile);
+        SaxHandler handler(initValues);
+        xmlReader.setContentHandler(&handler);
+        xmlReader.setErrorHandler(&handler);
+        if (!xmlReader.parse(&data)) {
+            QMessageBox::warning(
+                this, "Abimo 3.2",
+                "'" + configFileName + "': korrupte Datei.\n"
+                "Nutze Standardwerte."
             );
+        }
+        else if (!initValues.allSet()) {
+            QMessageBox::warning(
+                this, "Abimo 3.2",
+                "'" + configFileName + "': fehlende Werte.\n"
+                "Ergaenze mit Standardwerten."
+            );
+        }
+        initFile.close();
+    }
+    else {
+        QMessageBox::warning(
+            this, "Abimo 3.2",
+            "Keine '" + configFileName + "': gefunden.\n"
+            "Nutze Standardwerte."
+        );
+    }
 
-            QFileInfo infoOutFile(outFile);
-            QString folderOut = infoOutFile.absolutePath();
-            QString baseOut = infoOutFile.baseName();
+    setText("Quelldatei eingelesen, waehlen sie eine Zieldatei...");
+    userStop = false;
 
-            QString protokollFileName(folderOut + "/" + baseOut+ "Protokoll.txt");
+    QFileInfo infoFile(file);
+    folder = infoFile.absolutePath();
+    QString base = infoFile.baseName();
+    QString outFileString(folder + "/" + base + "out.dbf");
 
-            if (outFile != NULL) {
-                setText("Bitte Warten...");
-                processEvent(0, "Lese Datei.");
-                //Protokoll
-                QFile protokollFile(protokollFileName);
-                if (protokollFile.open(QFile::WriteOnly)) {
-                    QTextStream protokollStream(&protokollFile);
-                    //Start the Calculation
-                    protokollStream << "Start der Berechnung am: " + QDateTime::currentDateTime().toString("dd.MM.yyyy") + " um: " + QDateTime::currentDateTime().toString("hh:mm:ss") + "\r\n";
-                    calc = new Calculation(dbReader, initValues, protokollStream);
-                    connect(calc, SIGNAL(processSignal(int, QString)), this, SLOT(processEvent(int, QString)));
-                    if (calc->calc(outFile)) {
+    QString outFile = QFileDialog::getSaveFileName(
+        this,
+        "Ergebnisse schreiben nach...",
+        outFileString,
+        "dBase (*.dbf)"
+    );
 
-                        if (!userStop) {
+    QFileInfo infoOutFile(outFile);
+    QString folderOut = infoOutFile.absolutePath();
+    QString baseOut = infoOutFile.baseName();
 
-                            QString protCount;
-                            protCount.setNum(calc->getProtCount());
+    QString protokollFileName(folderOut + "/" + baseOut+ "Protokoll.txt");
 
-                            QString nutzungIstNull;
-                            nutzungIstNull.setNum(calc->getNutzungIstNull());
+    if (outFile != NULL) {
+        setText("Bitte Warten...");
+        processEvent(0, "Lese Datei.");
+        //Protokoll
+        QFile protokollFile(protokollFileName);
+        if (protokollFile.open(QFile::WriteOnly)) {
+            QTextStream protokollStream(&protokollFile);
+            //Start the Calculation
+            protokollStream << "Start der Berechnung am: " + QDateTime::currentDateTime().toString("dd.MM.yyyy") + " um: " + QDateTime::currentDateTime().toString("hh:mm:ss") + "\r\n";
+            calc = new Calculation(dbReader, initValues, protokollStream);
+            connect(calc, SIGNAL(processSignal(int, QString)), this, SLOT(processEvent(int, QString)));
+            if (calc->calc(outFile)) {
 
-                            QString keineFlaechenAngegeben;
-                            keineFlaechenAngegeben.setNum(calc->getKeineFlaechenAngegeben());
+                if (!userStop) {
 
-                            QString readRecCount;
-                            readRecCount.setNum(calc->getTotalRecRead());
+                    QString protCount;
+                    protCount.setNum(calc->getProtCount());
 
-                            QString writeRecCount;
-                            writeRecCount.setNum(calc->getTotalRecWrite());
+                    QString nutzungIstNull;
+                    nutzungIstNull.setNum(calc->getNutzungIstNull());
 
-                            setText(
-                                "Berechnungen mit " + protCount + " Fehlern beendet.\n"
-                                "Eingelesene Records: " + readRecCount +"\n"
-                                "Geschriebene Records: " + writeRecCount +"\n"
-                                "Ergebnisse in Datei: '" + outFile + "' geschrieben.\n"
-                                "Protokoll in Datei: '" + protokollFileName + "' geschrieben."
-                            );
+                    QString keineFlaechenAngegeben;
+                    keineFlaechenAngegeben.setNum(calc->getKeineFlaechenAngegeben());
 
-                            protokollStream << "\r\nBei der Berechnung traten " << protCount << " Fehler auf.\r\n";
+                    QString readRecCount;
+                    readRecCount.setNum(calc->getTotalRecRead());
 
-                            if (calc->getKeineFlaechenAngegeben() != 0) {
-                                protokollStream << "\r\nBei " + keineFlaechenAngegeben + " Flaechen deren Wert 0 war wurde 100 eingesetzt.\r\n";
-                            }
+                    QString writeRecCount;
+                    writeRecCount.setNum(calc->getTotalRecWrite());
 
-                            if (calc->getNutzungIstNull() != 0) {
-                                protokollStream << "\r\nBei " + nutzungIstNull + " Records war die Nutzung 0, diese wurden ignoriert.\r\n";
-                            }
+                    setText(
+                        "Berechnungen mit " + protCount + " Fehlern beendet.\n"
+                        "Eingelesene Records: " + readRecCount +"\n"
+                        "Geschriebene Records: " + writeRecCount +"\n"
+                        "Ergebnisse in Datei: '" + outFile + "' geschrieben.\n"
+                        "Protokoll in Datei: '" + protokollFileName + "' geschrieben."
+                    );
 
-                            if (calc->getTotalBERtoZeroForced() != 0) {
-                                protokollStream << "\r\nBei " << calc->getTotalBERtoZeroForced() << " Records wurde BER==0 erzwungen.\r\n";
-                            }
+                    protokollStream << "\r\nBei der Berechnung traten " << protCount << " Fehler auf.\r\n";
 
-                            protokollStream << "\r\nEingelesene Records: " + readRecCount +"\r\n";
-                            protokollStream << "\r\nGeschriebene Records: " + writeRecCount +"\r\n";
-                            protokollStream << "\r\nEnde der Berechnung am: " + QDateTime::currentDateTime().toString("dd.MM.yyyy") + " um: " + QDateTime::currentDateTime().toString("hh:mm:ss") + "\r\n";
-                        }
+                    if (calc->getKeineFlaechenAngegeben() != 0) {
+                        protokollStream << "\r\nBei " + keineFlaechenAngegeben + " Flaechen deren Wert 0 war wurde 100 eingesetzt.\r\n";
                     }
-                    else {
-                        critical(calc->getError());
+
+                    if (calc->getNutzungIstNull() != 0) {
+                        protokollStream << "\r\nBei " + nutzungIstNull + " Records war die Nutzung 0, diese wurden ignoriert.\r\n";
                     }
 
-                    delete calc;
-                    calc = 0;
-                    protokollFile.close();
-                }
-                else {
-                    critical("Konnte Datei: '" + protokollFileName + "' nicht Oeffnen.\n" +initFile.error());
+                    if (calc->getTotalBERtoZeroForced() != 0) {
+                        protokollStream << "\r\nBei " << calc->getTotalBERtoZeroForced() << " Records wurde BER==0 erzwungen.\r\n";
+                    }
+
+                    protokollStream << "\r\nEingelesene Records: " + readRecCount +"\r\n";
+                    protokollStream << "\r\nGeschriebene Records: " + writeRecCount +"\r\n";
+                    protokollStream << "\r\nEnde der Berechnung am: " + QDateTime::currentDateTime().toString("dd.MM.yyyy") + " um: " + QDateTime::currentDateTime().toString("hh:mm:ss") + "\r\n";
                 }
             }
             else {
-                setText("Willkommen...");
+                critical(calc->getError());
             }
+
+            delete calc;
+            calc = 0;
+            protokollFile.close();
+        }
+        else {
+            critical("Konnte Datei: '" + protokollFileName + "' nicht Oeffnen.\n" +initFile.error());
+        }
+    }
+    else {
+        setText("Willkommen...");
+    }
 }
