@@ -45,9 +45,9 @@ MainWindow::MainWindow(QApplication* app):
 
     textfield = new QLabel("Willkommen...", w);
     textfield->setMargin(4);
-    textfield->setFont(QFont("Arial", 8,QFont::Bold));
+    textfield->setFont(QFont("Arial", 8, QFont::Bold));
 
-    progress = new QProgressDialog( "Lese Datei.", "Abbrechen", 0, 50, this, 0 );
+    progress = new QProgressDialog( "Lese Datei.", "Abbrechen", 0, 50, this, 0);
     progress->setWindowTitle(tr("Abimo 3.2"));
     progress->setModal(true);
     progress->setMinimumDuration (0);
@@ -83,9 +83,11 @@ void MainWindow::userCancel()
 
 void MainWindow::about()
 {
-    QMessageBox::about(this, tr("About Abimo 3.2"),
-                       tr("Claus & Meiko Rachimow\n" \
-                          "Copyright 2009"));
+    QMessageBox::about(
+        this,
+        tr("About Abimo 3.2"),
+        tr("Claus & Meiko Rachimow\nCopyright 2009")
+    );
 }
 
 void MainWindow::setText(QString info)
@@ -147,7 +149,6 @@ void MainWindow::computeFile()
                     );
                 }
                 else if (!initValues.allSet()) {
-
                     QMessageBox::warning(
                         this, "Abimo 3.2",
                         "'" + configFileName + "': fehlende Werte.\n"
@@ -199,16 +200,22 @@ void MainWindow::computeFile()
                     if (calc->calc(outFile)) {
 
                         if (!userStop) {
+
                             QString protCount;
                             protCount.setNum(calc->getProtCount());
+
                             QString nutzungIstNull;
                             nutzungIstNull.setNum(calc->getNutzungIstNull());
+
                             QString keineFlaechenAngegeben;
                             keineFlaechenAngegeben.setNum(calc->getKeineFlaechenAngegeben());
+
                             QString readRecCount;
                             readRecCount.setNum(calc->getTotalRecRead());
+
                             QString writeRecCount;
                             writeRecCount.setNum(calc->getTotalRecWrite());
+
                             setText(
                                 "Berechnungen mit " + protCount + " Fehlern beendet.\n"
                                 "Eingelesene Records: " + readRecCount +"\n"
@@ -216,10 +223,21 @@ void MainWindow::computeFile()
                                 "Ergebnisse in Datei: '" + outFile + "' geschrieben.\n"
                                 "Protokoll in Datei: '" + protokollFileName + "' geschrieben."
                             );
+
                             protokollStream << "\r\nBei der Berechnung traten " << protCount << " Fehler auf.\r\n";
-                            if (calc->getKeineFlaechenAngegeben() != 0)protokollStream << "\r\nBei " + keineFlaechenAngegeben + " Flaechen deren Wert 0 war wurde 100 eingesetzt.\r\n";
-                            if (calc->getNutzungIstNull() != 0)protokollStream << "\r\nBei " + nutzungIstNull + " Records war die Nutzung 0, diese wurden ignoriert.\r\n";
-                            if (calc->getTotalBERtoZeroForced() != 0)protokollStream << "\r\nBei " << calc->getTotalBERtoZeroForced() << " Records wurde BER==0 erzwungen.\r\n";
+
+                            if (calc->getKeineFlaechenAngegeben() != 0) {
+                                protokollStream << "\r\nBei " + keineFlaechenAngegeben + " Flaechen deren Wert 0 war wurde 100 eingesetzt.\r\n";
+                            }
+
+                            if (calc->getNutzungIstNull() != 0) {
+                                protokollStream << "\r\nBei " + nutzungIstNull + " Records war die Nutzung 0, diese wurden ignoriert.\r\n";
+                            }
+
+                            if (calc->getTotalBERtoZeroForced() != 0) {
+                                protokollStream << "\r\nBei " << calc->getTotalBERtoZeroForced() << " Records wurde BER==0 erzwungen.\r\n";
+                            }
+
                             protokollStream << "\r\nEingelesene Records: " + readRecCount +"\r\n";
                             protokollStream << "\r\nGeschriebene Records: " + writeRecCount +"\r\n";
                             protokollStream << "\r\nEnde der Berechnung am: " + QDateTime::currentDateTime().toString("dd.MM.yyyy") + " um: " + QDateTime::currentDateTime().toString("hh:mm:ss") + "\r\n";
@@ -228,6 +246,7 @@ void MainWindow::computeFile()
                     else {
                         critical(calc->getError());
                     }
+
                     delete calc;
                     calc = 0;
                     protokollFile.close();
