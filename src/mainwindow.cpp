@@ -111,7 +111,9 @@ void MainWindow::computeFile()
         "dBase (*.dbf)"
     );
 
-    if (file != NULL) {
+    if (file == NULL) {
+        return;
+    }
 
         setText("Lese Quelldatei...");
         repaint();
@@ -266,5 +268,4 @@ void MainWindow::computeFile()
                 "Grund: " + dbReader.getError()
             );
         }
-    }
 }
