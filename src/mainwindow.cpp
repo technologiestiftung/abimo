@@ -21,6 +21,7 @@
 
 MainWindow::MainWindow(QApplication* app):
     QMainWindow(),
+    programName("Abimo 3.2"),
     userStop(false),
     calc(0),
     app(app),
@@ -37,7 +38,7 @@ MainWindow::MainWindow(QApplication* app):
     menuBar()->addAction(openAct);
     menuBar()->addAction(aboutAct);
 
-    setWindowTitle(tr("Abimo 3.2"));
+    setWindowTitle(tr(programName));
     resize(350, 150);
 
     w = new QWidget();
@@ -48,7 +49,7 @@ MainWindow::MainWindow(QApplication* app):
     textfield->setFont(QFont("Arial", 8, QFont::Bold));
 
     progress = new QProgressDialog( "Lese Datei.", "Abbrechen", 0, 50, this, 0);
-    progress->setWindowTitle(tr("Abimo 3.2"));
+    progress->setWindowTitle(tr(programName));
     progress->setModal(true);
     progress->setMinimumDuration (0);
     connect(progress, SIGNAL(canceled()), this, SLOT(userCancel()));
@@ -85,7 +86,7 @@ void MainWindow::about()
 {
     QMessageBox::about(
         this,
-        tr("About Abimo 3.2"),
+        tr("About") + tr(programName),
         tr("Claus & Meiko Rachimow\nCopyright 2009")
     );
 }
@@ -99,7 +100,7 @@ void MainWindow::setText(QString info)
 void MainWindow::critical(QString str)
 {
     progress->close();
-    QMessageBox::critical(this, "Abimo 3.2", str);
+    QMessageBox::critical(this, programName, str);
 }
 
 InitValues MainWindow::updateInitialValues(QString configFileName)
@@ -109,7 +110,7 @@ InitValues MainWindow::updateInitialValues(QString configFileName)
 
     if (! initFile.exists()) {
         QMessageBox::warning(
-            this, "Abimo 3.2",
+            this, programName,
             "Keine '" + configFileName + "': gefunden.\n"
             "Nutze Standardwerte."
         );
@@ -127,14 +128,14 @@ InitValues MainWindow::updateInitialValues(QString configFileName)
 
     if (!xmlReader.parse(&data)) {
         QMessageBox::warning(
-            this, "Abimo 3.2",
+            this, programName,
             "'" + configFileName + "': korrupte Datei.\n"
             "Nutze Standardwerte."
         );
     }
     else if (!initValues.allSet()) {
         QMessageBox::warning(
-            this, "Abimo 3.2",
+            this, programName,
             "'" + configFileName + "': fehlende Werte.\n"
             "Ergaenze mit Standardwerten."
         );

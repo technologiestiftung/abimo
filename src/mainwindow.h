@@ -45,6 +45,7 @@ private slots:
     void userCancel();
 
 private:
+    const char* programName;
     void setText(QString);
     void critical(QString);
     InitValues updateInitialValues(QString);
