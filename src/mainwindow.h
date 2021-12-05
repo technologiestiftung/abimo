@@ -21,7 +21,6 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-//#include <QtGui>
 #include <QtWidgets>
 #include <QLabel>
 #include <QXmlSimpleReader>
@@ -48,6 +47,8 @@ private:
     const char* programName;
     void setText(QString);
     void critical(QString);
+    void reportSuccess(Calculation*, QTextStream&);
+    void reportCancelled(QTextStream&);
     InitValues updateInitialValues(QString);
     QAction *openAct;
     QAction *aboutAct;
@@ -58,6 +59,7 @@ private:
     QApplication* app;
     QString folder;
     QWidget *w;
+    QString nowString();
 };
 
 #endif

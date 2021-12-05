@@ -159,12 +159,12 @@ void MainWindow::computeFile()
         return;
     }
 
+    // Open a DBASE File
+    DbaseReader dbReader(file);
+
     setText("Lese Quelldatei...");
     repaint();
     //processEvent(0, "Lese Datei.");
-
-    // Open a DBASE File
-    DbaseReader dbReader(file);
 
     if (! dbReader.checkAndRead()) {
         critical(dbReader.getFullError());
@@ -194,10 +194,10 @@ void MainWindow::computeFile()
         return;
     }
 
-    QFileInfo infoOutFile(outFile);
-
     setText("Bitte Warten...");
     processEvent(0, "Lese Datei.");
+
+    QFileInfo infoOutFile(outFile);
 
     // Protokoll
     QString protokollFileName(
@@ -208,64 +208,39 @@ void MainWindow::computeFile()
     QFile protokollFile(protokollFileName);
 
     if (! protokollFile.open(QFile::WriteOnly)) {
-        critical("Konnte Datei: '" + protokollFileName + "' nicht oeffnen.\n" + protokollFile.error());
+        critical(
+            "Konnte Datei: '" + protokollFileName + "' nicht oeffnen.\n" +
+            protokollFile.error()
+        );
         return;
     }
 
     QTextStream protokollStream(&protokollFile);
 
     // Start the Calculation
-    protokollStream << "Start der Berechnung am: " + QDateTime::currentDateTime().toString("dd.MM.yyyy") + " um: " + QDateTime::currentDateTime().toString("hh:mm:ss") + "\r\n";
+    protokollStream << "Start der Berechnung " + nowString() + "\r\n";
 
+    // Create calculator object
     calc = new Calculation(dbReader, initValues, protokollStream);
-    connect(calc, SIGNAL(processSignal(int, QString)), this, SLOT(processEvent(int, QString)));
 
-    if (calc->calc(outFile)) {
+    connect(
+        calc,
+        SIGNAL(processSignal(int, QString)),
+        this,
+        SLOT(processEvent(int, QString))
+    );
+
+    // Do the calculation
+    bool success = calc->calc(outFile);
+
+    // Report about success or failure
+    if (success) {
 
         if (! userStop) {
-
-            QString protCount;
-            QString nutzungIstNull;
-            QString keineFlaechenAngegeben;
-            QString readRecCount;
-            QString writeRecCount;
-
-            protCount.setNum(calc->getProtCount());
-            nutzungIstNull.setNum(calc->getNutzungIstNull());
-            keineFlaechenAngegeben.setNum(calc->getKeineFlaechenAngegeben());
-            readRecCount.setNum(calc->getTotalRecRead());
-            writeRecCount.setNum(calc->getTotalRecWrite());
-
-            setText(
-                "Berechnungen mit " + protCount + " Fehlern beendet.\n"
-                "Eingelesene Records: " + readRecCount +"\n"
-                "Geschriebene Records: " + writeRecCount +"\n"
-                "Ergebnisse in Datei: '" + outFile + "' geschrieben.\n"
-                "Protokoll in Datei: '" + protokollFileName + "' geschrieben."
-            );
-
-            protokollStream << "\r\nBei der Berechnung traten " << protCount << " Fehler auf.\r\n";
-
-            if (calc->getKeineFlaechenAngegeben() != 0) {
-                protokollStream << "\r\nBei " + keineFlaechenAngegeben +
-                    " Flaechen deren Wert 0 war wurde 100 eingesetzt.\r\n";
-            }
-
-            if (calc->getNutzungIstNull() != 0) {
-                protokollStream << "\r\nBei " + nutzungIstNull +
-                    " Records war die Nutzung 0, diese wurden ignoriert.\r\n";
-            }
-
-            if (calc->getTotalBERtoZeroForced() != 0) {
-                protokollStream << "\r\nBei " << calc->getTotalBERtoZeroForced() <<
-                    " Records wurde BER==0 erzwungen.\r\n";
-            }
-
-            protokollStream << "\r\nEingelesene Records: " + readRecCount + "\r\n";
-            protokollStream << "\r\nGeschriebene Records: " + writeRecCount + "\r\n";
-            protokollStream << "\r\nEnde der Berechnung am: " +
-                QDateTime::currentDateTime().toString("dd.MM.yyyy") + " um: " +
-                QDateTime::currentDateTime().toString("hh:mm:ss") + "\r\n";
+            reportSuccess(calc, protokollStream);
+        }
+        else {
+            reportCancelled(protokollStream);
         }
     }
     else {
@@ -275,4 +250,66 @@ void MainWindow::computeFile()
     delete calc;
     calc = 0;
     protokollFile.close();
+}
+
+void MainWindow::reportSuccess(Calculation* calc, QTextStream &protokollStream)
+{
+    QString protCount;
+    QString nutzungIstNull;
+    QString keineFlaechenAngegeben;
+    QString readRecCount;
+    QString writeRecCount;
+
+    protCount.setNum(calc->getProtCount());
+    nutzungIstNull.setNum(calc->getNutzungIstNull());
+    keineFlaechenAngegeben.setNum(calc->getKeineFlaechenAngegeben());
+    readRecCount.setNum(calc->getTotalRecRead());
+    writeRecCount.setNum(calc->getTotalRecWrite());
+
+    setText(
+        "Berechnungen mit " + protCount + " Fehlern beendet.\n" +
+        "Eingelesene Records: " + readRecCount +"\n" +
+        "Geschriebene Records: " + writeRecCount +"\n"
+    );
+
+    protokollStream << "\r\nBei der Berechnung traten " << protCount <<
+        " Fehler auf.\r\n";
+
+    if (calc->getKeineFlaechenAngegeben() != 0) {
+        protokollStream << "\r\nBei " + keineFlaechenAngegeben +
+            " Flaechen deren Wert 0 war wurde 100 eingesetzt.\r\n";
+    }
+
+    if (calc->getNutzungIstNull() != 0) {
+        protokollStream << "\r\nBei " + nutzungIstNull +
+            " Records war die Nutzung 0, diese wurden ignoriert.\r\n";
+    }
+
+    if (calc->getTotalBERtoZeroForced() != 0) {
+        protokollStream << "\r\nBei " << calc->getTotalBERtoZeroForced() <<
+            " Records wurde BER==0 erzwungen.\r\n";
+    }
+
+    protokollStream << "\r\nEingelesene Records: " + readRecCount + "\r\n";
+    protokollStream << "\r\nGeschriebene Records: " + writeRecCount + "\r\n";
+    protokollStream << "\r\nEnde der Berechnung " + nowString() + "\r\n";
+}
+
+void MainWindow::reportCancelled(QTextStream &protokollStream)
+{
+    setText("Die Berechnungen wurden durch den Benutzer abgebrochen.");
+
+    /*
+    protokollStream << "\r\nNutzer-Unterbrechung der Berechnungen " +
+        nowString() + "\r\n";
+    */
+}
+
+QString MainWindow::nowString()
+{
+    QDateTime now = QDateTime::currentDateTime();
+
+    return
+        "am: " + now.toString("dd.MM.yyyy") +
+        " um: " + now.toString("hh:mm:ss");
 }
