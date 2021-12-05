@@ -40,7 +40,7 @@ public:
 private slots:
     void processEvent(int, QString);
     void about();
-    void computeFile();
+    void computeFile(QString = NULL, QString = NULL, QString = NULL, QString = NULL);
     void userCancel();
 
 private:
@@ -48,6 +48,8 @@ private:
     void setText(QString);
     void critical(QString);
     void warning(QString);
+    QString selectDbfFile(QString, QString, bool);
+    QString removeFileExtension(QString);
     QString singleQuote(QString);
     void reportSuccess(Calculation*, QTextStream&);
     void reportCancelled(QTextStream&);

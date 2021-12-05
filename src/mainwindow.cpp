@@ -139,17 +139,13 @@ InitValues MainWindow::updateInitialValues(QString configFileName)
     xmlReader.setContentHandler(&handler);
     xmlReader.setErrorHandler(&handler);
 
+    QString prefix = singleQuote(configFileName) + ": ";
+
     if (!xmlReader.parse(&data)) {
-        warning(
-            singleQuote(configFileName)+ ": korrupte Datei.\n" +
-            "Nutze Standardwerte."
-        );
+        warning(prefix + "korrupte Datei.\n" + "Nutze Standardwerte.");
     }
     else if (!initValues.allSet()) {
-        warning(
-            singleQuote(configFileName) + ": fehlende Werte.\n" +
-            "Ergaenze mit Standardwerten."
-        );
+        warning(prefix + "fehlende Werte.\n" + "Ergaenze mit Standardwerten.");
     }
 
     initFile.close();
@@ -157,18 +153,44 @@ InitValues MainWindow::updateInitialValues(QString configFileName)
     return initValues;
 }
 
-void MainWindow::computeFile()
+QString MainWindow::selectDbfFile(QString caption, QString dir, bool forSaving)
 {
-    QString file = QFileDialog::getOpenFileName(
-        this,
-        "Daten einlesen von...",
-        folder,
-        "dBase (*.dbf)"
-    );
+    QString pattern = "dBase (*.dbf)";
+
+    return forSaving ?
+        QFileDialog::getSaveFileName(this, caption, dir, pattern) :
+        QFileDialog::getOpenFileName(this, caption, dir, pattern);
+}
+
+QString MainWindow::removeFileExtension(QString fileName)
+{
+    QFileInfo fileInfo(fileName);
+
+    return fileInfo.absolutePath() + "/" + fileInfo.baseName();
+}
+
+void MainWindow::computeFile(
+    QString file,
+    QString configFileName,
+    QString outputFileName,
+    QString protokollFileName
+)
+{    
+    if (file == NULL) {
+        file = selectDbfFile(
+            "Daten einlesen von...",
+            folder,
+            false // not for saving
+        );
+    }
 
     if (file == NULL) {
         return;
     }
+
+    if (configFileName == NULL) {
+        configFileName = "config.xml";
+    };
 
     // Open a DBASE File
     DbaseReader dbReader(file);
@@ -182,25 +204,21 @@ void MainWindow::computeFile()
         return;
     }
 
-    // Read initial values from XML
-    QString configFileName("config.xml");
-
-    // Update initial values with values given in config.xml
+    // Update default initial values with values given in config.xml
     InitValues initValues = updateInitialValues(configFileName);
 
-    setText("Quelldatei eingelesen, waehlen sie eine Zieldatei...");
+    setText("Quelldatei eingelesen, waehlen Sie eine Zieldatei...");
     userStop = false;
 
-    QFileInfo infoFile(file);
+    if (outputFileName == NULL) {
+        outputFileName = selectDbfFile(
+            "Ergebnisse schreiben nach...",
+            removeFileExtension(file)  + "out.dbf",
+            true // for saving
+        );
+    }
 
-    QString outFile = QFileDialog::getSaveFileName(
-        this,
-        "Ergebnisse schreiben nach...",
-        infoFile.absolutePath()+ "/" + infoFile.baseName() + "out.dbf",
-        "dBase (*.dbf)"
-    );
-
-    if (outFile == NULL) {
+    if (outputFileName == NULL) {
         setText("Willkommen...");
         return;
     }
@@ -208,13 +226,10 @@ void MainWindow::computeFile()
     setText("Bitte Warten...");
     processEvent(0, "Lese Datei.");
 
-    QFileInfo infoOutFile(outFile);
-
     // Protokoll
-    QString protokollFileName(
-        infoOutFile.absolutePath() + "/" +
-        infoOutFile.baseName() + "Protokoll.txt"
-    );
+    if (protokollFileName == NULL) {
+        protokollFileName = removeFileExtension(outputFileName) + "Protokoll.txt";
+    }
 
     QFile protokollFile(protokollFileName);
 
@@ -242,7 +257,7 @@ void MainWindow::computeFile()
     );
 
     // Do the calculation
-    bool success = calc->calc(outFile);
+    bool success = calc->calc(outputFileName);
 
     // Report about success or failure
     if (success) {
