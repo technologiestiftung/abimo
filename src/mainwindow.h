@@ -47,6 +47,7 @@ private slots:
 private:
     void setText(QString);
     void critical(QString);
+    InitValues updateInitialValues(QString);
     QAction *openAct;
     QAction *aboutAct;
     QLabel *textfield;
