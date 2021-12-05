@@ -68,9 +68,10 @@ MainWindow::~MainWindow()
     delete widget;
 }
 
-void MainWindow::processEvent(int i, QString str) {
+void MainWindow::processEvent(int i, QString string)
+{
     progress->setValue(i);
-    progress->setLabelText(str);
+    progress->setLabelText(string);
     app->processEvents(QEventLoop::ExcludeUserInputEvents);
 }
 
@@ -101,20 +102,20 @@ void MainWindow::setText(QString info)
     textfield->adjustSize();
 }
 
-void MainWindow::critical(QString str)
+void MainWindow::critical(QString string)
 {
     progress->close();
-    QMessageBox::critical(this, programName, str);
+    QMessageBox::critical(this, programName, string);
 }
 
-void MainWindow::warning(QString msg)
+void MainWindow::warning(QString string)
 {
-    QMessageBox::warning(this, programName, msg);
+    QMessageBox::warning(this, programName, string);
 }
 
-QString MainWindow::singleQuote(QString s)
+QString MainWindow::singleQuote(QString string)
 {
-    return "'" + s + "'";
+    return "'" + string + "'";
 }
 
 InitValues MainWindow::updateInitialValues(QString configFileName)
