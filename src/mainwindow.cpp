@@ -107,18 +107,26 @@ void MainWindow::critical(QString str)
     QMessageBox::critical(this, programName, str);
 }
 
+void MainWindow::warning(QString msg)
+{
+    QMessageBox::warning(this, programName, msg);
+}
+
+QString MainWindow::singleQuote(QString s)
+{
+    return "'" + s + "'";
+}
+
 InitValues MainWindow::updateInitialValues(QString configFileName)
 {
     InitValues initValues;
     QFile initFile(configFileName);
 
     if (! initFile.exists()) {
-        QMessageBox::warning(
-            this, programName,
-            "Keine '" + configFileName + "': gefunden.\n"
+        warning(
+            "Keine " + singleQuote(configFileName) + ": gefunden.\n" +
             "Nutze Standardwerte."
         );
-
         return initValues;
     }
 
@@ -131,16 +139,14 @@ InitValues MainWindow::updateInitialValues(QString configFileName)
     xmlReader.setErrorHandler(&handler);
 
     if (!xmlReader.parse(&data)) {
-        QMessageBox::warning(
-            this, programName,
-            "'" + configFileName + "': korrupte Datei.\n"
+        warning(
+            singleQuote(configFileName)+ ": korrupte Datei.\n" +
             "Nutze Standardwerte."
         );
     }
     else if (!initValues.allSet()) {
-        QMessageBox::warning(
-            this, programName,
-            "'" + configFileName + "': fehlende Werte.\n"
+        warning(
+            singleQuote(configFileName) + ": fehlende Werte.\n" +
             "Ergaenze mit Standardwerten."
         );
     }
@@ -213,8 +219,8 @@ void MainWindow::computeFile()
 
     if (! protokollFile.open(QFile::WriteOnly)) {
         critical(
-            "Konnte Datei: '" + protokollFileName + "' nicht oeffnen.\n" +
-            protokollFile.error()
+            "Konnte Datei: " + singleQuote(protokollFileName) +
+            " nicht oeffnen.\n" + protokollFile.error()
         );
         return;
     }

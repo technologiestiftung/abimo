@@ -47,6 +47,8 @@ private:
     const char* programName;
     void setText(QString);
     void critical(QString);
+    void warning(QString);
+    QString singleQuote(QString);
     void reportSuccess(Calculation*, QTextStream&);
     void reportCancelled(QTextStream&);
     InitValues updateInitialValues(QString);
