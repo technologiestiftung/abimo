@@ -180,7 +180,7 @@ void MainWindow::computeFile(
         file = selectDbfFile(
             "Daten einlesen von...",
             folder,
-            false // not for saving
+            false // do not select file for saving
         );
     }
 
@@ -197,7 +197,6 @@ void MainWindow::computeFile(
 
     setText("Lese Quelldatei...");
     repaint();
-    //processEvent(0, "Lese Datei.");
 
     if (! dbReader.checkAndRead()) {
         critical(dbReader.getFullError());
@@ -214,7 +213,7 @@ void MainWindow::computeFile(
         outputFileName = selectDbfFile(
             "Ergebnisse schreiben nach...",
             removeFileExtension(file)  + "out.dbf",
-            true // for saving
+            true // select file for saving
         );
     }
 
