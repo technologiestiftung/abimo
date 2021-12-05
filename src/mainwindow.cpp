@@ -86,7 +86,7 @@ void MainWindow::about()
 {
     QMessageBox::about(
         this,
-        tr("About") + tr(programName),
+        tr("About ") + tr(programName),
         tr("Claus & Meiko Rachimow\nCopyright 2009")
     );
 }
@@ -192,14 +192,11 @@ void MainWindow::computeFile()
     userStop = false;
 
     QFileInfo infoFile(file);
-    folder = infoFile.absolutePath();
-    QString base = infoFile.baseName();
-    QString outFileString(folder + "/" + base + "out.dbf");
 
     QString outFile = QFileDialog::getSaveFileName(
         this,
         "Ergebnisse schreiben nach...",
-        outFileString,
+        infoFile.absolutePath()+ "/" + infoFile.baseName() + "out.dbf",
         "dBase (*.dbf)"
     );
 
@@ -209,14 +206,16 @@ void MainWindow::computeFile()
     }
 
     QFileInfo infoOutFile(outFile);
-    QString folderOut = infoOutFile.absolutePath();
-    QString baseOut = infoOutFile.baseName();
-    QString protokollFileName(folderOut + "/" + baseOut + "Protokoll.txt");
 
     setText("Bitte Warten...");
     processEvent(0, "Lese Datei.");
 
     // Protokoll
+    QString protokollFileName(
+        infoOutFile.absolutePath() + "/" +
+        infoOutFile.baseName() + "Protokoll.txt"
+    );
+
     QFile protokollFile(protokollFileName);
 
     if (! protokollFile.open(QFile::WriteOnly)) {
