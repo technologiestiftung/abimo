@@ -27,24 +27,28 @@ MainWindow::MainWindow(QApplication* app):
     app(app),
     folder("/")
 {
+    // Define action: Compute File
     openAct = new QAction(tr("&Compute File"), this);
     openAct->setShortcut(tr("Ctrl+C"));
     connect(openAct, SIGNAL(triggered()), this, SLOT(computeFile()));
 
+    // Define action: About
     aboutAct = new QAction(tr("&About"), this);
     aboutAct->setShortcut(tr("Ctrl+A"));
     connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
 
+    // Add actions to the menu bar
     menuBar()->addAction(openAct);
     menuBar()->addAction(aboutAct);
 
+    // Set window title and size
     setWindowTitle(tr(programName));
     resize(350, 150);
 
-    w = new QWidget();
-    setCentralWidget(w);
+    widget = new QWidget();
+    setCentralWidget(widget);
 
-    textfield = new QLabel("Willkommen...", w);
+    textfield = new QLabel("Willkommen...", widget);
     textfield->setMargin(4);
     textfield->setFont(QFont("Arial", 8, QFont::Bold));
 
@@ -61,7 +65,7 @@ MainWindow::~MainWindow()
     delete openAct;
     delete aboutAct;
     delete progress;
-    delete w;
+    delete widget;
 }
 
 void MainWindow::processEvent(int i, QString str) {

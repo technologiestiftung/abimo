@@ -58,7 +58,7 @@ private:
     Calculation* calc;
     QApplication* app;
     QString folder;
-    QWidget *w;
+    QWidget *widget;
     QString nowString();
 };
 
