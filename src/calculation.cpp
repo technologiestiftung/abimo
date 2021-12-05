@@ -114,7 +114,6 @@ QString Calculation::getError() {
     return error;
 }
 
-
 /**
  =======================================================================================================================
     I m p o r t D B () Diese Funktion importiert die Datensaetze aus der DBASE-Datei FileName in das DA Feld ein
@@ -124,7 +123,6 @@ QString Calculation::getError() {
  */
 bool Calculation::calc(QString   fileOut)
 {
-    /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
     /* Variablen zur Berechnung */
     int    index = 0;
     float  vgd, vgb, vgs, kd, kb, ks;
@@ -145,12 +143,12 @@ bool Calculation::calc(QString   fileOut)
     nutzungIstNull = 0L;
 
     /* Starteintrag ins Protokoll */
-
     DbaseWriter writer(fileOut, initValues);
 
     totalRecRead = dbReader.getNumberOfRecords();
     int k;
-    for (k=0; k < totalRecRead; k++)
+
+    for (k = 0; k < totalRecRead; k++)
     {
         if (!weiter) {
             protokollStream << "Berechnungen abgebrochen.\r\n";
@@ -193,7 +191,6 @@ bool Calculation::calc(QString   fileOut)
             kd = (dbReader.getRecord(k, "KAN_BEB")).toFloat() / 100.0F;
             kb = (dbReader.getRecord(k, "KAN_VGU")).toFloat() / 100.0F;
             ks = (dbReader.getRecord(k, "KAN_STR")).toFloat() / 100.0F;
-
             bl1 = (dbReader.getRecord(k, "BELAG1")).toFloat() / 100.0F;
             bl2 = (dbReader.getRecord(k, "BELAG2")).toFloat() / 100.0F;
             bl3 = (dbReader.getRecord(k, "BELAG3")).toFloat() / 100.0F;
@@ -221,6 +218,7 @@ bool Calculation::calc(QString   fileOut)
                rowd = (1.0F - initValues.getInfdach()) * vgd * kb * fbant * RDV;
                richtige Zeile folgt (kb ----> kd)
             */
+
             rowd = (1.0F - initValues.getInfdach()) * vgd * kd * fbant * RDV;
             row1 = (1.0F - initValues.getInfbel1()) * (bl1 * kb * vgb * fbant + bls1 * ks * vgs * fsant) * R1V;
             row2 = (1.0F - initValues.getInfbel2()) * (bl2 * kb * vgb * fbant + bls2 * ks * vgs * fsant) * R2V;
@@ -252,7 +250,7 @@ bool Calculation::calc(QString   fileOut)
             ptrDA.R = (int)round(r);
             RVOL = ROWVOL + RIVOL;
 
-            float        flaeche1 = fb + fs;
+            float flaeche1 = fb + fs;
 // cls_5b:
             float verdunst = (regenja * niedKorrFaktor) - r;
 
@@ -274,9 +272,11 @@ bool Calculation::calc(QString   fileOut)
             nutzungIstNull++;
 
         }
+
         /* cls_2: Hier koennten falls gewuenscht die Flaechen dokumentiert werden,
            deren NUTZUNG=NULL (siehe auch cls_3)
         */
+
         float tmp = (k) * 50;
         float prog = tmp/(float)totalRecRead;
         emit processSignal((int)(prog), "Berechne");
@@ -884,7 +884,7 @@ void Calculation::getKLIMA(int bez, QString codestr)
     }
     else
     {
-        if(initValues.hashETP.contains(bez)) {
+        if (initValues.hashETP.contains(bez)) {
             //take from xml
             ptrDA.ETP = initValues.hashETP.value(bez);
         } else {
@@ -896,7 +896,7 @@ void Calculation::getKLIMA(int bez, QString codestr)
             protcount++;
         }
 
-        if(initValues.hashETPS.contains(bez)) {
+        if (initValues.hashETPS.contains(bez)) {
             //take from xml
             ptrDA.ETPS = initValues.hashETPS.value(bez);
         } else {
@@ -910,13 +910,13 @@ void Calculation::getKLIMA(int bez, QString codestr)
     }
 
     ep = (float) ptrDA.ETP;                /* Korrektur mit 1.1 gestrichen */
-    p = (float) ptrDA.P1 * niedKorrFaktor; /* ptrDA.KF;
-                                                                         * */
+    p = (float) ptrDA.P1 * niedKorrFaktor; /* ptrDA.KF */
 
     /*
      * Berechnung der Abfluesse RDV und R1V bis R4V fuer versiegelte
      * Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4
      */
+
     x = p / ep;
 
     Bagrov bagrovObj;
@@ -973,7 +973,8 @@ float Calculation::getTWS(int ert, char nutz)
         TWS = 0.2F;
         break;
     case 'L':
-        if (ert <= 50) TWS = 0.6F;
+        if (ert <= 50)
+            TWS = 0.6F;
         else
             TWS = 0.7F;
         break;
