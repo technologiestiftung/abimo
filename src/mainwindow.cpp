@@ -166,19 +166,8 @@ void MainWindow::computeFile()
     // Open a DBASE File
     DbaseReader dbReader(file);
 
-    if (! dbReader.read()) {
-        critical(
-            "Problem beim Oeffnen der Datei: '" + file + "' aufgetreten.\n"
-            "Grund: " + dbReader.getError()
-        );
-        return;
-    }
-
-    if (! dbReader.isAbimoFile()) {
-        critical(
-            "Die Datei '" + file + "' ist kein valider 'Input File',\n" +
-            "Ueberpruefen sie die Spaltennamen und die Vollstaendigkeit."
-        );
+    if (! dbReader.checkAndRead()) {
+        critical(dbReader.getFullError());
         return;
     }
 

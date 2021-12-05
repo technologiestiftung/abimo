@@ -41,6 +41,11 @@ QString DbaseReader::getError()
     return error;
 }
 
+QString DbaseReader::getFullError()
+{
+    return fullError;
+}
+
 bool DbaseReader::isAbimoFile()
 {
     return (
@@ -71,6 +76,26 @@ bool DbaseReader::isAbimoFile()
         hash.contains("STR_FLGES") &&
         hash.contains("NUTZUNG")
     );
+}
+
+bool DbaseReader::checkAndRead()
+{
+    QString name = file.fileName();
+
+    if (! read()) {
+        fullError = "Problem beim Oeffnen der Datei: '" + name+
+            "' aufgetreten.\nGrund: " + error;
+        return false;
+    }
+
+    if (! isAbimoFile()) {
+        fullError = "Die Datei '" + name + "' ist kein valider 'Input File',\n" +
+            "Ueberpruefen sie die Spaltennamen und die Vollstaendigkeit.";
+        return false;
+    }
+
+    fullError = "";
+    return true;
 }
 
 bool DbaseReader::read()

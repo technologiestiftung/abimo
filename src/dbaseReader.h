@@ -44,7 +44,9 @@ public:
     QString getRecord(int num, int field);
     QString getRecord(int num, const QString & name);
     QString getError();
+    QString getFullError();
     bool isAbimoFile();
+    bool checkAndRead();
 
 private:
     // VARIABLES:
@@ -55,6 +57,7 @@ private:
     QDate date;
     QHash<QString, int> hash;
     QString error;
+    QString fullError;
     QString* vals;
 
     // count of records in file
