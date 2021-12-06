@@ -144,7 +144,7 @@ InitValues MainWindow::updateInitialValues(QString configFileName)
     if (!xmlReader.parse(&data)) {
         warning(prefix + "korrupte Datei.\n" + "Nutze Standardwerte.");
     }
-    else if (!initValues.allSet()) {
+    else if (! initValues.allSet()) {
         warning(prefix + "fehlende Werte.\n" + "Ergaenze mit Standardwerten.");
     }
 
@@ -261,11 +261,11 @@ void MainWindow::computeFile(
     // Report about success or failure
     if (success) {
 
-        if (! userStop) {
-            reportSuccess(calc, protokollStream);
+        if (userStop) {
+            reportCancelled(protokollStream);
         }
         else {
-            reportCancelled(protokollStream);
+            reportSuccess(calc, protokollStream);
         }
     }
     else {
