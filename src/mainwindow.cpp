@@ -178,20 +178,20 @@ QString positionalArgOrNULL(QCommandLineParser* arguments, int index)
 
 void MainWindow::computeFile()
 {
-    QString file = positionalArgOrNULL(arguments, 0);
+    QString inputFileName = positionalArgOrNULL(arguments, 0);
     QString outputFileName = positionalArgOrNULL(arguments, 1);
     QString configFileName = arguments->value("config");
     QString protokollFileName = NULL;
 
-    if (file == NULL) {
-        file = selectDbfFile(
+    if (inputFileName == NULL) {
+        inputFileName = selectDbfFile(
             "Daten einlesen von...",
             folder,
             false // do not select file for saving
         );
     }
 
-    if (file == NULL) {
+    if (inputFileName == NULL) {
         return;
     }
 
@@ -200,7 +200,7 @@ void MainWindow::computeFile()
     };
 
     // Open a DBASE File
-    DbaseReader dbReader(file);
+    DbaseReader dbReader(inputFileName);
 
     setText("Lese Quelldatei...");
     repaint();
@@ -219,7 +219,7 @@ void MainWindow::computeFile()
     if (outputFileName == NULL) {
         outputFileName = selectDbfFile(
             "Ergebnisse schreiben nach...",
-            removeFileExtension(file)  + "out.dbf",
+            removeFileExtension(inputFileName)  + "out.dbf",
             true // select file for saving
         );
     }
