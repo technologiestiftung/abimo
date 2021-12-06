@@ -34,13 +34,13 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QApplication*);
+    MainWindow(QApplication*, QCommandLineParser* = NULL);
     ~MainWindow();
 
 private slots:
     void processEvent(int, QString);
     void about();
-    void computeFile(QString = NULL, QString = NULL, QString = NULL, QString = NULL);
+    void computeFile();
     void userCancel();
 
 private:
@@ -61,6 +61,7 @@ private:
     bool userStop;
     Calculation* calc;
     QApplication* app;
+    QCommandLineParser* arguments;
     QString folder;
     QWidget *widget;
     QString nowString();

@@ -19,12 +19,13 @@
 
 #include "mainwindow.h"
 
-MainWindow::MainWindow(QApplication* app):
+MainWindow::MainWindow(QApplication* app, QCommandLineParser* arguments):
     QMainWindow(),
     programName("Abimo 3.2"),
     userStop(false),
     calc(0),
     app(app),
+    arguments(arguments),
     folder("/")
 {
     // Define action: Compute File
@@ -169,13 +170,19 @@ QString MainWindow::removeFileExtension(QString fileName)
     return fileInfo.absolutePath() + "/" + fileInfo.baseName();
 }
 
-void MainWindow::computeFile(
-    QString file,
-    QString configFileName,
-    QString outputFileName,
-    QString protokollFileName
-)
-{    
+QString positionalArgOrNULL(QCommandLineParser* arguments, int index)
+{
+    const QStringList posArgs = arguments->positionalArguments();
+    return (posArgs.length() > index) ? posArgs.at(index) : NULL;
+}
+
+void MainWindow::computeFile()
+{
+    QString file = positionalArgOrNULL(arguments, 0);
+    QString outputFileName = positionalArgOrNULL(arguments, 1);
+    QString configFileName = arguments->value("config");
+    QString protokollFileName = NULL;
+
     if (file == NULL) {
         file = selectDbfFile(
             "Daten einlesen von...",
