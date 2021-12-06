@@ -265,7 +265,7 @@ void MainWindow::computeFile(
             reportCancelled(protokollStream);
         }
         else {
-            reportSuccess(calc, protokollStream);
+            reportSuccess(calc, protokollStream, outputFileName, protokollFileName);
         }
     }
     else {
@@ -277,7 +277,12 @@ void MainWindow::computeFile(
     protokollFile.close();
 }
 
-void MainWindow::reportSuccess(Calculation* calc, QTextStream &protokollStream)
+void MainWindow::reportSuccess(
+    Calculation* calc,
+    QTextStream &protokollStream,
+    QString outFile,
+    QString protokollFileName
+)
 {
     QString protCount;
     QString nutzungIstNull;
@@ -294,7 +299,9 @@ void MainWindow::reportSuccess(Calculation* calc, QTextStream &protokollStream)
     setText(
         "Berechnungen mit " + protCount + " Fehlern beendet.\n" +
         "Eingelesene Records: " + readRecCount +"\n" +
-        "Geschriebene Records: " + writeRecCount +"\n"
+        "Geschriebene Records: " + writeRecCount +"\n" +
+        "Ergebnisse in Datei: '" + outFile + "' geschrieben.\n" +
+        "Protokoll in Datei: '" + protokollFileName + "' geschrieben."
     );
 
     protokollStream << "\r\nBei der Berechnung traten " << protCount <<

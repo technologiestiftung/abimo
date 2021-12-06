@@ -51,7 +51,7 @@ private:
     QString selectDbfFile(QString, QString, bool);
     QString removeFileExtension(QString);
     QString singleQuote(QString);
-    void reportSuccess(Calculation*, QTextStream&);
+    void reportSuccess(Calculation*, QTextStream&, QString, QString);
     void reportCancelled(QTextStream&);
     InitValues updateInitialValues(QString);
     QAction *openAct;
