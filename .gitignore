@@ -1,0 +1,4 @@
+build-*
+*.dbf
+src/Abimo.pro.user
+config.xml
