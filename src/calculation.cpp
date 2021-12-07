@@ -78,9 +78,11 @@ Calculation::Calculation(DbaseReader & dbR, InitValues & init, QTextStream & pro
     totalRecRead(0),
     totalBERtoZeroForced(0),
     weiter(true)
-{}
+{
+}
 
-void Calculation::stop() {
+void Calculation::stop()
+{
     weiter = false;
 }
 
@@ -94,23 +96,28 @@ long Calculation::getKeineFlaechenAngegeben()
     return keineFlaechenAngegeben;
 }
 
-int Calculation::getTotalRecWrite() {
+int Calculation::getTotalRecWrite()
+{
     return totalRecWrite;
 }
 
-int Calculation::getTotalRecRead() {
+int Calculation::getTotalRecRead()
+{
     return totalRecRead;
 }
 
-int Calculation::getTotalBERtoZeroForced() {
+int Calculation::getTotalBERtoZeroForced()
+{
     return totalBERtoZeroForced;
 }
 
-long Calculation::getNutzungIstNull() {
+long Calculation::getNutzungIstNull()
+{
     return nutzungIstNull;
 }
 
-QString Calculation::getError() {
+QString Calculation::getError()
+{
     return error;
 }
 
@@ -323,129 +330,32 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
     case 30:
         switch (typ)
         {
-        case 1:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 35;
-            break;
-
-        case 2:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 35;
-            break;
-
-        case 3:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 45;
-            break;
-
-        case 4:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 40;
-            break;
-
-        case 5:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 40;
-            break;
-
-        case 6:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 40;
-            break;
-
-        case 7:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 35;
-            break;
-
-        case 8:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 35;
-            break;
-
-        case 9:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 40;
-            break;
-
-        case 10:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 40;
-            break;
-
-        case 11:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 35;
-            break;
-
-        case 21:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 45;
-            break;
-
-        case 22:
-            ptrDA.NUT = 'K';
-            ptrDA.ERT = 40;
-            ptrDA.BER = 75;
-            break;
-
-        case 23:
-            ptrDA.NUT = 'K';
-            ptrDA.ERT = 40;
-            ptrDA.BER = 75;
-            break;
-
-        case 24:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 55;
-            ptrDA.BER = 75;
-            break;
-
-        case 25:
-            ptrDA.NUT = 'K';
-            ptrDA.ERT = 40;
-            ptrDA.BER = 75;
-            break;
-
-        case 26:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 40;
-            break;
-
-        case 29:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 30;
-            break;
-
-        case 33:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 35;
-            break;
-
-        case 38:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 35;
-            break;
-
-        case 39:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 35;
-            break;
-
-        case 71:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 45;
-            break;
-
+        case  1: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
+        case  2: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
+        case  3: ptrDA.NUT = 'L'; ptrDA.ERT = 45; break;
+        case  4: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
+        case  5: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
+        case  6: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
+        case  7: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
+        case  8: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
+        case  9: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
+        case 10: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
+        case 11: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
+        case 21: ptrDA.NUT = 'L'; ptrDA.ERT = 45; break;
+        case 22: ptrDA.NUT = 'K'; ptrDA.ERT = 40; ptrDA.BER = 75; break;
+        case 23: ptrDA.NUT = 'K'; ptrDA.ERT = 40; ptrDA.BER = 75; break;
+        case 24: ptrDA.NUT = 'L'; ptrDA.ERT = 55; ptrDA.BER = 75; break;
+        case 25: ptrDA.NUT = 'K'; ptrDA.ERT = 40; ptrDA.BER = 75; break;
+        case 26: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
+        case 29: ptrDA.NUT = 'L'; ptrDA.ERT = 30; break;
+        case 33: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
+        case 38: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
+        case 39: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
+        case 71: ptrDA.NUT = 'L'; ptrDA.ERT = 45; break;
+        /* cls_4: Baustrukturtypen 73 und 74 neu eingefuehrt - werden behandelt wie 72 */
         case 72:
         case 73:
-        case 74:
-            /* cls_4: Baustrukturtypen 73 und 74 neu eingefuehrt - werden behandelt wie 72
-            */
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 50;
-            break;
-
+        case 74: ptrDA.NUT = 'L'; ptrDA.ERT = 50; break;
         default:
             protokollStream << "\r\nNutzungstyp nicht definiert fuer Element " + codestr +  "\r\nTyp=72 angenommen\r\n";
             protcount++;
@@ -458,16 +368,8 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
     case 40:
         switch (typ)
         {
-        case 30:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 35;
-            break;
-
-        case 31:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 30;
-            break;
-
+        case 30: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
+        case 31: ptrDA.NUT = 'L'; ptrDA.ERT = 30; break;
         default:
             protokollStream << "\r\nNutzungstyp nicht definiert fuer Element " + codestr + "\r\nTyp=31 angenommen\r\n";
             protcount++;
@@ -480,85 +382,21 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
     case 50:
         switch (typ)
         {
-        case 12:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 45;
-            break;
-
-        case 13:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 50;
-            break;
-
-        case 14:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 50;
-            break;
-
-        case 28:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 40;
-            break;
-
-        case 41:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 40;
-            break;
-
-        case 42:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 35;
-            break;
-
-        case 43:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 35;
-            break;
-
-        case 44:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 45;
-            ptrDA.BER = 50;
-            break;
-
-        case 45:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 40;
-            break;
-
-        case 46:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 50;
-            ptrDA.BER = 50;
-            break;
-
-        case 47:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 45;
-            break;
-
-        case 49:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 45;
-            ptrDA.BER = 50;
-            break;
-
-        case 50:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 45;
-            ptrDA.BER = 50;
-            break;
-
-        case 51:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 45;
-            break;
-
-        case 60:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 45;
-            break;
-
+        case 12: ptrDA.NUT = 'L'; ptrDA.ERT = 45; break;
+        case 13: ptrDA.NUT = 'L'; ptrDA.ERT = 50; break;
+        case 14: ptrDA.NUT = 'L'; ptrDA.ERT = 50; break;
+        case 28: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
+        case 41: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
+        case 42: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
+        case 43: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
+        case 44: ptrDA.NUT = 'L'; ptrDA.ERT = 45; ptrDA.BER = 50; break;
+        case 45: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
+        case 46: ptrDA.NUT = 'L'; ptrDA.ERT = 50; ptrDA.BER = 50; break;
+        case 47: ptrDA.NUT = 'L'; ptrDA.ERT = 45; break;
+        case 49: ptrDA.NUT = 'L'; ptrDA.ERT = 45; ptrDA.BER = 50; break;
+        case 50: ptrDA.NUT = 'L'; ptrDA.ERT = 45; ptrDA.BER = 50; break;
+        case 51: ptrDA.NUT = 'L'; ptrDA.ERT = 45; break;
+        case 60: ptrDA.NUT = 'L'; ptrDA.ERT = 45; break;
         default:
             protokollStream << "\r\nNutzungstyp nicht definiert fuer Element " + codestr + "\r\nTyp=60 angenommen\r\n";
             protcount++;
@@ -568,10 +406,7 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
         }
         break;
 
-    case 60:
-        ptrDA.NUT = 'L';
-        ptrDA.ERT = 45;
-        break;
+    case 60: ptrDA.NUT = 'L'; ptrDA.ERT = 45; break;
 
     case 70:
         if (typ == 59)
@@ -593,31 +428,11 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
     case 80:
         switch (typ)
         {
-        case 91:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 40;
-            break;
-
-        case 92:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 25;
-            break;
-
-        case 93:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 30;
-            break;
-
-        case 94:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 30;
-            break;
-
-        case 99:
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 10;
-            break;
-
+        case 91: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
+        case 92: ptrDA.NUT = 'L'; ptrDA.ERT = 25; break;
+        case 93: ptrDA.NUT = 'L'; ptrDA.ERT = 30; break;
+        case 94: ptrDA.NUT = 'L'; ptrDA.ERT = 30; break;
+        case 99: ptrDA.NUT = 'L'; ptrDA.ERT = 10; break;
         default:
             protokollStream << "\r\nNutzungstyp nicht definiert fuer Element " + codestr + "\r\nTyp=99 angenommen\r\n";
             protcount++;
@@ -655,106 +470,25 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
         }
         break;
 
-    case 101:
-        ptrDA.NUT = 'W';
-        break;
-
-    case 102:
-        ptrDA.NUT = 'L';
-        ptrDA.ERT = 60;
-        break;
-
-    case 110:
-        ptrDA.NUT = 'G';
-        break;
-
-    case 121:
-        ptrDA.NUT = 'L';
-        ptrDA.ERT = 40;
-        break;
-
-    case 122:
-        ptrDA.NUT = 'L';
-        ptrDA.ERT = 35;
-        break;
-
-    case 130:
-        ptrDA.NUT = 'L';
-        ptrDA.ERT = 50;
-        ptrDA.BER = 50;
-        break;
-
-    case 140:
-        ptrDA.NUT = 'L';
-        ptrDA.ERT = 50;
-        break;
-
-    case 150:
-        ptrDA.NUT = 'L';
-        ptrDA.ERT = 50;
-        ptrDA.BER = 100;
-        break;
-
-    case 160:
-        ptrDA.NUT = 'K';
-        ptrDA.ERT = 40;
-        ptrDA.BER = 75;
-        break;
-
-    case 161:
-        ptrDA.NUT = 'K';
-        ptrDA.ERT = 40;
-        ptrDA.BER = 75;
-        break;
-
-    case 162:
-        ptrDA.NUT = 'K';
-        ptrDA.ERT = 40;
-        ptrDA.BER = 75;
-        break;
-
-    case 170:
-        ptrDA.NUT = 'L';
-        ptrDA.ERT = 10;
-        break;
-
-    case 171:
-        ptrDA.NUT = 'D';
-        ptrDA.ERT = 1;
-        ptrDA.BER = 0;
-        break;
-
-    case 172:
-        ptrDA.NUT = 'L';
-        ptrDA.ERT = 40;
-        break;
-
-    case 173:
-        ptrDA.NUT = 'L';
-        ptrDA.ERT = 45;
-        break;
-
-    case 174:
-        ptrDA.NUT = 'L';
-        ptrDA.ERT = 60;
-        break;
-
-    case 180:
-        ptrDA.NUT = 'L';
-        ptrDA.ERT = 50;
-        break;
-
-    case 190:
-        ptrDA.NUT = 'L';
-        ptrDA.ERT = 40;
-        break;
-
-    case 200:
-        ptrDA.NUT = 'L';
-        ptrDA.ERT = 50;
-        ptrDA.BER = 50;
-        break;
-
+    case 101: ptrDA.NUT = 'W'; break;
+    case 102: ptrDA.NUT = 'L'; ptrDA.ERT = 60; break;
+    case 110: ptrDA.NUT = 'G'; break;
+    case 121: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
+    case 122: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
+    case 130: ptrDA.NUT = 'L'; ptrDA.ERT = 50; ptrDA.BER = 50; break;
+    case 140: ptrDA.NUT = 'L'; ptrDA.ERT = 50; break;
+    case 150: ptrDA.NUT = 'L'; ptrDA.ERT = 50; ptrDA.BER = 100; break;
+    case 160: ptrDA.NUT = 'K'; ptrDA.ERT = 40; ptrDA.BER = 75; break;
+    case 161: ptrDA.NUT = 'K'; ptrDA.ERT = 40; ptrDA.BER = 75; break;
+    case 162: ptrDA.NUT = 'K'; ptrDA.ERT = 40; ptrDA.BER = 75; break;
+    case 170: ptrDA.NUT = 'L'; ptrDA.ERT = 10; break;
+    case 171: ptrDA.NUT = 'D'; ptrDA.ERT = 1; ptrDA.BER = 0; break;
+    case 172: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
+    case 173: ptrDA.NUT = 'L'; ptrDA.ERT = 45; break;
+    case 174: ptrDA.NUT = 'L'; ptrDA.ERT = 60; break;
+    case 180: ptrDA.NUT = 'L'; ptrDA.ERT = 50; break;
+    case 190: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
+    case 200: ptrDA.NUT = 'L'; ptrDA.ERT = 50; ptrDA.BER = 50; break;
     default:
         /*
            *protokollStream << "\r\nNutzungstyp nicht definiert fuer Element " + codestr + "\r\nTyp=200 angenommen\r\n";
@@ -800,33 +534,18 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
          * wird Sande angenommen ;
          * Sande
          */
-        if (TAS <= 0.0)
-            kr = 7.0F;
-        else
-        {
-            kr = ijkr_S[index(TAS, iTAS, lenTAS) + index(ptrDA.nFK, inFK_S, lenS) * lenTAS];
-        }
+        kr = (TAS <= 0.0) ?
+            7.0F :
+            ijkr_S[index(TAS, iTAS, lenTAS) + index(ptrDA.nFK, inFK_S, lenS) * lenTAS];
 
         /* mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres */
         switch (ptrDA.NUT)
         {
-        case 'L':
-            if (ptrDA.ERT <= 50) dw = 60;
-            else
-                dw = 75;
-            break;
-        case 'K':
-            dw = 100;
-            break;
-        case 'W':
-            dw = 90;
-            break;
-        case 'D':
-            dw = 50;
-            break;
-        default:
-            dw = 50;
-            break;
+        case 'L': dw = (ptrDA.ERT <= 50) ? 60 : 75; break;
+        case 'K': dw = 100; break;
+        case 'W': dw = 90; break;
+        case 'D': dw = 50; break;
+        default:  dw = 50; break;
         }
 
         ptrDA.KR = (int) (dw * kr);
@@ -969,27 +688,19 @@ float Calculation::getTWS(int ert, char nutz)
     float TWS;
     switch (nutz)
     {
-    case 'D':
-        TWS = 0.2F;
-        break;
+    case 'D': TWS = 0.2F; break;
     case 'L':
         if (ert <= 50)
             TWS = 0.6F;
         else
             TWS = 0.7F;
         break;
-    case 'K':
-        TWS = 0.7F;
-        break;
-    case 'W':
-        TWS = 1.0F;
-        break;
-    default:
-        TWS = 0.2F;
-        break;
+    case 'K': TWS = 0.7F; break;
+    case 'W': TWS = 1.0F; break;
+    default:  TWS = 0.2F; break;
     }
 
-    return(TWS);
+    return TWS;
 }
 
 /*
@@ -1015,7 +726,7 @@ int Calculation::index(float wert, const float *feld, int anz)
     for (i = 0; i < anz; i++)
         if (wert <= feld[i] + eps) return(i);
 
-    return(anz - 1);
+    return anz - 1;
 }
 
 /*
@@ -1027,13 +738,13 @@ float Calculation::getF(float wa)
 {
     int i, anz;
 
-    float watab[] =
+    const float watab[] =
     {
         0.45F, 0.50F, 0.55F, 0.60F, 0.65F, 0.70F, 0.75F,
         0.80F, 0.85F, 0.90F, 0.95F, 1.00F, 1.05F, 1.10F
     };
 
-    float Ftab[] =
+    const float Ftab[] =
     {
         0.65F, 0.75F, 0.82F, 0.90F, 1.00F, 1.06F, 1.15F,
         1.22F, 1.30F, 1.38F, 1.47F, 1.55F, 1.63F, 1.70F
@@ -1047,7 +758,7 @@ float Calculation::getF(float wa)
     for (i = 1; i < anz; i++)
         if (wa <= watab[i]) return((Ftab[i - 1] + Ftab[i]) / 2);
 
-    return(0);
+    return 0;
 }
 
 /*
@@ -1057,13 +768,13 @@ float Calculation::getF(float wa)
  */
 float Calculation::getG02(int nFK)
 {
-    float G02tab [] = {
+    const float G02tab [] = {
         0.0F,   0.0F,  0.0F,  0.0F,  0.3F,  0.8F,  1.4F,  2.4F,  3.7F,  5.0F,
         6.3F,   7.7F,  9.3F, 11.0F, 12.4F, 14.7F, 17.4F, 21.0F, 26.0F, 32.0F,
         39.4F, 44.7F, 48.0F, 50.7F, 52.7F, 54.0F, 55.0F, 55.0F, 55.0F, 55.0F, 55.0F
     };
 
-    return(G02tab[nFK]);
+    return G02tab[nFK];
 }
 
 /**
@@ -1105,5 +816,5 @@ float Calculation::getNUV(PDR &B)        /* DataRecord_t *B) */
         break;
     }
 
-    return(BAG0);
+    return BAG0;
 }
