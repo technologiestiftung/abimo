@@ -50,6 +50,10 @@ signals:
     void processSignal(int, QString);
 
 private:
+    const static float EKA[];
+    const static float iTAS[];
+    const static float inFK_S[];
+    const static float ijkr_S[];
     InitValues & initValues;
     QTextStream & protokollStream;
     DbaseReader & dbReader;
@@ -108,7 +112,7 @@ private:
     // functions
     float getTWS (int ert, char nutz);
     float min(float  x,float  y );
-    int index (float wert, float *feld, int anz);
+    int index (float wert, const float *feld, int anz);
     float getNUV(PDR &B);
     float getF ( float wa );
     float getG02 ( int nFK);
