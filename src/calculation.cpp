@@ -279,9 +279,7 @@ bool Calculation::calc(QString fileOut)
            deren NUTZUNG=NULL (siehe auch cls_3)
         */
 
-        float tmp = (k) * 50;
-        float prog = tmp/(float)totalRecRead;
-        emit processSignal((int)(prog), "Berechne");
+        emit processSignal((int)((float) k / (float) totalRecRead * 50.0), "Berechne");
     }
 
     totalRecWrite = index;
