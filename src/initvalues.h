@@ -79,10 +79,10 @@ public:
 
 private:
     // Infiltrationsfaktoren
-    float infdach, infbel1,infbel2, infbel3, infbel4;
+    float infdach, infbel1, infbel2, infbel3, infbel4;
 
     // Bagrovwerte
-    float bagdach, bagbel1,bagbel2, bagbel3, bagbel4;
+    float bagdach, bagbel1, bagbel2, bagbel3, bagbel4;
 
     // Nachkomma
     int decR, decROW, decRI, decRVOL, decROWVOL, decRIVOL, decFLAECHE, decVERDUNSTUNG;
