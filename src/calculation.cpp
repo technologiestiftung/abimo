@@ -19,7 +19,7 @@
 
 #include "calculation.h"
 
-static float EKA[]= {
+const float Calculation::EKA[]= {
     0.04176F, -0.647F , 0.218F  ,  0.01472F, 0.0002089F,
     0.04594F, -0.314F , 0.417F  ,  0.02463F, 0.0001143F,
     0.05177F, -0.010F , 0.596F  ,  0.02656F, 0.0002786F,
@@ -35,17 +35,17 @@ static float EKA[]= {
     0.33895F,  3.721F , 6.69999F, -0.07F   , 0.013F
 };
 
-static float iTAS[] = {
+const float Calculation::iTAS[] = {
     0.1F, 0.2F, 0.3F, 0.4F, 0.5F, 0.6F, 0.7F, 0.8F,
     0.9F, 1.0F, 1.2F, 1.4F, 1.7F, 2.0F, 2.3F
 };
 
 // Sande
-static float inFK_S[] = {
+const float Calculation::inFK_S[] = {
     8.0F, 9.0F, 14.0F, 14.5F, 15.5F, 17.0F, 20.5F
 };
 
-static float ijkr_S[] = {
+const float Calculation::ijkr_S[] = {
     7.0F, 6.0F, 5.0F, 1.5F, 0.5F, 0.2F, 0.1F, 0.0F, 0.0F, 0.0F,  0.0F , 0.0F, 0.0F , 0.0F, 0.0F,
     7.0F, 7.0F, 6.0F, 5.0F, 3.0F, 1.2F, 0.5F, 0.2F, 0.1F, 0.0F,  0.0F , 0.0F, 0.0F , 0.0F, 0.0F,
     7.0F, 7.0F, 6.0F, 6.0F, 5.0F, 3.0F, 1.5F, 0.7F, 0.3F, 0.15F, 0.1F , 0.0F, 0.0F , 0.0F, 0.0F,
@@ -55,7 +55,7 @@ static float ijkr_S[] = {
     7.0F, 7.0F, 6.0F, 6.0F, 6.0F, 5.0F, 5.0F, 5.0F, 3.0F, 2.0F,  1.0F , 0.5F, 0.15F, 0.0F, 0.0F
 };
 
-Calculation::Calculation(DbaseReader & dbR,InitValues & init, QTextStream & protoStream):
+Calculation::Calculation(DbaseReader & dbR, InitValues & init, QTextStream & protoStream):
     initValues(init),
     protokollStream(protoStream),
     dbReader(dbR),
@@ -121,19 +121,19 @@ QString Calculation::getError() {
     erfolgreich war.
  =======================================================================================================================
  */
-bool Calculation::calc(QString   fileOut)
+bool Calculation::calc(QString fileOut)
 {
     /* Variablen zur Berechnung */
-    int    index = 0;
-    float  vgd, vgb, vgs, kd, kb, ks;
-    float  bl1, bl2, bl3, bl4, bls1, bls2, bls3, bls4;
-    float  fb, fs, fbant, fsant;
-    float  row1, row2, row3, row4;
-    float  ri1, ri2, ri3, ri4;
-    float  rowd, rid;     /* Dachflaechen */
-    float  rowuvs, riuvs; /* unversiegelte Str.-flaeche */
-    float  riuv;          /* unversiegelte Flaeche */
-    float  r, ri, row;    /* float-Zwischenwerte */
+    int index = 0;
+    float vgd, vgb, vgs, kd, kb, ks;
+    float bl1, bl2, bl3, bl4, bls1, bls2, bls3, bls4;
+    float fb, fs, fbant, fsant;
+    float row1, row2, row3, row4;
+    float ri1, ri2, ri3, ri4;
+    float rowd, rid;     /* Dachflaechen */
+    float rowuvs, riuvs; /* unversiegelte Str.-flaeche */
+    float riuv;          /* unversiegelte Flaeche */
+    float r, ri, row;    /* float-Zwischenwerte */
 
     niedKorrFaktor = initValues.getNiedKorrF();
 
@@ -148,16 +148,18 @@ bool Calculation::calc(QString   fileOut)
     totalRecRead = dbReader.getNumberOfRecords();
     int k;
 
-    for (k = 0; k < totalRecRead; k++)
-    {
-        if (!weiter) {
+    for (k = 0; k < totalRecRead; k++) {
+
+        if (! weiter) {
             protokollStream << "Berechnungen abgebrochen.\r\n";
             return true;
         }
+
         ptrDA.wIndex = index;
         int nutzung = dbReader.getRecord(k, "NUTZUNG").toInt();
-        if (nutzung != 0)
-        {
+
+        if (nutzung != 0) {
+
             QString codestr = dbReader.getRecord(k, "CODE");
 
             regenja = (dbReader.getRecord(k, "REGENJA").toInt()); /* Jetzt regenja,-so OK */
@@ -1007,7 +1009,7 @@ float Calculation::min(float x, float y)
     FIXME:
  =======================================================================================================================
  */
-int Calculation::index(float wert, float *feld, int anz)
+int Calculation::index(float wert, const float *feld, int anz)
 {
     int i;
     float eps = 0.0001;
