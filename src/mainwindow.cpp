@@ -115,40 +115,6 @@ void MainWindow::warning(QString string)
     QMessageBox::warning(this, programName, string);
 }
 
-// Returns error message
-QString MainWindow::updateInitialValues(InitValues &initValues, QString configFileName)
-{
-    QString prefix = Helpers::singleQuote(configFileName) + ": ";
-
-    QFile initFile(configFileName);
-
-    if (! initFile.exists()) {
-        return "Keine " + prefix + "gefunden.\nNutze Standardwerte.";
-    }
-
-    QXmlSimpleReader xmlReader;
-    QXmlInputSource data(&initFile);
-
-    SaxHandler handler(initValues);
-
-    xmlReader.setContentHandler(&handler);
-    xmlReader.setErrorHandler(&handler);
-
-    // Empty error message (means success)
-    QString errorMessage = QString();
-
-    if (!xmlReader.parse(&data)) {
-        errorMessage = prefix + "korrupte Datei.\n" + "Nutze Standardwerte.";
-    }
-    else if (! initValues.allSet()) {
-        errorMessage = prefix + "fehlende Werte.\n" + "Ergaenze mit Standardwerten.";
-    }
-
-    initFile.close();
-
-    return errorMessage;
-}
-
 QString MainWindow::selectDbfFile(QString caption, QString dir, bool forSaving)
 {
     QString pattern = "dBase (*.dbf)";
@@ -194,7 +160,7 @@ void MainWindow::computeFile()
 
     // Update default initial values with values given in config.xml
     InitValues initValues;
-    QString errorMessage = updateInitialValues(initValues, configFileName);
+    QString errorMessage = InitValues::updateFromConfig(initValues, configFileName);
 
     if (! errorMessage.isEmpty()) {
         warning(errorMessage);

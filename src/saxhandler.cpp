@@ -19,9 +19,9 @@
 
 #include "saxhandler.h"
 
-SaxHandler::SaxHandler(InitValues &iV):
+SaxHandler::SaxHandler(InitValues &initValues):
     state(0),
-    initValues(iV)
+    initValues(initValues)
 {}
 
 bool SaxHandler::startElement(

@@ -37,7 +37,7 @@ class SaxHandler : public QXmlDefaultHandler
 {
 
 public:
-    SaxHandler(InitValues &initValue);
+    SaxHandler(InitValues &initValues);
     bool startElement(
         const QString &namespaceURI,
         const QString &localName,

@@ -24,7 +24,6 @@
 #include <QMainWindow>
 #include <QtWidgets>
 #include <QLabel>
-#include <QXmlSimpleReader>
 
 #include "saxhandler.h"
 #include "dbaseReader.h"

@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
 
         // Update default initial values with values given in config.xml
         InitValues initValues;
-        QString errorMessage = MainWindow::updateInitialValues(initValues, configFileName);
+        QString errorMessage = InitValues::updateFromConfig(initValues, configFileName);
 
         if (errorMessage.length() > 0) {
             qDebug() << "Error: " << errorMessage;

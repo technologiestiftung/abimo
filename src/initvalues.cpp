@@ -18,6 +18,8 @@
  ***************************************************************************/
 
 #include "initvalues.h"
+#include "saxhandler.h"
+
 InitValues::InitValues():
 
         /* Infiltrationsfaktoren */
@@ -50,12 +52,44 @@ InitValues::InitValues():
 
         countSets(0)
 {
-
 }
 
 InitValues::~InitValues()
 {
+}
 
+// Update initial values with values read from config.xml. Returns error message
+QString InitValues::updateFromConfig(InitValues &initValues, QString configFileName)
+{
+    QString prefix = Helpers::singleQuote(configFileName) + ": ";
+
+    QFile initFile(configFileName);
+
+    if (! initFile.exists()) {
+        return "Keine " + prefix + "gefunden.\nNutze Standardwerte.";
+    }
+
+    QXmlSimpleReader xmlReader;
+    QXmlInputSource data(&initFile);
+
+    SaxHandler handler(initValues);
+
+    xmlReader.setContentHandler(&handler);
+    xmlReader.setErrorHandler(&handler);
+
+    // Empty error message (means success)
+    QString errorMessage = QString();
+
+    if (!xmlReader.parse(&data)) {
+        errorMessage = prefix + "korrupte Datei.\n" + "Nutze Standardwerte.";
+    }
+    else if (! initValues.allSet()) {
+        errorMessage = prefix + "fehlende Werte.\n" + "Ergaenze mit Standardwerten.";
+    }
+
+    initFile.close();
+
+    return errorMessage;
 }
 
 void InitValues::setInfdach(float v) {

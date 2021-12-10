@@ -23,6 +23,11 @@
 #include <QHash>
 #include <QString>
 #include <QStringList>
+#include <QXmlSimpleReader>
+#include <QXmlInputSource>
+
+#include "helpers.h"
+//#include "saxhandler.h"
 
 class InitValues
 {
@@ -30,6 +35,7 @@ class InitValues
 public:
     InitValues();
     ~InitValues();
+    static QString updateFromConfig(InitValues &initValues, QString configFileName);
     void setInfdach(float v);
     void setInfbel1(float v);
     void setInfbel2(float v);
