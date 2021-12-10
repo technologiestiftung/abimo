@@ -17,7 +17,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include "bagrov.h"
 #include "calculation.h"
+#include "dbaseWriter.h"
 
 const float Calculation::EKA[]= {
     0.04176F, -0.647F , 0.218F  ,  0.01472F, 0.0002089F,
