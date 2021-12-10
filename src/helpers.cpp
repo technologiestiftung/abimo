@@ -1,3 +1,9 @@
+#include <QCommandLineParser>
+#include <QDateTime>
+#include <QFileInfo>
+#include <QString>
+#include <QStringList>
+
 #include "helpers.h"
 
 Helpers::Helpers()

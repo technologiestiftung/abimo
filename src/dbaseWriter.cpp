@@ -17,8 +17,20 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "dbaseWriter.h"
+#include <math.h>
+#include <QByteArray>
+#include <QChar>
+#include <QDateTime>
+#include <QFile>
+#include <QHash>
+#include <QIODevice>
+#include <QString>
+#include <QStringList>
 #include <QTextStream>
+#include <QVector>
+
+#include "dbaseWriter.h"
+#include "initvalues.h"
 
 DbaseWriter::DbaseWriter(QString &file, InitValues &initValues):
     fileName(file),

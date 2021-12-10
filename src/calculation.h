@@ -20,15 +20,13 @@
 #ifndef CALCULATION_H
 #define CALCULATION_H
 
-#include <QMainWindow>
+#include <QObject>
+#include <QString>
 #include <QTextStream>
-#include <QMessageBox>
-#include <math.h>
 
 #include "dbaseReader.h"
-#include "dbaseWriter.h"
+#include "initvalues.h"
 #include "pdr.h"
-#include "bagrov.h"
 
 class Calculation: public QObject
 {
@@ -111,11 +109,11 @@ private:
 
     // functions
     float getTWS (int ert, char nutz);
-    float min(float  x,float  y );
+    float min(float  x,float  y);
     int index (float wert, const float *feld, int anz);
     float getNUV(PDR &B);
-    float getF ( float wa );
-    float getG02 ( int nFK);
+    float getF (float wa);
+    float getG02 (int nFK);
     void getNUTZ(int nutz, int typ, int f30, int f150, QString codestr);
     void getKLIMA(int bez, QString codestr);
 };

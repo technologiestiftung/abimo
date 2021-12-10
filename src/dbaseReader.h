@@ -20,12 +20,10 @@
 #ifndef DBASEREADER_H
 #define DBASEREADER_H
 
-#include <QFile>
 #include <QDate>
-#include <QBuffer>
+#include <QFile>
 #include <QHash>
-
-#include "dbaseField.h"
+#include <QString>
 
 class DbaseReader
 {
