@@ -141,6 +141,7 @@ bool Calculation::calc(QString fileOut)
     float rowuvs, riuvs; /* unversiegelte Str.-flaeche */
     float riuv;          /* unversiegelte Flaeche */
     float r, ri, row;    /* float-Zwischenwerte */
+    int k;
 
     niedKorrFaktor = initValues.getNiedKorrF();
 
@@ -153,7 +154,6 @@ bool Calculation::calc(QString fileOut)
     DbaseWriter writer(fileOut, initValues);
 
     totalRecRead = dbReader.getNumberOfRecords();
-    int k;
 
     for (k = 0; k < totalRecRead; k++) {
 

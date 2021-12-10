@@ -35,7 +35,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QApplication*, QCommandLineParser* arguments);
+    MainWindow(QApplication*, QCommandLineParser* = NULL);
     ~MainWindow();
     static QString updateInitialValues(InitValues &, QString);
 
