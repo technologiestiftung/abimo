@@ -17,6 +17,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <math.h>
+
 #include "bagrov.h"
 
 /*
@@ -31,6 +33,10 @@
     Mittlere reale Verdunstung [mm/a]
  =======================================================================================================================
  */
+
+Bagrov::Bagrov()
+{
+}
 
 void Bagrov::nbagro(float *bage, float *y, float *x)
 {
