@@ -17,9 +17,16 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <math.h>
+#include <QString>
+#include <QTextStream>
+
 #include "bagrov.h"
 #include "calculation.h"
+#include "dbaseReader.h"
 #include "dbaseWriter.h"
+#include "initvalues.h"
+#include "pdr.h"
 
 const float Calculation::EKA[]= {
     0.04176F, -0.647F , 0.218F  ,  0.01472F, 0.0002089F,
@@ -784,7 +791,7 @@ float Calculation::getG02(int nFK)
     g e t N U V ( Pointer auf aktuellen DataRecord) Berechnung eines Records (abgespecktes Raster)
  =======================================================================================================================
  */
-float Calculation::getNUV(PDR &B)        /* DataRecord_t *B) */
+float Calculation::getNUV(PDR &B) /* DataRecord_t *B) */
 {
     int K;
     float G020, BAG0;
