@@ -17,8 +17,27 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "mainwindow.h"
+#include <QAction>
+#include <QApplication>
+#include <QCommandLineParser>
+#include <QEventLoop>
+#include <QFont>
+#include <QFile>
+#include <QFileDialog>
+#include <QLabel>
+#include <QMainWindow>
+#include <QMenuBar>
+#include <QMessageBox>
+#include <QProgressDialog>
+#include <QString>
+#include <QTextStream>
+#include <QWidget>
+
+#include "calculation.h"
+#include "dbaseReader.h"
 #include "helpers.h"
+#include "initvalues.h"
+#include "mainwindow.h"
 
 MainWindow::MainWindow(QApplication* app, QCommandLineParser* arguments):
     QMainWindow(),

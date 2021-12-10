@@ -20,14 +20,19 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QAction>
+#include <QApplication>
 #include <QCommandLineParser>
-#include <QMainWindow>
-#include <QtWidgets>
 #include <QLabel>
+#include <QMainWindow>
+#include <QObject>
+#include <QProgressDialog>
+#include <QString>
+#include <QTextStream>
+#include <QWidget>
 
-#include "saxhandler.h"
-#include "dbaseReader.h"
 #include "calculation.h"
+#include "initvalues.h"
 
 class MainWindow : public QMainWindow
 {

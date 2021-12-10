@@ -18,13 +18,20 @@
  ***************************************************************************/
 
 #include <QApplication>
+#include <QCommandLineOption>
 #include <QCommandLineParser>
-#include <QLabel>
+#include <QCoreApplication>
+#include <QFile>
+#include <QString>
+#include <QStringList>
+#include <QTextStream>
+#include <QtDebug>
 
-#include "mainwindow.h"
+#include "calculation.h"
 #include "dbaseReader.h"
-#include "initvalues.h"
 #include "helpers.h"
+#include "initvalues.h"
+#include "mainwindow.h"
 
 bool parseForBatch(int &argc, char *argv[])
 {
