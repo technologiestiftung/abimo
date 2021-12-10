@@ -19,114 +19,138 @@
 
 #include "saxhandler.h"
 
-SaxHandler::SaxHandler(InitValues &iV):state(0), initValues(iV) {}
+SaxHandler::SaxHandler(InitValues &iV):
+    state(0),
+    initValues(iV)
+{}
 
-bool SaxHandler::startElement(const QString &, const QString &,
-                              const QString &qName,
-                              const QXmlAttributes &attribs)
+bool SaxHandler::startElement(
+    const QString &,
+    const QString &,
+    const QString &qName,
+    const QXmlAttributes &attribs
+)
 {
-
     if (qName == "section") {
-        if (attribs.value("name") == "Infiltrationsfaktoren") {
+
+        QString name = attribs.value("name");
+
+        if (name == "Infiltrationsfaktoren") {
             state = Infiltrationsfaktoren;
         }
-
-        else if (attribs.value("name") == "Bagrovwerte") {
+        else if (name == "Bagrovwerte") {
             state = Bagrovwerte;
         }
-
-        else if (attribs.value("name") == "ErgebnisNachkommaStellen") {
+        else if (name == "ErgebnisNachkommaStellen") {
             state = Nachkomma;
         }
-
-        else if (attribs.value("name") == "Diverse") {
+        else if (name == "Diverse") {
             state = Diverse;
         }
-        else if (attribs.value("name") == "Gewaesserverdunstung") {
+        else if (name == "Gewaesserverdunstung") {
             state = GewVerd;
         }
-        else if (attribs.value("name") == "PotentielleVerdunstung") {
+        else if (name == "PotentielleVerdunstung") {
             state = PotVerd;
         }
     }
+
     if (qName == "item") {
+
+        QString key = attribs.value("key");
+        QString value = attribs.value("value");
+
         switch (state) {
+
         case Infiltrationsfaktoren :
-            if (attribs.value("key") == "Dachflaechen")
-                initValues.setInfdach(attribs.value("value").toFloat());
-            else if (attribs.value("key") == "Belaglsklasse1")
-                initValues.setInfbel1(attribs.value("value").toFloat());
-            else if (attribs.value("key") == "Belaglsklasse2")
-                initValues.setInfbel2(attribs.value("value").toFloat());
-            else if (attribs.value("key") == "Belaglsklasse3")
-                initValues.setInfbel3(attribs.value("value").toFloat());
-            else if (attribs.value("key") == "Belaglsklasse4")
-                initValues.setInfbel4(attribs.value("value").toFloat());
+            if (key == "Dachflaechen")
+                initValues.setInfdach(value.toFloat());
+            else if (key == "Belaglsklasse1")
+                initValues.setInfbel1(value.toFloat());
+            else if (key == "Belaglsklasse2")
+                initValues.setInfbel2(value.toFloat());
+            else if (key == "Belaglsklasse3")
+                initValues.setInfbel3(value.toFloat());
+            else if (key == "Belaglsklasse4")
+                initValues.setInfbel4(value.toFloat());
             break;
+
         case Bagrovwerte :
-            if (attribs.value("key") == "Dachflaechen")
-                initValues.setBagdach(attribs.value("value").toFloat());
-            else if (attribs.value("key") == "Belaglsklasse1")
-                initValues.setBagbel1(attribs.value("value").toFloat());
-            else if (attribs.value("key") == "Belaglsklasse2")
-                initValues.setBagbel2(attribs.value("value").toFloat());
-            else if (attribs.value("key") == "Belaglsklasse3")
-                initValues.setBagbel3(attribs.value("value").toFloat());
-            else if (attribs.value("key") == "Belaglsklasse4")
-                initValues.setBagbel4(attribs.value("value").toFloat());
+            if (key == "Dachflaechen")
+                initValues.setBagdach(value.toFloat());
+            else if (key == "Belaglsklasse1")
+                initValues.setBagbel1(value.toFloat());
+            else if (key == "Belaglsklasse2")
+                initValues.setBagbel2(value.toFloat());
+            else if (key == "Belaglsklasse3")
+                initValues.setBagbel3(value.toFloat());
+            else if (key == "Belaglsklasse4")
+                initValues.setBagbel4(value.toFloat());
             break;
+
         case Nachkomma :
-            if (attribs.value("key") == "R")
-                initValues.setDecR(attribs.value("value").toInt());
-            else if (attribs.value("key") == "ROW")
-                initValues.setDecROW(attribs.value("value").toInt());
-            else if (attribs.value("key") == "RI")
-                initValues.setDecRI(attribs.value("value").toInt());
-            else if (attribs.value("key") == "RVOL")
-                initValues.setDecRVOL(attribs.value("value").toInt());
-            else if (attribs.value("key") == "ROWVOL")
-                initValues.setDecROWVOL(attribs.value("value").toInt());
-            else if (attribs.value("key") == "RIVOL")
-                initValues.setDecRIVOL(attribs.value("value").toInt());
-            else if (attribs.value("key") == "FLAECHE")
-                initValues.setDecFLAECHE(attribs.value("value").toInt());
-            else if (attribs.value("key") == "VERDUNSTUNG")
-                initValues.setDecVERDUNSTUNG(attribs.value("value").toInt());
+            if (key == "R")
+                initValues.setDecR(value.toInt());
+            else if (key == "ROW")
+                initValues.setDecROW(value.toInt());
+            else if (key == "RI")
+                initValues.setDecRI(value.toInt());
+            else if (key == "RVOL")
+                initValues.setDecRVOL(value.toInt());
+            else if (key == "ROWVOL")
+                initValues.setDecROWVOL(value.toInt());
+            else if (key == "RIVOL")
+                initValues.setDecRIVOL(value.toInt());
+            else if (key == "FLAECHE")
+                initValues.setDecFLAECHE(value.toInt());
+            else if (key == "VERDUNSTUNG")
+                initValues.setDecVERDUNSTUNG(value.toInt());
             break;
+
         case Diverse :
-            if (attribs.value("key") == "BERtoZero")
-                initValues.setBERtoZero(attribs.value("value")=="true");
-            else if (attribs.value("key") == "NIEDKORRF")
-                initValues.setNiedKorrF(attribs.value("value").toFloat());
+            if (key == "BERtoZero")
+                initValues.setBERtoZero(value == "true");
+            else if (key == "NIEDKORRF")
+                initValues.setNiedKorrF(value.toFloat());
             break;
-        case GewVerd :
+
+        case GewVerd :            
             gewVerdEntry(attribs);
             break;
+
         case PotVerd :
             potVerdEntry(attribs);
             break;
         }
     }
+
     return true;
 }
 
 void SaxHandler::gewVerdEntry(const QXmlAttributes &attribs)
 {
-    initValues.putToHash(attribs.value("bezirke"), attribs.value("eg").toInt(), 13);
+    QString bezirke = attribs.value("bezirke");
+    QString eg = attribs.value("eg");
+
+    initValues.putToHash(bezirke, eg.toInt(), 13);
 }
-
-
 
 void SaxHandler::potVerdEntry(const QXmlAttributes &attribs)
 {
-    QString etpString = attribs.value("etp");
-    if (etpString.length() > 0) {
-        initValues.putToHash(attribs.value("bezirke"), etpString.toInt(), 11);
-    }
+    QString etp = attribs.value("etp");
+    QString etps = attribs.value("etps");
 
-    QString etpsString = attribs.value("etps");
-    if (etpsString.length() > 0) {
-        initValues.putToHash(attribs.value("bezirke"), etpsString.toInt(), 12);
+    if (etp.length() > 0 || etps.length() > 0) {
+
+        QString bezirke = attribs.value("bezirke");
+
+        if (etp.length() > 0) {
+            initValues.putToHash(bezirke, etp.toInt(), 11);
+        }
+
+        if (etps.length() > 0) {
+            initValues.putToHash(bezirke, etps.toInt(), 12);
+        }
     }
 }
 

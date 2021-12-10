@@ -31,13 +31,13 @@
     Mittlere reale Verdunstung [mm/a]
  =======================================================================================================================
  */
+
 void Bagrov::nbagro(float *bage, float *y, float *x)
 {
-    /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-    int				_do0, i, i_, ia, ie, j, j_;
-    float			bag, bag1;
-    float			a, a0, a1, a2, b, c, epa, eyn, h, h13, h23, qbag1, s1, s2, w, w13, w23, y0;
-    static float	aa[16] =
+    int _do0, i, i_, ia, ie, j;
+    float bag, bag1;
+    float a, a0, a1, a2, b, c, epa, eyn, h, h13, h23, qbag1, s1, s2, w, w13, w23, y0;
+    static float aa[16] =
     {
         0.9946811499F,
         1.213648255F,
@@ -56,7 +56,6 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
         -24573.23867F,
         6515.556685F
     };
-    /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
     y0 = 0.0F;
     bag = *bage;
@@ -85,6 +84,7 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
         b = 0.5F * a1 - (float) sqrt(0.25 * a1 * a1 - a2);
     else
         b = -(float) sqrt(0.5F * a1 * a1 - a2);
+
     c = a1 - b;
     a = a0 / (b - c);
 
@@ -101,7 +101,6 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
     /* NUMERISCHE INTEGRATION FUER BAG<0.7 (2.Naeherungsloesung) */
     for (j = 1; j <= 30; j++)
     {
-        j_ = j - 1;
         eyn = (float) exp(bag * log(y0));
         if (eyn > 0.9F) goto L_13;
         if (eyn >= 0.7F && bag > 4.0F) goto L_13;
@@ -162,17 +161,13 @@ L_13:
  */
 void Bagrov::bagrov(float *bagf, float *x0, float *y0)
 {
-    /*~~~~~~~~~~~~~~~~~~~~~~~~*/
-    bool	doloop; /* LOGICAL16 */
-    int		_do0, i, ii, ii_, j;
-    /*~~~~~~~~~~~~~~~~~~~~~~~~*/
+    bool doloop; /* LOGICAL16 */
+    int _do0, i, ii, j;
 
-    /* meiko : initialisiere i (einzige Änderung) */
+    /* meiko : initialisiere i (einzige Aenderung) */
     i = 0;
 
-    /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
     float	delta, du, h, s, s1, sg, si, su, u, x;
-    /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
     if (*x0 == 0.0) goto L_10;
     *y0 = 0.99F;
@@ -198,9 +193,9 @@ L_1:
     u = du / 2.0F;
     sg = sg + su;
     su = 0.0F;
+
     for (ii = 1, _do0 = j; ii <= _do0; ii += 2)
     {
-        ii_ = ii - 1;
         su = su + 1.0F / (1.0F - (float) exp(*bagf * log(u)));
         u = u + du;
     }

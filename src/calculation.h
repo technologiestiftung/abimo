@@ -19,6 +19,7 @@
 
 #ifndef CALCULATION_H
 #define CALCULATION_H
+
 #include <QMainWindow>
 #include <QTextStream>
 #include <QMessageBox>
@@ -29,13 +30,12 @@
 #include "pdr.h"
 #include "bagrov.h"
 
-
-class Calculation :public  QObject
+class Calculation: public QObject
 {
     Q_OBJECT
 
 public:
-    Calculation(DbaseReader & dbR,InitValues & init, QTextStream & protoStream);
+    Calculation(DbaseReader & dbR, InitValues & init, QTextStream & protoStream);
     bool calc(QString fileOut);
     long getProtCount();
     long getKeineFlaechenAngegeben();
@@ -50,14 +50,17 @@ signals:
     void processSignal(int, QString);
 
 private:
-    //
+    const static float EKA[];
+    const static float iTAS[];
+    const static float inFK_S[];
+    const static float ijkr_S[];
     InitValues & initValues;
     QTextStream & protokollStream;
     DbaseReader & dbReader;
     PDR ptrDA;
     QString error;
 
-    // Anzahl der Protokolleinträge
+    // Anzahl der Protokolleintraege
     long protcount;
 
     // Anzahl der nicht berechneten Flaechen
@@ -65,15 +68,15 @@ private:
 
     long nutzungIstNull;
 
-    // ******vorläufig aus Teilblock 0 wird für die Folgeblocks genommen
+    // ******vorlaeufig aus Teilblock 0 wird fuer die Folgeblocks genommen
     float regenja, regenso;
 
-    // Abflüsse nach Bagrov für N1 bis N4
+    // Abfluesse nach Bagrov fuer N1 bis N4
     float RDV, R1V, R2V, R3V, R4V;
 
     float RUV;
 
-    // Regenwasserabfluss in qubikzentimeter pro sec
+    // Regenwasserabfluss in Qubikzentimeter pro Sekunde
     float ROWVOL;
 
     // unterirdischer Gesamtabfluss in qcm/s
@@ -82,38 +85,39 @@ private:
     // Gesamtabfluss in qcm/s
     float RVOL;
 
-    // potentielle Aufstiegshöhe
+    // potentielle Aufstiegshoehe
     float TAS;
 
-    //Niederschlags-Korrekturfaktor
+    // Niederschlags-Korrekturfaktor
     float niedKorrFaktor;
 
-    // Feldlänge von iTAS
+    // Feldlaenge von iTAS
     int lenTAS;
 
-    // Feldlänge von inFK_S
+    // Feldlaenge von inFK_S
     int lenS;
 
-    //total written records
+    // total written records
     int totalRecWrite;
 
-    //total read records
+    // total read records
     int totalRecRead;
 
-    //Anzahl der Records fuer die BER==0 gesetzt werden musste
+    // Anzahl der Records fuer die BER == 0 gesetzt werden musste
     int totalBERtoZeroForced;
 
-    //to stop calc
+    // to stop calc
     bool weiter;
 
-    //functions
+    // functions
     float getTWS (int ert, char nutz);
     float min(float  x,float  y );
-    int index (float wert, float *feld, int anz);
+    int index (float wert, const float *feld, int anz);
     float getNUV(PDR &B);
     float getF ( float wa );
     float getG02 ( int nFK);
     void getNUTZ(int nutz, int typ, int f30, int f150, QString codestr);
     void getKLIMA(int bez, QString codestr);
 };
+
 #endif

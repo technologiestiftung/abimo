@@ -19,22 +19,25 @@
 
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
+
+#include <QCommandLineParser>
 #include <QMainWindow>
-//#include <QtGui>
 #include <QtWidgets>
 #include <QLabel>
 #include <QXmlSimpleReader>
+
 #include "saxhandler.h"
 #include "dbaseReader.h"
 #include "calculation.h"
 
-
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+
 public:
-    MainWindow(QApplication*);
+    MainWindow(QApplication*, QCommandLineParser* arguments);
     ~MainWindow();
+    static QString updateInitialValues(InitValues &, QString);
 
 private slots:
     void processEvent(int, QString);
@@ -43,8 +46,13 @@ private slots:
     void userCancel();
 
 private:
+    const char* programName;
     void setText(QString);
     void critical(QString);
+    void warning(QString);
+    QString selectDbfFile(QString, QString, bool);
+    void reportSuccess(Calculation*, QTextStream&, QString, QString);
+    void reportCancelled(QTextStream&);
     QAction *openAct;
     QAction *aboutAct;
     QLabel *textfield;
@@ -52,9 +60,9 @@ private:
     bool userStop;
     Calculation* calc;
     QApplication* app;
+    QCommandLineParser* arguments;
     QString folder;
-    QWidget *w;
+    QWidget *widget;
 };
+
 #endif
-
-

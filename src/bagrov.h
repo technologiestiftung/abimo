@@ -17,22 +17,20 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef BAGROV_H	/* Prevent multiple includes */
+#ifndef BAGROV_H /* Prevent multiple includes */
 #define BAGROV_H
+
 #include <math.h>
-class	Bagrov
+
+class Bagrov
 {
-    /*
-     -----------------------------------------------------------------------------------------------------------------------
-     -----------------------------------------------------------------------------------------------------------------------
-     */
+
 public:
-    /*
-     ===================================================================================================================
-     ===================================================================================================================
-     */
-    Bagrov()	{ }
-    void	nbagro(float *bage, float *y, float *x);
-    void	bagrov(float *bagf, float *x0, float *y0);
+    Bagrov() {
+    }
+
+    void nbagro(float *bage, float *y, float *x);
+    void bagrov(float *bagf, float *x0, float *y0);
 };
+
 #endif

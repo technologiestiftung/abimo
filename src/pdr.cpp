@@ -19,19 +19,19 @@
 
 #include "pdr.h"
 PDR::PDR():
-        wIndex(0),
-        nFK(0),
-        FLW(0),
-        NUT(0),
-        R(0),
-        ROW(0),
-        RI(0),
-        VER(0),
-        ERT(0),
-        BER(0),
-        P1(0.0F),
-        ETP(0),
-        KR(0),
-        P1S(0.0F),
-        ETPS(0)
+    wIndex(0),
+    nFK(0),
+    FLW(0),
+    NUT(0),
+    R(0),
+    ROW(0),
+    RI(0),
+    VER(0),
+    ERT(0),
+    BER(0),
+    P1(0.0F),
+    ETP(0),
+    KR(0),
+    P1S(0.0F),
+    ETPS(0)
 {}
