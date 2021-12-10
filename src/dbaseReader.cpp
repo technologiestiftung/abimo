@@ -17,6 +17,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <QBuffer>
+#include <QIODevice>
+
+#include "dbaseField.h"
 #include "dbaseReader.h"
 
 DbaseReader::DbaseReader(const QString &i_file):
@@ -101,7 +105,7 @@ bool DbaseReader::checkAndRead()
 bool DbaseReader::read()
 {
     if (!file.open(QIODevice::ReadOnly)) {
-        error = "Kann die Datei nicht oeffnen\n" + file.error();
+        error = "Kann die Datei nicht oeffnen\n" + file.errorString();
         return false;
     }
 
