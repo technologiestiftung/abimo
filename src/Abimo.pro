@@ -5,7 +5,7 @@ TEMPLATE = app
 TARGET = Abimo
 DEPENDPATH += .
 INCLUDEPATH += .
-QT += xml widgets
+QT += xml widgets core
 
 # Input
 HEADERS += bagrov.h \
@@ -13,6 +13,7 @@ HEADERS += bagrov.h \
     dbaseField.h \
     dbaseReader.h \
     dbaseWriter.h \
+    helpers.h \
     initvalues.h \
     mainwindow.h \
     pdr.h \
@@ -22,6 +23,7 @@ SOURCES += bagrov.cpp \
     dbaseField.cpp \
     dbaseReader.cpp \
     dbaseWriter.cpp \
+    helpers.cpp \
     initvalues.cpp \
     main.cpp \
     mainwindow.cpp \

@@ -18,6 +18,7 @@
  ***************************************************************************/
 
 #include "mainwindow.h"
+#include "helpers.h"
 
 MainWindow::MainWindow(QApplication* app, QCommandLineParser* arguments):
     QMainWindow(),
@@ -114,22 +115,15 @@ void MainWindow::warning(QString string)
     QMessageBox::warning(this, programName, string);
 }
 
-QString MainWindow::singleQuote(QString string)
+// Returns error message
+QString MainWindow::updateInitialValues(InitValues &initValues, QString configFileName)
 {
-    return "'" + string + "'";
-}
+    QString prefix = Helpers::singleQuote(configFileName) + ": ";
 
-InitValues MainWindow::updateInitialValues(QString configFileName)
-{
-    InitValues initValues;
     QFile initFile(configFileName);
 
     if (! initFile.exists()) {
-        warning(
-            "Keine " + singleQuote(configFileName) + ": gefunden.\n" +
-            "Nutze Standardwerte."
-        );
-        return initValues;
+        return "Keine " + prefix + "gefunden.\nNutze Standardwerte.";
     }
 
     QXmlSimpleReader xmlReader;
@@ -140,18 +134,19 @@ InitValues MainWindow::updateInitialValues(QString configFileName)
     xmlReader.setContentHandler(&handler);
     xmlReader.setErrorHandler(&handler);
 
-    QString prefix = singleQuote(configFileName) + ": ";
+    // Empty error message (means success)
+    QString errorMessage = QString();
 
     if (!xmlReader.parse(&data)) {
-        warning(prefix + "korrupte Datei.\n" + "Nutze Standardwerte.");
+        errorMessage = prefix + "korrupte Datei.\n" + "Nutze Standardwerte.";
     }
     else if (! initValues.allSet()) {
-        warning(prefix + "fehlende Werte.\n" + "Ergaenze mit Standardwerten.");
+        errorMessage = prefix + "fehlende Werte.\n" + "Ergaenze mit Standardwerten.";
     }
 
     initFile.close();
 
-    return initValues;
+    return errorMessage;
 }
 
 QString MainWindow::selectDbfFile(QString caption, QString dir, bool forSaving)
@@ -163,23 +158,10 @@ QString MainWindow::selectDbfFile(QString caption, QString dir, bool forSaving)
         QFileDialog::getOpenFileName(this, caption, dir, pattern);
 }
 
-QString MainWindow::removeFileExtension(QString fileName)
-{
-    QFileInfo fileInfo(fileName);
-
-    return fileInfo.absolutePath() + "/" + fileInfo.baseName();
-}
-
-QString positionalArgOrNULL(QCommandLineParser* arguments, int index)
-{
-    const QStringList posArgs = arguments->positionalArguments();
-    return (posArgs.length() > index) ? posArgs.at(index) : NULL;
-}
-
 void MainWindow::computeFile()
 {
-    QString inputFileName = positionalArgOrNULL(arguments, 0);
-    QString outputFileName = positionalArgOrNULL(arguments, 1);
+    QString inputFileName = Helpers::positionalArgOrNULL(arguments, 0);
+    QString outputFileName = Helpers::positionalArgOrNULL(arguments, 1);
     QString configFileName = arguments->value("config");
     QString protokollFileName = NULL;
 
@@ -211,7 +193,12 @@ void MainWindow::computeFile()
     }
 
     // Update default initial values with values given in config.xml
-    InitValues initValues = updateInitialValues(configFileName);
+    InitValues initValues;
+    QString errorMessage = updateInitialValues(initValues, configFileName);
+
+    if (! errorMessage.isEmpty()) {
+        warning(errorMessage);
+    }
 
     setText("Quelldatei eingelesen, waehlen Sie eine Zieldatei...");
     userStop = false;
@@ -219,7 +206,7 @@ void MainWindow::computeFile()
     if (outputFileName == NULL) {
         outputFileName = selectDbfFile(
             "Ergebnisse schreiben nach...",
-            removeFileExtension(inputFileName)  + "out.dbf",
+            Helpers::removeFileExtension(inputFileName)  + "out.dbf",
             true // select file for saving
         );
     }
@@ -234,14 +221,14 @@ void MainWindow::computeFile()
 
     // Protokoll
     if (protokollFileName == NULL) {
-        protokollFileName = removeFileExtension(outputFileName) + "Protokoll.txt";
+        protokollFileName = Helpers::removeFileExtension(outputFileName) + "Protokoll.txt";
     }
 
     QFile protokollFile(protokollFileName);
 
     if (! protokollFile.open(QFile::WriteOnly)) {
         critical(
-            "Konnte Datei: " + singleQuote(protokollFileName) +
+            "Konnte Datei: " + Helpers::singleQuote(protokollFileName) +
             " nicht oeffnen.\n" + protokollFile.error()
         );
         return;
@@ -250,7 +237,7 @@ void MainWindow::computeFile()
     QTextStream protokollStream(&protokollFile);
 
     // Start the Calculation
-    protokollStream << "Start der Berechnung " + nowString() + "\r\n";
+    protokollStream << "Start der Berechnung " + Helpers::nowString() + "\r\n";
 
     // Create calculator object
     calc = new Calculation(dbReader, initValues, protokollStream);
@@ -331,7 +318,7 @@ void MainWindow::reportSuccess(
 
     protokollStream << "\r\nEingelesene Records: " + readRecCount + "\r\n";
     protokollStream << "\r\nGeschriebene Records: " + writeRecCount + "\r\n";
-    protokollStream << "\r\nEnde der Berechnung " + nowString() + "\r\n";
+    protokollStream << "\r\nEnde der Berechnung " + Helpers::nowString() + "\r\n";
 }
 
 void MainWindow::reportCancelled(QTextStream &protokollStream)
@@ -342,13 +329,4 @@ void MainWindow::reportCancelled(QTextStream &protokollStream)
     protokollStream << "\r\nNutzer-Unterbrechung der Berechnungen " +
         nowString() + "\r\n";
     */
-}
-
-QString MainWindow::nowString()
-{
-    QDateTime now = QDateTime::currentDateTime();
-
-    return
-        "am: " + now.toString("dd.MM.yyyy") +
-        " um: " + now.toString("hh:mm:ss");
 }
