@@ -17,40 +17,46 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <QFile>
+#include <QHash>
+#include <QString>
+#include <QStringList>
+#include <QXmlSimpleReader>
+#include <QXmlInputSource>
+
+#include "helpers.h"
 #include "initvalues.h"
 #include "saxhandler.h"
 
 InitValues::InitValues():
 
-        /* Infiltrationsfaktoren */
-        infdach(0.00F),
-        infbel1(0.10F),
-        infbel2(0.30F),
-        infbel3(0.60F),
-        infbel4(0.90F),
+    /* Infiltrationsfaktoren */
+    infdach(0.00F),
+    infbel1(0.10F),
+    infbel2(0.30F),
+    infbel3(0.60F),
+    infbel4(0.90F),
 
-        /* Bagrovwerte */
-        bagdach(0.05F),
-        bagbel1(0.11F),
-        bagbel2(0.11F),
-        bagbel3(0.25F),
-        bagbel4(0.40F),
+    /* Bagrovwerte */
+    bagdach(0.05F),
+    bagbel1(0.11F),
+    bagbel2(0.11F),
+    bagbel3(0.25F),
+    bagbel4(0.40F),
 
-        /* Nachkomma der Ergebnisse */
-        decR(3),
-        decROW(3),
-        decRI(3),
-        decRVOL(3),
-        decROWVOL(3),
-        decRIVOL(3),
-        decFLAECHE(0),
-        decVERDUNSTUNG(3),
+    /* Nachkomma der Ergebnisse */
+    decR(3),
+    decROW(3),
+    decRI(3),
+    decRVOL(3),
+    decROWVOL(3),
+    decRIVOL(3),
+    decFLAECHE(0),
+    decVERDUNSTUNG(3),
 
-        BERtoZero(false),
-
-        niedKorrF(1.09f),
-
-        countSets(0)
+    BERtoZero(false),
+    niedKorrF(1.09f),
+    countSets(0)
 {
 }
 

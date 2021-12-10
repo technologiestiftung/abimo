@@ -22,12 +22,6 @@
 
 #include <QHash>
 #include <QString>
-#include <QStringList>
-#include <QXmlSimpleReader>
-#include <QXmlInputSource>
-
-#include "helpers.h"
-//#include "saxhandler.h"
 
 class InitValues
 {
