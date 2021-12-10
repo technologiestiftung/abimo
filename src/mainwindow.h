@@ -20,6 +20,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QCommandLineParser>
 #include <QMainWindow>
 #include <QtWidgets>
 #include <QLabel>
@@ -34,13 +35,14 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QApplication*);
+    MainWindow(QApplication*, QCommandLineParser* arguments);
     ~MainWindow();
+    static QString updateInitialValues(InitValues &, QString);
 
 private slots:
     void processEvent(int, QString);
     void about();
-    void computeFile(QString = NULL, QString = NULL, QString = NULL, QString = NULL);
+    void computeFile();
     void userCancel();
 
 private:
@@ -49,11 +51,8 @@ private:
     void critical(QString);
     void warning(QString);
     QString selectDbfFile(QString, QString, bool);
-    QString removeFileExtension(QString);
-    QString singleQuote(QString);
     void reportSuccess(Calculation*, QTextStream&, QString, QString);
     void reportCancelled(QTextStream&);
-    InitValues updateInitialValues(QString);
     QAction *openAct;
     QAction *aboutAct;
     QLabel *textfield;
@@ -61,9 +60,9 @@ private:
     bool userStop;
     Calculation* calc;
     QApplication* app;
+    QCommandLineParser* arguments;
     QString folder;
     QWidget *widget;
-    QString nowString();
 };
 
 #endif
