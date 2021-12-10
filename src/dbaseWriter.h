@@ -20,15 +20,10 @@
 #ifndef DBASEWRITER_H
 #define DBASEWRITER_H
 
-#include <QString>
 #include <QDate>
-#include <QByteArray>
-#include <QFile>
-#include <QDataStream>
-#include <QVector>
 #include <QHash>
-#include <math.h>
-#include <QStringList>
+#include <QString>
+#include <QVector>
 
 #include "dbaseField.h"
 #include "initvalues.h"
