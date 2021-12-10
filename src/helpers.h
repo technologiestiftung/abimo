@@ -2,8 +2,6 @@
 #define HELPERS_H
 
 #include <QCommandLineParser>
-#include <QDateTime>
-#include <QFileInfo>
 #include <QString>
 
 class Helpers
