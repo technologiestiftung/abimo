@@ -6,6 +6,7 @@ TARGET = Abimo
 DEPENDPATH += .
 INCLUDEPATH += .
 QT += xml widgets core
+CONFIG += console
 
 # Input
 HEADERS += bagrov.h \
@@ -31,3 +32,4 @@ SOURCES += bagrov.cpp \
     saxhandler.cpp
 RC_FILE += AbimoQt.rc
 OTHER_FILES += release/config.xml
+INSTALLS += TARGET
