@@ -101,7 +101,6 @@ void debugInputs(
     qDebug() << "configFile =" << configFileName;
     qDebug() << "logFileName =" << logFileName;
     qDebug() << "debug =" << debug;
-
 }
 
 // Options/arguments for example call on the command line
@@ -111,13 +110,11 @@ int main(int argc, char *argv[])
 {
     qDebug() << "Number of command line arguments: " << argc;
 
-    const QString appVersion = VERSION_STRING;
-
     if (parseForBatch(argc, argv)) {
 
         // Start batch version...
         QCoreApplication app(argc, argv);
-        app.setApplicationVersion(appVersion);
+        app.setApplicationVersion(VERSION_STRING);
 
         QCommandLineParser parser;
         defineParser(&parser);
@@ -174,7 +171,7 @@ int main(int argc, char *argv[])
 
         // Start GUI version...
         QApplication app(argc, argv);
-        app.setApplicationVersion(appVersion);
+        app.setApplicationVersion(VERSION_STRING);
 
         QCommandLineParser parser;
         defineParser(&parser);
