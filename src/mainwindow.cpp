@@ -34,6 +34,7 @@
 #include <QWidget>
 
 #include "calculation.h"
+#include "constants.h"
 #include "dbaseReader.h"
 #include "helpers.h"
 #include "initvalues.h"
@@ -41,7 +42,7 @@
 
 MainWindow::MainWindow(QApplication* app, QCommandLineParser* arguments):
     QMainWindow(),
-    programName("Abimo 3.2"),
+    programName(PROGRAM_NAME),
     userStop(false),
     calc(0),
     app(app),
