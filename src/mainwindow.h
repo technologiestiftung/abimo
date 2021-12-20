@@ -54,7 +54,6 @@ private:
     void setText(QString);
     void critical(QString);
     void warning(QString);
-    QString selectDbfFile(QString, QString, bool);
     void reportSuccess(Calculation*, QTextStream&, QString, QString);
     void reportCancelled(QTextStream&);
     QAction *openAct;

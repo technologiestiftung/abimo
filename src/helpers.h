@@ -10,8 +10,14 @@ public:
     Helpers();
     static QString nowString();
     static QString positionalArgOrNULL(QCommandLineParser*, int);
-    static QString removeFileExtension(QString);
     static QString singleQuote(QString);
+    static QString patternDbfFile();
+    static QString patternXmlFile();
+    static QString defaultOutputFileName(QString inputFileName);
+    static QString defaultLogFileName(QString outputFileName);
+
+private:
+    static QString removeFileExtension(QString);
 };
 
 #endif // HELPERS_H

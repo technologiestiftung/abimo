@@ -118,10 +118,15 @@ int main_batch(int argc, char *argv[])
     parser.process(app);
 
     const QStringList positionalArgs = parser.positionalArguments();
-    QString inputFileName = positionalArgs.at(0);
-    QString outputFileName = positionalArgs.at(1);
+    //QString inputFileName = positionalArgs.at(0);
+    QString inputFileName = Helpers::positionalArgOrNULL(&parser, 0);
+
+    //QString outputFileName = positionalArgs.at(1);
+    QString outputFileName = Helpers::positionalArgOrNULL(&parser, 1);
+
     QString configFileName= parser.value("config");
-    QString logFileName = Helpers::removeFileExtension(inputFileName) + "Log.txt";
+
+    QString logFileName = Helpers::defaultLogFileName(outputFileName);
     bool debug = parser.isSet("debug");
 
     debugInputs(inputFileName, outputFileName, configFileName, logFileName, debug);

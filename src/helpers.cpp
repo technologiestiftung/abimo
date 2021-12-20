@@ -36,3 +36,23 @@ QString Helpers::singleQuote(QString string)
 {
     return "'" + string + "'";
 }
+
+QString Helpers::patternDbfFile()
+{
+    return QString("dBase (*.dbf)");
+}
+
+QString Helpers::patternXmlFile()
+{
+    return QString("Extensible Markup Language (*.xml)");
+}
+
+QString Helpers::defaultOutputFileName(QString inputFileName)
+{
+    return Helpers::removeFileExtension(inputFileName)  + "_out.dbf";
+}
+
+QString Helpers::defaultLogFileName(QString outputFileName)
+{
+    return Helpers::removeFileExtension(outputFileName)  + ".log";
+}
