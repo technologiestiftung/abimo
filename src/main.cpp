@@ -80,7 +80,7 @@ void defineParser(QCommandLineParser* parser)
     // Option -c --config <config-file>
     QCommandLineOption configOption(
         QStringList() << "c" << "config",
-        QCoreApplication::translate("main", "Override initial values with your own 'config.xml'"),
+        QCoreApplication::translate("main", "Override initial values with values in 'config.xml'"),
         QCoreApplication::translate("main", "config-file"));
 
     parser->addOption(debugOption);
