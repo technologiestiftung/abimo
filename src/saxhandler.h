@@ -23,6 +23,7 @@
 #include <QXmlDefaultHandler>
 #include <QXmlAttributes>
 #include <QXmlParseException>
+
 #include "initvalues.h"
 
 #define Infiltrationsfaktoren 1
@@ -36,11 +37,13 @@ class SaxHandler : public QXmlDefaultHandler
 {
 
 public:
-    SaxHandler(InitValues &initValue);
-    bool startElement(const QString &namespaceURI,
-                      const QString &localName,
-                      const QString &qName,
-                      const QXmlAttributes &attribs);
+    SaxHandler(InitValues &initValues);
+    bool startElement(
+        const QString &namespaceURI,
+        const QString &localName,
+        const QString &qName,
+        const QXmlAttributes &attribs
+    );
     bool fatalError(const QXmlParseException &exception);
 
 private:

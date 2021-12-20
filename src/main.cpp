@@ -18,12 +18,173 @@
  ***************************************************************************/
 
 #include <QApplication>
-#include <QLabel>
+#include <QCommandLineOption>
+#include <QCommandLineParser>
+#include <QCoreApplication>
+#include <QFile>
+#include <QString>
+#include <QStringList>
+#include <QTextStream>
+#include <QtDebug>
+
+#include "calculation.h"
+#include "constants.h"
+#include "dbaseReader.h"
+#include "helpers.h"
+#include "initvalues.h"
 #include "mainwindow.h"
+
+bool parseForBatch(int &argc, char *argv[])
+{
+    //return false;
+    return argc > 1;
+
+    /*
+    bool isBatch = false;
+
+    for (int i = 0; i < argc; i++) {
+
+        qDebug() << "Argument arg[" << i << "]: " << argv[i];
+
+        if (! qstrcmp(argv[i], "--batch"))
+            isBatch = true;
+    }
+
+    return isBatch;
+    */
+}
+
+void defineParser(QCommandLineParser* parser)
+{
+    parser->setApplicationDescription("Abimo-Programm");
+    parser->addHelpOption();
+    parser->addVersionOption();
+
+    parser->addPositionalArgument(
+        "source",
+        QCoreApplication::translate("main", "Input dbf-file.")
+    );
+
+    parser->addPositionalArgument(
+        "destination",
+        QCoreApplication::translate("main", "Destination dbf-file (optional)."),
+        "[destination]"
+    );
+
+    // Option -d --debug: debug mode
+    QCommandLineOption debugOption(
+        QStringList() << "d" << "debug",
+        QCoreApplication::translate("main", "Show debug information.")
+    );
+
+    // Option -c --config <config-file>
+    QCommandLineOption configOption(
+        QStringList() << "c" << "config",
+        QCoreApplication::translate("main", "Override initial values with your own 'config.xml'"),
+        QCoreApplication::translate("main", "config-file"));
+
+    parser->addOption(debugOption);
+    parser->addOption(configOption);
+}
+
+void debugInputs(
+    QString inputFileName,
+    QString outputFileName,
+    QString configFileName,
+    QString logFileName,
+    bool debug
+)
+{
+    qDebug() << "Running in batch mode...";
+    qDebug() << "inputFileName =" << inputFileName;
+    qDebug() << "outputFileName =" << outputFileName;
+    qDebug() << "configFile =" << configFileName;
+    qDebug() << "logFileName =" << logFileName;
+    qDebug() << "debug =" << debug;
+
+}
+
+// Options/arguments for example call on the command line
+// --config ..\config.xml ..\abimo_2012ges.dbf ..\abimo-result.dbf
+
 int main(int argc, char *argv[])
 {
-    QApplication app(argc, argv);
-    MainWindow mainWin(&app);
-    mainWin.show();
-    return app.exec();
+    qDebug() << "Number of command line arguments: " << argc;
+
+    const QString appVersion = VERSION_STRING;
+
+    if (parseForBatch(argc, argv)) {
+
+        // Start batch version...
+        QCoreApplication app(argc, argv);
+        app.setApplicationVersion(appVersion);
+
+        QCommandLineParser parser;
+        defineParser(&parser);
+
+        // Process the actual command line arguments given by the user
+        parser.process(app);
+
+        const QStringList positionalArgs = parser.positionalArguments();
+        QString inputFileName = positionalArgs.at(0);
+        QString outputFileName = positionalArgs.at(1);
+        QString configFileName= parser.value("config");
+        QString logFileName = Helpers::removeFileExtension(inputFileName) + "Log.txt";
+        bool debug = parser.isSet("debug");
+
+        debugInputs(inputFileName, outputFileName, configFileName, logFileName, debug);
+
+        DbaseReader dbReader(inputFileName);
+
+        if (! dbReader.checkAndRead()) {
+            qDebug() << dbReader.getFullError();
+            return 2;
+        }
+
+        // Update default initial values with values given in config.xml
+        InitValues initValues;
+        QString errorMessage = InitValues::updateFromConfig(initValues, configFileName);
+
+        if (errorMessage.length() > 0) {
+            qDebug() << "Error: " << errorMessage;
+        }
+
+        QFile logFile(logFileName);
+
+        if (! logFile.open(QFile::WriteOnly)) {
+            qDebug() << "Konnte Datei: '" << logFileName <<
+                "' nicht oeffnen.\n" << logFile.error();
+            return 1;
+        }
+
+        QTextStream logStream(&logFile);
+
+        logStream << "Start der Berechnung " + Helpers::nowString() + "\r\n";
+
+        // Create calculator object
+        Calculation calculator(dbReader, initValues, logStream);
+
+        qDebug() << "Start the calculation";
+        calculator.calc(outputFileName);
+        qDebug() << "End of calculation (Results are in " << outputFileName << ").";
+
+        return -1;
+    }
+    else {
+
+        // Start GUI version...
+        QApplication app(argc, argv);
+        app.setApplicationVersion(appVersion);
+
+        QCommandLineParser parser;
+        defineParser(&parser);
+
+        // Process the actual command line arguments given by the user
+        parser.process(app);
+
+        MainWindow mainWin(&app, &parser);
+        mainWin.show();
+
+        return app.exec();
+    }
 }

@@ -17,6 +17,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <QBuffer>
+#include <QIODevice>
+
+#include "dbaseField.h"
 #include "dbaseReader.h"
 
 DbaseReader::DbaseReader(const QString &i_file):
@@ -26,7 +30,6 @@ DbaseReader::DbaseReader(const QString &i_file):
     lengthOfHeader(0),
     lengthOfEachRecord(0),
     countFields(0)
-
 {}
 
 DbaseReader::~DbaseReader()
@@ -42,44 +45,67 @@ QString DbaseReader::getError()
     return error;
 }
 
+QString DbaseReader::getFullError()
+{
+    return fullError;
+}
+
 bool DbaseReader::isAbimoFile()
 {
     return (
-               hash.contains("NUTZUNG") &&
-               hash.contains("CODE") &&
-               hash.contains("REGENJA") &&
-               hash.contains("REGENSO") &&
-               hash.contains("FLUR") &&
-               hash.contains("TYP") &&
-               hash.contains("FELD_30") &&
-               hash.contains("FELD_150") &&
-               hash.contains("BEZIRK") &&
-               hash.contains("PROBAU") &&
-               hash.contains("PROVGU") &&
-               hash.contains("VGSTRASSE") &&
-               hash.contains("KAN_BEB") &&
-               hash.contains("KAN_VGU") &&
-               hash.contains("KAN_STR") &&
-               hash.contains("BELAG1") &&
-               hash.contains("BELAG2") &&
-               hash.contains("BELAG3") &&
-               hash.contains("BELAG4") &&
-               hash.contains("STR_BELAG1") &&
-               hash.contains("STR_BELAG2") &&
-               hash.contains("STR_BELAG3") &&
-               hash.contains("STR_BELAG4") &&
-               hash.contains("FLGES") &&
-               hash.contains("STR_FLGES") &&
-               hash.contains("NUTZUNG")
-           );
+        hash.contains("NUTZUNG") &&
+        hash.contains("CODE") &&
+        hash.contains("REGENJA") &&
+        hash.contains("REGENSO") &&
+        hash.contains("FLUR") &&
+        hash.contains("TYP") &&
+        hash.contains("FELD_30") &&
+        hash.contains("FELD_150") &&
+        hash.contains("BEZIRK") &&
+        hash.contains("PROBAU") &&
+        hash.contains("PROVGU") &&
+        hash.contains("VGSTRASSE") &&
+        hash.contains("KAN_BEB") &&
+        hash.contains("KAN_VGU") &&
+        hash.contains("KAN_STR") &&
+        hash.contains("BELAG1") &&
+        hash.contains("BELAG2") &&
+        hash.contains("BELAG3") &&
+        hash.contains("BELAG4") &&
+        hash.contains("STR_BELAG1") &&
+        hash.contains("STR_BELAG2") &&
+        hash.contains("STR_BELAG3") &&
+        hash.contains("STR_BELAG4") &&
+        hash.contains("FLGES") &&
+        hash.contains("STR_FLGES") &&
+        hash.contains("NUTZUNG")
+    );
+}
 
+bool DbaseReader::checkAndRead()
+{
+    QString name = file.fileName();
+
+    if (! read()) {
+        fullError = "Problem beim Oeffnen der Datei: '" + name+
+            "' aufgetreten.\nGrund: " + error;
+        return false;
+    }
+
+    if (! isAbimoFile()) {
+        fullError = "Die Datei '" + name + "' ist kein valider 'Input File',\n" +
+            "Ueberpruefen sie die Spaltennamen und die Vollstaendigkeit.";
+        return false;
+    }
+
+    fullError = "";
+    return true;
 }
 
 bool DbaseReader::read()
 {
-
     if (!file.open(QIODevice::ReadOnly)) {
-        error = "kann die Datei nicht oeffnen\n" + file.error();
+        error = "Kann die Datei nicht oeffnen\n" + file.errorString();
         return false;
     }
 
@@ -126,7 +152,9 @@ bool DbaseReader::read()
     //line[16 to 19] - free record thread reserved for LAN
     //line[20 to 27] - reserved for multiuser dbase
     //line[28] MDX-flag
+
     languageDriver = (checkLanguageDriver((quint8)info[29]));
+
     //line[30 - 31] reserved
 
     //rest of header are field information
@@ -172,12 +200,12 @@ QString DbaseReader::getRecord(int num, const QString & name)
     return getRecord(num, field);
 }
 
-
 QString DbaseReader::getRecord(int num, int field)
 {
     if (num >= numberOfRecords || field >= countFields) {
         return 0;
     }
+
     return vals[num * countFields + field];
 }
 
@@ -237,9 +265,11 @@ int DbaseReader::check32(quint8 i1, quint8 i2, quint8 i3, quint8 i4)
 QDate DbaseReader::checkDate(quint8 i_year, quint8 i_month, quint8 i_day)
 {
     int year = (int)i_year;
+
     if (year >= 100) {
         year = 1900 + year;
     }
+
     QDate d(year, (int)i_month, (int)i_day);
     return d;
 }
@@ -278,6 +308,7 @@ QString DbaseReader::checkVersion(quint8 i_byte)
     case 0xFB :
         return "FoxPro ???";
     }
+
     return "unknown version";
 }
 
@@ -323,6 +354,7 @@ QString DbaseReader::checkLanguageDriver(quint8 i_byte)
     case 0xCB :
         return "Greek Windows";
     }
+
     return "unknown language driver";
 }
 

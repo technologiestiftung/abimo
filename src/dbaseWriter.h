@@ -19,28 +19,24 @@
 
 #ifndef DBASEWRITER_H
 #define DBASEWRITER_H
-#include <QString>
+
 #include <QDate>
-#include <QByteArray>
-#include <QFile>
-#include <QDataStream>
-#include <QVector>
 #include <QHash>
-#include <math.h>
-#include <QStringList>
+#include <QString>
+#include <QVector>
+
 #include "dbaseField.h"
 #include "initvalues.h"
 
 const int countFields = 9;
-const int lengthOfHeader = countFields*32 + 32 + 1;
+const int lengthOfHeader = countFields * 32 + 32 + 1;
 
 class DbaseWriter
 {
-public:
-    DbaseWriter(QString &file,
-                InitValues &initValues);
-    bool write();
 
+public:
+    DbaseWriter(QString &file, InitValues &initValues);
+    bool write();
     void addRecord();
     void setRecordField(int num, QString value);
     void setRecordField(QString name, QString value);
@@ -49,9 +45,8 @@ public:
     QString getError();
 
 private:
-
-    //VARIABLES:
-    ////////////
+    // VARIABLES:
+    /////////////
     QString fileName;
     QVector< QVector<QString> > record;
     QDate date;
@@ -59,9 +54,7 @@ private:
     QString error;
     int lengthOfEachRecord;
     int recNum;
-
     DbaseField fields[countFields];
-
-
 };
+
 #endif
