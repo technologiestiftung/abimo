@@ -28,6 +28,7 @@
 #include <QtDebug>
 
 #include "calculation.h"
+#include "constants.h"
 #include "dbaseReader.h"
 #include "helpers.h"
 #include "initvalues.h"
@@ -110,7 +111,7 @@ int main(int argc, char *argv[])
 {
     qDebug() << "Number of command line arguments: " << argc;
 
-    const QString appVersion = "3.2.1 (modified by KWB)";
+    const QString appVersion = VERSION_STRING;
 
     if (parseForBatch(argc, argv)) {
 

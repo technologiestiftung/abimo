@@ -11,6 +11,7 @@ CONFIG += console
 # Input
 HEADERS += bagrov.h \
     calculation.h \
+    constants.h \
     dbaseField.h \
     dbaseReader.h \
     dbaseWriter.h \
