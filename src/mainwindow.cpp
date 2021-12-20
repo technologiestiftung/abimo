@@ -42,7 +42,7 @@
 
 MainWindow::MainWindow(QApplication* app, QCommandLineParser* arguments):
     QMainWindow(),
-    programName(PROGRAM_NAME),
+    programName(tr(PROGRAM_NAME)),
     userStop(false),
     calc(0),
     app(app),
@@ -64,7 +64,7 @@ MainWindow::MainWindow(QApplication* app, QCommandLineParser* arguments):
     menuBar()->addAction(aboutAct);
 
     // Set window title and size
-    setWindowTitle(tr(programName));
+    setWindowTitle(programName);
     resize(350, 150);
 
     widget = new QWidget();
@@ -75,7 +75,7 @@ MainWindow::MainWindow(QApplication* app, QCommandLineParser* arguments):
     textfield->setFont(QFont("Arial", 8, QFont::Bold));
 
     progress = new QProgressDialog( "Lese Datei.", "Abbrechen", 0, 50, this, 0);
-    progress->setWindowTitle(tr(programName));
+    progress->setWindowTitle(programName);
     progress->setModal(true);
     progress->setMinimumDuration (0);
     connect(progress, SIGNAL(canceled()), this, SLOT(userCancel()));
@@ -113,7 +113,7 @@ void MainWindow::about()
 {
     QMessageBox::about(
         this,
-        tr("About ") + tr(programName),
+        tr("About ") + programName,
         tr("Claus & Meiko Rachimow\nCopyright 2009")
     );
 }

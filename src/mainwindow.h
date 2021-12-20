@@ -50,7 +50,7 @@ private slots:
     void userCancel();
 
 private:
-    const char* programName;
+    const QString programName;
     void setText(QString);
     void critical(QString);
     void warning(QString);
