@@ -122,7 +122,8 @@ int main_batch(int argc, char *argv[])
     QString inputFileName = Helpers::positionalArgOrNULL(&parser, 0);
 
     //QString outputFileName = positionalArgs.at(1);
-    QString outputFileName = Helpers::positionalArgOrNULL(&parser, 1);
+    //QString outputFileName = Helpers::positionalArgOrNULL(&parser, 1);
+    QString outputFileName = Helpers::defaultOutputFileName(inputFileName);
 
     QString configFileName= parser.value("config");
 
@@ -187,6 +188,11 @@ int main_gui(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
+    //qDebug() << QString("1.2").toFloat();
+    //qDebug() << QString("1,2").toFloat();
+
+    //return 0;
+
     qDebug() << "Number of command line arguments: " << argc;
 
     if (parseForBatch(argc, argv)) {

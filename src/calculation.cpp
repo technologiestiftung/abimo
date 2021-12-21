@@ -18,6 +18,7 @@
  ***************************************************************************/
 
 #include <math.h>
+#include <QDebug>
 #include <QString>
 #include <QTextStream>
 
@@ -25,6 +26,7 @@
 #include "calculation.h"
 #include "dbaseReader.h"
 #include "dbaseWriter.h"
+#include "helpers.h"
 #include "initvalues.h"
 #include "pdr.h"
 
@@ -172,7 +174,12 @@ bool Calculation::calc(QString fileOut)
         }
 
         ptrDA.wIndex = index;
-        int nutzung = dbReader.getRecord(k, "NUTZUNG").toInt();
+
+        QString textNutzung = dbReader.getRecord(k, "NUTZUNG");
+
+        int nutzung = textNutzung.toInt();
+
+        qDebug() << "k: " << k << ", Nutzung: " << nutzung << "(" << Helpers::singleQuote(textNutzung) << ")";
 
         if (nutzung != 0) {
 
@@ -202,7 +209,12 @@ bool Calculation::calc(QString fileOut)
             getKLIMA((dbReader.getRecord(k, "BEZIRK")).toInt(), codestr);
 
             /* Dateneingabe */
-            vgd = (dbReader.getRecord(k, "PROBAU")).toFloat() / 100.0F; /* Dachflaechen */
+
+            QString text_probau = dbReader.getRecord(k, "PROBAU");
+            vgd = text_probau.toFloat() / 100.0F; /* Dachflaechen */
+
+            qDebug() << "text_probau: " << Helpers::singleQuote(text_probau) << ", toFloat()/100: " << vgd;
+
             vgb = (dbReader.getRecord(k, "PROVGU")).toFloat() / 100.0F; /* Hofflaechen */
             ptrDA.VER = (int)round((vgd * 100) + (vgb * 100));
             vgs = (dbReader.getRecord(k, "VGSTRASSE")).toFloat() / 100.0F;
