@@ -138,11 +138,13 @@ bool DbaseReader::read()
     );
     countFields = computeCountFields(lengthOfHeader);
 
-    if (lengthOfHeader + ( numberOfRecords * lengthOfEachRecord ) + 1 != file.size()) {
+    int expectedLength = lengthOfHeader + ( numberOfRecords * lengthOfEachRecord ) + 1;
+
+    if (expectedLength != file.size()) {
         QString s;
         s.setNum(file.size());
         QString s1;
-        s1.setNum(lengthOfHeader + ( numberOfRecords * lengthOfEachRecord ) + 1);
+        s1.setNum(expectedLength);
         error = "Datei unbekannten Formats, falsche Grösse.\nSoll:" + s1 + "\nIst: " + s;
         return false;
     }
