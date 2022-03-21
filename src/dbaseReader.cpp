@@ -115,11 +115,27 @@ bool DbaseReader::read()
     }
 
     QByteArray info = file.QIODevice::read(32);
-    version =(checkVersion((quint8)info[0]));
-    date = (checkDate((quint8)info[1], (quint8)info[2], (quint8)info[3]));
-    numberOfRecords = check32((quint8)info[4],(quint8)info[5],(quint8)info[6],(quint8)info[7]);
-    lengthOfHeader = check16((quint8)info[8],(quint8)info[9]);
-    lengthOfEachRecord = check16((quint8)info[10],(quint8)info[11]);
+
+    version = checkVersion((quint8)info[0]);
+    date = checkDate(
+        (quint8) info[1],
+        (quint8) info[2],
+        (quint8) info[3]
+    );
+    numberOfRecords = check32(
+        (quint8) info[4],
+        (quint8) info[5],
+        (quint8) info[6],
+        (quint8) info[7]
+    );
+    lengthOfHeader = check16(
+        (quint8) info[8],
+        (quint8) info[9]
+    );
+    lengthOfEachRecord = check16(
+        (quint8) info[10],
+        (quint8) info[11]
+    );
     countFields = computeCountFields(lengthOfHeader);
 
     if (lengthOfHeader + ( numberOfRecords * lengthOfEachRecord ) + 1 != file.size()) {
