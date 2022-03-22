@@ -742,7 +742,7 @@ float Calculation::min(float x, float y)
 int Calculation::index(float wert, const float *feld, int anz)
 {
     int i;
-    float eps = 0.0001;
+    float eps = 0.0001f;
 
     for (i = 0; i < anz; i++)
         if (wert <= feld[i] + eps) return(i);
