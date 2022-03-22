@@ -2,7 +2,9 @@
 #define HELPERS_H
 
 #include <QCommandLineParser>
+#include <QHash>
 #include <QString>
+#include <QStringList>
 
 class Helpers
 {
@@ -15,6 +17,7 @@ public:
     static QString patternXmlFile();
     static QString defaultOutputFileName(QString inputFileName);
     static QString defaultLogFileName(QString outputFileName);
+    static bool containsAll(QHash<QString, int> hash, QStringList keys);
 
 private:
     static QString removeFileExtension(QString);

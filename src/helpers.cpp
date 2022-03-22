@@ -56,3 +56,15 @@ QString Helpers::defaultLogFileName(QString outputFileName)
 {
     return Helpers::removeFileExtension(outputFileName)  + ".log";
 }
+
+// Return true if all keys are contained in the hash, else false
+bool Helpers::containsAll(QHash<QString, int> hash, QStringList keys)
+{
+    for (int i = 0; i < keys.length(); i++) {
+        if (! hash.contains(keys.at(i))) {
+            return false;
+        }
+    }
+
+    return true;
+}

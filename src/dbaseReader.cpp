@@ -19,9 +19,11 @@
 
 #include <QBuffer>
 #include <QIODevice>
+#include <QStringList>
 
 #include "dbaseField.h"
 #include "dbaseReader.h"
+#include "helpers.h"
 
 DbaseReader::DbaseReader(const QString &i_file):
     file(i_file),
@@ -50,36 +52,41 @@ QString DbaseReader::getFullError()
     return fullError;
 }
 
+QStringList DbaseReader::requiredFields()
+{
+    return {
+        "NUTZUNG",
+        "CODE",
+        "REGENJA",
+        "REGENSO",
+        "FLUR",
+        "TYP",
+        "FELD_30",
+        "FELD_150",
+        "BEZIRK",
+        "PROBAU",
+        "PROVGU",
+        "VGSTRASSE",
+        "KAN_BEB",
+        "KAN_VGU",
+        "KAN_STR",
+        "BELAG1",
+        "BELAG2",
+        "BELAG3",
+        "BELAG4",
+        "STR_BELAG1",
+        "STR_BELAG2",
+        "STR_BELAG3",
+        "STR_BELAG4",
+        "FLGES",
+        "STR_FLGES",
+        "NUTZUNG"
+      };
+}
+
 bool DbaseReader::isAbimoFile()
 {
-    return (
-        hash.contains("NUTZUNG") &&
-        hash.contains("CODE") &&
-        hash.contains("REGENJA") &&
-        hash.contains("REGENSO") &&
-        hash.contains("FLUR") &&
-        hash.contains("TYP") &&
-        hash.contains("FELD_30") &&
-        hash.contains("FELD_150") &&
-        hash.contains("BEZIRK") &&
-        hash.contains("PROBAU") &&
-        hash.contains("PROVGU") &&
-        hash.contains("VGSTRASSE") &&
-        hash.contains("KAN_BEB") &&
-        hash.contains("KAN_VGU") &&
-        hash.contains("KAN_STR") &&
-        hash.contains("BELAG1") &&
-        hash.contains("BELAG2") &&
-        hash.contains("BELAG3") &&
-        hash.contains("BELAG4") &&
-        hash.contains("STR_BELAG1") &&
-        hash.contains("STR_BELAG2") &&
-        hash.contains("STR_BELAG3") &&
-        hash.contains("STR_BELAG4") &&
-        hash.contains("FLGES") &&
-        hash.contains("STR_FLGES") &&
-        hash.contains("NUTZUNG")
-    );
+    return Helpers::containsAll(hash, requiredFields());
 }
 
 bool DbaseReader::checkAndRead()

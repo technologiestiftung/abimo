@@ -43,6 +43,7 @@ public:
     QString getRecord(int num, const QString & name);
     QString getError();
     QString getFullError();
+    QStringList requiredFields();
     bool isAbimoFile();
     bool checkAndRead();
 
