@@ -79,8 +79,7 @@ QStringList DbaseReader::requiredFields()
         "STR_BELAG3",
         "STR_BELAG4",
         "FLGES",
-        "STR_FLGES",
-        "NUTZUNG"
+        "STR_FLGES"
       };
 }
 
