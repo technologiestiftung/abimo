@@ -20,6 +20,7 @@
 #include <QBuffer>
 #include <QIODevice>
 #include <QStringList>
+#include <QVector>
 
 #include "dbaseField.h"
 #include "dbaseReader.h"
@@ -189,7 +190,8 @@ bool DbaseReader::read()
     //info[30 - 31] reserved
 
     //rest of header are field information
-    DbaseField fields[countFields];
+    QVector<DbaseField> fields;
+    fields.resize(countFields);
 
     for (int i = 0; i < countFields; i++) {
         fields[i] = DbaseField(file.QIODevice::read(32));
