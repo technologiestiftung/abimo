@@ -123,7 +123,6 @@ bool DbaseReader::read()
         return false;
     }
 
-    //QByteArray info = file.QIODevice::read(32);
     QByteArray info = file.read(32);
 
     version = checkVersion((quint8)info[0]);
@@ -196,14 +195,15 @@ bool DbaseReader::read()
     fields.resize(countFields);
 
     for (int i = 0; i < countFields; i++) {
-        fields[i] = DbaseField(file.QIODevice::read(32));
+        fields[i] = DbaseField(file.read(32));
         hash[fields[i].getName()] = i;
     }
 
     //Terminator
-    file.QIODevice::read(2);
+    file.read(2);
 
-    QByteArray arr = file.QIODevice::read(lengthOfEachRecord * numberOfRecords);
+    QByteArray arr = file.read(lengthOfEachRecord * numberOfRecords);
+    file.close();
 
     QBuffer buffer(&arr);
     buffer.open(QIODevice::ReadOnly);
@@ -224,7 +224,6 @@ bool DbaseReader::read()
     }
 
     buffer.close();
-    file.close();
     return true;
 }
 
