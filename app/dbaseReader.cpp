@@ -94,13 +94,13 @@ bool DbaseReader::checkAndRead()
     QString name = file.fileName();
     QString text;
 
-    if (! read()) {
+    if (!read()) {
         text = "Problem beim Oeffnen der Datei: '%1' aufgetreten.\nGrund: %s";
         fullError = text.arg(name, error);
         return false;
     }
 
-    if (! isAbimoFile()) {
+    if (!isAbimoFile()) {
         text = "Die Datei '%1' ist kein valider 'Input File',\n";
         text += "Ueberpruefen Sie die Spaltennamen und die Vollstaendigkeit.";
         fullError = text.arg(name);
@@ -171,7 +171,7 @@ bool DbaseReader::read()
     }
 
     if (lengthOfEachRecord <= 1 || lengthOfEachRecord > 4000) {
-        error = "Grösse der records ist zu klein oder zu gross.";
+        error = "Groesse der records ist zu klein oder zu gross.";
         return false;
     }
 
