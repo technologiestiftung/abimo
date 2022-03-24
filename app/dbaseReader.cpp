@@ -257,34 +257,10 @@ int DbaseReader::getLengthOfEachRecord()
 
 int DbaseReader::check16(quint8 i1, quint8 i2)
 {
-    int result = 0;
-    result = (quint8)i1;
-    result += ((quint8)i2) << 8;
-
-    Q_ASSERT(result == check16a(i1, i2));
-
-    return result;
-}
-
-int DbaseReader::check16a(quint8 i1, quint8 i2)
-{
     return (int) (i1 + (i2 << 8));
 }
 
 int DbaseReader::check32(quint8 i1, quint8 i2, quint8 i3, quint8 i4)
-{
-    int result = 0;
-    result = (quint8)i1;
-    result += ((quint8)i2) << 8;
-    result += ((quint8)i3) << 16;
-    result += ((quint8)i4) << 24;
-
-    Q_ASSERT(result == check32a(i1, i2, i3, i4));
-
-    return result;
-}
-
-int DbaseReader::check32a(quint8 i1, quint8 i2, quint8 i3, quint8 i4)
 {
     return (int) (i1 + (i2 << 8) + (i3 << 16) + (i4 << 24));
 }
@@ -301,53 +277,6 @@ QDate DbaseReader::checkDate(quint8 i_year, quint8 i_month, quint8 i_day)
 }
 
 QString DbaseReader::checkVersion(quint8 i_byte)
-{
-    QString result = checkVersion_b(i_byte);
-    Q_ASSERT(result == checkVersion_a(i_byte));
-
-    qDebug() << "dbf file version: " << result;
-
-    return result;
-}
-QString DbaseReader::checkVersion_b(quint8 i_byte)
-{
-    switch (i_byte) {
-    case 0x02 :
-        return "FoxBase";
-    case 0x03 :
-        return "File without DBT (dBASE III w/o memo file)";
-    case 0x04 :
-        return "dBASE IV w/o memo file";
-    case 0x05 :
-        return "dBASE V w/o memo file";
-    case 0x30 :
-        return "Visual FoxPro w. DBC";
-    case 0x31 :
-        return "Visual FoxPro w. AutoIncrement field";
-    case 0x43 :
-        return ".dbv memo var size (Flagship)";
-    case 0x7B :
-        return "dBASE IV with memo";
-    case 0x83 :
-        return "dBASE III+ with memo file";
-    case 0x8B :
-        return "dBASE IV w. memo";
-    case 0x8E :
-        return "dBASE IV w. SQL table";
-    case 0xB3 :
-        return ".dbv and .dbt memo (Flagship)";
-    case 0xE5 :
-        return "Clipper SIX driver w. SMT memo file";
-    case 0xF5 :
-        return "FoxPro w. memo file";
-    case 0xFB :
-        return "FoxPro ???";
-    }
-
-    return "unknown version";
-}
-
-QString DbaseReader::checkVersion_a(quint8 i_byte)
 {
     QHash<QString, quint8> hash;
 
@@ -367,69 +296,15 @@ QString DbaseReader::checkVersion_a(quint8 i_byte)
     hash["FoxPro w. memo file"] = 0xF5;
     hash["FoxPro ???"] = 0xFB;
 
-    return hash.key(i_byte, "unknown version");
-}
+    QString result = hash.key(i_byte, "unknown version");
 
-QString DbaseReader::checkLanguageDriver(quint8 i_byte)
-{
-    QString result = checkLanguageDriver_b(i_byte);
-    Q_ASSERT(result == checkLanguageDriver_a(i_byte));
-
-    qDebug() << "dbf language driver: " << result << " (id: " << i_byte << ")";
+    qDebug() << "dbf file version: " << result;
 
     return result;
 }
 
-QString DbaseReader::checkLanguageDriver_b(quint8 i_byte)
-{
-    switch (i_byte) {
-    case 0x01 :
-        return "DOS USA code page 437";
-    case 0x02 :
-        return "DOS Multilingual code page 850";
-    case 0x03 :
-        return "Windows ANSI code page 1252";
-    case 0x04 :
-        return "Standard Macintosh";
-    case 0x57:
-        return "ANSI";
-    case 0x64 :
-        return "EE MS-DOS code page 852";
-    case 0x65 :
-        return "Nordic MS-DOS code page 865";
-    case 0x66 :
-        return "Russian MS-DOS code page 866";
-    case 0x67 :
-        return "Icelandic MS-DOS";
-    case 0x68 :
-        return "Kamenicky (Czech) MS-DOS";
-    case 0x69 :
-        return "Mazovia (Polish) MS-DOS";
-    case 0x6A :
-        return "Greek MS-DOS (437G)";
-    case 0x6B :
-        return "Turkish MS-DOS";
-    case 0x96 :
-        return "Russian Macintosh";
-    case 0x97 :
-        return "Eastern European Macintosh";
-    case 0x98 :
-        return "Greek Macintosh";
-    case 0xC8 :
-        return "Windows EE code page 1250";
-    case 0xC9 :
-        return "Russian Windows";
-    case 0xCA :
-        return "Turkish Windows";
-    case 0xCB :
-        return "Greek Windows";
-    }
-
-    return "unknown language driver";
-}
-
 // https://stackoverflow.com/questions/52590941/how-to-interpret-the-language-driver-name-in-a-dbase-dbf-file
-QString DbaseReader::checkLanguageDriver_a(quint8 i_byte)
+QString DbaseReader::checkLanguageDriver(quint8 i_byte)
 {
     QHash<QString, quint8> hash;
 
@@ -454,7 +329,11 @@ QString DbaseReader::checkLanguageDriver_a(quint8 i_byte)
     hash["Turkish Windows"] = 0xCA;
     hash["Greek Windows"] = 0xCB;
 
-    return hash.key(i_byte, "unknown language driver");
+    QString result = hash.key(i_byte, "unknown language driver");
+
+    qDebug() << "dbf language driver: " << result << " (id: " << i_byte << ")";
+
+    return result;
 }
 
 int DbaseReader::computeCountFields(int headerLength)
