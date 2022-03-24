@@ -43,7 +43,6 @@ DbaseReader::~DbaseReader()
     if (vals != 0) {
         delete[] vals;
     }
-
 }
 
 QString DbaseReader::getError()
@@ -128,19 +127,31 @@ bool DbaseReader::read()
 
     QByteArray info = file.read(32);
 
-    version = checkVersion((quint8)info[0]);
+    version = checkVersion(info[0]);
     date = checkDate(info[1], info[2], info[3]);
     numberOfRecords = check32(info[4], info[5], info[6], info[7]);
     lengthOfHeader = check16(info[8], info[9]);
     lengthOfEachRecord = check16(info[10], info[11]);
 
+    // info[12], info[13] reserved - filled with '00h'
+    // info[14] - transaction flag
+    // info[15] - encryption flag
+    // info[16 to 19] - free record thread reserved for LAN
+    // info[20 to 27] - reserved for multiuser dbase
+    // info[28] MDX-flag
+
+    languageDriver = checkLanguageDriver(info[29]);
+
+    // info[30 - 31] reserved
+
     countFields = computeCountFields(lengthOfHeader);
 
-    int expectedLength = lengthOfHeader + (numberOfRecords * lengthOfEachRecord) + 1;
-
-    if (expectedLength != file.size()) {
+    if (file.size() != expectedFileSize()) {
         error = "Datei unbekannten Formats, falsche Groesse.\nSoll: %1\nIst: %2";
-        error = error.arg(QString::number(expectedLength), QString::number(file.size()));
+        error = error.arg(
+            QString::number(expectedFileSize()),
+            QString::number(file.size())
+        );
         return false;
     }
 
@@ -158,17 +169,6 @@ bool DbaseReader::read()
         error = "keine Felder gefunden.";
         return false;
     }
-
-    // info[12], info[13] reserved - filled with '00h'
-    // info[14] - transaction flag
-    // info[15] - encryption flag
-    // info[16 to 19] - free record thread reserved for LAN
-    // info[20 to 27] - reserved for multiuser dbase
-    // info[28] MDX-flag
-
-    languageDriver = (checkLanguageDriver((quint8)info[29]));
-
-    // info[30 - 31] reserved
 
     //rest of header are field information
     QVector<DbaseField> fields;
@@ -200,6 +200,11 @@ bool DbaseReader::read()
 
     buffer.close();
     return true;
+}
+
+int DbaseReader::expectedFileSize()
+{
+    return lengthOfHeader + (numberOfRecords * lengthOfEachRecord) + 1;
 }
 
 QString DbaseReader::getRecord(int num, const QString & name)

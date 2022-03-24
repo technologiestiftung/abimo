@@ -74,10 +74,10 @@ private:
     // FUNCTIONS:
     /////////////
 
+    int expectedFileSize();
+
     // 1 byte unsigned give the version
     QString checkVersion(quint8);
-    QString checkVersion_a(quint8);
-    QString checkVersion_b(quint8);
 
     // 1 byte unsigned give the Language Driver (code page)
     QString checkLanguageDriver(quint8 i_byte);
