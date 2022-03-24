@@ -1,4 +1,5 @@
 build-*
 *.dbf
-app/Abimo.pro.user
 config.xml
+AbimoProject.pro.user
+app/Abimo.pro.user
