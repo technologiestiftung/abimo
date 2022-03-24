@@ -95,7 +95,7 @@ bool DbaseReader::checkAndRead()
     QString text;
 
     if (!read()) {
-        text = "Problem beim Oeffnen der Datei: '%1' aufgetreten.\nGrund: %s";
+        text = "Problem beim Oeffnen der Datei: '%1' aufgetreten.\nGrund: %2";
         fullError = text.arg(name, error);
         return false;
     }
