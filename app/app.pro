@@ -19,8 +19,7 @@ HEADERS += bagrov.h \
     initvalues.h \
     mainwindow.h \
     pdr.h \
-    saxhandler.h \
-    testDbaseReader.h
+    saxhandler.h
 SOURCES += bagrov.cpp \
     calculation.cpp \
     dbaseField.cpp \
@@ -31,8 +30,7 @@ SOURCES += bagrov.cpp \
     main.cpp \
     mainwindow.cpp \
     pdr.cpp \
-    saxhandler.cpp \
-    testDbaseReader.cpp
+    saxhandler.cpp
 RC_FILE += AbimoQt.rc
 OTHER_FILES += release/config.xml
 INSTALLS += TARGET
