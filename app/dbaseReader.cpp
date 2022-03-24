@@ -126,26 +126,6 @@ bool DbaseReader::read()
     QByteArray info = file.read(32);
 
     version = checkVersion((quint8)info[0]);
-/*    date = checkDate(
-        (quint8) info[1],
-        (quint8) info[2],
-        (quint8) info[3]
-    );
-    numberOfRecords = check32(
-        (quint8) info[4],
-        (quint8) info[5],
-        (quint8) info[6],
-        (quint8) info[7]
-    );
-    lengthOfHeader = check16(
-        (quint8) info[8],
-        (quint8) info[9]
-    );
-    lengthOfEachRecord = check16(
-        (quint8) info[10],
-        (quint8) info[11]
-    );*/
-
     date = checkDate(info[1], info[2], info[3]);
     numberOfRecords = check32(info[4], info[5], info[6], info[7]);
     lengthOfHeader = check16(info[8], info[9]);
@@ -153,7 +133,7 @@ bool DbaseReader::read()
 
     countFields = computeCountFields(lengthOfHeader);
 
-    int expectedLength = lengthOfHeader + ( numberOfRecords * lengthOfEachRecord ) + 1;
+    int expectedLength = lengthOfHeader + (numberOfRecords * lengthOfEachRecord) + 1;
 
     if (expectedLength != file.size()) {
         QString s;
@@ -179,16 +159,16 @@ bool DbaseReader::read()
         return false;
     }
 
-    //info[12], info[13] reserved - filled with '00h'
-    //info[14] - transaction flag
-    //info[15] - encryption flag
-    //info[16 to 19] - free record thread reserved for LAN
-    //info[20 to 27] - reserved for multiuser dbase
-    //info[28] MDX-flag
+    // info[12], info[13] reserved - filled with '00h'
+    // info[14] - transaction flag
+    // info[15] - encryption flag
+    // info[16 to 19] - free record thread reserved for LAN
+    // info[20 to 27] - reserved for multiuser dbase
+    // info[28] MDX-flag
 
     languageDriver = (checkLanguageDriver((quint8)info[29]));
 
-    //info[30 - 31] reserved
+    // info[30 - 31] reserved
 
     //rest of header are field information
     QVector<DbaseField> fields;
