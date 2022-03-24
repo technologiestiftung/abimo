@@ -132,9 +132,38 @@ QString Calculation::getError()
     return error;
 }
 
+/*
+field        conversion function
+NUTZUNG    - toInt()
+CODE       - none ?
+REGENJA    - toInt()
+REGENSO    - toInt()
+FLUR       - toFloat()
+TYP        - toInt()
+FELD_30    - toInt()
+FELD_150   - toInt()
+BEZIRK     - toInt()
+PROBAU     - toFloat()
+PROVGU     - toFloat()
+VGSTRASSE  - toFloat()
+KAN_BEB    - toFloat()
+KAN_VGU    - toFloat()
+KAN_STR    - toFloat()
+BELAG1     - toFloat()
+BELAG2     - toFloat()
+BELAG3     - toFloat()
+BELAG4     - toFloat()
+STR_BELAG1 - toFloat()
+STR_BELAG2 - toFloat()
+STR_BELAG3 - toFloat()
+STR_BELAG4 - toFloat()
+FLGES      - toFloat()
+STR_FLGES  - toFloat()
+*/
+
 /**
  =======================================================================================================================
-    I m p o r t D B () Diese Funktion importiert die Datensaetze aus der DBASE-Datei FileName in das DA Feld ein
+    Diese Funktion importiert die Datensaetze aus der DBASE-Datei FileName in das DA Feld ein
     (GWD-Daten). Parameter: out-file Rueckgabewert: BOOL TRUE, wenn das Einlesen der Datei
     erfolgreich war.
  =======================================================================================================================
@@ -197,11 +226,12 @@ bool Calculation::calc(QString fileOut)
                 (dbReader.getRecord(k, "FELD_150")).toInt(),
                 codestr
             );
+
             /* cls_6a: an dieser Stelle muss garantiert werden, dass f30 und f150
                als Parameter von getNutz einen definierten Wert erhalten und zwar 0.
 
-               FIXED: alle Werte sind definiert... wenn keine 0, sondern nichts bzw. Leerzeichen angegeben wurden
-               wird nun eine 0 eingesetzt
+               FIXED: alle Werte sind definiert... wenn keine 0, sondern nichts bzw. Leerzeichen
+               angegeben wurden, wird nun eine 0 eingesetzt
                aber eigentlich war das auch schon so ... ???
             */
 
