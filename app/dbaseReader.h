@@ -76,18 +76,24 @@ private:
 
     // 1 byte unsigned give the version
     QString checkVersion(quint8);
+    QString checkVersion_a(quint8);
+    QString checkVersion_b(quint8);
 
     // 1 byte unsigned give the Language Driver (code page)
     QString checkLanguageDriver(quint8 i_byte);
+    QString checkLanguageDriver_a(quint8 i_byte);
+    QString checkLanguageDriver_b(quint8 i_byte);
 
     // 3 byte unsigned char give the date of last edit
     QDate checkDate(quint8 i_year, quint8 i_month, quint8 i_day);
 
     // 32 bit unsigned char to int
     int check32(quint8 i1, quint8 i2, quint8 i3, quint8 i4);
+    int check32a(quint8 i1, quint8 i2, quint8 i3, quint8 i4);
 
     // 16 bit unsigned char to int
     int check16(quint8 i1, quint8 i2);
+    int check16a(quint8 i1, quint8 i2);
 
     // compute the count of fields
     int computeCountFields(int);

@@ -18,8 +18,11 @@
  ***************************************************************************/
 
 #include <QBuffer>
+#include <QDebug>
+#include <QHash>
 #include <QIODevice>
 #include <QStringList>
+#include <QtGlobal>
 #include <QVector>
 
 #include "dbaseField.h"
@@ -92,16 +95,18 @@ bool DbaseReader::isAbimoFile()
 bool DbaseReader::checkAndRead()
 {
     QString name = file.fileName();
+    QString text;
 
-    if (! read()) {
-        fullError = "Problem beim Oeffnen der Datei: '" + name+
-            "' aufgetreten.\nGrund: " + error;
+    if (!read()) {
+        text = "Problem beim Oeffnen der Datei: '%1' aufgetreten.\nGrund: %2";
+        fullError = text.arg(name, error);
         return false;
     }
 
-    if (! isAbimoFile()) {
-        fullError = "Die Datei '" + name + "' ist kein valider 'Input File',\n" +
-            "Ueberpruefen sie die Spaltennamen und die Vollstaendigkeit.";
+    if (!isAbimoFile()) {
+        text = "Die Datei '%1' ist kein valider 'Input File',\n";
+        text += "Ueberpruefen Sie die Spaltennamen und die Vollstaendigkeit.";
+        fullError = text.arg(name);
         return false;
     }
 
@@ -121,30 +126,9 @@ bool DbaseReader::read()
         return false;
     }
 
-    //QByteArray info = file.QIODevice::read(32);
     QByteArray info = file.read(32);
 
     version = checkVersion((quint8)info[0]);
-/*    date = checkDate(
-        (quint8) info[1],
-        (quint8) info[2],
-        (quint8) info[3]
-    );
-    numberOfRecords = check32(
-        (quint8) info[4],
-        (quint8) info[5],
-        (quint8) info[6],
-        (quint8) info[7]
-    );
-    lengthOfHeader = check16(
-        (quint8) info[8],
-        (quint8) info[9]
-    );
-    lengthOfEachRecord = check16(
-        (quint8) info[10],
-        (quint8) info[11]
-    );*/
-
     date = checkDate(info[1], info[2], info[3]);
     numberOfRecords = check32(info[4], info[5], info[6], info[7]);
     lengthOfHeader = check16(info[8], info[9]);
@@ -152,14 +136,11 @@ bool DbaseReader::read()
 
     countFields = computeCountFields(lengthOfHeader);
 
-    int expectedLength = lengthOfHeader + ( numberOfRecords * lengthOfEachRecord ) + 1;
+    int expectedLength = lengthOfHeader + (numberOfRecords * lengthOfEachRecord) + 1;
 
     if (expectedLength != file.size()) {
-        QString s;
-        s.setNum(file.size());
-        QString s1;
-        s1.setNum(expectedLength);
-        error = "Datei unbekannten Formats, falsche Grösse.\nSoll:" + s1 + "\nIst: " + s;
+        error = "Datei unbekannten Formats, falsche Groesse.\nSoll: %1\nIst: %2";
+        error = error.arg(QString::number(expectedLength), QString::number(file.size()));
         return false;
     }
 
@@ -169,7 +150,7 @@ bool DbaseReader::read()
     }
 
     if (lengthOfEachRecord <= 1 || lengthOfEachRecord > 4000) {
-        error = "Grösse der records ist zu klein oder zu gross.";
+        error = "Groesse der records ist zu klein oder zu gross.";
         return false;
     }
 
@@ -178,59 +159,56 @@ bool DbaseReader::read()
         return false;
     }
 
-    //info[12], info[13] reserved - filled with '00h'
-    //info[14] - transaction flag
-    //info[15] - encryption flag
-    //info[16 to 19] - free record thread reserved for LAN
-    //info[20 to 27] - reserved for multiuser dbase
-    //info[28] MDX-flag
+    // info[12], info[13] reserved - filled with '00h'
+    // info[14] - transaction flag
+    // info[15] - encryption flag
+    // info[16 to 19] - free record thread reserved for LAN
+    // info[20 to 27] - reserved for multiuser dbase
+    // info[28] MDX-flag
 
     languageDriver = (checkLanguageDriver((quint8)info[29]));
 
-    //info[30 - 31] reserved
+    // info[30 - 31] reserved
 
     //rest of header are field information
     QVector<DbaseField> fields;
     fields.resize(countFields);
 
     for (int i = 0; i < countFields; i++) {
-        fields[i] = DbaseField(file.QIODevice::read(32));
+        fields[i] = DbaseField(file.read(32));
         hash[fields[i].getName()] = i;
     }
 
     //Terminator
-    file.QIODevice::read(2);
+    file.read(2);
 
-    QByteArray arr = file.QIODevice::read(lengthOfEachRecord * numberOfRecords);
+    QByteArray arr = file.read(lengthOfEachRecord * numberOfRecords);
+    file.close();
 
     QBuffer buffer(&arr);
     buffer.open(QIODevice::ReadOnly);
 
-    vals = new QString[numberOfRecords*countFields];
+    vals = new QString[numberOfRecords * countFields];
 
-    for (int i=0; i< numberOfRecords; i++) {
-        for (int j =0; j<countFields;j++) {
-            int l = fields[j].getFieldLength();
-            QString strg = buffer.read(l);
-            strg = strg.trimmed();
-            if (strg.size()<=0) {
-                strg = "0";
-            }
-            vals[i*countFields + j] = strg;
+    for (int i = 0; i < numberOfRecords; i++) {
+        for (int j = 0; j < countFields; j++) {
+            QString s = buffer.read(fields[j].getFieldLength()).trimmed();
+            vals[i * countFields + j] = ((s.size() > 0) ? s : "0");
         }
         buffer.read(1);
     }
 
     buffer.close();
-    file.close();
     return true;
 }
 
 QString DbaseReader::getRecord(int num, const QString & name)
 {
-    if (!hash.contains(name))return 0;
-    int field = hash[name];
-    return getRecord(num, field);
+    if (!hash.contains(name)) {
+        return 0;
+    }
+
+    return getRecord(num, hash[name]);
 }
 
 QString DbaseReader::getRecord(int num, int field)
@@ -282,7 +260,15 @@ int DbaseReader::check16(quint8 i1, quint8 i2)
     int result = 0;
     result = (quint8)i1;
     result += ((quint8)i2) << 8;
+
+    Q_ASSERT(result == check16a(i1, i2));
+
     return result;
+}
+
+int DbaseReader::check16a(quint8 i1, quint8 i2)
+{
+    return (int) (i1 + (i2 << 8));
 }
 
 int DbaseReader::check32(quint8 i1, quint8 i2, quint8 i3, quint8 i4)
@@ -292,22 +278,38 @@ int DbaseReader::check32(quint8 i1, quint8 i2, quint8 i3, quint8 i4)
     result += ((quint8)i2) << 8;
     result += ((quint8)i3) << 16;
     result += ((quint8)i4) << 24;
+
+    Q_ASSERT(result == check32a(i1, i2, i3, i4));
+
     return result;
+}
+
+int DbaseReader::check32a(quint8 i1, quint8 i2, quint8 i3, quint8 i4)
+{
+    return (int) (i1 + (i2 << 8) + (i3 << 16) + (i4 << 24));
 }
 
 QDate DbaseReader::checkDate(quint8 i_year, quint8 i_month, quint8 i_day)
 {
-    int year = (int)i_year;
+    int year = (int) i_year;
 
     if (year >= 100) {
         year = 1900 + year;
     }
 
-    QDate d(year, (int)i_month, (int)i_day);
-    return d;
+    return QDate(year, (int) i_month, (int) i_day);
 }
 
 QString DbaseReader::checkVersion(quint8 i_byte)
+{
+    QString result = checkVersion_b(i_byte);
+    Q_ASSERT(result == checkVersion_a(i_byte));
+
+    qDebug() << "dbf file version: " << result;
+
+    return result;
+}
+QString DbaseReader::checkVersion_b(quint8 i_byte)
 {
     switch (i_byte) {
     case 0x02 :
@@ -345,7 +347,40 @@ QString DbaseReader::checkVersion(quint8 i_byte)
     return "unknown version";
 }
 
+QString DbaseReader::checkVersion_a(quint8 i_byte)
+{
+    QHash<QString, quint8> hash;
+
+    hash["FoxBase"] = 0x02;
+    hash["File without DBT (dBASE III w/o memo file)"] = 0x03;
+    hash["dBASE IV w/o memo file"] = 0x04;
+    hash["dBASE V w/o memo file"] = 0x05;
+    hash["Visual FoxPro w. DBC"] = 0x30;
+    hash["Visual FoxPro w. AutoIncrement field"] = 0x31;
+    hash[".dbv memo var size (Flagship)"] = 0x43;
+    hash["dBASE IV with memo"] = 0x7B;
+    hash["dBASE III+ with memo file"] = 0x83;
+    hash["dBASE IV w. memo"] = 0x8B;
+    hash["dBASE IV w. SQL table"] = 0x8E;
+    hash[".dbv and .dbt memo (Flagship)"] = 0xB3;
+    hash["Clipper SIX driver w. SMT memo file"] = 0xE5;
+    hash["FoxPro w. memo file"] = 0xF5;
+    hash["FoxPro ???"] = 0xFB;
+
+    return hash.key(i_byte, "unknown version");
+}
+
 QString DbaseReader::checkLanguageDriver(quint8 i_byte)
+{
+    QString result = checkLanguageDriver_b(i_byte);
+    Q_ASSERT(result == checkLanguageDriver_a(i_byte));
+
+    qDebug() << "dbf language driver: " << result << " (id: " << i_byte << ")";
+
+    return result;
+}
+
+QString DbaseReader::checkLanguageDriver_b(quint8 i_byte)
 {
     switch (i_byte) {
     case 0x01 :
@@ -356,6 +391,8 @@ QString DbaseReader::checkLanguageDriver(quint8 i_byte)
         return "Windows ANSI code page 1252";
     case 0x04 :
         return "Standard Macintosh";
+    case 0x57:
+        return "ANSI";
     case 0x64 :
         return "EE MS-DOS code page 852";
     case 0x65 :
@@ -389,6 +426,35 @@ QString DbaseReader::checkLanguageDriver(quint8 i_byte)
     }
 
     return "unknown language driver";
+}
+
+// https://stackoverflow.com/questions/52590941/how-to-interpret-the-language-driver-name-in-a-dbase-dbf-file
+QString DbaseReader::checkLanguageDriver_a(quint8 i_byte)
+{
+    QHash<QString, quint8> hash;
+
+    hash["DOS USA code page 437"] = 0x01;
+    hash["DOS Multilingual code page 850"] = 0x02;
+    hash["Windows ANSI code page 1252"] = 0x03;
+    hash["Standard Macintosh"] = 0x04;
+    hash["ANSI"] = 0x57;
+    hash["EE MS-DOS code page 852"] = 0x64;
+    hash["Nordic MS-DOS code page 865"] = 0x65;
+    hash["Russian MS-DOS code page 866"] = 0x66;
+    hash["Icelandic MS-DOS"] = 0x67;
+    hash["Kamenicky (Czech) MS-DOS"] = 0x68;
+    hash["Mazovia (Polish) MS-DOS"] = 0x69;
+    hash["Greek MS-DOS (437G)"] = 0x6A;
+    hash["Turkish MS-DOS"] = 0x6B;
+    hash["Russian Macintosh"] = 0x96;
+    hash["Eastern European Macintosh"] = 0x97;
+    hash["Greek Macintosh"] = 0x98;
+    hash["Windows EE code page 1250"] = 0xC8;
+    hash["Russian Windows"] = 0xC9;
+    hash["Turkish Windows"] = 0xCA;
+    hash["Greek Windows"] = 0xCB;
+
+    return hash.key(i_byte, "unknown language driver");
 }
 
 int DbaseReader::computeCountFields(int headerLength)
