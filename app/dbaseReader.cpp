@@ -92,16 +92,18 @@ bool DbaseReader::isAbimoFile()
 bool DbaseReader::checkAndRead()
 {
     QString name = file.fileName();
+    QString text;
 
     if (! read()) {
-        fullError = "Problem beim Oeffnen der Datei: '" + name+
-            "' aufgetreten.\nGrund: " + error;
+        text = "Problem beim Oeffnen der Datei: '%1' aufgetreten.\nGrund: %s";
+        fullError = text.arg(name, error);
         return false;
     }
 
     if (! isAbimoFile()) {
-        fullError = "Die Datei '" + name + "' ist kein valider 'Input File',\n" +
-            "Ueberpruefen sie die Spaltennamen und die Vollstaendigkeit.";
+        text = "Die Datei '%1' ist kein valider 'Input File',\n";
+        text += "Ueberpruefen Sie die Spaltennamen und die Vollstaendigkeit.";
+        fullError = text.arg(name);
         return false;
     }
 
