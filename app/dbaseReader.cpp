@@ -136,11 +136,8 @@ bool DbaseReader::read()
     int expectedLength = lengthOfHeader + (numberOfRecords * lengthOfEachRecord) + 1;
 
     if (expectedLength != file.size()) {
-        QString s;
-        s.setNum(file.size());
-        QString s1;
-        s1.setNum(expectedLength);
-        error = "Datei unbekannten Formats, falsche Grösse.\nSoll:" + s1 + "\nIst: " + s;
+        error = "Datei unbekannten Formats, falsche Groesse.\nSoll: %1\nIst: %2";
+        error = error.arg(QString::number(expectedLength), QString::number(file.size()));
         return false;
     }
 
@@ -188,17 +185,12 @@ bool DbaseReader::read()
     QBuffer buffer(&arr);
     buffer.open(QIODevice::ReadOnly);
 
-    vals = new QString[numberOfRecords*countFields];
+    vals = new QString[numberOfRecords * countFields];
 
-    for (int i=0; i< numberOfRecords; i++) {
-        for (int j =0; j<countFields;j++) {
-            int l = fields[j].getFieldLength();
-            QString strg = buffer.read(l);
-            strg = strg.trimmed();
-            if (strg.size()<=0) {
-                strg = "0";
-            }
-            vals[i*countFields + j] = strg;
+    for (int i = 0; i < numberOfRecords; i++) {
+        for (int j = 0; j < countFields; j++) {
+            QString s = buffer.read(fields[j].getFieldLength()).trimmed();
+            vals[i * countFields + j] = ((s.size() > 0) ? s : "0");
         }
         buffer.read(1);
     }
@@ -209,9 +201,11 @@ bool DbaseReader::read()
 
 QString DbaseReader::getRecord(int num, const QString & name)
 {
-    if (!hash.contains(name))return 0;
-    int field = hash[name];
-    return getRecord(num, field);
+    if (!hash.contains(name)) {
+        return 0;
+    }
+
+    return getRecord(num, hash[name]);
 }
 
 QString DbaseReader::getRecord(int num, int field)
@@ -278,14 +272,13 @@ int DbaseReader::check32(quint8 i1, quint8 i2, quint8 i3, quint8 i4)
 
 QDate DbaseReader::checkDate(quint8 i_year, quint8 i_month, quint8 i_day)
 {
-    int year = (int)i_year;
+    int year = (int) i_year;
 
     if (year >= 100) {
         year = 1900 + year;
     }
 
-    QDate d(year, (int)i_month, (int)i_day);
-    return d;
+    return QDate(year, (int) i_month, (int) i_day);
 }
 
 QString DbaseReader::checkVersion(quint8 i_byte)
