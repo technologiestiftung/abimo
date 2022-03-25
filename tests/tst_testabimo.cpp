@@ -55,7 +55,7 @@ void testAbimo::test_helpers_filesAreIdentical()
     QString file_1 = testInputFile("abimo_2019_mitstrassen");
     QString file_2 = testInputFile("abimo_2012ges");
 
-    bool debug = true;
+    bool debug = false;
 
     QCOMPARE(Helpers::filesAreIdentical(file_1, file_1, debug), true);
     QCOMPARE(Helpers::filesAreIdentical(file_1, file_2, debug), false);
