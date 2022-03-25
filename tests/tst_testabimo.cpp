@@ -63,8 +63,7 @@ void testAbimo::test_helpers_filesAreIdentical()
 
 void testAbimo::test_requiredFields()
 {
-    DbaseReader reader(testInputFile("abimo_2019_mitstrassen"));
-    QStringList strings = reader.requiredFields();
+    QStringList strings = DbaseReader::requiredFields();
     QCOMPARE(strings.length(), 25L);
 }
 
