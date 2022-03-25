@@ -1,16 +1,12 @@
 #include <QDir>
-#include <QException>
 #include <QFile>
 #include <QtDebug>
-#include <QtTest>
+#include <QString>
 #include <QStringList>
-
-#include <stdexcept>
+#include <QtTest>
 
 #include "../app/helpers.h"
 #include "../app/dbaseReader.h"
-
-// add necessary includes here
 
 class testAbimo : public QObject
 {
@@ -21,89 +17,60 @@ public:
     ~testAbimo();
 
 private slots:
-    void test_helpers();
+    void test_helpers_containsAll();
+    void test_helpers_filesAreIdentical();
+    void test_requiredFields();
     void test_dbaseReader();
-    void openFileOrAbort(QFile *file);
-    bool filesAreIdentical(QString file_1, QString file_2);
+    QString testInputFile(QString fileName);
 };
 
-testAbimo::testAbimo()
+testAbimo::testAbimo() {}
+testAbimo::~testAbimo() {}
+
+QString testAbimo::testInputFile(QString fileName)
 {
+    QString filePath = QString("../../abimo/data/%1.dbf").arg(fileName);
 
-}
-
-testAbimo::~testAbimo()
-{
-
-}
-
-void testAbimo::openFileOrAbort(QFile *file)
-{
-    if (!file->open(QIODevice::ReadOnly)) {
-        qDebug() << "Cannot open file: " << file->fileName() << ": " << file->errorString();
+    if (!QFile::exists(filePath)) {
+        qDebug() << "File does not exist: " << filePath;
+        qDebug() << "Current directory: " << QDir::currentPath();
         abort();
     }
+
+    return filePath;
 }
 
-bool testAbimo::filesAreIdentical(QString fileName_1, QString fileName_2)
-{
-    qDebug() << "Comparing two files: ";
-    qDebug() << "File 1: " << fileName_1;
-    qDebug() << "File 2: " << fileName_2;
-
-    QFile file_1(fileName_1);
-    QFile file_2(fileName_2);
-
-    openFileOrAbort(& file_1);
-    openFileOrAbort(& file_2);
-
-    QByteArray blob_1 = file_1.readAll();
-    QByteArray blob_2 = file_2.readAll();
-
-    bool result = true;
-
-    if (blob_1.length() != blob_2.length()) {
-        result = false;
-    }
-
-    if (result) {
-        for (int i = 0; i < blob_1.length(); i++) {
-            if (blob_1[i] != blob_2[i]) {
-                result = false;
-            }
-        }
-    }
-
-    qDebug() << "The files are " << (result ? "": "not ") << "identical.";
-    return result;
-}
-
-void testAbimo::test_helpers()
+void testAbimo::test_helpers_containsAll()
 {
     QHash<QString, int> hash;
     hash["one"] = 1;
     hash["two"] = 2;
 
     QCOMPARE(Helpers::containsAll(hash, {"one", "two"}), true);
-    QCOMPARE(Helpers::containsAll(hash, {"one", "two", "three"}), false);
+    QCOMPARE(Helpers::containsAll(hash, {"one", "two", "three"}), false);    
+}
+
+void testAbimo::test_helpers_filesAreIdentical()
+{
+    QString file_1 = testInputFile("abimo_2019_mitstrassen");
+    QString file_2 = testInputFile("abimo_2012ges");
+
+    bool debug = true;
+
+    QCOMPARE(Helpers::filesAreIdentical(file_1, file_1, debug), true);
+    QCOMPARE(Helpers::filesAreIdentical(file_1, file_2, debug), false);
+}
+
+void testAbimo::test_requiredFields()
+{
+    DbaseReader reader(testInputFile("abimo_2019_mitstrassen"));
+    QStringList strings = reader.requiredFields();
+    QCOMPARE(strings.length(), 25L);
 }
 
 void testAbimo::test_dbaseReader()
 {
-    QString db_file = "../../abimo/data/abimo_2019_mitstrassen.dbf";
-    QString db_file_2 = "../../abimo/data/abimo_2012ges.dbf";
-
-    QCOMPARE(filesAreIdentical(db_file, db_file), true);
-    QCOMPARE(filesAreIdentical(db_file, db_file_2), false);
-
-    /*
-    qDebug() << "Current directory: " << QDir::currentPath();
-    qDebug() << "db_file exists? " << QFile::exists(db_file);
-    */
-
-    DbaseReader reader(db_file);
-    QStringList strings = reader.requiredFields();
-    QCOMPARE(strings.length(), 25L);
+    DbaseReader reader(testInputFile("abimo_2019_mitstrassen"));
 
     bool success = reader.checkAndRead();
 
