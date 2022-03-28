@@ -298,7 +298,7 @@ void MainWindow::reportSuccess(
     protokollStream << "\r\nEnde der Berechnung " + Helpers::nowString() + "\r\n";
 }
 
-void MainWindow::reportCancelled(QTextStream &protokollStream)
+void MainWindow::reportCancelled(QTextStream & /*protokollStream*/)
 {
     setText("Die Berechnungen wurden durch den Benutzer abgebrochen.");
 

@@ -19,7 +19,7 @@ public:
     static QString defaultOutputFileName(QString inputFileName);
     static QString defaultLogFileName(QString outputFileName);
     static bool containsAll(QHash<QString, int> hash, QStringList keys);
-    static void openFileOrAbort(QFile *file);
+    static void openFileOrAbort(QFile& file, QIODevice::OpenModeFlag mode = QIODevice::ReadOnly);
     static bool filesAreIdentical(QString file_1, QString file_2, bool debug = true);
 
 private:

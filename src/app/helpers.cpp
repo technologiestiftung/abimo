@@ -70,10 +70,10 @@ bool Helpers::containsAll(QHash<QString, int> hash, QStringList keys)
     return true;
 }
 
-void Helpers::openFileOrAbort(QFile *file)
+void Helpers::openFileOrAbort(QFile& file, QIODevice::OpenModeFlag mode)
 {
-    if (!file->open(QIODevice::ReadOnly)) {
-        qDebug() << "Cannot open file: " << file->fileName() << ": " << file->errorString();
+    if (!file.open(mode)) {
+        qDebug() << "Cannot open file: " << file.fileName() << ": " << file.errorString();
         abort();
     }
 }
@@ -89,8 +89,8 @@ bool Helpers::filesAreIdentical(QString fileName_1, QString fileName_2, bool deb
     QFile file_1(fileName_1);
     QFile file_2(fileName_2);
 
-    openFileOrAbort(& file_1);
-    openFileOrAbort(& file_2);
+    openFileOrAbort(file_1);
+    openFileOrAbort(file_2);
 
     QByteArray blob_1 = file_1.readAll();
     QByteArray blob_2 = file_2.readAll();

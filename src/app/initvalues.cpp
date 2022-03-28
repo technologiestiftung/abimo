@@ -21,8 +21,8 @@
 #include <QHash>
 #include <QString>
 #include <QStringList>
-#include <QXmlSimpleReader>
 #include <QXmlInputSource>
+#include <QXmlSimpleReader>
 
 #include "helpers.h"
 #include "initvalues.h"
