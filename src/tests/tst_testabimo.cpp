@@ -5,8 +5,9 @@
 #include <QStringList>
 #include <QtTest>
 
-#include "../app/helpers.h"
+#include "../app/calculation.h"
 #include "../app/dbaseReader.h"
+#include "../app/helpers.h"
 
 class testAbimo : public QObject
 {
@@ -21,6 +22,8 @@ private slots:
     void test_helpers_filesAreIdentical();
     void test_requiredFields();
     void test_dbaseReader();
+    void test_calc();
+
     QString testInputFile(QString fileName);
 };
 
@@ -29,7 +32,7 @@ testAbimo::~testAbimo() {}
 
 QString testAbimo::testInputFile(QString fileName)
 {
-    QString filePath = QString("../../abimo/data/%1.dbf").arg(fileName);
+    QString filePath = QString("../../data/%1.dbf").arg(fileName);
 
     if (!QFile::exists(filePath)) {
         qDebug() << "File does not exist: " << filePath;
@@ -77,6 +80,15 @@ void testAbimo::test_dbaseReader()
 
     QCOMPARE(success, true);
     QCOMPARE(reader.isAbimoFile(), true);
+}
+
+void testAbimo::test_calc()
+{
+    QString inputFile = "";
+    QString configFile = "";
+    QString outputFile = "";
+
+    Calculation::calculate(inputFile, configFile, outputFile);
 }
 
 QTEST_APPLESS_MAIN(testAbimo)

@@ -154,7 +154,7 @@ void SaxHandler::potVerdEntry(const QXmlAttributes &attribs)
     }
 }
 
-bool SaxHandler::fatalError(const QXmlParseException &exception)
+bool SaxHandler::fatalError(const QXmlParseException & /*exception*/)
 {
     return false;
 }

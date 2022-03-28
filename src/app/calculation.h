@@ -43,6 +43,7 @@ public:
     int getTotalBERtoZeroForced();
     QString getError();
     void stop();
+    static void calculate(QString inputFile, QString configFile, QString outputFile);
 
 signals:
     void processSignal(int, QString);

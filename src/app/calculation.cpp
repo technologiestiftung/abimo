@@ -869,3 +869,38 @@ float Calculation::getNUV(PDR &B) /* DataRecord_t *B) */
 
     return BAG0;
 }
+
+void Calculation::calculate(QString inputFile, QString configFile, QString outputFile)
+{
+    // Open the input file and read the raw (text) values into the dbReader object
+    DbaseReader dbReader(inputFile);
+
+    if (!dbReader.checkAndRead()) {
+        abort();
+    }
+
+    // Update default initial values with values given in configFile
+    InitValues initValues;
+    QString errorMessage = InitValues::updateFromConfig(initValues, configFile);
+
+    if (!errorMessage.isEmpty()) {
+        qDebug() << "Error in updateFromConfig: " << errorMessage;
+        abort();
+    }
+
+    QFile logHandle(Helpers::defaultLogFileName(outputFile));
+    Helpers::openFileOrAbort(logHandle);
+
+    QTextStream logStream(&logHandle);
+
+    Calculation calculator(dbReader, initValues, logStream);
+
+    bool success = calculator.calc(outputFile);
+
+    if (!success) {
+        qDebug() << "Error in calc(): " << calculator.getError();
+        abort();
+    }
+
+    logHandle.close();
+}

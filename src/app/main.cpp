@@ -27,6 +27,7 @@
 #include <QTextStream>
 #include <QtDebug>
 
+#include "main.h"
 #include "calculation.h"
 #include "constants.h"
 #include "dbaseReader.h"
@@ -34,7 +35,7 @@
 #include "initvalues.h"
 #include "mainwindow.h"
 
-bool parseForBatch(int &argc, char *argv[])
+bool parseForBatch(int &argc, char** /*argv*/)
 {
     //return false;
     return argc > 1;
