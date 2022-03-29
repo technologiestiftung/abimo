@@ -20,6 +20,7 @@ public:
 private slots:
     void test_helpers_containsAll();
     void test_helpers_filesAreIdentical();
+    void test_helpers_stringsAreEqual();
     void test_requiredFields();
     void test_dbaseReader();
     void test_calc();
@@ -67,6 +68,15 @@ void testAbimo::test_helpers_filesAreIdentical()
 
     QCOMPARE(Helpers::filesAreIdentical(file_1, file_1, debug), true);
     QCOMPARE(Helpers::filesAreIdentical(file_1, file_2, debug), false);
+}
+
+void testAbimo::test_helpers_stringsAreEqual()
+{
+    QString strings_1[] = {"a", "b", "c", "d", "e", "f"};
+    QString strings_2[] = {"a", "b", "d", "e", "f", "g"};
+
+    QCOMPARE(Helpers::stringsAreEqual(strings_1, strings_1, 6), true);
+    QCOMPARE(Helpers::stringsAreEqual(strings_1, strings_2, 6), false);
 }
 
 void testAbimo::test_requiredFields()
