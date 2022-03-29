@@ -885,15 +885,22 @@ void Calculation::calculate(QString inputFile, QString configFile, QString outpu
 
     // Update default initial values with values given in configFile
     InitValues initValues;
-    QString errorMessage = InitValues::updateFromConfig(initValues, configFile);
 
-    if (!errorMessage.isEmpty()) {
-        qDebug() << "Error in updateFromConfig: " << errorMessage;
-        abort();
+    if (configFile.isEmpty()) {
+        qDebug() << "No config file given -> Using default values";
+    }
+    else {
+        qDebug() << "Using configuration file:" << configFile;
+
+        QString errorMessage = InitValues::updateFromConfig(initValues, configFile);
+        if (!errorMessage.isEmpty()) {
+            qDebug() << "Error in updateFromConfig: " << errorMessage;
+            abort();
+        }
     }
 
     QFile logHandle(Helpers::defaultLogFileName(outputFile));
-    Helpers::openFileOrAbort(logHandle);
+    Helpers::openFileOrAbort(logHandle, QFile::WriteOnly);
 
     QTextStream logStream(&logHandle);
 
