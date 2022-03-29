@@ -172,15 +172,35 @@ bool Calculation::calc(QString fileOut, bool debug)
 {
     /* Variablen zur Berechnung */
     int index = 0;
+    
+    // vgd / vgb / vgs = Versiegelungsgrad Dachflaechen / sonst. versiegelte Flaechen / Strassen
+    // kd / kb / ks = Kanalisierungsgrad Dachflaechen / sonst. versiegelte Flaechen / Strassen
     float vgd, vgb, vgs, kd, kb, ks;
+    
+    // Anteil der jeweiligen Belagsklasse / Strassenbelagsklasse
     float bl1, bl2, bl3, bl4, bls1, bls2, bls3, bls4;
+    
+    // fb / fs = Gesamtflaeche Bebauung / Strasse
+    // fbant / fsant = Verhaeltnis Bebauungsflaeche / Strassenflaeche zu Gesamtflaeche
     float fb, fs, fbant, fsant;
+    
+    // rowx = Abflussvariablen der versiegelten Flaechen
     float row1, row2, row3, row4;
+    
+    // rix = Infiltrationsvariablen der versiegelten Flaechen
     float ri1, ri2, ri3, ri4;
-    float rowd, rid;     /* Dachflaechen */
-    float rowuvs, riuvs; /* unversiegelte Str.-flaeche */
-    float riuv;          /* unversiegelte Flaeche */
-    float r, ri, row;    /* float-Zwischenwerte */
+    
+    // rowd / rid = Abfluss- / Infiltrationsvariablen der Dachflaechen
+    float rowd, rid;
+    
+    // rowuvs / riuvs = Abfluss- / Infiltrationsvariablen unversiegelter Strassenflaechen
+    float rowuvs, riuvs;
+    
+    // riuv = Infiltration unversiegelter Flaechen
+    float riuv;
+    
+    // float-Zwischenwerte
+    float r, ri, row;
     int k;
 
     niedKorrFaktor = initValues.getNiedKorrF();
@@ -281,8 +301,17 @@ bool Calculation::calc(QString fileOut, bool debug)
             /* cls_1: Fehler a:
                rowd = (1.0F - initValues.getInfdach()) * vgd * kb * fbant * RDV;
                richtige Zeile folgt (kb ----> kd)
+            
+            /*  Legende der Abflussberechnung der 4 Belagsklassen bzw. Dachklasse:
+                rowd / rowx: Abfluss Dachflaeche / Abfluss Belagsflaeche x
+                infdach / infbelx: Infiltrationsparameter Dachfl. / Belagsfl. x
+                belx: Anteil Belagsklasse x
+                blsx: Anteil Strassenbelagsklasse x
+                vgd / vgb: Anteil versiegelte Dachfl. / sonstige versiegelte Flaeche zu Gesamtblockteilflaeche
+                kd / kb / ks: Grad der Kanalisierung Dach / sonst. vers. Fl. / Strassenflaechen
+                fbant / fsant: ?
+                RDV / RxV: Gesamtabfluss versiegelte Flaeche
             */
-
             rowd = (1.0F - initValues.getInfdach()) * vgd * kd * fbant * RDV;
             row1 = (1.0F - initValues.getInfbel1()) * (bl1 * kb * vgb * fbant + bls1 * ks * vgs * fsant) * R1V;
             row2 = (1.0F - initValues.getInfbel2()) * (bl2 * kb * vgb * fbant + bls2 * ks * vgs * fsant) * R2V;
