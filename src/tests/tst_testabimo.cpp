@@ -26,21 +26,10 @@ private slots:
 
     QString testDataDir();
     QString dataFilePath(QString fileName, bool mustExist = true);
-    void abortIfNoSuchFile(QString filePath);
 };
 
 testAbimo::testAbimo() {}
 testAbimo::~testAbimo() {}
-
-void testAbimo::abortIfNoSuchFile(QString filePath)
-{
-    if (!QFile::exists(filePath)) {
-        qDebug() << "File does not exist: " << filePath;
-        qDebug() << "Current directory: " << QDir::currentPath();
-        qDebug() << "Data directory: " << testDataDir();
-        abort();
-    }
-}
 
 QString testAbimo::testDataDir()
 {
@@ -52,7 +41,8 @@ QString testAbimo::dataFilePath(QString fileName, bool mustExist)
     QString filePath = QString(testDataDir() + "/" + fileName);
 
     if (mustExist) {
-        abortIfNoSuchFile(filePath);
+        QString context = "Data directory: " + testDataDir();
+        Helpers::abortIfNoSuchFile(filePath, context);
     }
 
     return filePath;

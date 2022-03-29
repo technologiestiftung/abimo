@@ -1,6 +1,7 @@
 #include <QCommandLineParser>
 #include <QDateTime>
 #include <QDebug>
+#include <QDir>
 #include <QFileInfo>
 #include <QString>
 #include <QStringList>
@@ -114,4 +115,18 @@ bool Helpers::filesAreIdentical(QString fileName_1, QString fileName_2, bool deb
     }
 
     return result;
+}
+
+void Helpers::abortIfNoSuchFile(QString filePath, QString context)
+{
+    if (!QFile::exists(filePath)) {
+        qDebug() << "File does not exist: " << filePath;
+        qDebug() << "Current directory: " << QDir::currentPath();
+
+        if (!context.isEmpty()) {
+            qDebug() << context;
+        }
+
+        abort();
+    }
 }

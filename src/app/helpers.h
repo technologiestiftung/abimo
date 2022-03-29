@@ -21,6 +21,7 @@ public:
     static bool containsAll(QHash<QString, int> hash, QStringList keys);
     static void openFileOrAbort(QFile& file, QIODevice::OpenModeFlag mode = QIODevice::ReadOnly);
     static bool filesAreIdentical(QString file_1, QString file_2, bool debug = true);
+    static void abortIfNoSuchFile(QString filePath, QString context = "");
 
 private:
     static QString removeFileExtension(QString);
