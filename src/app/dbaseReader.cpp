@@ -55,6 +55,11 @@ QString DbaseReader::getFullError()
     return fullError;
 }
 
+QString* DbaseReader::getVals()
+{
+    return vals;
+}
+
 QStringList DbaseReader::requiredFields()
 {
     return {

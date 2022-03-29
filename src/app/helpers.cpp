@@ -130,3 +130,17 @@ void Helpers::abortIfNoSuchFile(QString filePath, QString context)
         abort();
     }
 }
+
+bool Helpers::stringsAreEqual(QString* strings_1, QString* strings_2, int n)
+{
+    for (int i = 0; i < n; i++) {
+        qDebug() << "Comparing" << *strings_1 << "with" << *strings_1;
+        if (*strings_1 != *strings_2) {
+            return false;
+        }
+        strings_1++;
+        strings_2++;
+    }
+
+    return true;
+}

@@ -22,6 +22,7 @@ public:
     static void openFileOrAbort(QFile& file, QIODevice::OpenModeFlag mode = QIODevice::ReadOnly);
     static bool filesAreIdentical(QString file_1, QString file_2, bool debug = true);
     static void abortIfNoSuchFile(QString filePath, QString context = "");
+    static bool stringsAreEqual(QString* strings_1, QString* strings_2, int n);
 
 private:
     static QString removeFileExtension(QString);

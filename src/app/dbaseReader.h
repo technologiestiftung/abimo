@@ -46,6 +46,7 @@ public:
     static QStringList requiredFields();
     bool isAbimoFile();
     bool checkAndRead();
+    QString* getVals();
 
 private:
     // VARIABLES:

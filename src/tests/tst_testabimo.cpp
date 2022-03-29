@@ -97,6 +97,25 @@ void testAbimo::test_calc()
     Calculation::calculate(inputFile, "" /*configFile*/, outputFile);
 
     QCOMPARE(Helpers::filesAreIdentical(outputFile, referenceFile), true);
+
+    DbaseReader reader_1("abimo_2019_mitstrassen_out.dbf");
+    DbaseReader reader_2("tmp_out.dbf");
+
+    reader_1.read();
+    reader_2.read();
+
+    int nrows_1 = reader_1.getNumberOfRecords();
+    int nrows_2 = reader_2.getNumberOfRecords();
+
+    int ncols_1 = reader_1.getCountFields();
+    int ncols_2 = reader_2.getCountFields();
+
+    QCOMPARE(nrows_1, nrows_2);
+    QCOMPARE(ncols_1, ncols_2);
+
+    QCOMPARE(true, Helpers::stringsAreEqual(
+        reader_1.getVals(), reader_2.getVals(), nrows_1 * ncols_1
+    ));
 }
 
 QTEST_APPLESS_MAIN(testAbimo)
