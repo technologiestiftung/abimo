@@ -168,7 +168,7 @@ STR_FLGES  - toFloat()
     erfolgreich war.
  =======================================================================================================================
  */
-bool Calculation::calc(QString fileOut)
+bool Calculation::calc(QString fileOut, bool debug)
 {
     /* Variablen zur Berechnung */
     int index = 0;
@@ -208,7 +208,9 @@ bool Calculation::calc(QString fileOut)
 
         int nutzung = textNutzung.toInt();
 
-        qDebug() << "k: " << k << ", Nutzung: " << nutzung << "(" << Helpers::singleQuote(textNutzung) << ")";
+        if (debug) {
+            qDebug() << "k: " << k << ", Nutzung: " << nutzung << "(" << Helpers::singleQuote(textNutzung) << ")";
+        }
 
         if (nutzung != 0) {
 
@@ -243,7 +245,9 @@ bool Calculation::calc(QString fileOut)
             QString text_probau = dbReader.getRecord(k, "PROBAU");
             vgd = text_probau.toFloat() / 100.0F; /* Dachflaechen */
 
-            qDebug() << "text_probau: " << Helpers::singleQuote(text_probau) << ", toFloat()/100: " << vgd;
+            if (debug) {
+                qDebug() << "text_probau: " << Helpers::singleQuote(text_probau) << ", toFloat()/100: " << vgd;
+            }
 
             vgb = (dbReader.getRecord(k, "PROVGU")).toFloat() / 100.0F; /* Hofflaechen */
             ptrDA.VER = (int)round((vgd * 100) + (vgb * 100));

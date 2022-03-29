@@ -34,7 +34,7 @@ class Calculation: public QObject
 
 public:
     Calculation(DbaseReader & dbR, InitValues & init, QTextStream & protoStream);
-    bool calc(QString fileOut);
+    bool calc(QString fileOut, bool debug = false);
     long getProtCount();
     long getKeineFlaechenAngegeben();
     long getNutzungIstNull();
