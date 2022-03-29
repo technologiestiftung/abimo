@@ -281,8 +281,17 @@ bool Calculation::calc(QString fileOut, bool debug)
             /* cls_1: Fehler a:
                rowd = (1.0F - initValues.getInfdach()) * vgd * kb * fbant * RDV;
                richtige Zeile folgt (kb ----> kd)
+            
+            /*  Legende der Abflussberechnung der 4 Belagsklassen bzw. Dachklasse:
+                rowd / rowx: Abfluss Dachflaeche / Abfluss Belagsflaeche x
+                infdach / infbelx: Infiltrationsparameter Dachfl. / Belagsfl. x
+                belx: Anteil Belagsklasse x
+                blsx: Anteil Strassenbelagsklasse x
+                vgd / vgb: Anteil versiegelte Dachfl. / sonstige versiegelte Flaeche zu Gesamtblockteilflaeche
+                kd / kb / ks: Grad der Kanalisierung Dach / sonst. vers. Fl. / Strassenflaechen
+                fbant / fsant: ?
+                RDV / RxV: Gesamtabfluss versiegelte Flaeche
             */
-
             rowd = (1.0F - initValues.getInfdach()) * vgd * kd * fbant * RDV;
             row1 = (1.0F - initValues.getInfbel1()) * (bl1 * kb * vgb * fbant + bls1 * ks * vgs * fsant) * R1V;
             row2 = (1.0F - initValues.getInfbel2()) * (bl2 * kb * vgb * fbant + bls2 * ks * vgs * fsant) * R2V;
