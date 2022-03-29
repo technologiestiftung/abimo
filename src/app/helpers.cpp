@@ -109,11 +109,11 @@ bool Helpers::filesAreIdentical(QString fileName_1, QString fileName_2, bool deb
 
         while(i < blob_1.length() && n_diffs < maxDiffs) {
             if (blob_1[i] != blob_2[i]) {
+                n_diffs++;
                 qDebug() << QString("%1. byte difference at index %2").arg(
                     QString::number(n_diffs),
                     QString::number(i)
                 );
-                n_diffs++;
             }
             i++;
         }
@@ -163,5 +163,5 @@ bool Helpers::stringsAreEqual(QString* strings_1, QString* strings_2, int n, int
         i++;
     }
 
-    return n_diffs == 0;
+    return (n_diffs == 0);
 }
