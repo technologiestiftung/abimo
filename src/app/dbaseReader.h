@@ -43,6 +43,7 @@ public:
     QString getRecord(int num, const QString & name);
     QString getError();
     QString getFullError();
+    static QStringList requiredFields();
     bool isAbimoFile();
     bool checkAndRead();
 
@@ -72,6 +73,8 @@ private:
 
     // FUNCTIONS:
     /////////////
+
+    int expectedFileSize();
 
     // 1 byte unsigned give the version
     QString checkVersion(quint8);

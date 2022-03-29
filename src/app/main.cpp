@@ -27,6 +27,7 @@
 #include <QTextStream>
 #include <QtDebug>
 
+#include "main.h"
 #include "calculation.h"
 #include "constants.h"
 #include "dbaseReader.h"
@@ -34,7 +35,7 @@
 #include "initvalues.h"
 #include "mainwindow.h"
 
-bool parseForBatch(int &argc, char *argv[])
+bool parseForBatch(int &argc, char** /*argv*/)
 {
     //return false;
     return argc > 1;
@@ -118,10 +119,16 @@ int main_batch(int argc, char *argv[])
     parser.process(app);
 
     const QStringList positionalArgs = parser.positionalArguments();
-    QString inputFileName = positionalArgs.at(0);
-    QString outputFileName = positionalArgs.at(1);
+    //QString inputFileName = positionalArgs.at(0);
+    QString inputFileName = Helpers::positionalArgOrNULL(&parser, 0);
+
+    //QString outputFileName = positionalArgs.at(1);
+    //QString outputFileName = Helpers::positionalArgOrNULL(&parser, 1);
+    QString outputFileName = Helpers::defaultOutputFileName(inputFileName);
+
     QString configFileName= parser.value("config");
-    QString logFileName = Helpers::removeFileExtension(inputFileName) + "Log.txt";
+
+    QString logFileName = Helpers::defaultLogFileName(outputFileName);
     bool debug = parser.isSet("debug");
 
     debugInputs(inputFileName, outputFileName, configFileName, logFileName, debug);
@@ -182,6 +189,11 @@ int main_gui(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
+    //qDebug() << QString("1.2").toFloat();
+    //qDebug() << QString("1,2").toFloat();
+
+    //return 0;
+
     qDebug() << "Number of command line arguments: " << argc;
 
     if (parseForBatch(argc, argv)) {

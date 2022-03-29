@@ -18,6 +18,7 @@
  ***************************************************************************/
 
 #include <math.h>
+#include <QDebug>
 #include <QString>
 #include <QTextStream>
 
@@ -25,6 +26,7 @@
 #include "calculation.h"
 #include "dbaseReader.h"
 #include "dbaseWriter.h"
+#include "helpers.h"
 #include "initvalues.h"
 #include "pdr.h"
 
@@ -130,14 +132,43 @@ QString Calculation::getError()
     return error;
 }
 
+/*
+field        conversion function
+NUTZUNG    - toInt()
+CODE       - none ?
+REGENJA    - toInt()
+REGENSO    - toInt()
+FLUR       - toFloat()
+TYP        - toInt()
+FELD_30    - toInt()
+FELD_150   - toInt()
+BEZIRK     - toInt()
+PROBAU     - toFloat()
+PROVGU     - toFloat()
+VGSTRASSE  - toFloat()
+KAN_BEB    - toFloat()
+KAN_VGU    - toFloat()
+KAN_STR    - toFloat()
+BELAG1     - toFloat()
+BELAG2     - toFloat()
+BELAG3     - toFloat()
+BELAG4     - toFloat()
+STR_BELAG1 - toFloat()
+STR_BELAG2 - toFloat()
+STR_BELAG3 - toFloat()
+STR_BELAG4 - toFloat()
+FLGES      - toFloat()
+STR_FLGES  - toFloat()
+*/
+
 /**
  =======================================================================================================================
-    I m p o r t D B () Diese Funktion importiert die Datensaetze aus der DBASE-Datei FileName in das DA Feld ein
+    Diese Funktion importiert die Datensaetze aus der DBASE-Datei FileName in das DA Feld ein
     (GWD-Daten). Parameter: out-file Rueckgabewert: BOOL TRUE, wenn das Einlesen der Datei
     erfolgreich war.
  =======================================================================================================================
  */
-bool Calculation::calc(QString fileOut)
+bool Calculation::calc(QString fileOut, bool debug)
 {
     /* Variablen zur Berechnung */
     int index = 0;
@@ -172,7 +203,14 @@ bool Calculation::calc(QString fileOut)
         }
 
         ptrDA.wIndex = index;
-        int nutzung = dbReader.getRecord(k, "NUTZUNG").toInt();
+
+        QString textNutzung = dbReader.getRecord(k, "NUTZUNG");
+
+        int nutzung = textNutzung.toInt();
+
+        if (debug) {
+            qDebug() << "k: " << k << ", Nutzung: " << nutzung << "(" << Helpers::singleQuote(textNutzung) << ")";
+        }
 
         if (nutzung != 0) {
 
@@ -190,11 +228,12 @@ bool Calculation::calc(QString fileOut)
                 (dbReader.getRecord(k, "FELD_150")).toInt(),
                 codestr
             );
+
             /* cls_6a: an dieser Stelle muss garantiert werden, dass f30 und f150
                als Parameter von getNutz einen definierten Wert erhalten und zwar 0.
 
-               FIXED: alle Werte sind definiert... wenn keine 0, sondern nichts bzw. Leerzeichen angegeben wurden
-               wird nun eine 0 eingesetzt
+               FIXED: alle Werte sind definiert... wenn keine 0, sondern nichts bzw. Leerzeichen
+               angegeben wurden, wird nun eine 0 eingesetzt
                aber eigentlich war das auch schon so ... ???
             */
 
@@ -202,7 +241,14 @@ bool Calculation::calc(QString fileOut)
             getKLIMA((dbReader.getRecord(k, "BEZIRK")).toInt(), codestr);
 
             /* Dateneingabe */
-            vgd = (dbReader.getRecord(k, "PROBAU")).toFloat() / 100.0F; /* Dachflaechen */
+
+            QString text_probau = dbReader.getRecord(k, "PROBAU");
+            vgd = text_probau.toFloat() / 100.0F; /* Dachflaechen */
+
+            if (debug) {
+                qDebug() << "text_probau: " << Helpers::singleQuote(text_probau) << ", toFloat()/100: " << vgd;
+            }
+
             vgb = (dbReader.getRecord(k, "PROVGU")).toFloat() / 100.0F; /* Hofflaechen */
             ptrDA.VER = (int)round((vgd * 100) + (vgb * 100));
             vgs = (dbReader.getRecord(k, "VGSTRASSE")).toFloat() / 100.0F;
@@ -730,7 +776,7 @@ float Calculation::min(float x, float y)
 int Calculation::index(float wert, const float *feld, int anz)
 {
     int i;
-    float eps = 0.0001;
+    float eps = 0.0001F;
 
     for (i = 0; i < anz; i++)
         if (wert <= feld[i] + eps) return(i);
@@ -826,4 +872,46 @@ float Calculation::getNUV(PDR &B) /* DataRecord_t *B) */
     }
 
     return BAG0;
+}
+
+void Calculation::calculate(QString inputFile, QString configFile, QString outputFile)
+{
+    // Open the input file and read the raw (text) values into the dbReader object
+    DbaseReader dbReader(inputFile);
+
+    if (!dbReader.checkAndRead()) {
+        abort();
+    }
+
+    // Update default initial values with values given in configFile
+    InitValues initValues;
+
+    if (configFile.isEmpty()) {
+        qDebug() << "No config file given -> Using default values";
+    }
+    else {
+        qDebug() << "Using configuration file:" << configFile;
+
+        QString errorMessage = InitValues::updateFromConfig(initValues, configFile);
+        if (!errorMessage.isEmpty()) {
+            qDebug() << "Error in updateFromConfig: " << errorMessage;
+            abort();
+        }
+    }
+
+    QFile logHandle(Helpers::defaultLogFileName(outputFile));
+    Helpers::openFileOrAbort(logHandle, QFile::WriteOnly);
+
+    QTextStream logStream(&logHandle);
+
+    Calculation calculator(dbReader, initValues, logStream);
+
+    bool success = calculator.calc(outputFile);
+
+    if (!success) {
+        qDebug() << "Error in calc(): " << calculator.getError();
+        abort();
+    }
+
+    logHandle.close();
 }
