@@ -132,7 +132,7 @@ bool DbaseReader::read()
 
     QByteArray info = file.read(32);
 
-    version = checkVersion(info[0]);
+    version = checkVersion(info[0], false);
     date = checkDate(info[1], info[2], info[3]);
     numberOfRecords = check32(info[4], info[5], info[6], info[7]);
     lengthOfHeader = check16(info[8], info[9]);
@@ -145,7 +145,7 @@ bool DbaseReader::read()
     // info[20 to 27] - reserved for multiuser dbase
     // info[28] MDX-flag
 
-    languageDriver = checkLanguageDriver(info[29]);
+    languageDriver = checkLanguageDriver(info[29], false);
 
     // info[30 - 31] reserved
 
@@ -286,7 +286,7 @@ QDate DbaseReader::checkDate(quint8 i_year, quint8 i_month, quint8 i_day)
     return QDate(year, (int) i_month, (int) i_day);
 }
 
-QString DbaseReader::checkVersion(quint8 i_byte)
+QString DbaseReader::checkVersion(quint8 i_byte, bool debug)
 {
     QHash<QString, quint8> hash;
 
@@ -308,13 +308,15 @@ QString DbaseReader::checkVersion(quint8 i_byte)
 
     QString result = hash.key(i_byte, "unknown version");
 
-    qDebug() << "dbf file version: " << result;
+    if (debug) {
+        qDebug() << "dbf file version: " << result;
+    }
 
     return result;
 }
 
 // https://stackoverflow.com/questions/52590941/how-to-interpret-the-language-driver-name-in-a-dbase-dbf-file
-QString DbaseReader::checkLanguageDriver(quint8 i_byte)
+QString DbaseReader::checkLanguageDriver(quint8 i_byte, bool debug)
 {
     QHash<QString, quint8> hash;
 
@@ -341,7 +343,9 @@ QString DbaseReader::checkLanguageDriver(quint8 i_byte)
 
     QString result = hash.key(i_byte, "unknown language driver");
 
-    qDebug() << "dbf language driver: " << result << " (id: " << i_byte << ")";
+    if (debug) {
+        qDebug() << "dbf language driver: " << result << " (id: " << i_byte << ")";
+    }
 
     return result;
 }

@@ -78,10 +78,10 @@ private:
     int expectedFileSize();
 
     // 1 byte unsigned give the version
-    QString checkVersion(quint8);
+    QString checkVersion(quint8, bool debug = true);
 
     // 1 byte unsigned give the Language Driver (code page)
-    QString checkLanguageDriver(quint8 i_byte);
+    QString checkLanguageDriver(quint8 i_byte, bool debug = true);
 
     // 3 byte unsigned char give the date of last edit
     QDate checkDate(quint8 i_year, quint8 i_month, quint8 i_day);

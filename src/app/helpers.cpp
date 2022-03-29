@@ -142,7 +142,7 @@ void Helpers::abortIfNoSuchFile(QString filePath, QString context)
     }
 }
 
-bool Helpers::stringsAreEqual(QString* strings_1, QString* strings_2, int n, int maxDiffs)
+bool Helpers::stringsAreEqual(QString* strings_1, QString* strings_2, int n, int maxDiffs, bool debug)
 {
     int n_diffs = 0;
     int i = 0;
@@ -150,13 +150,15 @@ bool Helpers::stringsAreEqual(QString* strings_1, QString* strings_2, int n, int
     while (i < n && n_diffs < maxDiffs) {
         if (*strings_1 != *strings_2) {
             n_diffs++;
-            qDebug() << QString(
-                "%1. string mismatch at index %2:").arg(
-                QString::number(n_diffs),
-                QString::number(i)
-            );
-            qDebug() << QString("  string 1: '%1'").arg(*strings_1);
-            qDebug() << QString("  string 2: '%1'").arg(*strings_2);
+            if (debug) {
+                qDebug() << QString(
+                    "%1. string mismatch at index %2:").arg(
+                    QString::number(n_diffs),
+                    QString::number(i)
+                );
+                qDebug() << QString("  string 1: '%1'").arg(*strings_1);
+                qDebug() << QString("  string 2: '%1'").arg(*strings_2);
+            }
         }
         strings_1++;
         strings_2++;
