@@ -24,20 +24,35 @@ private slots:
     void test_dbaseReader();
     void test_calc();
 
-    QString testInputFile(QString fileName);
+    QString testDataDir();
+    QString dataFilePath(QString fileName, bool mustExist = true);
+    void abortIfNoSuchFile(QString filePath);
 };
 
 testAbimo::testAbimo() {}
 testAbimo::~testAbimo() {}
 
-QString testAbimo::testInputFile(QString fileName)
+void testAbimo::abortIfNoSuchFile(QString filePath)
 {
-    QString filePath = QString("../../data/%1.dbf").arg(fileName);
-
     if (!QFile::exists(filePath)) {
         qDebug() << "File does not exist: " << filePath;
         qDebug() << "Current directory: " << QDir::currentPath();
+        qDebug() << "Data directory: " << testDataDir();
         abort();
+    }
+}
+
+QString testAbimo::testDataDir()
+{
+    return QString("../../../abimo/data");
+}
+
+QString testAbimo::dataFilePath(QString fileName, bool mustExist)
+{
+    QString filePath = QString(testDataDir() + "/" + fileName);
+
+    if (mustExist) {
+        abortIfNoSuchFile(filePath);
     }
 
     return filePath;
@@ -55,8 +70,8 @@ void testAbimo::test_helpers_containsAll()
 
 void testAbimo::test_helpers_filesAreIdentical()
 {
-    QString file_1 = testInputFile("abimo_2019_mitstrassen");
-    QString file_2 = testInputFile("abimo_2012ges");
+    QString file_1 = dataFilePath("abimo_2019_mitstrassen.dbf");
+    QString file_2 = dataFilePath("abimo_2012ges.dbf");
 
     bool debug = false;
 
@@ -72,7 +87,7 @@ void testAbimo::test_requiredFields()
 
 void testAbimo::test_dbaseReader()
 {
-    DbaseReader reader(testInputFile("abimo_2019_mitstrassen"));
+    DbaseReader reader(dataFilePath("abimo_2019_mitstrassen.dbf"));
 
     bool success = reader.checkAndRead();
 
@@ -84,11 +99,14 @@ void testAbimo::test_dbaseReader()
 
 void testAbimo::test_calc()
 {
-    QString inputFile = "";
-    QString configFile = "";
-    QString outputFile = "";
+    QString inputFile = dataFilePath("abimo_2019_mitstrassen.dbf");
+    QString configFile = dataFilePath("config.xml");
+    QString outputFile = dataFilePath("tmp_out.dbf", false);
+    QString referenceFile = dataFilePath("abimo_2019_mitstrassen_out.dbf");
 
-    Calculation::calculate(inputFile, configFile, outputFile);
+    Calculation::calculate(inputFile, "" /*configFile*/, outputFile);
+
+    QCOMPARE(Helpers::filesAreIdentical(outputFile, referenceFile), true);
 }
 
 QTEST_APPLESS_MAIN(testAbimo)
