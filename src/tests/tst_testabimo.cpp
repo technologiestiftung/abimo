@@ -27,6 +27,8 @@ private slots:
 
     QString testDataDir();
     QString dataFilePath(QString fileName, bool mustExist = true);
+    bool dbfStringsAreIdentical(QString file_1, QString file_2);
+    bool numbersInFilesDiffer(QString file_1, QString file_2, int n_1, int n_2, QString subject);
 };
 
 testAbimo::testAbimo() {}
@@ -106,10 +108,14 @@ void testAbimo::test_calc()
 
     Calculation::calculate(inputFile, "" /*configFile*/, outputFile);
 
-    QCOMPARE(Helpers::filesAreIdentical(outputFile, referenceFile), true);
+    //QVERIFY(Helpers::filesAreIdentical(outputFile, referenceFile));
+    QVERIFY(dbfStringsAreIdentical(outputFile, referenceFile));
+}
 
-    DbaseReader reader_1("abimo_2019_mitstrassen_out.dbf");
-    DbaseReader reader_2("tmp_out.dbf");
+bool testAbimo::dbfStringsAreIdentical(QString file_1, QString file_2)
+{
+    DbaseReader reader_1(file_1);
+    DbaseReader reader_2(file_2);
 
     reader_1.read();
     reader_2.read();
@@ -117,15 +123,32 @@ void testAbimo::test_calc()
     int nrows_1 = reader_1.getNumberOfRecords();
     int nrows_2 = reader_2.getNumberOfRecords();
 
+    if (numbersInFilesDiffer(file_1, file_2, nrows_1, nrows_2, "rows")) {
+        return false;
+    };
+
     int ncols_1 = reader_1.getCountFields();
     int ncols_2 = reader_2.getCountFields();
 
-    QCOMPARE(nrows_1, nrows_2);
-    QCOMPARE(ncols_1, ncols_2);
+    if (numbersInFilesDiffer(file_1, file_2, ncols_1, ncols_2, "columns")) {
+        return false;
+    };
 
-    QCOMPARE(true, Helpers::stringsAreEqual(
-        reader_1.getVals(), reader_2.getVals(), nrows_1 * ncols_1
-    ));
+    return Helpers::stringsAreEqual(
+        reader_1.getVals(), reader_2.getVals(), nrows_1 * ncols_1, 5, true
+    );
+}
+
+bool testAbimo::numbersInFilesDiffer(QString file_1, QString file_2, int n_1, int n_2, QString subject)
+{
+    if (n_1 != n_2) {
+        qDebug() << QString("Number of %1 (file_1: %2, file_2: %3) differs.").arg(
+            subject, file_1, file_2, QString::number(n_1), QString::number(n_2)
+        );
+        return true;
+    };
+
+    return false;
 }
 
 QTEST_APPLESS_MAIN(testAbimo)
