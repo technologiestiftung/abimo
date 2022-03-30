@@ -294,7 +294,9 @@ bool Calculation::calc(QString fileOut, bool debug)
                 fb = 100.0F;
             }
 
+            // fbant = Verhaeltnis Bebauungsflaeche zu Gesamtflaeche
             fbant = fb / (fb + fs);
+            // fsant = Verhaeltnis Strassenflaeche zu Gesamtflaeche
             fsant = fs / (fb + fs);
 
             /* Abfluss fuer versiegelte Flaechen */
