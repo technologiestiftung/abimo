@@ -657,6 +657,11 @@ void Calculation::getKLIMA(int bez, QString codestr)
     float n4 = initValues.getBagbel4();
     float n, bag, zw;
 
+    /* ep = potentielle Verdunstung,
+       p = Niederschlag auf Bodenniveau,
+       x = Verhaeltnis Niederschlag zu potentieller Verdunstung,
+       y = Verhaeltnis realer zu potentieller Verdunstung,
+       etr = reale Evapotranspiration */
     float ep, p, x, y, etr;
 
     QString bezString;
@@ -724,6 +729,9 @@ void Calculation::getKLIMA(int bez, QString codestr)
 
     Bagrov bagrovObj;
 
+    /* Berechnung des Abflusses RxV fuer versiegelte Teilflaechen mittels
+       Umrechnung potentieller Verdunstungen ep zu realen über Umrechnungsfaktor y und
+       subtrahiert von Niederschlag p */
     bagrovObj.nbagro(&nd, &y, &x);
     RDV = p - y * ep;
     bagrovObj.nbagro(&n1, &y, &x);
