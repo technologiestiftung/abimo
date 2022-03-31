@@ -62,32 +62,35 @@ QString* DbaseReader::getVals()
 
 QStringList DbaseReader::requiredFields()
 {
+    // The conversion function used in calculation.cpp to convert string to
+    // numeric is given as a comment
+
     return {
-        "NUTZUNG",
-        "CODE",
-        "REGENJA",
-        "REGENSO",
-        "FLUR",
-        "TYP",
-        "FELD_30",
-        "FELD_150",
-        "BEZIRK",
-        "PROBAU",
-        "PROVGU",
-        "VGSTRASSE",
-        "KAN_BEB",
-        "KAN_VGU",
-        "KAN_STR",
-        "BELAG1",
-        "BELAG2",
-        "BELAG3",
-        "BELAG4",
-        "STR_BELAG1",
-        "STR_BELAG2",
-        "STR_BELAG3",
-        "STR_BELAG4",
-        "FLGES",
-        "STR_FLGES"
+        "NUTZUNG",    // toInt()
+        "CODE",       // none?
+        "REGENJA",    // toInt()
+        "REGENSO",    // toInt()
+        "FLUR",       // toFloat()
+        "TYP",        // toInt()
+        "FELD_30",    // toInt()
+        "FELD_150",   // toInt()
+        "BEZIRK",     // toInt()
+        "PROBAU",     // toFloat()
+        "PROVGU",     // toFloat()
+        "VGSTRASSE",  // toFloat()
+        "KAN_BEB",    // toFloat()
+        "KAN_VGU",    // toFloat()
+        "KAN_STR",    // toFloat()
+        "BELAG1",     // toFloat()
+        "BELAG2",     // toFloat()
+        "BELAG3",     // toFloat()
+        "BELAG4",     // toFloat()
+        "STR_BELAG1", // toFloat()
+        "STR_BELAG2", // toFloat()
+        "STR_BELAG3", // toFloat()
+        "STR_BELAG4", // toFloat()
+        "FLGES",      // toFloat()
+        "STR_FLGES"   // toFloat()
       };
 }
 

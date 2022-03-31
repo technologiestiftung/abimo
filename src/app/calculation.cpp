@@ -132,35 +132,6 @@ QString Calculation::getError()
     return error;
 }
 
-/*
-field        conversion function
-NUTZUNG    - toInt()
-CODE       - none ?
-REGENJA    - toInt()
-REGENSO    - toInt()
-FLUR       - toFloat()
-TYP        - toInt()
-FELD_30    - toInt()
-FELD_150   - toInt()
-BEZIRK     - toInt()
-PROBAU     - toFloat()
-PROVGU     - toFloat()
-VGSTRASSE  - toFloat()
-KAN_BEB    - toFloat()
-KAN_VGU    - toFloat()
-KAN_STR    - toFloat()
-BELAG1     - toFloat()
-BELAG2     - toFloat()
-BELAG3     - toFloat()
-BELAG4     - toFloat()
-STR_BELAG1 - toFloat()
-STR_BELAG2 - toFloat()
-STR_BELAG3 - toFloat()
-STR_BELAG4 - toFloat()
-FLGES      - toFloat()
-STR_FLGES  - toFloat()
-*/
-
 /**
  =======================================================================================================================
     Diese Funktion importiert die Datensaetze aus der DBASE-Datei FileName in das DA Feld ein
