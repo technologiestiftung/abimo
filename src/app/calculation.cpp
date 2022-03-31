@@ -303,7 +303,7 @@ bool Calculation::calc(QString fileOut, bool debug)
             /* cls_1: Fehler a:
                rowd = (1.0F - initValues.getInfdach()) * vgd * kb * fbant * RDV;
                richtige Zeile folgt (kb ----> kd)
-            
+            */
             /*  Legende der Abflussberechnung der 4 Belagsklassen bzw. Dachklasse:
                 rowd / rowx: Abfluss Dachflaeche / Abfluss Belagsflaeche x
                 infdach / infbelx: Infiltrationsparameter Dachfl. / Belagsfl. x
