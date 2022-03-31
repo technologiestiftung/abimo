@@ -105,6 +105,7 @@ void testAbimo::test_calc()
     QString configFile = dataFilePath("config.xml");
     QString outputFile = dataFilePath("tmp_out.dbf", false);
     QString referenceFile = dataFilePath("abimo_2019_mitstrassen_out.dbf");
+    //QString referenceFile = dataFilePath("abimo_2019_mitstrassenout_3.2_default-config.dbf");
 
     Calculation::calculate(inputFile, "" /*configFile*/, outputFile);
 
