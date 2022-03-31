@@ -144,30 +144,37 @@ bool Calculation::calc(QString fileOut, bool debug)
     /* Variablen zur Berechnung */
     int index = 0;
     
-    // vgd / vgb / vgs = Versiegelungsgrad Dachflaechen / sonst. versiegelte Flaechen / Strassen
-    // kd / kb / ks = Kanalisierungsgrad Dachflaechen / sonst. versiegelte Flaechen / Strassen
-    float vgd, vgb, vgs, kd, kb, ks;
+    // Versiegelungsgrad Dachflaechen / sonst. versiegelte Flaechen / Strassen
+    float vgd, vgb, vgs;
+
+    // Kanalisierungsgrad Dachflaechen / sonst. versiegelte Flaechen / Strassen
+    float kd, kb, ks;
     
-    // Anteil der jeweiligen Belagsklasse / Strassenbelagsklasse
-    float bl1, bl2, bl3, bl4, bls1, bls2, bls3, bls4;
+    // Anteil der jeweiligen Belagsklasse
+    float bl1, bl2, bl3, bl4;
+
+    // Anteil der jeweiligen Strassenbelagsklasse
+    float bls1, bls2, bls3, bls4;
+
+    // Gesamtflaeche Bebauung / Strasse
+    float fb, fs;
+
+    // Verhaeltnis Bebauungsflaeche / Strassenflaeche zu Gesamtflaeche (ant = Anteil)
+    float fbant, fsant;
     
-    // fb / fs = Gesamtflaeche Bebauung / Strasse
-    // fbant / fsant = Verhaeltnis Bebauungsflaeche / Strassenflaeche zu Gesamtflaeche
-    float fb, fs, fbant, fsant;
-    
-    // rowx = Abflussvariablen der versiegelten Flaechen
+    // Abflussvariablen der versiegelten Flaechen
     float row1, row2, row3, row4;
     
-    // rix = Infiltrationsvariablen der versiegelten Flaechen
+    // Infiltrationsvariablen der versiegelten Flaechen
     float ri1, ri2, ri3, ri4;
     
-    // rowd / rid = Abfluss- / Infiltrationsvariablen der Dachflaechen
+    // Abfluss- / Infiltrationsvariablen der Dachflaechen
     float rowd, rid;
     
-    // rowuvs / riuvs = Abfluss- / Infiltrationsvariablen unversiegelter Strassenflaechen
+    // Abfluss- / Infiltrationsvariablen unversiegelter Strassenflaechen
     float rowuvs, riuvs;
     
-    // riuv = Infiltration unversiegelter Flaechen
+    // Infiltration unversiegelter Flaechen
     float riuv;
     
     // float-Zwischenwerte
