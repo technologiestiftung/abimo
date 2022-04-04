@@ -55,6 +55,11 @@ private:
     InitValues &initValues;
     void gewVerdEntry(const QXmlAttributes &attribs);
     void potVerdEntry(const QXmlAttributes &attribs);
+    static ParameterGroup nameToState(QString name);
+    void setInfiltrationsfaktor(QString key, float value);
+    void setBagrovwert(QString key, float value);
+    void setNachkomma(QString key, int value);
+    void setDivers(QString key, QString value);
 
 };
 

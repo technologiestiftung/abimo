@@ -34,27 +34,8 @@ bool SaxHandler::startElement(
 )
 {
     if (qName == "section") {
-
-        QString name = attribs.value("name");
-
-        if (name == "Infiltrationsfaktoren") {
-            state = ParameterGroup::Infiltrationsfaktoren;
-        }
-        else if (name == "Bagrovwerte") {
-            state = ParameterGroup::Bagrovwerte;
-        }
-        else if (name == "ErgebnisNachkommaStellen") {
-            state = ParameterGroup::Nachkomma;
-        }
-        else if (name == "Diverse") {
-            state = ParameterGroup::Diverse;
-        }
-        else if (name == "Gewaesserverdunstung") {
-            state = ParameterGroup::GewVerd;
-        }
-        else if (name == "PotentielleVerdunstung") {
-            state = ParameterGroup::PotVerd;
-        }
+        state = nameToState(attribs.value("name"));
+        return (state != ParameterGroup::None && state != ParameterGroup::Invalid);
     }
 
     if (qName == "item") {
@@ -65,55 +46,19 @@ bool SaxHandler::startElement(
         switch (state) {
 
         case ParameterGroup::Infiltrationsfaktoren:
-            if (key == "Dachflaechen")
-                initValues.setInfdach(value.toFloat());
-            else if (key == "Belaglsklasse1")
-                initValues.setInfbel1(value.toFloat());
-            else if (key == "Belaglsklasse2")
-                initValues.setInfbel2(value.toFloat());
-            else if (key == "Belaglsklasse3")
-                initValues.setInfbel3(value.toFloat());
-            else if (key == "Belaglsklasse4")
-                initValues.setInfbel4(value.toFloat());
+            setInfiltrationsfaktor(key, value.toFloat());
             break;
 
         case ParameterGroup::Bagrovwerte :
-            if (key == "Dachflaechen")
-                initValues.setBagdach(value.toFloat());
-            else if (key == "Belaglsklasse1")
-                initValues.setBagbel1(value.toFloat());
-            else if (key == "Belaglsklasse2")
-                initValues.setBagbel2(value.toFloat());
-            else if (key == "Belaglsklasse3")
-                initValues.setBagbel3(value.toFloat());
-            else if (key == "Belaglsklasse4")
-                initValues.setBagbel4(value.toFloat());
+            setBagrovwert(key, value.toFloat());
             break;
 
         case ParameterGroup::Nachkomma :
-            if (key == "R")
-                initValues.setDecR(value.toInt());
-            else if (key == "ROW")
-                initValues.setDecROW(value.toInt());
-            else if (key == "RI")
-                initValues.setDecRI(value.toInt());
-            else if (key == "RVOL")
-                initValues.setDecRVOL(value.toInt());
-            else if (key == "ROWVOL")
-                initValues.setDecROWVOL(value.toInt());
-            else if (key == "RIVOL")
-                initValues.setDecRIVOL(value.toInt());
-            else if (key == "FLAECHE")
-                initValues.setDecFLAECHE(value.toInt());
-            else if (key == "VERDUNSTUNG")
-                initValues.setDecVERDUNSTUNG(value.toInt());
+            setNachkomma(key, value.toInt());
             break;
 
         case ParameterGroup::Diverse :
-            if (key == "BERtoZero")
-                initValues.setBERtoZero(value == "true");
-            else if (key == "NIEDKORRF")
-                initValues.setNiedKorrF(value.toFloat());
+            setDivers(key, value);
             break;
 
         case ParameterGroup::GewVerd :
@@ -135,6 +80,95 @@ bool SaxHandler::startElement(
     }
 
     return true;
+}
+
+ParameterGroup SaxHandler::nameToState(QString name)
+{
+    if (name == "Infiltrationsfaktoren") {
+        return ParameterGroup::Infiltrationsfaktoren;
+    }
+
+    if (name == "Bagrovwerte") {
+        return ParameterGroup::Bagrovwerte;
+    }
+
+    if (name == "ErgebnisNachkommaStellen") {
+        return ParameterGroup::Nachkomma;
+    }
+
+    if (name == "Diverse") {
+        return ParameterGroup::Diverse;
+    }
+
+    if (name == "Gewaesserverdunstung") {
+        return ParameterGroup::GewVerd;
+    }
+
+    if (name == "PotentielleVerdunstung") {
+        return ParameterGroup::PotVerd;
+    }
+
+    if (name.isEmpty()) {
+        return ParameterGroup::None;
+    }
+
+    return ParameterGroup::Invalid;
+}
+
+void SaxHandler::setInfiltrationsfaktor(QString key, float value)
+{
+    if (key == "Dachflaechen")
+        initValues.setInfdach(value);
+    else if (key == "Belaglsklasse1")
+        initValues.setInfbel1(value);
+    else if (key == "Belaglsklasse2")
+        initValues.setInfbel2(value);
+    else if (key == "Belaglsklasse3")
+        initValues.setInfbel3(value);
+    else if (key == "Belaglsklasse4")
+        initValues.setInfbel4(value);
+}
+
+void SaxHandler::setBagrovwert(QString key, float value)
+{
+    if (key == "Dachflaechen")
+        initValues.setBagdach(value);
+    else if (key == "Belaglsklasse1")
+        initValues.setBagbel1(value);
+    else if (key == "Belaglsklasse2")
+        initValues.setBagbel2(value);
+    else if (key == "Belaglsklasse3")
+        initValues.setBagbel3(value);
+    else if (key == "Belaglsklasse4")
+        initValues.setBagbel4(value);
+}
+
+void SaxHandler::setNachkomma(QString key, int value)
+{
+    if (key == "R")
+        initValues.setDecR(value);
+    else if (key == "ROW")
+        initValues.setDecROW(value);
+    else if (key == "RI")
+        initValues.setDecRI(value);
+    else if (key == "RVOL")
+        initValues.setDecRVOL(value);
+    else if (key == "ROWVOL")
+        initValues.setDecROWVOL(value);
+    else if (key == "RIVOL")
+        initValues.setDecRIVOL(value);
+    else if (key == "FLAECHE")
+        initValues.setDecFLAECHE(value);
+    else if (key == "VERDUNSTUNG")
+        initValues.setDecVERDUNSTUNG(value);
+}
+
+void SaxHandler::setDivers(QString key, QString value)
+{
+    if (key == "BERtoZero")
+        initValues.setBERtoZero(value == "true");
+    else if (key == "NIEDKORRF")
+        initValues.setNiedKorrF(value.toFloat());
 }
 
 void SaxHandler::gewVerdEntry(const QXmlAttributes &attribs)
