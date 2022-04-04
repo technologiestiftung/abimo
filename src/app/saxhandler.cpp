@@ -17,10 +17,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <QDebug>
+
 #include "saxhandler.h"
 
 SaxHandler::SaxHandler(InitValues &initValues):
-    state(0),
+    state(ParameterGroup::None),
     initValues(initValues)
 {}
 
@@ -36,22 +38,22 @@ bool SaxHandler::startElement(
         QString name = attribs.value("name");
 
         if (name == "Infiltrationsfaktoren") {
-            state = Infiltrationsfaktoren;
+            state = ParameterGroup::Infiltrationsfaktoren;
         }
         else if (name == "Bagrovwerte") {
-            state = Bagrovwerte;
+            state = ParameterGroup::Bagrovwerte;
         }
         else if (name == "ErgebnisNachkommaStellen") {
-            state = Nachkomma;
+            state = ParameterGroup::Nachkomma;
         }
         else if (name == "Diverse") {
-            state = Diverse;
+            state = ParameterGroup::Diverse;
         }
         else if (name == "Gewaesserverdunstung") {
-            state = GewVerd;
+            state = ParameterGroup::GewVerd;
         }
         else if (name == "PotentielleVerdunstung") {
-            state = PotVerd;
+            state = ParameterGroup::PotVerd;
         }
     }
 
@@ -62,7 +64,7 @@ bool SaxHandler::startElement(
 
         switch (state) {
 
-        case Infiltrationsfaktoren :
+        case ParameterGroup::Infiltrationsfaktoren:
             if (key == "Dachflaechen")
                 initValues.setInfdach(value.toFloat());
             else if (key == "Belaglsklasse1")
@@ -75,7 +77,7 @@ bool SaxHandler::startElement(
                 initValues.setInfbel4(value.toFloat());
             break;
 
-        case Bagrovwerte :
+        case ParameterGroup::Bagrovwerte :
             if (key == "Dachflaechen")
                 initValues.setBagdach(value.toFloat());
             else if (key == "Belaglsklasse1")
@@ -88,7 +90,7 @@ bool SaxHandler::startElement(
                 initValues.setBagbel4(value.toFloat());
             break;
 
-        case Nachkomma :
+        case ParameterGroup::Nachkomma :
             if (key == "R")
                 initValues.setDecR(value.toInt());
             else if (key == "ROW")
@@ -107,20 +109,28 @@ bool SaxHandler::startElement(
                 initValues.setDecVERDUNSTUNG(value.toInt());
             break;
 
-        case Diverse :
+        case ParameterGroup::Diverse :
             if (key == "BERtoZero")
                 initValues.setBERtoZero(value == "true");
             else if (key == "NIEDKORRF")
                 initValues.setNiedKorrF(value.toFloat());
             break;
 
-        case GewVerd :            
+        case ParameterGroup::GewVerd :
             gewVerdEntry(attribs);
             break;
 
-        case PotVerd :
+        case ParameterGroup::PotVerd :
             potVerdEntry(attribs);
             break;
+
+        case ParameterGroup::None:
+            qDebug() << "state is still 'None'";
+            return false;
+
+        case ParameterGroup::Invalid:
+            qDebug() << "state is 'Invalid'";
+            return false;
         }
     }
 
