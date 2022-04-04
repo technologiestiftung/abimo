@@ -1,6 +1,7 @@
 #include <QDir>
 #include <QFile>
 #include <QtDebug>
+#include <QtGlobal>
 #include <QString>
 #include <QStringList>
 #include <QtTest>
@@ -23,6 +24,7 @@ private slots:
     void test_helpers_stringsAreEqual();
     void test_requiredFields();
     void test_dbaseReader();
+    void test_xmlReader();
     void test_calc();
 
     QString testDataDir();
@@ -99,6 +101,29 @@ void testAbimo::test_dbaseReader()
     QCOMPARE(reader.isAbimoFile(), true);
 }
 
+void testAbimo::test_xmlReader()
+{
+    QString configFile = dataFilePath("config.xml");
+    InitValues iv;
+
+    QString errorMessage = InitValues::updateFromConfig(iv, configFile);
+    QVERIFY(errorMessage.isEmpty());
+
+    // Is the following part of config.xml read correctly?
+    /*<section name="Infiltrationsfaktoren">
+        <item key="Dachflaechen"   value="0.00" />
+        <item key="Belaglsklasse1" value="0.10" />
+        <item key="Belaglsklasse2" value="0.30" />
+        <item key="Belaglsklasse3" value="0.60" />
+        <item key="Belaglsklasse4" value="0.90" />*/
+
+    QVERIFY(qFuzzyCompare(iv.getInfdach(), 0.0F));
+    QVERIFY(qFuzzyCompare(iv.getInfbel1(), 0.1F));
+    QVERIFY(qFuzzyCompare(iv.getInfbel2(), 0.3F));
+    QVERIFY(qFuzzyCompare(iv.getInfbel3(), 0.6F));
+    QVERIFY(qFuzzyCompare(iv.getInfbel4(), 0.9F));
+}
+
 void testAbimo::test_calc()
 {
     QString inputFile = dataFilePath("abimo_2019_mitstrassen.dbf");
@@ -111,6 +136,10 @@ void testAbimo::test_calc()
 
     //QVERIFY(Helpers::filesAreIdentical(outputFile, referenceFile));
     QVERIFY(dbfStringsAreIdentical(outputFile, referenceFile));
+
+    // Run the simulation with initial values from config file
+    Calculation::calculate(inputFile, configFile, outputFile);
+    //TOOD: QVERIFY(dbfStringsAreIdentical(outputFile, referenceFile2));
 }
 
 bool testAbimo::dbfStringsAreIdentical(QString file_1, QString file_2)
