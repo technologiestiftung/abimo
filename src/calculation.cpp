@@ -700,18 +700,19 @@ void Calculation::getKLIMA(int bez, QString codestr)
  */
 float Calculation::getTWS(int ert, char nutz)
 {
+    // Zuordnung Durchwurzelungstiefe in Abhaengigkeit der Nutzung
     float TWS;
     switch (nutz)
     {
-    case 'D': TWS = 0.2F; break;
+    case 'D': TWS = 0.2F; break; // D - Devastierung
     case 'L':
         if (ert <= 50)
             TWS = 0.6F;
         else
-            TWS = 0.7F;
+            TWS = 0.7F; // L - landwirtschaftliche Nutzung
         break;
-    case 'K': TWS = 0.7F; break;
-    case 'W': TWS = 1.0F; break;
+    case 'K': TWS = 0.7F; break; // K - Kleingaerten
+    case 'W': TWS = 1.0F; break; // W - Wald
     default:  TWS = 0.2F; break;
     }
 
