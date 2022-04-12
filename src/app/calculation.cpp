@@ -46,22 +46,22 @@ const float Calculation::EKA[]= {
     0.33895F,  3.721F , 6.69999F, -0.07F   , 0.013F
 };
 
-// Potentielle Aufstiegsrate TAS (Spaltenlabels fuer Matrix 'Calculation::ijkr_S')
+// potential acent rate TAS (column labels for matrix 'Calculation::ijkr_S')
 const float Calculation::iTAS[] = {
     0.1F, 0.2F, 0.3F, 0.4F, 0.5F, 0.6F, 0.7F, 0.8F,
     0.9F, 1.0F, 1.2F, 1.4F, 1.7F, 2.0F, 2.3F
 };
 
-// Bodenart unbekannt - Standardverwendung im Folgenden: Sande
+// soil type unknown - default soil type used in the following: sand
 
-// Nutzbare Feldkapazitaet nFK (Zeilenlabels fuer Matrix 'Calculation::ijkr_S')
+// Usable field capacity nFK (row labels for matrix 'Calculation::ijkr_S')
 const float Calculation::inFK_S[] = {
     8.0F, 9.0F, 14.0F, 14.5F, 15.5F, 17.0F, 20.5F
 };
 
-/* Mittlere potentielle kapillare Aufstiegsrate kr [mm/d] eines Sommerhalbjahres abhaengig von:
- * potentieller Aufstiegsrate TAS (je eine Spalte) und
- * nutzbarer Feldkapazitaet nFK (je eine Zeile) */
+/* Mean potential capillary rise rate kr [mm/d] of a summer season depending on:
+ * potential ascent rate TAS (one column each) and
+ * usable field capacity nFK (one row each) */
 const float Calculation::ijkr_S[] = {
     7.0F, 6.0F, 5.0F, 1.5F, 0.5F, 0.2F, 0.1F, 0.0F, 0.0F, 0.0F,  0.0F , 0.0F, 0.0F , 0.0F, 0.0F,
     7.0F, 7.0F, 6.0F, 5.0F, 3.0F, 1.2F, 0.5F, 0.2F, 0.1F, 0.0F,  0.0F , 0.0F, 0.0F , 0.0F, 0.0F,
