@@ -30,6 +30,8 @@
 #include "initvalues.h"
 #include "pdr.h"
 
+// parameter values x1, x2, x3, x4 and x5 (one column each)
+// for calculating the effectiveness parameter n for unsealed surfaces
 const float Calculation::EKA[]= {
     0.04176F, -0.647F , 0.218F  ,  0.01472F, 0.0002089F,
     0.04594F, -0.314F , 0.417F  ,  0.02463F, 0.0001143F,
@@ -46,22 +48,22 @@ const float Calculation::EKA[]= {
     0.33895F,  3.721F , 6.69999F, -0.07F   , 0.013F
 };
 
-// Potentielle Aufstiegsrate TAS (Spaltenlabels fuer Matrix 'Calculation::ijkr_S')
+// potential ascent rate TAS (column labels for matrix 'Calculation::ijkr_S')
 const float Calculation::iTAS[] = {
     0.1F, 0.2F, 0.3F, 0.4F, 0.5F, 0.6F, 0.7F, 0.8F,
     0.9F, 1.0F, 1.2F, 1.4F, 1.7F, 2.0F, 2.3F
 };
 
-// Bodenart unbekannt - Standardverwendung im Folgenden: Sande
+// soil type unknown - default soil type used in the following: sand
 
-// Nutzbare Feldkapazitaet nFK (Zeilenlabels fuer Matrix 'Calculation::ijkr_S')
+// Usable field capacity nFK (row labels for matrix 'Calculation::ijkr_S')
 const float Calculation::inFK_S[] = {
     8.0F, 9.0F, 14.0F, 14.5F, 15.5F, 17.0F, 20.5F
 };
 
-/* Mittlere potentielle kapillare Aufstiegsrate kr [mm/d] eines Sommerhalbjahres abhaengig von:
- * potentieller Aufstiegsrate TAS (je eine Spalte) und
- * nutzbarer Feldkapazitaet nFK (je eine Zeile) */
+/* Mean potential capillary rise rate kr [mm/d] of a summer season depending on:
+ * potential ascent rate TAS (one column each) and
+ * usable field capacity nFK (one row each) */
 const float Calculation::ijkr_S[] = {
     7.0F, 6.0F, 5.0F, 1.5F, 0.5F, 0.2F, 0.1F, 0.0F, 0.0F, 0.0F,  0.0F , 0.0F, 0.0F , 0.0F, 0.0F,
     7.0F, 7.0F, 6.0F, 5.0F, 3.0F, 1.2F, 0.5F, 0.2F, 0.1F, 0.0F,  0.0F , 0.0F, 0.0F , 0.0F, 0.0F,
@@ -147,58 +149,73 @@ QString Calculation::getError()
  */
 bool Calculation::calc(QString fileOut, bool debug)
 {
-    /* Variablen zur Berechnung */
+    // variables for calculation
     int index = 0;
     
     // Versiegelungsgrad Dachflaechen / sonst. versiegelte Flaechen / Strassen
+    // vegree of sealing of roof surfaces / other sealed surfaces / roads
     float vgd, vgb, vgs;
 
     // Kanalisierungsgrad Dachflaechen / sonst. versiegelte Flaechen / Strassen
+    // degree of canalization for roof surfaces / other sealed surfaces / roads
     float kd, kb, ks;
     
     // Anteil der jeweiligen Belagsklasse
+    // share of respective pavement class
     float bl1, bl2, bl3, bl4;
 
     // Anteil der jeweiligen Strassenbelagsklasse
+    // share of respective road pavement class
     float bls1, bls2, bls3, bls4;
 
     // Gesamtflaeche Bebauung / Strasse
+    // total area of building development / road
     float fb, fs;
 
     // Verhaeltnis Bebauungsflaeche / Strassenflaeche zu Gesamtflaeche (ant = Anteil)
+    // share of building development area / road area to total area
     float fbant, fsant;
     
     // Abflussvariablen der versiegelten Flaechen
+    // runoff variables of sealed surfaces
     float row1, row2, row3, row4;
     
     // Infiltrationsvariablen der versiegelten Flaechen
+    // infiltration variables of sealed surfaces
     float ri1, ri2, ri3, ri4;
     
     // Abfluss- / Infiltrationsvariablen der Dachflaechen
+    // runoff- / infiltration variables of roof surfaces
     float rowd, rid;
     
     // Abfluss- / Infiltrationsvariablen unversiegelter Strassenflaechen
+    // runoff- / infiltration variables of unsealed road surfaces
     float rowuvs, riuvs;
     
     // Infiltration unversiegelter Flaechen
+    // infiltratio of unsealed areas
     float riuv;
     
     // float-Zwischenwerte
+    // float interm values
     float r, ri, row;
     int k;
 
+    // get precipitation correction factor from config.xml containing the initial values
     niedKorrFaktor = initValues.getNiedKorrF();
 
-    /* Zaehlen der Protokolleintraege */
+    // count protocol entries
     protcount = 0L;
     keineFlaechenAngegeben = 0L;
     nutzungIstNull = 0L;
 
-    /* Starteintrag ins Protokoll */
+    // first entry into protocol
     DbaseWriter writer(fileOut, initValues);
 
+    // get the number of rows in the input data ?
     totalRecRead = dbReader.getNumberOfRecords();
 
+    // loop over all block partial areas (records) of input data
     for (k = 0; k < totalRecRead; k++) {
 
         if (! weiter) {
@@ -208,8 +225,8 @@ bool Calculation::calc(QString fileOut, bool debug)
 
         ptrDA.wIndex = index;
 
+        // get the type of area usage for each block partial area (integer representing one type each)
         QString textNutzung = dbReader.getRecord(k, "NUTZUNG");
-
         int nutzung = textNutzung.toInt();
 
         if (debug) {
@@ -218,13 +235,17 @@ bool Calculation::calc(QString fileOut, bool debug)
 
         if (nutzung != 0) {
 
+            // get identifier number 'CODE' for each block partial area
             QString codestr = dbReader.getRecord(k, "CODE");
 
+            // get precipitation for entire year 'regenja' and for only summer season 'regenso'
             regenja = (dbReader.getRecord(k, "REGENJA").toInt()); /* Jetzt regenja,-so OK */
             regenso = (dbReader.getRecord(k, "REGENSO").toInt());
 
+            // get depth to groundwater table 'FLUR'
             ptrDA.FLW = (dbReader.getRecord(k, "FLUR")).toFloat();
 
+            // get structure type 'TYP', field capacity [%] for 0-30cm 'FELD_30' and 0-150cm 'FELD_150' below ground level
             getNUTZ(
                 nutzung,
                 (dbReader.getRecord(k, "TYP")).toInt(),
@@ -241,28 +262,36 @@ bool Calculation::calc(QString fileOut, bool debug)
                aber eigentlich war das auch schon so ... ???
             */
 
-            /* Bagrov-Berechnung fuer versiegelte Flaechen */
+            // Bagrov-calculation for sealed surfaces
             getKLIMA((dbReader.getRecord(k, "BEZIRK")).toInt(), codestr);
 
-            /* Dateneingabe */
-
+            // get share of roof area [%] 'PROBAU'
             QString text_probau = dbReader.getRecord(k, "PROBAU");
-            vgd = text_probau.toFloat() / 100.0F; /* Dachflaechen */
+            vgd = text_probau.toFloat() / 100.0F;
 
             if (debug) {
                 qDebug() << "text_probau: " << Helpers::singleQuote(text_probau) << ", toFloat()/100: " << vgd;
             }
 
-            vgb = (dbReader.getRecord(k, "PROVGU")).toFloat() / 100.0F; /* Hofflaechen */
+            // get share of other sealed areas and calculate total sealed area
+            vgb = (dbReader.getRecord(k, "PROVGU")).toFloat() / 100.0F;
             ptrDA.VER = (int)round((vgd * 100) + (vgb * 100));
+            
+            // get share of sealed road area
             vgs = (dbReader.getRecord(k, "VGSTRASSE")).toFloat() / 100.0F;
+            
+            // get degree of canalization for roof / other sealed areas / sealed roads
             kd = (dbReader.getRecord(k, "KAN_BEB")).toFloat() / 100.0F;
             kb = (dbReader.getRecord(k, "KAN_VGU")).toFloat() / 100.0F;
             ks = (dbReader.getRecord(k, "KAN_STR")).toFloat() / 100.0F;
+            
+            // get share of each pavement class for surfaces except roads of block area
             bl1 = (dbReader.getRecord(k, "BELAG1")).toFloat() / 100.0F;
             bl2 = (dbReader.getRecord(k, "BELAG2")).toFloat() / 100.0F;
             bl3 = (dbReader.getRecord(k, "BELAG3")).toFloat() / 100.0F;
             bl4 = (dbReader.getRecord(k, "BELAG4")).toFloat() / 100.0F;
+            
+            // get share of each pavement class for roads of block area
             bls1 = (dbReader.getRecord(k, "STR_BELAG1")).toFloat() / 100.0F;
             bls2 = (dbReader.getRecord(k, "STR_BELAG2")).toFloat() / 100.0F;
             bls3 = (dbReader.getRecord(k, "STR_BELAG3")).toFloat() / 100.0F;
@@ -270,6 +299,9 @@ bool Calculation::calc(QString fileOut, bool debug)
             fb = (dbReader.getRecord(k, "FLGES")).toFloat();
             fs = (dbReader.getRecord(k, "STR_FLGES")).toFloat();
 
+            
+            // if sum of total building development area and roads area is inconsiderably small
+            // it is assumed, that the area is unknown and 100 % building development area will be given by default
             if (fb + fs < 0.0001)
             {
                 //*protokollStream << "\r\nDie Flaeche des Elements " + codestr + " ist 0 \r\nund wird automatisch auf 100 gesetzt\r\n";
@@ -279,15 +311,19 @@ bool Calculation::calc(QString fileOut, bool debug)
             }
 
             // fbant = Verhaeltnis Bebauungsflaeche zu Gesamtflaeche
+            // fbant = ratio of building development area to total area
             fbant = fb / (fb + fs);
+            
             // fsant = Verhaeltnis Strassenflaeche zu Gesamtflaeche
+            // fsant = ratio of roads area to total area
             fsant = fs / (fb + fs);
 
-            /* Abfluss fuer versiegelte Flaechen */
+            // Runoff for sealed surfaces
             /* cls_1: Fehler a:
                rowd = (1.0F - initValues.getInfdach()) * vgd * kb * fbant * RDV;
                richtige Zeile folgt (kb ----> kd)
             */
+            
             /*  Legende der Abflussberechnung der 4 Belagsklassen bzw. Dachklasse:
                 rowd / rowx: Abfluss Dachflaeche / Abfluss Belagsflaeche x
                 infdach / infbelx: Infiltrationsparameter Dachfl. / Belagsfl. x
@@ -304,35 +340,49 @@ bool Calculation::calc(QString fileOut, bool debug)
             row3 = (1.0F - initValues.getInfbel3()) * (bl3 * kb * vgb * fbant + bls3 * ks * vgs * fsant) * R3V;
             row4 = (1.0F - initValues.getInfbel4()) * (bl4 * kb * vgb * fbant + bls4 * ks * vgs * fsant) * R4V;
 
-            /* Infiltration fuer versiegelte Flaechen */
+            // Infiltration for sealed surfaces
             rid = (1 - kd) * vgd * fbant * RDV;
             ri1 = (bl1 * vgb * fbant + bls1 * vgs * fsant) * R1V - row1;
             ri2 = (bl2 * vgb * fbant + bls2 * vgs * fsant) * R2V - row2;
             ri3 = (bl3 * vgb * fbant + bls3 * vgs * fsant) * R3V - row3;
             ri4 = (bl4 * vgb * fbant + bls4 * vgs * fsant) * R4V - row4;
-
-            /* Unversiegelte Strassenflaeche werden wie Belag 4 behandelt: */
+            
+            // consider unsealed road surfaces as pavement class 4
             rowuvs = 0.0F;                   /* old: 0.11F * (1-vgs) * fsant * R4V; */
             riuvs = (1 - vgs) * fsant * R4V; /* old: 0.89F * (1-vgs) * fsant * R4V; */
 
-            /* Abfluss fuer unversiegelte Flaeche rowuv = 0 */
+            // runoff for unsealed surfaces rowuv = 0
             riuv = (100.0F - (float) ptrDA.VER) / 100.0F * RUV;
 
-            /* Berechnung des Abflusses fuer die gesamte Blockteilflaeche (FLGES+STR_FLGES) */
-            row = (row1 + row2 + row3 + row4 + rowd + rowuvs); /* mm/a */
+            // calculate runoff 'row' for entire block patial area (FLGES+STR_FLGES)
+            row = (row1 + row2 + row3 + row4 + rowd + rowuvs); // mm/a
             ptrDA.ROW = (int)round(row);
-            ROWVOL = row * 3.171F * (fb + fs) / 100000.0F;     /* qcm/s */
-            ri = (ri1 + ri2 + ri3 + ri4 + rid + riuvs + riuv); /* mm/a */
+            
+            // calculate volume 'rowvol' from runoff
+            ROWVOL = row * 3.171F * (fb + fs) / 100000.0F;     // qcm/s
+            
+            // calculate infiltration rate 'ri' for entire block partial area
+            ri = (ri1 + ri2 + ri3 + ri4 + rid + riuvs + riuv); // mm/a
             ptrDA.RI = (int)round(ri);
-            RIVOL = ri * 3.171F * (fb + fs) / 100000.0F;       /* qcm/s */
+            
+            // calculate volume 'rivol' from infiltration rate
+            RIVOL = ri * 3.171F * (fb + fs) / 100000.0F;       // qcm/s
+            
+            // calculate total system losses 'r' due to runoff and infiltration for entire block partial area
             r = row + ri;
             ptrDA.R = (int)round(r);
+            
+            // calculate volume of system losses 'rvol'due to runoff and infiltration
             RVOL = ROWVOL + RIVOL;
 
+            // calculate total area of building development area as well as roads area
             float flaeche1 = fb + fs;
 // cls_5b:
+            // calculate evaporation 'verdunst' by subtracting the sum of runoff and infiltration 'r'
+            // from precipitation of entire year 'regenja' multiplied by correction factor 'niedKorrFaktor'
             float verdunst = (regenja * niedKorrFaktor) - r;
 
+            // write the calculated variables into respective fields
             writer.addRecord();
             writer.setRecordField("CODE", codestr);
             writer.setRecordField("R", r);
@@ -643,11 +693,11 @@ void Calculation::getKLIMA(int bez, QString codestr)
     float n4 = initValues.getBagbel4();
     float n, bag, zw;
 
-    /* ep = potentielle Verdunstung,
-       p = Niederschlag auf Bodenniveau,
-       x = Verhaeltnis Niederschlag zu potentieller Verdunstung,
-       y = Verhaeltnis realer zu potentieller Verdunstung,
-       etr = reale Evapotranspiration */
+    /* ep = potential evaporation,
+       p = prepcipitation at ground level,
+       x = ratio of precipitation to potential evaporation,
+       y = ratio of real evaporation to potential evaporation,
+       etr = real evapotranspiration */
     float ep, p, x, y, etr;
 
     QString bezString;
@@ -661,7 +711,7 @@ void Calculation::getKLIMA(int bez, QString codestr)
     ptrDA.P1 = regenja;
     ptrDA.P1S = regenso;
 
-    /* Parameter fuer die Bezirke */
+    // parameter for the city districts
     if (ptrDA.NUT == 'G')
     {
         if(initValues.hashEG.contains(bez)) {
@@ -729,12 +779,12 @@ void Calculation::getKLIMA(int bez, QString codestr)
     bagrovObj.nbagro(&n4, &y, &x);
     R4V = p - y * ep;
 
-    /* Berechnung des Abflusses RUV fuer unversiegelte Teilflaechen */
+    // Calculate runoff RUV for unsealed partial surfaces
     if (ptrDA.NUT == 'G')
         RUV = p - ep;
     else
     {
-        /* Ermittlung des Effektivitaetsparameters bag fuer unvers. Flaechen */
+        // Determine effectiveness parameter bag for unsealed surfaces
         n = getNUV(ptrDA); /* Modul Raster abgespeckt */
 
         if (ptrDA.P1S > 0 && ptrDA.ETPS > 0)
