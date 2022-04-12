@@ -30,6 +30,8 @@
 #include "initvalues.h"
 #include "pdr.h"
 
+// parameter values x1, x2, x3, x4 and x5 (one column each)
+// for calculating the effectiveness parameter n for unsealed surfaces
 const float Calculation::EKA[]= {
     0.04176F, -0.647F , 0.218F  ,  0.01472F, 0.0002089F,
     0.04594F, -0.314F , 0.417F  ,  0.02463F, 0.0001143F,
@@ -46,7 +48,7 @@ const float Calculation::EKA[]= {
     0.33895F,  3.721F , 6.69999F, -0.07F   , 0.013F
 };
 
-// potential acent rate TAS (column labels for matrix 'Calculation::ijkr_S')
+// potential ascent rate TAS (column labels for matrix 'Calculation::ijkr_S')
 const float Calculation::iTAS[] = {
     0.1F, 0.2F, 0.3F, 0.4F, 0.5F, 0.6F, 0.7F, 0.8F,
     0.9F, 1.0F, 1.2F, 1.4F, 1.7F, 2.0F, 2.3F
@@ -147,7 +149,7 @@ QString Calculation::getError()
  */
 bool Calculation::calc(QString fileOut, bool debug)
 {
-    /* Variablen zur Berechnung */
+    // Variables for calculation
     int index = 0;
     
     // Versiegelungsgrad Dachflaechen / sonst. versiegelte Flaechen / Strassen
