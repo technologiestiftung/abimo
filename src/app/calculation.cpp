@@ -149,35 +149,35 @@ QString Calculation::getError()
  */
 bool Calculation::calc(QString fileOut, bool debug)
 {
-    // Variables for calculation
+    // variables for calculation
     int index = 0;
     
     // Versiegelungsgrad Dachflaechen / sonst. versiegelte Flaechen / Strassen
-    // Degree of sealing of roof surfaces / other sealed surfaces / roads
+    // vegree of sealing of roof surfaces / other sealed surfaces / roads
     float vgd, vgb, vgs;
 
     // Kanalisierungsgrad Dachflaechen / sonst. versiegelte Flaechen / Strassen
-    // Degree of canalization for roof surfaces / other sealed surfaces / roads
+    // degree of canalization for roof surfaces / other sealed surfaces / roads
     float kd, kb, ks;
     
     // Anteil der jeweiligen Belagsklasse
-    // Share of respective pavement class
+    // share of respective pavement class
     float bl1, bl2, bl3, bl4;
 
     // Anteil der jeweiligen Strassenbelagsklasse
-    // Share of respective road pavement class
+    // share of respective road pavement class
     float bls1, bls2, bls3, bls4;
 
     // Gesamtflaeche Bebauung / Strasse
-    // Total area of building development / road
+    // total area of building development / road
     float fb, fs;
 
     // Verhaeltnis Bebauungsflaeche / Strassenflaeche zu Gesamtflaeche (ant = Anteil)
-    // Share of building development area / road area to total area
+    // share of building development area / road area to total area
     float fbant, fsant;
     
     // Abflussvariablen der versiegelten Flaechen
-    // Runoff variables of sealed surfaces
+    // runoff variables of sealed surfaces
     float row1, row2, row3, row4;
     
     // Infiltrationsvariablen der versiegelten Flaechen
@@ -185,15 +185,15 @@ bool Calculation::calc(QString fileOut, bool debug)
     float ri1, ri2, ri3, ri4;
     
     // Abfluss- / Infiltrationsvariablen der Dachflaechen
-    // Runoff- / infiltration variables of roof surfaces
+    // runoff- / infiltration variables of roof surfaces
     float rowd, rid;
     
     // Abfluss- / Infiltrationsvariablen unversiegelter Strassenflaechen
-    // Runoff- / infiltration variables of unsealed road surfaces
+    // runoff- / infiltration variables of unsealed road surfaces
     float rowuvs, riuvs;
     
     // Infiltration unversiegelter Flaechen
-    // Infiltratio of unsealed areas
+    // infiltratio of unsealed areas
     float riuv;
     
     // float-Zwischenwerte
@@ -201,18 +201,21 @@ bool Calculation::calc(QString fileOut, bool debug)
     float r, ri, row;
     int k;
 
+    // get precipitation correction factor from config.xml containing the initial values
     niedKorrFaktor = initValues.getNiedKorrF();
 
-    // Count protocol entries
+    // count protocol entries
     protcount = 0L;
     keineFlaechenAngegeben = 0L;
     nutzungIstNull = 0L;
 
-    // First entry into protocol
+    // first entry into protocol
     DbaseWriter writer(fileOut, initValues);
 
+    // get the number of rows in the input data ?
     totalRecRead = dbReader.getNumberOfRecords();
 
+    // loop over all block partial areas (records) of input data
     for (k = 0; k < totalRecRead; k++) {
 
         if (! weiter) {
@@ -222,8 +225,8 @@ bool Calculation::calc(QString fileOut, bool debug)
 
         ptrDA.wIndex = index;
 
+        // get the type of area usage for each block partial area (integer representing one type each)
         QString textNutzung = dbReader.getRecord(k, "NUTZUNG");
-
         int nutzung = textNutzung.toInt();
 
         if (debug) {
@@ -232,13 +235,17 @@ bool Calculation::calc(QString fileOut, bool debug)
 
         if (nutzung != 0) {
 
+            // get identifier number 'CODE' for each block partial area
             QString codestr = dbReader.getRecord(k, "CODE");
 
+            // get precipitation for entire year 'regenja' and for only summer season 'regenso'
             regenja = (dbReader.getRecord(k, "REGENJA").toInt()); /* Jetzt regenja,-so OK */
             regenso = (dbReader.getRecord(k, "REGENSO").toInt());
 
+            // get depth to groundwater table 'FLUR'
             ptrDA.FLW = (dbReader.getRecord(k, "FLUR")).toFloat();
 
+            // get structure type 'TYP', field capacity [%] for 0-30cm 'FELD_30' and 0-150cm 'FELD_150' below ground level
             getNUTZ(
                 nutzung,
                 (dbReader.getRecord(k, "TYP")).toInt(),
@@ -258,24 +265,33 @@ bool Calculation::calc(QString fileOut, bool debug)
             // Bagrov-calculation for sealed surfaces
             getKLIMA((dbReader.getRecord(k, "BEZIRK")).toInt(), codestr);
 
-            // Data input
+            // get share of roof area [%] 'PROBAU'
             QString text_probau = dbReader.getRecord(k, "PROBAU");
-            vgd = text_probau.toFloat() / 100.0F; /* Dachflaechen */
+            vgd = text_probau.toFloat() / 100.0F;
 
             if (debug) {
                 qDebug() << "text_probau: " << Helpers::singleQuote(text_probau) << ", toFloat()/100: " << vgd;
             }
 
-            vgb = (dbReader.getRecord(k, "PROVGU")).toFloat() / 100.0F; /* Hofflaechen */
+            // get share of other sealed areas and calculate total sealed area
+            vgb = (dbReader.getRecord(k, "PROVGU")).toFloat() / 100.0F;
             ptrDA.VER = (int)round((vgd * 100) + (vgb * 100));
+            
+            // get share of sealed road area
             vgs = (dbReader.getRecord(k, "VGSTRASSE")).toFloat() / 100.0F;
+            
+            // get degree of canalization for roof / other sealed areas / sealed roads
             kd = (dbReader.getRecord(k, "KAN_BEB")).toFloat() / 100.0F;
             kb = (dbReader.getRecord(k, "KAN_VGU")).toFloat() / 100.0F;
             ks = (dbReader.getRecord(k, "KAN_STR")).toFloat() / 100.0F;
+            
+            // get share of each pavement class for surfaces except roads of block area
             bl1 = (dbReader.getRecord(k, "BELAG1")).toFloat() / 100.0F;
             bl2 = (dbReader.getRecord(k, "BELAG2")).toFloat() / 100.0F;
             bl3 = (dbReader.getRecord(k, "BELAG3")).toFloat() / 100.0F;
             bl4 = (dbReader.getRecord(k, "BELAG4")).toFloat() / 100.0F;
+            
+            // get share of each pavement class for roads of block area
             bls1 = (dbReader.getRecord(k, "STR_BELAG1")).toFloat() / 100.0F;
             bls2 = (dbReader.getRecord(k, "STR_BELAG2")).toFloat() / 100.0F;
             bls3 = (dbReader.getRecord(k, "STR_BELAG3")).toFloat() / 100.0F;
@@ -283,6 +299,7 @@ bool Calculation::calc(QString fileOut, bool debug)
             fb = (dbReader.getRecord(k, "FLGES")).toFloat();
             fs = (dbReader.getRecord(k, "STR_FLGES")).toFloat();
 
+            
             // if sum of total building development area and roads area is inconsiderably small
             // it is assumed, that the area is unknown and 100 % building development area will be given by default
             if (fb + fs < 0.0001)
