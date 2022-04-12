@@ -283,6 +283,8 @@ bool Calculation::calc(QString fileOut, bool debug)
             fb = (dbReader.getRecord(k, "FLGES")).toFloat();
             fs = (dbReader.getRecord(k, "STR_FLGES")).toFloat();
 
+            // if sum of total building development area and roads area is inconsiderably small
+            // it is assumed, that the area is unknown and 100 % building development area will be given by default
             if (fb + fs < 0.0001)
             {
                 //*protokollStream << "\r\nDie Flaeche des Elements " + codestr + " ist 0 \r\nund wird automatisch auf 100 gesetzt\r\n";
@@ -304,6 +306,7 @@ bool Calculation::calc(QString fileOut, bool debug)
                rowd = (1.0F - initValues.getInfdach()) * vgd * kb * fbant * RDV;
                richtige Zeile folgt (kb ----> kd)
             */
+            
             /*  Legende der Abflussberechnung der 4 Belagsklassen bzw. Dachklasse:
                 rowd / rowx: Abfluss Dachflaeche / Abfluss Belagsflaeche x
                 infdach / infbelx: Infiltrationsparameter Dachfl. / Belagsfl. x
@@ -327,28 +330,42 @@ bool Calculation::calc(QString fileOut, bool debug)
             ri3 = (bl3 * vgb * fbant + bls3 * vgs * fsant) * R3V - row3;
             ri4 = (bl4 * vgb * fbant + bls4 * vgs * fsant) * R4V - row4;
             
-            // Consider unsealed road surfaces as pavement class 4
+            // consider unsealed road surfaces as pavement class 4
             rowuvs = 0.0F;                   /* old: 0.11F * (1-vgs) * fsant * R4V; */
             riuvs = (1 - vgs) * fsant * R4V; /* old: 0.89F * (1-vgs) * fsant * R4V; */
 
-            // Runoff for unsealed surfaces rowuv = 0
+            // runoff for unsealed surfaces rowuv = 0
             riuv = (100.0F - (float) ptrDA.VER) / 100.0F * RUV;
 
-            // Calculate runoff for entire block patial area (FLGES+STR_FLGES)
+            // calculate runoff 'row' for entire block patial area (FLGES+STR_FLGES)
             row = (row1 + row2 + row3 + row4 + rowd + rowuvs); // mm/a
             ptrDA.ROW = (int)round(row);
+            
+            // calculate volume 'rowvol' from runoff
             ROWVOL = row * 3.171F * (fb + fs) / 100000.0F;     // qcm/s
+            
+            // calculate infiltration rate 'ri' for entire block partial area
             ri = (ri1 + ri2 + ri3 + ri4 + rid + riuvs + riuv); // mm/a
             ptrDA.RI = (int)round(ri);
+            
+            // calculate volume 'rivol' from infiltration rate
             RIVOL = ri * 3.171F * (fb + fs) / 100000.0F;       // qcm/s
+            
+            // calculate total system losses 'r' due to runoff and infiltration for entire block partial area
             r = row + ri;
             ptrDA.R = (int)round(r);
+            
+            // calculate volume of system losses 'rvol'due to runoff and infiltration
             RVOL = ROWVOL + RIVOL;
 
+            // calculate total area of building development area as well as roads area
             float flaeche1 = fb + fs;
 // cls_5b:
+            // calculate evaporation 'verdunst' by subtracting the sum of runoff and infiltration 'r'
+            // from precipitation of entire year 'regenja' multiplied by correction factor 'niedKorrFaktor'
             float verdunst = (regenja * niedKorrFaktor) - r;
 
+            // write the calculated variables into respective fields
             writer.addRecord();
             writer.setRecordField("CODE", codestr);
             writer.setRecordField("R", r);
