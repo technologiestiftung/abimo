@@ -118,7 +118,7 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
     j = 0;
     if (bag >= 3.8F) goto L_12;
 
-    /* NUMERISCHE INTEGRATION FUER BAG<0.7 (2.Naeherungsloesung) */
+    // NUMERISCHE INTEGRATION FUER BAG<0.7 (2.Naeherungsloesung)
     for (j = 1; j <= 30; j++)
     {
         eyn = (float) exp(bag * log(y0));
@@ -128,14 +128,19 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
             goto FINISH;
         }
 
-        ia = 2;
-        ie = 6;
-        if (eyn > 0.7F) ia = 8;
-        if (eyn > 0.7F) ie = 16;
+        // Is eyn above a certain threshold?
+        bool eyn_above_point_seven = (eyn > 0.7F);
+
+        // Set start and end index (?), depending on the value of eyn
+        ia = (eyn_above_point_seven ?  8 : 2);
+        ie = (eyn_above_point_seven ? 16 : 6);
+
         s1 = 0.0F;
         s2 = 0.0F;
         h = 1.0F;
-        for (i = ia, _do0 = ie; i <= _do0; i++)
+
+        // Let i loop between start index ia and end index ie
+        for (i = ia; i <= ie; i++)
         {
             i_ = i - 1;
             h = h * eyn;
