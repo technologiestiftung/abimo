@@ -73,8 +73,8 @@ const float Bagrov::aa[]= {
 void Bagrov::nbagro(float *bage, float *y, float *x)
 {
     int i, ia, ie, j;
-    float bag, bag_plus_one;
-    float a, a0, a1, a2, b, c, epa, eyn, h13, h23, reciprocal_bag_plus_one, s1, s2, w, y0;
+    float bag, bag_plus_one, reciprocal_bag_plus_one;
+    float a, a0, a1, a2, b, c, epa, eyn, h13, h23, s1, s2, w, y0;
 
     // General helper variable of type float
     float h;
