@@ -123,7 +123,7 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
     if (bag >= 0.7F && bag <= 3.8F) goto FINISH;
 
     j = 0;
-    if (bag >= 3.8F) goto L_12;
+    if (bag >= 3.8F) goto THIRD_APPROXIMATE_SOLUTION;
 
     // NUMERISCHE INTEGRATION FUER BAG<0.7 (2.Naeherungsloesung)
     for (j = 1; j <= 30; j++)
@@ -166,10 +166,10 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
 
         y0 += h;
 
-        if (fabs(h) / y0 < 0.007F) goto L_15;
+        // Break out of this loop if a condition is met
+        if (fabs(h) / y0 < 0.007F) break;
     }
 
-L_15:
     if (y0 > 0.9) {
         bagrov(&bag, x, &y0);
     }
@@ -178,7 +178,7 @@ L_15:
     }
     goto FINISH;
 
-L_12:
+THIRD_APPROXIMATE_SOLUTION:
 
     // NUMERISCHE INTEGRATION FUER BAG > 3.8 (3. Naeherungsloesung)
     h = 1.0F;
