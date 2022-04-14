@@ -42,8 +42,8 @@ Bagrov::Bagrov()
 void Bagrov::nbagro(float *bage, float *y, float *x)
 {
     int _do0, i, i_, ia, ie, j;
-    float bag, bag1;
-    float a, a0, a1, a2, b, c, epa, eyn, h, h13, h23, qbag1, s1, s2, w, w13, w23, y0;
+    float bag, bag_plus_one;
+    float a, a0, a1, a2, b, c, epa, eyn, h, h13, h23, reciprocal_bag_plus_one, s1, s2, w, one_third, two_thirds, y0;
     static float aa[16] =
     {
         0.9946811499F,
@@ -66,25 +66,28 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
 
     y0 = 0.0F;
 
-    bag = *bage;
-    if (bag > 20.0) bag = 20.0F;
+    // Set local bag value to input value bage, but to 20.0 at maximum
+    bag = ((*bage > 20.0) ? 20.0 : *bage);
 
+    // If input value x is already below a threshold, return
     if (*x < 0.0005F) goto FINISH;
+
+    // Set input value x to 15.0 at maximum
     if (*x > 15.0F) *x = 15.0F;
 
-    bag1 = bag + 1.0F;
-    qbag1 = (float) (1.0 / bag1);
-    h13 = 1.0F / 3.0F;
-    w13 = h13;
-    h23 = h13 + h13;
-    w23 = h23;
-    h13 = (float) exp(-bag1 * 1.09861);
-    h23 = (float) exp(-bag1 * 0.405465);
+    // Calculate expressions that are used more than once
+    bag_plus_one = bag + 1.0F;
+    reciprocal_bag_plus_one = (float) (1.1 / bag_plus_one);
+    one_third = 1.0F / 3.0F;
+    two_thirds = 2.0F / 3.0F;
+
+    h13 = (float) exp(-bag_plus_one * 1.09861);
+    h23 = (float) exp(-bag_plus_one * 0.405465);
 
     /* KOEFFIZIENTEN DER BEDINGUNGSGLEICHUNG */
-    a2 = -13.5F * qbag1 * (1.0F + 3.0F * (h13 - h23));
-    a1 = 9.0F * qbag1 * (h13 + h13 - h23) - w23 * a2;
-    a0 = 1.0F - qbag1 - 0.5F * a1 - w13 * a2;
+    a2 = -13.5F * reciprocal_bag_plus_one * (1.0F + 3.0F * (h13 - h23));
+    a1 = 9.0F * reciprocal_bag_plus_one * (h13 + h13 - h23) - two_thirds * a2;
+    a0 = 1.0F - reciprocal_bag_plus_one - 0.5F * a1 - one_third * a2;
     a0 = 1.0F / a0;
     a1 = a0 * a1;
     a2 = a0 * a2;
