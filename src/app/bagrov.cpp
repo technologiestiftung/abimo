@@ -188,9 +188,10 @@ THIRD_APPROXIMATE_SOLUTION:
     // NUMERISCHE INTEGRATION FUER BAG > 3.8 (3. Naeherungsloesung)
     h = 1.0F;
 
-    j = 1;
+    // Reset iterator variable to be used in following while()
+    i = 0;
 
-    while(fabs(h) > 0.001 && j <= 15) {
+    while(fabs(h) > 0.001 && i < 15) {
 
         y0 = MIN(y0, 0.999F);
 
@@ -202,7 +203,7 @@ THIRD_APPROXIMATE_SOLUTION:
         h = h * (y0 + epa * y0 / s1 -*x);
         y0 = y0 - h;
 
-        j++;
+        i++;
     }
 
 FINISH:
