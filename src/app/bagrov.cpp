@@ -22,7 +22,9 @@
 
 #include "bagrov.h"
 
-#define UPPER_LIMIT_Y0 0.99999F
+#define ALMOST_ONE 0.99999F
+#define ALMOST_ZERO 1.0e-07F
+
 #define UPPER_LIMIT_EYN 0.7F
 
 /*
@@ -115,7 +117,7 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
     y0 = (epa - 1.0F) / w;
 
     // Limit y0 to its maximum allowed value
-    if (y0 > UPPER_LIMIT_Y0) y0 = UPPER_LIMIT_Y0;
+    if (y0 > ALMOST_ONE) y0 = ALMOST_ONE;
 
     // If bag is between a certain range we have finished
     if (bag >= 0.7F && bag <= 3.8F) goto FINISH;
@@ -178,13 +180,16 @@ L_15:
 
 L_12:
     // NUMERISCHE INTEGRATION FUER BAG > 3.8 (3. Naeherungsloesung)
-    j = j + 1;
+    j++;
     if (j > 15) goto FINISH;
+
     if (y0 > 0.999) y0 = 0.999F;
     epa = (float) exp(bag * log(y0));
+
     h = 1.0f - epa;
-    if (h < 1.0e-07) h = 1.0e-07F;
-    if (h > 0.99999) h = 0.99999F;
+    if (h < ALMOST_ZERO) h = ALMOST_ZERO;
+    if (h > ALMOST_ONE) h = ALMOST_ONE;
+
     s1 = h - bag * epa / (float) log(h);
     h = h * (y0 + epa * y0 / s1 -*x);
     y0 = y0 - h;
