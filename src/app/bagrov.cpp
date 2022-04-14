@@ -17,6 +17,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <QDebug>
 #include <math.h>
 
 #include "bagrov.h"
@@ -64,10 +65,13 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
     };
 
     y0 = 0.0F;
+
     bag = *bage;
     if (bag > 20.0) bag = 20.0F;
-    if (*x < 0.0005F) goto L_13;
+
+    if (*x < 0.0005F) goto FINISH;
     if (*x > 15.0F) *x = 15.0F;
+
     bag1 = bag + 1.0F;
     qbag1 = (float) (1.0 / bag1);
     h13 = 1.0F / 3.0F;
@@ -100,7 +104,7 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
     /* NULLTE NAEHERUNGSLOESUNG (1. Naeherungsloesung) */
     y0 = (epa - 1.0F) / w;
     if (y0 > 0.99999F) y0 = 0.99999F;
-    if (bag >= 0.7F && bag <= 3.8F) goto L_13;
+    if (bag >= 0.7F && bag <= 3.8F) goto FINISH;
     j = 0;
     if (bag >= 3.8F) goto L_12;
 
@@ -108,8 +112,8 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
     for (j = 1; j <= 30; j++)
     {
         eyn = (float) exp(bag * log(y0));
-        if (eyn > 0.9F) goto L_13;
-        if (eyn >= 0.7F && bag > 4.0F) goto L_13;
+        if (eyn > 0.9F) goto FINISH;
+        if (eyn >= 0.7F && bag > 4.0F) goto FINISH;
         ia = 2;
         ie = 6;
         if (eyn > 0.7F) ia = 8;
@@ -136,14 +140,19 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
 
 L_15:
     ;
-    if (y0 > 0.9) bagrov(&bag, x, &y0);
-    goto L_13;
+    if (y0 > 0.9) {
+        bagrov(&bag, x, &y0);
+    }
+    else {
+      //qDebug() << "y0 <= 0.9 -> not calling bagrov()";
+    }
+    goto FINISH;
 
     /* NUMERISCHE INTEGRATION FUER BAG>3.8 (3. Naeherungsloesung) */
 L_12:
     ;
     j = j + 1;
-    if (j > 15) goto L_13;
+    if (j > 15) goto FINISH;
     if (y0 > 0.999) y0 = 0.999F;
     epa = (float) exp(bag * log(y0));
     h = 1.0f - epa;
@@ -153,12 +162,10 @@ L_12:
     h = h * (y0 + epa * y0 / s1 -*x);
     y0 = y0 - h;
     if (fabs(h) > 0.001) goto L_12;
-L_13:
-    ;
-    if (y0 > 1.0) y0 = 1.0F;
-    *y = y0;
-    return;
-}	/* end of function */
+FINISH:
+    // Set result value y to y0 or 1.0 at maximum
+    *y = ((y0 > 1.0) ? 1.0F : y0);
+}
 
 /*
  =======================================================================================================================
@@ -169,6 +176,8 @@ void Bagrov::bagrov(float *bagf, float *x0, float *y0)
 {
     bool doloop; /* LOGICAL16 */
     int _do0, i, ii, j;
+
+    qDebug() << "In bagrov()...";
 
     /* meiko : initialisiere i (einzige Aenderung) */
     i = 0;
