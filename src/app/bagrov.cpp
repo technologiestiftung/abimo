@@ -197,11 +197,10 @@ THIRD_APPROXIMATE_SOLUTION:
 
         epa = (float) exp(bag * log(y0));
 
-        h = MIN(MAX(1.0f - epa, ALMOST_ZERO), ALMOST_ONE);
+        h = MIN(MAX(1.0F - epa, ALMOST_ZERO), ALMOST_ONE);
+        h *= (y0 + epa * y0 / (float) (h - bag * epa / (float) log(h)) - *x);
 
-        s1 = h - bag * epa / (float) log(h);
-        h = h * (y0 + epa * y0 / s1 -*x);
-        y0 = y0 - h;
+        y0 -= h;
 
         i++;
     }
