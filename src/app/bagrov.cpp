@@ -79,14 +79,15 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
     // General helper variable of type float
     float h;
 
-    y0 = 0.0F;
-
     // Set local bag value to input value bage, but to 20.0 at maximum
     // read as: "take the smaller of the two values *bage, 20.0"
     bag = MIN(*bage, 20.0);
 
-    // If input value x is already below a threshold, return
-    if (*x < 0.0005F) goto FINISH;
+    // If input value x is already below a threshold, set y to 0.0 and return
+    if (*x < 0.0005F) {
+        *y = 0.0F;
+        return;
+    }
 
     // Set input value x to 15.0 at maximum
     *x = MIN(*x, 15.0F);
@@ -121,9 +122,10 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
     // Limit y0 to its maximum allowed value
     y0 = MIN((epa - 1.0F) / (b - c * epa), ALMOST_ONE);
 
-    // If bag is between a certain range we have finished
+    // If bag is between a certain range set y to y0 and return
     if (bag >= 0.7F && bag <= 3.8F) {
-        goto FINISH;
+        *y = y0;
+        return;
     }
 
     if (bag >= 3.8F) {
