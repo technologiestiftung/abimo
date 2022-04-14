@@ -122,7 +122,9 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
     y0 = MIN((epa - 1.0F) / (b - c * epa), ALMOST_ONE);
 
     // If bag is between a certain range we have finished
-    if (bag >= 0.7F && bag <= 3.8F) goto FINISH;
+    if (bag >= 0.7F && bag <= 3.8F) {
+        goto FINISH;
+    }
 
     if (bag >= 3.8F) {
         goto THIRD_APPROXIMATE_SOLUTION;
