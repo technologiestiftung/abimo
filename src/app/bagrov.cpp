@@ -27,6 +27,9 @@
 
 #define UPPER_LIMIT_EYN 0.7F
 
+#define ONE_THIRD 1.0F / 3.0F
+#define TWO_THIRDS 2.0F / 3.0F
+
 // Define macros to calculate the minimum or maximum of two values
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
@@ -52,7 +55,7 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
 {
     int i, ia, ie, j;
     float bag, bag_plus_one;
-    float a, a0, a1, a2, b, c, epa, eyn, h13, h23, reciprocal_bag_plus_one, s1, s2, w, one_third, two_thirds, y0;
+    float a, a0, a1, a2, b, c, epa, eyn, h13, h23, reciprocal_bag_plus_one, s1, s2, w, y0;
 
     // General helper variable of type float
     float h;
@@ -92,16 +95,14 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
     // Calculate expressions that are used more than once
     bag_plus_one = bag + 1.0F;
     reciprocal_bag_plus_one = (float) (1.0 / bag_plus_one);
-    one_third = 1.0F / 3.0F;
-    two_thirds = 2.0F / 3.0F;
 
     h13 = (float) exp(-bag_plus_one * 1.09861);
     h23 = (float) exp(-bag_plus_one * 0.405465);
 
     // KOEFFIZIENTEN DER BEDINGUNGSGLEICHUNG
     a2 = -13.5F * reciprocal_bag_plus_one * (1.0F + 3.0F * (h13 - h23));
-    a1 = 9.0F * reciprocal_bag_plus_one * (h13 + h13 - h23) - two_thirds * a2;
-    a0 = 1.0F / (1.0F - reciprocal_bag_plus_one - 0.5F * a1 - one_third * a2);
+    a1 = 9.0F * reciprocal_bag_plus_one * (h13 + h13 - h23) - TWO_THIRDS * a2;
+    a0 = 1.0F / (1.0F - reciprocal_bag_plus_one - 0.5F * a1 - ONE_THIRD * a2);
 
     // Multiply each of a1, a2 with a0
     a1 *= a0;
