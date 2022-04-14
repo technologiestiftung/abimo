@@ -22,6 +22,8 @@
 
 #include "bagrov.h"
 
+#define UPPER_LIMIT_Y0 0.99999F
+
 /*
  =======================================================================================================================
     Translated by FOR_C, v2.3.2, on 10/16/94 at 18:28:43 ;
@@ -104,10 +106,15 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
     epa = (float) exp(*x / a);
     w = b - c * epa;
 
-    /* NULLTE NAEHERUNGSLOESUNG (1. Naeherungsloesung) */
+    // NULLTE NAEHERUNGSLOESUNG (1. Naeherungsloesung)
     y0 = (epa - 1.0F) / w;
-    if (y0 > 0.99999F) y0 = 0.99999F;
+
+    // Limit y0 to its maximum allowed value
+    if (y0 > UPPER_LIMIT_Y0) y0 = UPPER_LIMIT_Y0;
+
+    // If bag is between a certain range we have finished
     if (bag >= 0.7F && bag <= 3.8F) goto FINISH;
+
     j = 0;
     if (bag >= 3.8F) goto L_12;
 
