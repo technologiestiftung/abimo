@@ -66,7 +66,7 @@ void testAbimo::test_helpers_containsAll()
 void testAbimo::test_helpers_filesAreIdentical()
 {
     QString file_1 = dataFilePath("abimo_2019_mitstrassen.dbf");
-    QString file_2 = dataFilePath("abimo_2012ges.dbf");
+    QString file_2 = dataFilePath("abimo_2019_mitstrassenout_3.2_xml-config.dbf");
 
     bool debug = false;
 
@@ -129,17 +129,17 @@ void testAbimo::test_calc()
     QString inputFile = dataFilePath("abimo_2019_mitstrassen.dbf");
     QString configFile = dataFilePath("config.xml");
     QString outputFile = dataFilePath("tmp_out.dbf", false);
-    QString referenceFile = dataFilePath("abimo_2019_mitstrassen_out.dbf");
-    //QString referenceFile = dataFilePath("abimo_2019_mitstrassenout_3.2_default-config.dbf");
+    QString outFile_noConfig = dataFilePath("abimo_2019_mitstrassenout_3.2.1_default-config.dbf");
+    QString outFile_xmlConfig = dataFilePath("abimo_2019_mitstrassenout_3.2.1_xml-config.dbf");
 
-    Calculation::calculate(inputFile, "" /*configFile*/, outputFile, false);
+    Calculation::calculate(inputFile, "", outputFile, false);
 
     //QVERIFY(Helpers::filesAreIdentical(outputFile, referenceFile));
-    QVERIFY(dbfStringsAreIdentical(outputFile, referenceFile));
+    QVERIFY(dbfStringsAreIdentical(outputFile, outFile_noConfig));
 
     // Run the simulation with initial values from config file
     Calculation::calculate(inputFile, configFile, outputFile);
-    //TOOD: QVERIFY(dbfStringsAreIdentical(outputFile, referenceFile2));
+    QVERIFY(dbfStringsAreIdentical(outputFile, outFile_xmlConfig));
 }
 
 bool testAbimo::dbfStringsAreIdentical(QString file_1, QString file_2)
