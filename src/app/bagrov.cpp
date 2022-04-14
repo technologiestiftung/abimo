@@ -23,6 +23,7 @@
 #include "bagrov.h"
 
 #define UPPER_LIMIT_Y0 0.99999F
+#define UPPER_LIMIT_EYN 0.7F
 
 /*
  =======================================================================================================================
@@ -124,16 +125,19 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
         eyn = (float) exp(bag * log(y0));
 
         // We have finished if eyn and/or bag are in a certain range
-        if ((eyn > 0.9F) || (eyn >= 0.7F && bag > 4.0F)) {
+        if ((eyn > 0.9F) || (eyn >= UPPER_LIMIT_EYN && bag > 4.0F)) {
             goto FINISH;
         }
 
-        // Is eyn above a certain threshold?
-        bool eyn_above_point_seven = (eyn > 0.7F);
-
         // Set start and end index (?), depending on the value of eyn
-        ia = (eyn_above_point_seven ?  8 : 2);
-        ie = (eyn_above_point_seven ? 16 : 6);
+        if (eyn > UPPER_LIMIT_EYN) {
+            ia = 8;
+            ie = 16;
+        }
+        else {
+            ia = 2;
+            ie = 6;
+        }
 
         s1 = 0.0F;
         s2 = 0.0F;
