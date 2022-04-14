@@ -160,7 +160,7 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
             h *= eyn;
             w = aa[i - 1] * h;
             j = i - ia + 1; /* cls J=I-IA+1 */
-            s2 = s2 + w / (j * (float) bag + 1.0F);
+            s2 += w / (j * (float) bag + 1.0F);
             s1 += w;
         }
 
