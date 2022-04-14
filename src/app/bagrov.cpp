@@ -44,9 +44,13 @@ Bagrov::Bagrov()
 
 void Bagrov::nbagro(float *bage, float *y, float *x)
 {
-    int _do0, i, ia, ie, j;
+    int i, ia, ie, j;
     float bag, bag_plus_one;
-    float a, a0, a1, a2, b, c, epa, eyn, h, h13, h23, reciprocal_bag_plus_one, s1, s2, w, one_third, two_thirds, y0;
+    float a, a0, a1, a2, b, c, epa, eyn, h13, h23, reciprocal_bag_plus_one, s1, s2, w, one_third, two_thirds, y0;
+
+    // General helper variable of type float
+    float h;
+
     static float aa[16] =
     {
         0.9946811499F,
@@ -150,13 +154,16 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
             w = aa[i - 1] * h;
             j = i - ia + 1; /* cls J=I-IA+1 */
             s2 = s2 + w / (j * (float) bag + 1.0F);
-            s1 = s1 + w;
+            s1 += w;
         }
 
-        ia = ia - 1;
+        ia--;
+
         h = aa[ia - 1];
         h = (*x - y0 * s2 - y0 * h) / (h + s1);
-        y0 = y0 + h;
+
+        y0 += h;
+
         if (fabs(h) / y0 < 0.007F) goto L_15;
     }
 
