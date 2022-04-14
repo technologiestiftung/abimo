@@ -179,21 +179,26 @@ L_15:
     goto FINISH;
 
 L_12:
+
     // NUMERISCHE INTEGRATION FUER BAG > 3.8 (3. Naeherungsloesung)
-    j++;
-    if (j > 15) goto FINISH;
+    h = 1.0F;
 
-    if (y0 > 0.999) y0 = 0.999F;
-    epa = (float) exp(bag * log(y0));
+    while(fabs(h) > 0.001) {
+        j++;
+        if (j > 15) goto FINISH;
 
-    h = 1.0f - epa;
-    if (h < ALMOST_ZERO) h = ALMOST_ZERO;
-    if (h > ALMOST_ONE) h = ALMOST_ONE;
+        if (y0 > 0.999) y0 = 0.999F;
 
-    s1 = h - bag * epa / (float) log(h);
-    h = h * (y0 + epa * y0 / s1 -*x);
-    y0 = y0 - h;
-    if (fabs(h) > 0.001) goto L_12;
+        epa = (float) exp(bag * log(y0));
+
+        h = 1.0f - epa;
+        if (h < ALMOST_ZERO) h = ALMOST_ZERO;
+        if (h > ALMOST_ONE) h = ALMOST_ONE;
+
+        s1 = h - bag * epa / (float) log(h);
+        h = h * (y0 + epa * y0 / s1 -*x);
+        y0 = y0 - h;
+    }
 
 FINISH:
     // Set result value y to y0 or 1.0 at maximum
