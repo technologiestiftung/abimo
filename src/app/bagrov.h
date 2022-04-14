@@ -27,6 +27,9 @@ public:
     Bagrov();
     void nbagro(float *bage, float *y, float *x);
     void bagrov(float *bagf, float *x0, float *y0);
+
+private:
+    const static float aa[];
 };
 
 #endif
