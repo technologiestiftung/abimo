@@ -43,7 +43,7 @@ public:
     int getTotalBERtoZeroForced();
     QString getError();
     void stop();
-    static void calculate(QString inputFile, QString configFile, QString outputFile);
+    static void calculate(QString inputFile, QString configFile, QString outputFile, bool debug = false);
 
 signals:
     void processSignal(int, QString);
@@ -117,6 +117,7 @@ private:
     float getG02 (int nFK);
     void getNUTZ(int nutz, int typ, int f30, int f150, QString codestr);
     void getKLIMA(int bez, QString codestr);
+    void fillRecord(int k, abimoRecord& record, bool debug = false);
 };
 
 #endif

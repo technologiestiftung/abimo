@@ -107,7 +107,7 @@ void testAbimo::test_calc()
     QString referenceFile = dataFilePath("abimo_2019_mitstrassen_out.dbf");
     //QString referenceFile = dataFilePath("abimo_2019_mitstrassenout_3.2_default-config.dbf");
 
-    Calculation::calculate(inputFile, "" /*configFile*/, outputFile);
+    Calculation::calculate(inputFile, "" /*configFile*/, outputFile, false);
 
     //QVERIFY(Helpers::filesAreIdentical(outputFile, referenceFile));
     QVERIFY(dbfStringsAreIdentical(outputFile, referenceFile));

@@ -149,6 +149,9 @@ QString Calculation::getError()
  */
 bool Calculation::calc(QString fileOut, bool debug)
 {
+    // Current Abimo record (represents one row of the input dbf file)
+    abimoRecord record;
+
     // variables for calculation
     int index = 0;
     
@@ -225,34 +228,24 @@ bool Calculation::calc(QString fileOut, bool debug)
 
         ptrDA.wIndex = index;
 
-        // get the type of area usage for each block partial area (integer representing one type each)
-        QString textNutzung = dbReader.getRecord(k, "NUTZUNG");
-        int nutzung = textNutzung.toInt();
+        // Fill record with data from row k
+        fillRecord(k, record, debug);
 
-        if (debug) {
-            qDebug() << "k: " << k << ", Nutzung: " << nutzung << "(" << Helpers::singleQuote(textNutzung) << ")";
-        }
-
-        if (nutzung != 0) {
+        // NUTZUNG = integer representing the type of area usage for each block partial area
+        if (record.NUTZUNG != 0) {
 
             // get identifier number 'CODE' for each block partial area
-            QString codestr = dbReader.getRecord(k, "CODE");
+            QString codestr = record.CODE;
 
             // get precipitation for entire year 'regenja' and for only summer season 'regenso'
-            regenja = (dbReader.getRecord(k, "REGENJA").toInt()); /* Jetzt regenja,-so OK */
-            regenso = (dbReader.getRecord(k, "REGENSO").toInt());
+            regenja = record.REGENJA; /* Jetzt regenja,-so OK */
+            regenso = record.REGENSO;
 
             // get depth to groundwater table 'FLUR'
-            ptrDA.FLW = (dbReader.getRecord(k, "FLUR")).toFloat();
+            ptrDA.FLW = record.FLUR;
 
             // get structure type 'TYP', field capacity [%] for 0-30cm 'FELD_30' and 0-150cm 'FELD_150' below ground level
-            getNUTZ(
-                nutzung,
-                (dbReader.getRecord(k, "TYP")).toInt(),
-                (dbReader.getRecord(k, "FELD_30")).toInt(),
-                (dbReader.getRecord(k, "FELD_150")).toInt(),
-                codestr
-            );
+            getNUTZ(record.NUTZUNG, record.TYP, record.FELD_30, record.FELD_150, codestr);
 
             /* cls_6a: an dieser Stelle muss garantiert werden, dass f30 und f150
                als Parameter von getNutz einen definierten Wert erhalten und zwar 0.
@@ -263,42 +256,37 @@ bool Calculation::calc(QString fileOut, bool debug)
             */
 
             // Bagrov-calculation for sealed surfaces
-            getKLIMA((dbReader.getRecord(k, "BEZIRK")).toInt(), codestr);
+            getKLIMA(record.BEZIRK, codestr);
 
             // get share of roof area [%] 'PROBAU'
-            QString text_probau = dbReader.getRecord(k, "PROBAU");
-            vgd = text_probau.toFloat() / 100.0F;
-
-            if (debug) {
-                qDebug() << "text_probau: " << Helpers::singleQuote(text_probau) << ", toFloat()/100: " << vgd;
-            }
-
-            // get share of other sealed areas and calculate total sealed area
-            vgb = (dbReader.getRecord(k, "PROVGU")).toFloat() / 100.0F;
+            vgd = record.PROBAU / 100.0F;
+          
+            // get share of other sealed areas (e.g. Hofflaechen) and calculate total sealed area
+            vgb = record.PROVGU / 100.0F;
             ptrDA.VER = (int)round((vgd * 100) + (vgb * 100));
             
             // get share of sealed road area
-            vgs = (dbReader.getRecord(k, "VGSTRASSE")).toFloat() / 100.0F;
-            
+            vgs = record.VGSTRASSE / 100.0F;
+          
             // get degree of canalization for roof / other sealed areas / sealed roads
-            kd = (dbReader.getRecord(k, "KAN_BEB")).toFloat() / 100.0F;
-            kb = (dbReader.getRecord(k, "KAN_VGU")).toFloat() / 100.0F;
-            ks = (dbReader.getRecord(k, "KAN_STR")).toFloat() / 100.0F;
-            
+            kd = record.KAN_BEB / 100.0F;
+            kb = record.KAN_VGU / 100.0F;
+            ks = record.KAN_STR / 100.0F;
+          
             // get share of each pavement class for surfaces except roads of block area
-            bl1 = (dbReader.getRecord(k, "BELAG1")).toFloat() / 100.0F;
-            bl2 = (dbReader.getRecord(k, "BELAG2")).toFloat() / 100.0F;
-            bl3 = (dbReader.getRecord(k, "BELAG3")).toFloat() / 100.0F;
-            bl4 = (dbReader.getRecord(k, "BELAG4")).toFloat() / 100.0F;
-            
+            bl1 = record.BELAG1 / 100.0F;
+            bl2 = record.BELAG2 / 100.0F;
+            bl3 = record.BELAG3 / 100.0F;
+            bl4 = record.BELAG4 / 100.0F;
+          
             // get share of each pavement class for roads of block area
-            bls1 = (dbReader.getRecord(k, "STR_BELAG1")).toFloat() / 100.0F;
-            bls2 = (dbReader.getRecord(k, "STR_BELAG2")).toFloat() / 100.0F;
-            bls3 = (dbReader.getRecord(k, "STR_BELAG3")).toFloat() / 100.0F;
-            bls4 = (dbReader.getRecord(k, "STR_BELAG4")).toFloat() / 100.0F;
-            fb = (dbReader.getRecord(k, "FLGES")).toFloat();
+            bls1 = record.STR_BELAG1 / 100.0F;
+            bls2 = record.STR_BELAG2 / 100.0F;
+            bls3 = record.STR_BELAG3 / 100.0F;
+            bls4 = record.STR_BELAG4 / 100.0F;
+          
+            fb = record.FLGES;
             fs = (dbReader.getRecord(k, "STR_FLGES")).toFloat();
-
             
             // if sum of total building development area and roads area is inconsiderably small
             // it is assumed, that the area is unknown and 100 % building development area will be given by default
@@ -948,7 +936,7 @@ float Calculation::getNUV(PDR &B) /* DataRecord_t *B) */
     return BAG0;
 }
 
-void Calculation::calculate(QString inputFile, QString configFile, QString outputFile)
+void Calculation::calculate(QString inputFile, QString configFile, QString outputFile, bool debug)
 {
     // Open the input file and read the raw (text) values into the dbReader object
     DbaseReader dbReader(inputFile);
@@ -980,7 +968,7 @@ void Calculation::calculate(QString inputFile, QString configFile, QString outpu
 
     Calculation calculator(dbReader, initValues, logStream);
 
-    bool success = calculator.calc(outputFile);
+    bool success = calculator.calc(outputFile, debug);
 
     if (!success) {
         qDebug() << "Error in calc(): " << calculator.getError();
@@ -988,4 +976,40 @@ void Calculation::calculate(QString inputFile, QString configFile, QString outpu
     }
 
     logHandle.close();
+}
+
+void Calculation::fillRecord(int k, abimoRecord& record, bool debug)
+{
+    record.BELAG1 = dbReader.getRecord(k, "BELAG1").toFloat();
+    record.BELAG2 = dbReader.getRecord(k, "BELAG2").toFloat();
+    record.BELAG3 = dbReader.getRecord(k, "BELAG3").toFloat();
+    record.BELAG4 = dbReader.getRecord(k, "BELAG4").toFloat();
+    record.BEZIRK = dbReader.getRecord(k, "BEZIRK").toInt();
+    record.CODE = dbReader.getRecord(k, "CODE");
+    record.FELD_150 = dbReader.getRecord(k, "FELD_150").toInt();
+    record.FELD_30 = dbReader.getRecord(k, "FELD_30").toInt();
+    record.FLGES = dbReader.getRecord(k, "FLGES").toFloat();
+    record.FLUR = dbReader.getRecord(k, "FLUR").toFloat();
+    record.KAN_BEB = dbReader.getRecord(k, "KAN_BEB").toFloat();
+    record.KAN_STR = dbReader.getRecord(k, "KAN_STR").toFloat();
+    record.KAN_VGU = dbReader.getRecord(k, "KAN_VGU").toFloat();
+    record.NUTZUNG = Helpers::stringToInt(
+        dbReader.getRecord(k, "NUTZUNG"),
+        QString("k: %1, NUTZUNG = ").arg(QString::number(k)),
+        debug
+    );
+    record.PROBAU = Helpers::stringToFloat(
+        dbReader.getRecord(k, "PROBAU"),
+        QString("k: %1, PROBAU = ").arg(QString::number(k)),
+        debug
+    );
+    record.PROVGU = dbReader.getRecord(k, "PROVGU").toFloat();
+    record.REGENJA = dbReader.getRecord(k, "REGENJA").toInt();
+    record.REGENSO = dbReader.getRecord(k, "REGENSO").toInt();
+    record.STR_BELAG1 = dbReader.getRecord(k, "STR_BELAG1").toFloat();
+    record.STR_BELAG2 = dbReader.getRecord(k, "STR_BELAG2").toFloat();
+    record.STR_BELAG3 = dbReader.getRecord(k, "STR_BELAG3").toFloat();
+    record.STR_BELAG4 = dbReader.getRecord(k, "STR_BELAG4").toFloat();
+    record.TYP = dbReader.getRecord(k, "TYP").toInt();
+    record.VGSTRASSE = dbReader.getRecord(k, "VGSTRASSE").toFloat();
 }

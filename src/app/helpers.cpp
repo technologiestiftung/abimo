@@ -167,3 +167,25 @@ bool Helpers::stringsAreEqual(QString* strings_1, QString* strings_2, int n, int
 
     return (n_diffs == 0);
 }
+
+int Helpers::stringToInt(QString string, QString context, bool debug)
+{
+    int result = string.toInt();
+
+    if (debug) {
+        qDebug() << context << result << QString("(= %1.toInt())").arg(singleQuote(string));
+    }
+
+    return result;
+}
+
+float Helpers::stringToFloat(QString string, QString context, bool debug)
+{
+    float result = string.toFloat();
+
+    if (debug) {
+        qDebug() << context << result << QString("(= %1.toFloat())").arg(singleQuote(string));
+    }
+
+    return result;
+}
