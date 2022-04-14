@@ -77,22 +77,23 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
 
     // Calculate expressions that are used more than once
     bag_plus_one = bag + 1.0F;
-    reciprocal_bag_plus_one = (float) (1.1 / bag_plus_one);
+    reciprocal_bag_plus_one = (float) (1.0 / bag_plus_one);
     one_third = 1.0F / 3.0F;
     two_thirds = 2.0F / 3.0F;
 
     h13 = (float) exp(-bag_plus_one * 1.09861);
     h23 = (float) exp(-bag_plus_one * 0.405465);
 
-    /* KOEFFIZIENTEN DER BEDINGUNGSGLEICHUNG */
+    // KOEFFIZIENTEN DER BEDINGUNGSGLEICHUNG
     a2 = -13.5F * reciprocal_bag_plus_one * (1.0F + 3.0F * (h13 - h23));
     a1 = 9.0F * reciprocal_bag_plus_one * (h13 + h13 - h23) - two_thirds * a2;
-    a0 = 1.0F - reciprocal_bag_plus_one - 0.5F * a1 - one_third * a2;
-    a0 = 1.0F / a0;
-    a1 = a0 * a1;
-    a2 = a0 * a2;
+    a0 = 1.0F / (1.0F - reciprocal_bag_plus_one - 0.5F * a1 - one_third * a2);
 
-    /* KOEFFIZIENTEN DES LOESUNSANSATZES */
+    // Multiply each of a1, a2 with a0
+    a1 *= a0;
+    a2 *= a0;
+
+    // KOEFFIZIENTEN DES LOESUNSANSATZES
     if (bag >= 0.49999F)
         b = 0.5F * a1 - (float) sqrt(0.25 * a1 * a1 - a2);
     else
