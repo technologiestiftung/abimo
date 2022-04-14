@@ -27,6 +27,10 @@
 
 #define UPPER_LIMIT_EYN 0.7F
 
+// Define macros to calculate the minimum or maximum of two values
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+
 /*
  =======================================================================================================================
     Translated by FOR_C, v2.3.2, on 10/16/94 at 18:28:43 ;
@@ -76,13 +80,14 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
     y0 = 0.0F;
 
     // Set local bag value to input value bage, but to 20.0 at maximum
-    bag = ((*bage > 20.0) ? 20.0 : *bage);
+    // read as: "take the smaller of the two values *bage, 20.0"
+    bag = MIN(*bage, 20.0);
 
     // If input value x is already below a threshold, return
     if (*x < 0.0005F) goto FINISH;
 
     // Set input value x to 15.0 at maximum
-    if (*x > 15.0F) *x = 15.0F;
+    *x = MIN(*x, 15.0F);
 
     // Calculate expressions that are used more than once
     bag_plus_one = bag + 1.0F;
@@ -117,7 +122,7 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
     y0 = (epa - 1.0F) / w;
 
     // Limit y0 to its maximum allowed value
-    if (y0 > ALMOST_ONE) y0 = ALMOST_ONE;
+    y0 = MIN(y0, ALMOST_ONE);
 
     // If bag is between a certain range we have finished
     if (bag >= 0.7F && bag <= 3.8F) goto FINISH;
@@ -187,13 +192,11 @@ THIRD_APPROXIMATE_SOLUTION:
         j++;
         if (j > 15) goto FINISH;
 
-        if (y0 > 0.999) y0 = 0.999F;
+        y0 = MIN(y0, 0.999F);
 
         epa = (float) exp(bag * log(y0));
 
-        h = 1.0f - epa;
-        if (h < ALMOST_ZERO) h = ALMOST_ZERO;
-        if (h > ALMOST_ONE) h = ALMOST_ONE;
+        h = MIN(MAX(1.0f - epa, ALMOST_ZERO), ALMOST_ONE);
 
         s1 = h - bag * epa / (float) log(h);
         h = h * (y0 + epa * y0 / s1 -*x);
@@ -202,7 +205,7 @@ THIRD_APPROXIMATE_SOLUTION:
 
 FINISH:
     // Set result value y to y0 or 1.0 at maximum
-    *y = ((y0 > 1.0) ? 1.0F : y0);
+    *y = MIN(y0, 1.0);
 }
 
 /*
