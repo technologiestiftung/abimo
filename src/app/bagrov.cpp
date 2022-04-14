@@ -127,8 +127,9 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
     // If bag is between a certain range we have finished
     if (bag >= 0.7F && bag <= 3.8F) goto FINISH;
 
-    j = 0;
-    if (bag >= 3.8F) goto THIRD_APPROXIMATE_SOLUTION;
+    if (bag >= 3.8F) {
+        goto THIRD_APPROXIMATE_SOLUTION;
+    }
 
     // NUMERISCHE INTEGRATION FUER BAG<0.7 (2.Naeherungsloesung)
     for (j = 1; j <= 30; j++)
@@ -188,9 +189,9 @@ THIRD_APPROXIMATE_SOLUTION:
     // NUMERISCHE INTEGRATION FUER BAG > 3.8 (3. Naeherungsloesung)
     h = 1.0F;
 
-    while(fabs(h) > 0.001) {
-        j++;
-        if (j > 15) goto FINISH;
+    j = 1;
+
+    while(fabs(h) > 0.001 && j <= 15) {
 
         y0 = MIN(y0, 0.999F);
 
@@ -201,6 +202,8 @@ THIRD_APPROXIMATE_SOLUTION:
         s1 = h - bag * epa / (float) log(h);
         h = h * (y0 + epa * y0 / s1 -*x);
         y0 = y0 - h;
+
+        j++;
     }
 
 FINISH:
