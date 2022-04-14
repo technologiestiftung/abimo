@@ -44,7 +44,7 @@ Bagrov::Bagrov()
 
 void Bagrov::nbagro(float *bage, float *y, float *x)
 {
-    int _do0, i, i_, ia, ie, j;
+    int _do0, i, ia, ie, j;
     float bag, bag_plus_one;
     float a, a0, a1, a2, b, c, epa, eyn, h, h13, h23, reciprocal_bag_plus_one, s1, s2, w, one_third, two_thirds, y0;
     static float aa[16] =
@@ -146,9 +146,8 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
         // Let i loop between start index ia and end index ie
         for (i = ia; i <= ie; i++)
         {
-            i_ = i - 1;
-            h = h * eyn;
-            w = aa[i_] * h;
+            h *= eyn;
+            w = aa[i - 1] * h;
             j = i - ia + 1; /* cls J=I-IA+1 */
             s2 = s2 + w / (j * (float) bag + 1.0F);
             s1 = s1 + w;
