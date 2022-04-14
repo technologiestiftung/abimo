@@ -168,7 +168,6 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
     }
 
 L_15:
-    ;
     if (y0 > 0.9) {
         bagrov(&bag, x, &y0);
     }
@@ -177,9 +176,8 @@ L_15:
     }
     goto FINISH;
 
-    /* NUMERISCHE INTEGRATION FUER BAG>3.8 (3. Naeherungsloesung) */
 L_12:
-    ;
+    // NUMERISCHE INTEGRATION FUER BAG > 3.8 (3. Naeherungsloesung)
     j = j + 1;
     if (j > 15) goto FINISH;
     if (y0 > 0.999) y0 = 0.999F;
@@ -191,6 +189,7 @@ L_12:
     h = h * (y0 + epa * y0 / s1 -*x);
     y0 = y0 - h;
     if (fabs(h) > 0.001) goto L_12;
+
 FINISH:
     // Set result value y to y0 or 1.0 at maximum
     *y = ((y0 > 1.0) ? 1.0F : y0);
