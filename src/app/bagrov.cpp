@@ -94,10 +94,9 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
     a2 *= a0;
 
     // KOEFFIZIENTEN DES LOESUNSANSATZES
-    if (bag >= 0.49999F)
-        b = 0.5F * a1 - (float) sqrt(0.25 * a1 * a1 - a2);
-    else
-        b = -(float) sqrt(0.5F * a1 * a1 - a2);
+    b = (bag >= 0.49999F) ?
+        (- (float) sqrt(0.25 * a1 * a1 - a2) + 0.5F * a1) :
+        (- (float) sqrt(0.5F * a1 * a1 - a2));
 
     c = a1 - b;
     a = a0 / (b - c);
