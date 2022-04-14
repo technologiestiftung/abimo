@@ -116,13 +116,10 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
     a = a0 / (b - c);
 
     epa = (float) exp(*x / a);
-    w = b - c * epa;
 
     // NULLTE NAEHERUNGSLOESUNG (1. Naeherungsloesung)
-    y0 = (epa - 1.0F) / w;
-
     // Limit y0 to its maximum allowed value
-    y0 = MIN(y0, ALMOST_ONE);
+    y0 = MIN((epa - 1.0F) / (b - c * epa), ALMOST_ONE);
 
     // If bag is between a certain range we have finished
     if (bag >= 0.7F && bag <= 3.8F) goto FINISH;
