@@ -122,8 +122,12 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
     for (j = 1; j <= 30; j++)
     {
         eyn = (float) exp(bag * log(y0));
-        if (eyn > 0.9F) goto FINISH;
-        if (eyn >= 0.7F && bag > 4.0F) goto FINISH;
+
+        // We have finished if eyn and/or bag are in a certain range
+        if ((eyn > 0.9F) || (eyn >= 0.7F && bag > 4.0F)) {
+            goto FINISH;
+        }
+
         ia = 2;
         ie = 6;
         if (eyn > 0.7F) ia = 8;
