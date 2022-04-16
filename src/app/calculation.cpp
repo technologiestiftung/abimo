@@ -441,39 +441,54 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
         switch (typ)
         {
         // cases for agricultural land use (NUT = 'L') of different yield power (ERT)
-        case  1: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break; // @Hauke: many duplicate cases
-        case  2: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
-        case  3: ptrDA.NUT = 'L'; ptrDA.ERT = 45; break;
-        case  4: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
-        case  5: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
-        case  6: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
-        case  7: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
-        case  8: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
-        case  9: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
-        case 10: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
-        case 11: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
-        case 21: ptrDA.NUT = 'L'; ptrDA.ERT = 45; break;
-        
-        // cases for gardening (NUT = 'K') of yield power (ERT) and certain irrigation (BER)
-        case 22: ptrDA.NUT = 'K'; ptrDA.ERT = 40; ptrDA.BER = 75; break; // @Hauke: many duplicate cases
-        case 23: ptrDA.NUT = 'K'; ptrDA.ERT = 40; ptrDA.BER = 75; break;
-        case 24: ptrDA.NUT = 'L'; ptrDA.ERT = 55; ptrDA.BER = 75; break;
-        case 25: ptrDA.NUT = 'K'; ptrDA.ERT = 40; ptrDA.BER = 75; break;
-        case 26: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
-        case 29: ptrDA.NUT = 'L'; ptrDA.ERT = 30; break;
-        case 33: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
-        case 38: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
-        case 39: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
-        case 71: ptrDA.NUT = 'L'; ptrDA.ERT = 45; break;
-        /* cls_4: Baustrukturtypen 73 und 74 neu eingefuehrt - werden behandelt wie 72 */
+
+        case 29:
+            Config::set_NUT_ERT_BER(ptrDA, 'L', 30); break;
+
+        case  1:
+        case  2:
+        case  7:
+        case  8:
+        case 11:
+        case 33:
+        case 38:
+        case 39:
+            Config::set_NUT_ERT_BER(ptrDA, 'L', 35); break;
+
+        case  4:
+        case  5:
+        case  6:
+        case  9:
+        case 10:
+        case 26:
+            Config::set_NUT_ERT_BER(ptrDA, 'L', 40); break;
+
+        case  3:
+        case 21:
+        case 71:
+            Config::set_NUT_ERT_BER(ptrDA, 'L', 45); break;
+
+        // cls_4: Baustrukturtypen 73 und 74 neu eingefuehrt - werden behandelt wie 72
         case 72:
         case 73:
-        case 74: ptrDA.NUT = 'L'; ptrDA.ERT = 50; break;
+        case 74:
+            Config::set_NUT_ERT_BER(ptrDA, 'L', 50); break;
+
+        // cases for gardening (NUT = 'K') of yield power (ERT) and certain irrigation (BER)
+        case 22:
+        case 23:
+            Config::set_NUT_ERT_BER(ptrDA, 'K', 40, 75); break;
+
+        case 24:
+            Config::set_NUT_ERT_BER(ptrDA, 'L', 55, 75); break;
+
+        case 25:
+            Config::set_NUT_ERT_BER(ptrDA, 'K', 40, 75); break;
+
         default:
             protokollStream << "\r\nNutzungstyp nicht definiert fuer Element " + codestr +  "\r\nTyp=72 angenommen\r\n";
             protcount++;
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 50;
+            Config::set_NUT_ERT_BER(ptrDA, 'L', 50);
             break;
         }
         break;
@@ -481,13 +496,14 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
     case 40:
         switch (typ)
         {
-        case 30: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
-        case 31: ptrDA.NUT = 'L'; ptrDA.ERT = 30; break;
+        case 30:
+            Config::set_NUT_ERT_BER(ptrDA, 'L', 35); break;
+        case 31:
+            Config::set_NUT_ERT_BER(ptrDA, 'L', 30); break;
         default:
             protokollStream << "\r\nNutzungstyp nicht definiert fuer Element " + codestr + "\r\nTyp=31 angenommen\r\n";
             protcount++;
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 30;
+            Config::set_NUT_ERT_BER(ptrDA, 'L', 30);
             break;
         }
         break;
@@ -495,120 +511,163 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
     case 50:
         switch (typ)
         {
-        case 12: ptrDA.NUT = 'L'; ptrDA.ERT = 45; break;
-        case 13: ptrDA.NUT = 'L'; ptrDA.ERT = 50; break;
-        case 14: ptrDA.NUT = 'L'; ptrDA.ERT = 50; break;
-        case 28: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
-        case 41: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
-        case 42: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
-        case 43: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
-        case 44: ptrDA.NUT = 'L'; ptrDA.ERT = 45; ptrDA.BER = 50; break;
-        case 45: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
-        case 46: ptrDA.NUT = 'L'; ptrDA.ERT = 50; ptrDA.BER = 50; break;
-        case 47: ptrDA.NUT = 'L'; ptrDA.ERT = 45; break;
-        case 49: ptrDA.NUT = 'L'; ptrDA.ERT = 45; ptrDA.BER = 50; break;
-        case 50: ptrDA.NUT = 'L'; ptrDA.ERT = 45; ptrDA.BER = 50; break;
-        case 51: ptrDA.NUT = 'L'; ptrDA.ERT = 45; break;
-        case 60: ptrDA.NUT = 'L'; ptrDA.ERT = 45; break;
+        case 42:
+        case 43:
+            Config::set_NUT_ERT_BER(ptrDA, 'L', 35); break;
+
+        case 28:
+        case 41:
+        case 45:
+            Config::set_NUT_ERT_BER(ptrDA, 'L', 40); break;
+
+        case 12:
+        case 47:
+        case 51:
+        case 60:
+            Config::set_NUT_ERT_BER(ptrDA, 'L', 45); break;
+
+        case 13:
+        case 14:
+            Config::set_NUT_ERT_BER(ptrDA, 'L', 50); break;
+
+        case 44:
+        case 49:
+        case 50:
+            Config::set_NUT_ERT_BER(ptrDA, 'L', 45, 50); break;
+
+        case 46:
+            Config::set_NUT_ERT_BER(ptrDA, 'L', 50, 50); break;
+
         default:
             protokollStream << "\r\nNutzungstyp nicht definiert fuer Element " + codestr + "\r\nTyp=60 angenommen\r\n";
             protcount++;
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 45;
+            Config::set_NUT_ERT_BER(ptrDA, 'L', 45);
             break;
         }
         break;
 
-    case 60: ptrDA.NUT = 'L'; ptrDA.ERT = 45; break;
+    case 60:
+        Config::set_NUT_ERT_BER(ptrDA, 'L', 45); break;
 
     case 70:
         if (typ == 59)
         {
-            ptrDA.NUT = 'K';
-            ptrDA.ERT = 40;
-            ptrDA.BER = 75;
+            Config::set_NUT_ERT_BER(ptrDA, 'K', 40, 75);
         }
         else
         {
             protokollStream << "\r\nNutzungstyp nicht definiert fuer Element " + codestr + "\r\nTyp=59 angenommen\r\n";
             protcount++;
-            ptrDA.NUT = 'K';
-            ptrDA.ERT = 40;
-            ptrDA.BER = 75;
+            Config::set_NUT_ERT_BER(ptrDA, 'K', 40, 75);
         }
         break;
 
     case 80:
         switch (typ)
         {
-        case 91: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
-        case 92: ptrDA.NUT = 'L'; ptrDA.ERT = 25; break;
-        case 93: ptrDA.NUT = 'L'; ptrDA.ERT = 30; break;
-        case 94: ptrDA.NUT = 'L'; ptrDA.ERT = 30; break;
-        case 99: ptrDA.NUT = 'L'; ptrDA.ERT = 10; break;
+        case 99:
+            Config::set_NUT_ERT_BER(ptrDA, 'L', 10); break;
+
+        case 92:
+            Config::set_NUT_ERT_BER(ptrDA, 'L', 25); break;
+
+        case 93:
+        case 94:
+            Config::set_NUT_ERT_BER(ptrDA, 'L', 30); break;
+
+        case 91:
+            Config::set_NUT_ERT_BER(ptrDA, 'L', 40); break;
+
         default:
             protokollStream << "\r\nNutzungstyp nicht definiert fuer Element " + codestr + "\r\nTyp=99 angenommen\r\n";
             protcount++;
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 10;
+            Config::set_NUT_ERT_BER(ptrDA, 'L', 10);
             break;
         }
         break;
 
     case 90:
-        if (typ == 98)
+        switch (typ)
         {
-            ptrDA.NUT = 'D';
-            ptrDA.ERT = 1;
-            ptrDA.BER = 0;
-        }
-        else
-        {
+        case 98:
+            Config::set_NUT_ERT_BER(ptrDA, 'D', 1); break;
+        default:
             protokollStream << "\r\nNutzungstyp nicht definiert fuer Element " + codestr + "\r\nTyp=98 angenommen\r\n";
             protcount++;
-            ptrDA.NUT = 'D';
-            ptrDA.ERT = 1;
-            ptrDA.BER = 0;
+            Config::set_NUT_ERT_BER(ptrDA, 'D', 1);
+            break;
         }
         break;
 
     case 100:
-        if (typ == 55)
-            ptrDA.NUT = 'W';
-        else
+        switch (typ)
         {
+        case 55:
+            Config::set_NUT_ERT_BER(ptrDA, 'W'); break;
+        default:
             protokollStream << "\r\nNutzungstyp nicht definiert fuer Element " + codestr + "\r\nTyp=55 angenommen\r\n";
             protcount++;
-            ptrDA.NUT = 'W';
+            Config::set_NUT_ERT_BER(ptrDA, 'W');
+            break;
         }
         break;
 
-    case 101: ptrDA.NUT = 'W'; break;
-    case 102: ptrDA.NUT = 'L'; ptrDA.ERT = 60; break;
-    case 110: ptrDA.NUT = 'G'; break;
-    case 121: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
-    case 122: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
-    case 130: ptrDA.NUT = 'L'; ptrDA.ERT = 50; ptrDA.BER = 50; break;
-    case 140: ptrDA.NUT = 'L'; ptrDA.ERT = 50; break;
-    case 150: ptrDA.NUT = 'L'; ptrDA.ERT = 50; ptrDA.BER = 100; break;
-    case 160: ptrDA.NUT = 'K'; ptrDA.ERT = 40; ptrDA.BER = 75; break;
-    case 161: ptrDA.NUT = 'K'; ptrDA.ERT = 40; ptrDA.BER = 75; break;
-    case 162: ptrDA.NUT = 'K'; ptrDA.ERT = 40; ptrDA.BER = 75; break;
-    case 170: ptrDA.NUT = 'L'; ptrDA.ERT = 10; break;
-    case 171: ptrDA.NUT = 'D'; ptrDA.ERT = 1; ptrDA.BER = 0; break;
-    case 172: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
-    case 173: ptrDA.NUT = 'L'; ptrDA.ERT = 45; break;
-    case 174: ptrDA.NUT = 'L'; ptrDA.ERT = 60; break;
-    case 180: ptrDA.NUT = 'L'; ptrDA.ERT = 50; break;
-    case 190: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
-    case 200: ptrDA.NUT = 'L'; ptrDA.ERT = 50; ptrDA.BER = 50; break;
+    case 101:
+        Config::set_NUT_ERT_BER(ptrDA, 'W'); break;
+
+    case 102:
+        Config::set_NUT_ERT_BER(ptrDA, 'L', 60); break;
+
+    case 110:
+        Config::set_NUT_ERT_BER(ptrDA, 'G'); break;
+
+    case 121:
+        Config::set_NUT_ERT_BER(ptrDA, 'L', 40); break;
+
+    case 122:
+        Config::set_NUT_ERT_BER(ptrDA, 'L', 35); break;
+
+    case 130:
+        Config::set_NUT_ERT_BER(ptrDA, 'L', 50, 50); break;
+
+    case 140:
+        Config::set_NUT_ERT_BER(ptrDA, 'L', 50); break;
+
+    case 150:
+        Config::set_NUT_ERT_BER(ptrDA, 'L', 50, 100); break;
+
+    case 160:
+    case 161:
+    case 162:
+        Config::set_NUT_ERT_BER(ptrDA, 'K', 40, 75); break;
+
+    case 170:
+        Config::set_NUT_ERT_BER(ptrDA, 'L', 10); break;
+
+    case 171:
+        Config::set_NUT_ERT_BER(ptrDA, 'D', 1); break;
+
+    case 172:
+    case 190:
+        Config::set_NUT_ERT_BER(ptrDA, 'L', 40); break;
+
+    case 173:
+        Config::set_NUT_ERT_BER(ptrDA, 'L', 45); break;
+
+    case 174:
+        Config::set_NUT_ERT_BER(ptrDA, 'L', 60); break;
+
+    case 180:
+        Config::set_NUT_ERT_BER(ptrDA, 'L', 50); break;
+
+    case 200:
+        Config::set_NUT_ERT_BER(ptrDA, 'L', 50, 50); break;
+
     default:
         /*
            *protokollStream << "\r\nNutzungstyp nicht definiert fuer Element " + codestr + "\r\nTyp=200 angenommen\r\n";
            protcount++;
-           ptrDA.NUT = 'L';
-           ptrDA.ERT = 50;
-           ptrDA.BER = 50;
+           Config::set_NUT_ERT_BER(ptrDA, 'L', 50, 50);
            cls_3: dies ist nicht korrekt, da die Nutzung und nicht der Nutzungstyp im switch liegt
            und ein NULL in NUTZUNG hoffentlich immer zu nutzung=0 fuehrt, wenn oben
            int nutzung = dbReader.getRecord(k, "NUTZUNG").toInt();

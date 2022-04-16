@@ -1,4 +1,5 @@
 #include "config.h"
+#include "pdr.h"
 
 Config::Config()
 {
@@ -26,4 +27,11 @@ float Config::getTWS(int ert, char nutz)
 
     // Other
     return 0.2F;
+}
+
+void Config::set_NUT_ERT_BER(PDR &pdr, char nut, int ert, int ber)
+{
+    pdr.NUT = nut;
+    pdr.ERT = ert;
+    pdr.BER = ber;
 }
