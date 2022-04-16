@@ -11,13 +11,13 @@
 #include "../app/dbaseReader.h"
 #include "../app/helpers.h"
 
-class testAbimo : public QObject
+class TestAbimo : public QObject
 {
     Q_OBJECT
 
 public:
-    testAbimo();
-    ~testAbimo();
+    TestAbimo();
+    ~TestAbimo();
 
 private slots:
     void test_helpers_containsAll();
@@ -35,20 +35,20 @@ private slots:
     bool numbersInFilesDiffer(QString file_1, QString file_2, int n_1, int n_2, QString subject);
 };
 
-testAbimo::testAbimo()
+TestAbimo::TestAbimo()
 {
 }
 
-testAbimo::~testAbimo()
+TestAbimo::~TestAbimo()
 {
 }
 
-QString testAbimo::testDataDir()
+QString TestAbimo::testDataDir()
 {
     return QString("../../../abimo/data");
 }
 
-QString testAbimo::dataFilePath(QString fileName, bool mustExist)
+QString TestAbimo::dataFilePath(QString fileName, bool mustExist)
 {
     QString filePath = QString(testDataDir() + "/" + fileName);
 
@@ -60,7 +60,7 @@ QString testAbimo::dataFilePath(QString fileName, bool mustExist)
     return filePath;
 }
 
-void testAbimo::test_helpers_containsAll()
+void TestAbimo::test_helpers_containsAll()
 {
     QHash<QString, int> hash;
     hash["one"] = 1;
@@ -70,7 +70,7 @@ void testAbimo::test_helpers_containsAll()
     QCOMPARE(Helpers::containsAll(hash, {"one", "two", "three"}), false);    
 }
 
-void testAbimo::test_helpers_filesAreIdentical()
+void TestAbimo::test_helpers_filesAreIdentical()
 {
     QString file_1 = dataFilePath("abimo_2019_mitstrassen.dbf");
     QString file_2 = dataFilePath("abimo_2019_mitstrassenout_3.2_xml-config.dbf");
@@ -81,7 +81,7 @@ void testAbimo::test_helpers_filesAreIdentical()
     QCOMPARE(Helpers::filesAreIdentical(file_1, file_2, debug), false);
 }
 
-void testAbimo::test_helpers_stringsAreEqual()
+void TestAbimo::test_helpers_stringsAreEqual()
 {
     QString strings_1[] = {"a", "b", "c", "d", "e", "f"};
     QString strings_2[] = {"a", "b", "d", "e", "f", "g"};
@@ -90,13 +90,13 @@ void testAbimo::test_helpers_stringsAreEqual()
     QCOMPARE(Helpers::stringsAreEqual(strings_1, strings_2, 6), false);
 }
 
-void testAbimo::test_requiredFields()
+void TestAbimo::test_requiredFields()
 {
     QStringList strings = DbaseReader::requiredFields();
     QCOMPARE(strings.length(), 25);
 }
 
-void testAbimo::test_dbaseReader()
+void TestAbimo::test_dbaseReader()
 {
     DbaseReader reader(dataFilePath("abimo_2019_mitstrassen.dbf"));
 
@@ -108,7 +108,7 @@ void testAbimo::test_dbaseReader()
     QCOMPARE(reader.isAbimoFile(), true);
 }
 
-void testAbimo::test_xmlReader()
+void TestAbimo::test_xmlReader()
 {
     QString configFile = dataFilePath("config.xml");
     InitValues iv;
@@ -131,7 +131,7 @@ void testAbimo::test_xmlReader()
     QVERIFY(qFuzzyCompare(iv.getInfbel4(), 0.9F));
 }
 
-void testAbimo::test_config_getTWS()
+void TestAbimo::test_config_getTWS()
 {
     QVERIFY(qFuzzyCompare(Config::getTWS(50, 'D'), 0.2F));
     QVERIFY(qFuzzyCompare(Config::getTWS(50, 'L'), 0.6F));
@@ -141,7 +141,7 @@ void testAbimo::test_config_getTWS()
     QVERIFY(qFuzzyCompare(Config::getTWS(50, '?'), 0.2F));
 }
 
-void testAbimo::test_calc()
+void TestAbimo::test_calc()
 {
     QString inputFile = dataFilePath("abimo_2019_mitstrassen.dbf");
     QString configFile = dataFilePath("config.xml");
@@ -159,7 +159,7 @@ void testAbimo::test_calc()
     QVERIFY(dbfStringsAreIdentical(outputFile, outFile_xmlConfig));
 }
 
-bool testAbimo::dbfStringsAreIdentical(QString file_1, QString file_2)
+bool TestAbimo::dbfStringsAreIdentical(QString file_1, QString file_2)
 {
     DbaseReader reader_1(file_1);
     DbaseReader reader_2(file_2);
@@ -186,7 +186,7 @@ bool testAbimo::dbfStringsAreIdentical(QString file_1, QString file_2)
     );
 }
 
-bool testAbimo::numbersInFilesDiffer(QString file_1, QString file_2, int n_1, int n_2, QString subject)
+bool TestAbimo::numbersInFilesDiffer(QString file_1, QString file_2, int n_1, int n_2, QString subject)
 {
     if (n_1 != n_2) {
         qDebug() << QString("Number of %1 (file_1: %2, file_2: %3) differs.").arg(
@@ -198,6 +198,6 @@ bool testAbimo::numbersInFilesDiffer(QString file_1, QString file_2, int n_1, in
     return false;
 }
 
-QTEST_APPLESS_MAIN(testAbimo)
+QTEST_APPLESS_MAIN(TestAbimo)
 
 #include "tst_testabimo.moc"
