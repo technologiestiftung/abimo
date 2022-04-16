@@ -17,6 +17,7 @@ QT += \
 HEADERS += \
     bagrov.h \
     calculation.h \
+    config.h \
     constants.h \
     dbaseField.h \
     dbaseReader.h \
@@ -31,6 +32,7 @@ HEADERS += \
 SOURCES += \
     bagrov.cpp \
     calculation.cpp \
+    config.cpp \
     dbaseField.cpp \
     dbaseReader.cpp \
     dbaseWriter.cpp \
