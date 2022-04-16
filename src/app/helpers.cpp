@@ -193,13 +193,36 @@ float Helpers::stringToFloat(QString string, QString context, bool debug)
 //
 // Find the index of a value in a sorted array
 //
-int Helpers::index(float value, const float *values, int n_values)
+int Helpers::index(float xi, const float *x, int n, float epsilon)
 {
     int i;
-    float epsilon = 0.0001F;
 
-    for (i = 0; i < n_values; i++)
-        if (value <= values[i] + epsilon) return i;
+    for (i = 0; i < n; i++) {
+        if (xi <= x[i] + epsilon) {
+            return i;
+        }
+    }
 
-    return n_values - 1;
+    return n - 1;
+}
+
+float Helpers::interpolate(float xi, const float *x, const float *y, int n)
+{
+    int i;
+
+    if (xi <= x[0]) {
+        return y[0];
+    }
+
+    if (xi >= x[n - 1]) {
+        return y[n - 1];
+    }
+
+    for (i = 1; i < n; i++) {
+        if (xi <= x[i]) {
+            return (y[i - 1] + y[i]) / 2;
+        }
+    }
+
+    return 0.0;
 }

@@ -837,8 +837,6 @@ void Calculation::getKLIMA(int bez, QString code)
  */
 float Calculation::getF(float wa)
 {
-    int i, n;
-
     const float watab[] =
     {
         0.45F, 0.50F, 0.55F, 0.60F, 0.65F, 0.70F, 0.75F, // 0 ..  6
@@ -851,23 +849,7 @@ float Calculation::getF(float wa)
         1.22F, 1.30F, 1.38F, 1.47F, 1.55F, 1.63F, 1.70F  // 7 .. 13
     };
 
-    n = 14;
-
-    if (wa <= watab[0]) {
-        return Ftab[0];
-    }
-
-    if (wa >= watab[n - 1]) {
-        return Ftab[n - 1];
-    }
-
-    for (i = 1; i < n; i++) {
-        if (wa <= watab[i]) {
-            return (Ftab[i - 1] + Ftab[i]) / 2;
-        }
-    }
-
-    return 0.0;
+    return Helpers::interpolate(wa, watab, Ftab, 14);
 }
 
 void Calculation::calculate(QString inputFile, QString configFile, QString outputFile, bool debug)
