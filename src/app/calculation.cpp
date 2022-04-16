@@ -236,7 +236,7 @@ bool Calculation::calc(QString fileOut, bool debug)
         if (record.NUTZUNG != 0) {
 
             // get identifier number 'CODE' for each block partial area
-            QString codestr = record.CODE;
+            QString code = record.CODE;
 
             // get precipitation for entire year 'regenja' and for only summer season 'regenso'
             regenja = record.REGENJA; /* Jetzt regenja,-so OK */
@@ -246,7 +246,7 @@ bool Calculation::calc(QString fileOut, bool debug)
             ptrDA.FLW = record.FLUR;
 
             // get structure type 'TYP', field capacity [%] for 0-30cm 'FELD_30' and 0-150cm 'FELD_150' below ground level
-            getNUTZ(record.NUTZUNG, record.TYP, record.FELD_30, record.FELD_150, codestr);
+            getNUTZ(record.NUTZUNG, record.TYP, record.FELD_30, record.FELD_150, code);
 
             /* cls_6a: an dieser Stelle muss garantiert werden, dass f30 und f150
                als Parameter von getNutz einen definierten Wert erhalten und zwar 0.
@@ -257,7 +257,7 @@ bool Calculation::calc(QString fileOut, bool debug)
             */
 
             // Bagrov-calculation for sealed surfaces
-            getKLIMA(record.BEZIRK, codestr);
+            getKLIMA(record.BEZIRK, code);
 
             // get share of roof area [%] 'PROBAU'
             vgd = record.PROBAU / 100.0F;
@@ -293,7 +293,7 @@ bool Calculation::calc(QString fileOut, bool debug)
             // it is assumed, that the area is unknown and 100 % building development area will be given by default
             if (fb + fs < 0.0001)
             {
-                //*protokollStream << "\r\nDie Flaeche des Elements " + codestr + " ist 0 \r\nund wird automatisch auf 100 gesetzt\r\n";
+                //*protokollStream << "\r\nDie Flaeche des Elements " + code + " ist 0 \r\nund wird automatisch auf 100 gesetzt\r\n";
                 protcount++;
                 keineFlaechenAngegeben++;
                 fb = 100.0F;
@@ -373,7 +373,7 @@ bool Calculation::calc(QString fileOut, bool debug)
 
             // write the calculated variables into respective fields
             writer.addRecord();
-            writer.setRecordField("CODE", codestr);
+            writer.setRecordField("CODE", code);
             writer.setRecordField("R", r);
             writer.setRecordField("ROW", row);
             writer.setRecordField("RI", ri);
@@ -669,7 +669,7 @@ void Calculation::logNotDefined(QString code, int type)
     protcount++;
 }
 
-void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
+void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString code)
 {
     /* globale Groessen fuer den aktuellen Record */
     float TWS; /* Durchwurzelungstiefe */
@@ -682,10 +682,7 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
      */
 
     // declaration of yield power (ERT) and irrigation (BER) for agricultural or gardening purposes
-    //ptrDA.ERT = 0;
-    //ptrDA.BER = 0;
-
-    setUsageYieldPowerIrrigation(nutz, typ, codestr);
+    setUsageYieldPowerIrrigation(nutz, typ, code);
 
     if (ptrDA.NUT != 'G')
     {
@@ -733,7 +730,7 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
     }
 
     if (initValues.getBERtoZero() && ptrDA.BER != 0) {
-        //*protokollStream << "Erzwinge BER=0 fuer Code: " << codestr << ", Wert war:" << ptrDA.BER << " \r\n";
+        //*protokollStream << "Erzwinge BER=0 fuer Code: " << code << ", Wert war:" << ptrDA.BER << " \r\n";
         totalBERtoZeroForced++;
         ptrDA.BER = 0;
     }
@@ -744,7 +741,7 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
     FIXME:
  =======================================================================================================================
  */
-void Calculation::getKLIMA(int bez, QString codestr)
+void Calculation::getKLIMA(int bez, QString code)
 {
     /* Effektivitaetsparameter */
     float nd = initValues.getBagdach();
@@ -783,7 +780,7 @@ void Calculation::getKLIMA(int bez, QString codestr)
             ptrDA.ETP = initValues.hashEG.contains(0) ? initValues.hashEG.value(0) : 775;
             QString egString;
             egString.setNum(ptrDA.ETP);
-            protokollStream << "\r\nEG unbekannt fuer " + codestr + " von Bezirk " + bezString + "\r\nEG=" + egString + " angenommen\r\n";
+            protokollStream << "\r\nEG unbekannt fuer " + code + " von Bezirk " + bezString + "\r\nEG=" + egString + " angenommen\r\n";
             protcount++;
         }
     }
@@ -797,7 +794,7 @@ void Calculation::getKLIMA(int bez, QString codestr)
             ptrDA.ETP = initValues.hashETP.contains(0) ? initValues.hashETP.value(0) : 660;
             QString etpString;
             etpString.setNum(ptrDA.ETP);
-            protokollStream << "\r\nETP unbekannt fuer " + codestr + " von Bezirk " + bezString + "\r\nETP=" + etpString + " angenommen\r\n";
+            protokollStream << "\r\nETP unbekannt fuer " + code + " von Bezirk " + bezString + "\r\nETP=" + etpString + " angenommen\r\n";
             protcount++;
         }
 
@@ -809,7 +806,7 @@ void Calculation::getKLIMA(int bez, QString codestr)
             ptrDA.ETPS = initValues.hashETPS.contains(0) ? initValues.hashETPS.value(0) : 530;
             QString etpsString;
             etpsString.setNum(ptrDA.ETPS);
-            protokollStream << "\r\nETPS unbekannt fuer " + codestr + " von Bezirk " + bezString + "\r\nETPS=" + etpsString + " angenommen\r\n";
+            protokollStream << "\r\nETPS unbekannt fuer " + code + " von Bezirk " + bezString + "\r\nETPS=" + etpsString + " angenommen\r\n";
             protcount++;
         }
     }
