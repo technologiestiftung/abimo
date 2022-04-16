@@ -189,3 +189,17 @@ float Helpers::stringToFloat(QString string, QString context, bool debug)
 
     return result;
 }
+
+//
+// Find the index of a value in a sorted array
+//
+int Helpers::index(float value, const float *values, int n_values)
+{
+    int i;
+    float epsilon = 0.0001F;
+
+    for (i = 0; i < n_values; i++)
+        if (value <= values[i] + epsilon) return i;
+
+    return n_values - 1;
+}

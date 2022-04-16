@@ -25,6 +25,7 @@ public:
     static bool stringsAreEqual(QString* strings_1, QString* strings_2, int n, int maxDiffs = 5, bool debug = false);
     static int stringToInt(QString string, QString context, bool debug = false);
     static float stringToFloat(QString string, QString context, bool debug = false);
+    static int index(float value, const float *values, int n_values);
 private:
     static QString removeFileExtension(QString);
 };

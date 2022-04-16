@@ -450,7 +450,10 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString code)
          */
         kr = (TAS <= 0.0) ?
             7.0F :
-            ijkr_S[index(TAS, iTAS, lenTAS) + index(ptrDA.nFK, inFK_S, lenS) * lenTAS];
+            ijkr_S[
+                Helpers::index(TAS, iTAS, lenTAS) +
+                Helpers::index(ptrDA.nFK, inFK_S, lenS) * lenTAS
+            ];
 
         /* mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres */
         switch (ptrDA.NUT)
@@ -852,22 +855,6 @@ void Calculation::getKLIMA(int bez, QString code)
 
         RUV = p - etr;
     }
-}
-
-/*
- =======================================================================================================================
-    FIXME:
- =======================================================================================================================
- */
-int Calculation::index(float wert, const float *feld, int anz)
-{
-    int i;
-    float eps = 0.0001F;
-
-    for (i = 0; i < anz; i++)
-        if (wert <= feld[i] + eps) return(i);
-
-    return anz - 1;
 }
 
 /*
