@@ -420,7 +420,6 @@ bool Calculation::calc(QString fileOut, bool debug)
 void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString code)
 {
     /* globale Groessen fuer den aktuellen Record */
-    float TWS; /* Durchwurzelungstiefe */
     float kr;  /* mittlere pot. kapillare Aufstiegsrate d. Sommerhalbjahres */
     int   dw;  /* mittlere Zahl der Wachstumstage */
 
@@ -435,8 +434,7 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString code)
     if (ptrDA.NUT != 'G')
     {
         /* pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS */
-        TWS = Config::getTWS(ptrDA.ERT, ptrDA.NUT);
-        TAS = ptrDA.FLW - TWS;
+        TAS = ptrDA.FLW - Config::getTWS(ptrDA.ERT, ptrDA.NUT);
 
         /* Feldkapazitaet */
         /* cls_6b: der Fall der mit NULL belegten FELD_30 und FELD_150 Werte
