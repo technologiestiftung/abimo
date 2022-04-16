@@ -24,6 +24,7 @@
 
 #include "bagrov.h"
 #include "calculation.h"
+#include "config.h"
 #include "dbaseReader.h"
 #include "dbaseWriter.h"
 #include "helpers.h"
@@ -621,7 +622,7 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
     if (ptrDA.NUT != 'G')
     {
         /* pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS */
-        TWS = getTWS(ptrDA.ERT, ptrDA.NUT);
+        TWS = Config::getTWS(ptrDA.ERT, ptrDA.NUT);
         TAS = ptrDA.FLW - TWS;
 
         /* Feldkapazitaet */
@@ -798,32 +799,6 @@ void Calculation::getKLIMA(int bez, QString codestr)
 
         RUV = p - etr;
     }
-}
-
-/*
- =======================================================================================================================
-    Bestimmung der Durchwurzelungstiefe TWS
- =======================================================================================================================
- */
-float Calculation::getTWS(int ert, char nutz)
-{
-    // Zuordnung Durchwurzelungstiefe in Abhaengigkeit der Nutzung
-    float TWS;
-    switch (nutz)
-    {
-    case 'D': TWS = 0.2F; break; // D - Devastierung
-    case 'L':
-        if (ert <= 50)
-            TWS = 0.6F;
-        else
-            TWS = 0.7F; // L - landwirtschaftliche Nutzung
-        break;
-    case 'K': TWS = 0.7F; break; // K - Kleingaerten
-    case 'W': TWS = 1.0F; break; // W - Wald
-    default:  TWS = 0.2F; break;
-    }
-
-    return TWS;
 }
 
 /*

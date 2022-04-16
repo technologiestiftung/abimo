@@ -109,7 +109,6 @@ private:
     bool weiter;
 
     // functions
-    float getTWS (int ert, char nutz);
     float min(float  x,float  y);
     int index (float wert, const float *feld, int anz);
     float getNUV(PDR &B);
