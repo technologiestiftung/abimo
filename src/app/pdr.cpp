@@ -48,21 +48,22 @@ void PDR::setUsageYieldIrrigation(char usage, int yield, int irrigation)
 
 void PDR::setWaterHoldingCapacity(int f30, int f150)
 {
+    this->nFK = estimateWaterHoldingCapacity(f30, f150, this->NUT == 'W');
+}
+
+float PDR::estimateWaterHoldingCapacity(int f30, int f150, bool isForest)
+{
     if (min(f30, f150) < 1) {
-        this->nFK = 13.0F;
+        return 13.0F;
     }
-    else if (abs(f30 - f150) < min(f30, f150)) { // unwesentliche Abweichung
-        if (this->NUT == 'W')
-            this->nFK = (float) f150;
-        else
-            this->nFK = (float) f30;
+
+    if (abs(f30 - f150) < min(f30, f150)) { // unwesentliche Abweichung
+        return (float) (isForest ? f150 : f30);
     }
-    else if (this->NUT == 'W') {
-        this->nFK = 0.75F * (float) f150 + 0.25F * (float) f30;
-    }
-    else {
-        this->nFK = 0.75F * (float) f30 + 0.25F * (float) f150;
-    }
+
+    return
+        0.75F * (float) (isForest ? f150 : f30) +
+        0.25F * (float) (isForest ? f30 : f150);
 }
 
 float PDR::min(float x, float y)
