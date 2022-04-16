@@ -27,6 +27,7 @@ INCDIR = ../app
 HEADERS += \
     $$INCDIR/bagrov.h \
     $$INCDIR/calculation.h\
+    $$INCDIR/config.h\
     $$INCDIR/dbaseField.h \
     $$INCDIR/dbaseReader.h \
     $$INCDIR/dbaseWriter.h \
@@ -38,6 +39,7 @@ HEADERS += \
 SOURCES += \
     $$INCDIR/bagrov.cpp \
     $$INCDIR/calculation.cpp \
+    $$INCDIR/config.cpp \
     $$INCDIR/dbaseField.cpp \
     $$INCDIR/dbaseReader.cpp \
     $$INCDIR/dbaseWriter.cpp \

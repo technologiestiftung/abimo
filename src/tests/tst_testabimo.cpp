@@ -7,6 +7,7 @@
 #include <QtTest>
 
 #include "../app/calculation.h"
+#include "../app/config.h"
 #include "../app/dbaseReader.h"
 #include "../app/helpers.h"
 
@@ -25,6 +26,7 @@ private slots:
     void test_requiredFields();
     void test_dbaseReader();
     void test_xmlReader();
+    void test_config_getTWS();
     void test_calc();
 
     QString testDataDir();
@@ -33,8 +35,13 @@ private slots:
     bool numbersInFilesDiffer(QString file_1, QString file_2, int n_1, int n_2, QString subject);
 };
 
-testAbimo::testAbimo() {}
-testAbimo::~testAbimo() {}
+testAbimo::testAbimo()
+{
+}
+
+testAbimo::~testAbimo()
+{
+}
 
 QString testAbimo::testDataDir()
 {
@@ -86,7 +93,7 @@ void testAbimo::test_helpers_stringsAreEqual()
 void testAbimo::test_requiredFields()
 {
     QStringList strings = DbaseReader::requiredFields();
-    QCOMPARE(strings.length(), 25L);
+    QCOMPARE(strings.length(), 25);
 }
 
 void testAbimo::test_dbaseReader()
@@ -122,6 +129,16 @@ void testAbimo::test_xmlReader()
     QVERIFY(qFuzzyCompare(iv.getInfbel2(), 0.3F));
     QVERIFY(qFuzzyCompare(iv.getInfbel3(), 0.6F));
     QVERIFY(qFuzzyCompare(iv.getInfbel4(), 0.9F));
+}
+
+void testAbimo::test_config_getTWS()
+{
+    QVERIFY(qFuzzyCompare(Config::getTWS(50, 'D'), 0.2F));
+    QVERIFY(qFuzzyCompare(Config::getTWS(50, 'L'), 0.6F));
+    QVERIFY(qFuzzyCompare(Config::getTWS(51, 'L'), 0.7F));
+    QVERIFY(qFuzzyCompare(Config::getTWS(50, 'K'), 0.7F));
+    QVERIFY(qFuzzyCompare(Config::getTWS(50, 'W'), 1.0F));
+    QVERIFY(qFuzzyCompare(Config::getTWS(50, '?'), 0.2F));
 }
 
 void testAbimo::test_calc()
