@@ -19,6 +19,7 @@
 
 #include <math.h> // for abs()
 
+#include "constants.h" // for MIN() macro
 #include "pdr.h"
 
 PDR::PDR():
@@ -46,27 +47,30 @@ void PDR::setUsageYieldIrrigation(char usage, int yield, int irrigation)
     this->BER = irrigation;
 }
 
-void PDR::setWaterHoldingCapacity(int f30, int f150)
+// mittlere Zahl der Wachstumstage
+int PDR::estimateDaysOfGrowth(char usage, int yield)
 {
-    this->nFK = estimateWaterHoldingCapacity(f30, f150, this->NUT == 'W');
+    switch (usage)
+    {
+    case 'L': return (yield <= 50) ? 60 : 75;
+    case 'K': return 100;
+    case 'W': return 90;
+    case 'D': return 50;
+    default:  return 50;
+    }
 }
 
 float PDR::estimateWaterHoldingCapacity(int f30, int f150, bool isForest)
 {
-    if (min(f30, f150) < 1) {
+    if (MIN(f30, f150) < 1) {
         return 13.0F;
     }
 
-    if (abs(f30 - f150) < min(f30, f150)) { // unwesentliche Abweichung
+    if (abs(f30 - f150) < MIN(f30, f150)) { // unwesentliche Abweichung
         return (float) (isForest ? f150 : f30);
     }
 
     return
         0.75F * (float) (isForest ? f150 : f30) +
         0.25F * (float) (isForest ? f30 : f150);
-}
-
-float PDR::min(float x, float y)
-{
-    return x < y ? x : y;
 }

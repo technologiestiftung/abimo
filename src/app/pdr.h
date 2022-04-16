@@ -22,12 +22,11 @@
 
 class PDR
 {
-
 public:
     PDR();
-    void setUsageYieldIrrigation(char usage, int yieldPower = 0, int irrigation = 0);
-    void setWaterHoldingCapacity(int f30, int f150);
-    float min(float  x,float  y);
+    void setUsageYieldIrrigation(char usage, int yield = 0, int irrigation = 0);
+    static float estimateWaterHoldingCapacity(int f30, int f150, bool isForest);
+    static int estimateDaysOfGrowth(char usage, int yield);
 
     // Elementnummer EB_INDEX neu
     unsigned wIndex;

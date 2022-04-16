@@ -421,7 +421,6 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString code)
 {
     /* globale Groessen fuer den aktuellen Record */
     float kr;  /* mittlere pot. kapillare Aufstiegsrate d. Sommerhalbjahres */
-    int   dw;  /* mittlere Zahl der Wachstumstage */
 
     /*
      * Feldlaengen von iTAS und inFK_S, L, T, U ;
@@ -439,7 +438,7 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString code)
         /* Feldkapazitaet */
         /* cls_6b: der Fall der mit NULL belegten FELD_30 und FELD_150 Werte
            wird hier im erten Fall behandelt - ich erwarte dann den Wert 0 */
-        ptrDA.setWaterHoldingCapacity(f30, f150);
+        ptrDA.nFK = PDR::estimateWaterHoldingCapacity(f30, f150, ptrDA.NUT == 'W');
 
         /*
          * mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres ;
@@ -456,16 +455,7 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString code)
             ];
 
         /* mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres */
-        switch (ptrDA.NUT)
-        {
-        case 'L': dw = (ptrDA.ERT <= 50) ? 60 : 75; break;
-        case 'K': dw = 100; break;
-        case 'W': dw = 90; break;
-        case 'D': dw = 50; break;
-        default:  dw = 50; break;
-        }
-
-        ptrDA.KR = (int) (dw * kr);
+        ptrDA.KR = (int) (PDR::estimateDaysOfGrowth(ptrDA.NUT, ptrDA.ERT) * kr);
     }
 
     if (initValues.getBERtoZero() && ptrDA.BER != 0) {
