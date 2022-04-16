@@ -49,7 +49,6 @@ signals:
     void processSignal(int, QString);
 
 private:
-    const static float EKA[];
     const static float iTAS[];
     const static float inFK_S[];
     const static float ijkr_S[];
