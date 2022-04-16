@@ -439,17 +439,7 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString code)
         /* Feldkapazitaet */
         /* cls_6b: der Fall der mit NULL belegten FELD_30 und FELD_150 Werte
            wird hier im erten Fall behandelt - ich erwarte dann den Wert 0 */
-        if (min(f30, f150)<1)
-            ptrDA.nFK = 13.0F;
-        else if (abs(f30 - f150) < min(f30, f150)) /* unwesentliche Abweichung */
-            if (ptrDA.NUT == 'W')
-                ptrDA.nFK = (float) f150;
-            else
-                ptrDA.nFK = (float) f30;
-        else if (ptrDA.NUT == 'W')
-            ptrDA.nFK = 0.75F * (float) f150 + 0.25F * (float) f30;
-        else
-            ptrDA.nFK = 0.75F * (float) f30 + 0.25F * (float) f150;
+        ptrDA.setWaterHoldingCapacity(f30, f150);
 
         /*
          * mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres ;
@@ -862,16 +852,6 @@ void Calculation::getKLIMA(int bez, QString code)
 
         RUV = p - etr;
     }
-}
-
-/*
- =======================================================================================================================
-    FIXME:
- =======================================================================================================================
- */
-float Calculation::min(float x, float y)
-{
-    return x < y ? x : y;
 }
 
 /*

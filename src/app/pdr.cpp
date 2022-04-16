@@ -17,7 +17,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <math.h> // for abs()
+
 #include "pdr.h"
+
 PDR::PDR():
     wIndex(0),
     nFK(0),
@@ -41,4 +44,28 @@ void PDR::setUsageYieldIrrigation(char usage, int yield, int irrigation)
     this->NUT = usage;
     this->ERT = yield;
     this->BER = irrigation;
+}
+
+void PDR::setWaterHoldingCapacity(int f30, int f150)
+{
+    if (min(f30, f150) < 1) {
+        this->nFK = 13.0F;
+    }
+    else if (abs(f30 - f150) < min(f30, f150)) { // unwesentliche Abweichung
+        if (this->NUT == 'W')
+            this->nFK = (float) f150;
+        else
+            this->nFK = (float) f30;
+    }
+    else if (this->NUT == 'W') {
+        this->nFK = 0.75F * (float) f150 + 0.25F * (float) f30;
+    }
+    else {
+        this->nFK = 0.75F * (float) f30 + 0.25F * (float) f150;
+    }
+}
+
+float PDR::min(float x, float y)
+{
+    return x < y ? x : y;
 }

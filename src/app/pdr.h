@@ -26,11 +26,14 @@ class PDR
 public:
     PDR();
     void setUsageYieldIrrigation(char usage, int yieldPower = 0, int irrigation = 0);
+    void setWaterHoldingCapacity(int f30, int f150);
+    float min(float  x,float  y);
 
     // Elementnummer EB_INDEX neu
     unsigned wIndex;
 
     // nFK-Wert (ergibt sich aus Bodenart) ID_NFK neu
+    // water holding capacity (= nutzbare Feldkapazitaet)
     float nFK;
 
     // Flurabstandswert [m] ID_FLW 4.1 N
