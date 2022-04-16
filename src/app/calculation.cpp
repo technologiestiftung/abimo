@@ -24,6 +24,7 @@
 
 #include "bagrov.h"
 #include "calculation.h"
+#include "config.h"
 #include "dbaseReader.h"
 #include "dbaseWriter.h"
 #include "helpers.h"
@@ -426,6 +427,7 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
      * Feldlaengen von iTAS und inFK_S, L, T, U ;
      * extern int lenTAS, lenS, lenL, lenT, lenU;
      */
+    // declaration of yield power (ERT) and irrigation (BER) for agricultural or gardening purposes
     ptrDA.ERT = 0;
     ptrDA.BER = 0;
 
@@ -438,7 +440,8 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
     case 30:
         switch (typ)
         {
-        case  1: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
+        // cases for agricultural land use (NUT = 'L') of different yield power (ERT)
+        case  1: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break; // @Hauke: many duplicate cases
         case  2: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
         case  3: ptrDA.NUT = 'L'; ptrDA.ERT = 45; break;
         case  4: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
@@ -450,7 +453,9 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
         case 10: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
         case 11: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
         case 21: ptrDA.NUT = 'L'; ptrDA.ERT = 45; break;
-        case 22: ptrDA.NUT = 'K'; ptrDA.ERT = 40; ptrDA.BER = 75; break;
+        
+        // cases for gardening (NUT = 'K') of yield power (ERT) and certain irrigation (BER)
+        case 22: ptrDA.NUT = 'K'; ptrDA.ERT = 40; ptrDA.BER = 75; break; // @Hauke: many duplicate cases
         case 23: ptrDA.NUT = 'K'; ptrDA.ERT = 40; ptrDA.BER = 75; break;
         case 24: ptrDA.NUT = 'L'; ptrDA.ERT = 55; ptrDA.BER = 75; break;
         case 25: ptrDA.NUT = 'K'; ptrDA.ERT = 40; ptrDA.BER = 75; break;
@@ -617,7 +622,7 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
     if (ptrDA.NUT != 'G')
     {
         /* pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS */
-        TWS = getTWS(ptrDA.ERT, ptrDA.NUT);
+        TWS = Config::getTWS(ptrDA.ERT, ptrDA.NUT);
         TAS = ptrDA.FLW - TWS;
 
         /* Feldkapazitaet */
@@ -741,6 +746,7 @@ void Calculation::getKLIMA(int bez, QString codestr)
         }
     }
 
+    // declaration potential evaporation ep and precipitation p
     ep = (float) ptrDA.ETP;                /* Korrektur mit 1.1 gestrichen */
     p = (float) ptrDA.P1 * niedKorrFaktor; /* ptrDA.KF */
 
@@ -749,6 +755,7 @@ void Calculation::getKLIMA(int bez, QString codestr)
      * Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4
      */
 
+    // ratio precipitation to potential evaporation
     x = p / ep;
 
     Bagrov bagrovObj;
@@ -792,32 +799,6 @@ void Calculation::getKLIMA(int bez, QString codestr)
 
         RUV = p - etr;
     }
-}
-
-/*
- =======================================================================================================================
-    Bestimmung der Durchwurzelungstiefe TWS
- =======================================================================================================================
- */
-float Calculation::getTWS(int ert, char nutz)
-{
-    // Zuordnung Durchwurzelungstiefe in Abhaengigkeit der Nutzung
-    float TWS;
-    switch (nutz)
-    {
-    case 'D': TWS = 0.2F; break; // D - Devastierung
-    case 'L':
-        if (ert <= 50)
-            TWS = 0.6F;
-        else
-            TWS = 0.7F; // L - landwirtschaftliche Nutzung
-        break;
-    case 'K': TWS = 0.7F; break; // K - Kleingaerten
-    case 'W': TWS = 1.0F; break; // W - Wald
-    default:  TWS = 0.2F; break;
-    }
-
-    return TWS;
 }
 
 /*
