@@ -53,7 +53,7 @@ public:
     // Versiegelungsgrad bebauter Flaechen [%] ID_VER 002 N
     int VER;
 
-    // ERTragsklasse landw. Nutzflaechen ID_ERT 002 N
+    // Ertragsklasse landw. Nutzflaechen ID_ERT 002 N
     int ERT;
 
     // j. Beregnungshoehe landw. Nutzfl. [mm/a] ID_BER 003 N

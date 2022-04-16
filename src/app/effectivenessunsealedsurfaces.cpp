@@ -1,4 +1,6 @@
 #include "effectivenessunsealedsurfaces.h"
+
+#include "constants.h"
 #include "pdr.h"
 
 // parameter values x1, x2, x3, x4 and x5 (one column each)
@@ -21,7 +23,6 @@ const float EffectivenessUnsealedSurfaces::EKA[]= {
 
 EffectivenessUnsealedSurfaces::EffectivenessUnsealedSurfaces()
 {
-
 }
 
 /**
@@ -31,39 +32,14 @@ EffectivenessUnsealedSurfaces::EffectivenessUnsealedSurfaces()
  */
 float EffectivenessUnsealedSurfaces::getNUV(PDR &record)
 {
-    int K;
-    float G020, BAG0;
+    float G020 = getG02((int) (record.nFK + 0.5));
+    char usage = record.NUT;
 
-    G020 = getG02((int) (record.nFK + 0.5));
-
-    switch (record.NUT)
-    {
-    case 'W':
-        if (G020 <= 10.0)
-            BAG0 = 3.0F;
-        else if (G020 <= 25.0)
-            BAG0 = 4.0F;
-        else
-            BAG0 = 8.0F;
-        break;
-
-    default:
-        K = (int) (record.ERT / 5);
-        if (record.ERT > 49) K = (int) (record.ERT / 10 + 5);
-        if (K <= 0) K = 1;
-        if (K >= 4) K = K - 1;
-        if (K > 13) K = 13;
-        K = 5 * K - 2;
-        BAG0 = EKA[K - 1] + EKA[K] * G020 + EKA[K + 1] * G020 * G020;
-        if ((BAG0 >= 2.0) && (record.ERT < 60)) BAG0 = EKA[K - 3] * G020 + EKA[K - 2];
-        if ((G020 >= 20.0) && (record.ERT >= 60)) BAG0 = EKA[K - 3] * G020 + EKA[K - 2];
-
-        if (record.BER > 0 && (record.P1S == 0 && record.ETPS == 0)) /* Modifikation, wenn keine Sommerwerte */
-            BAG0 = BAG0 * (0.9985F + 0.00284F * record.BER - 0.00000379762F * record.BER * record.BER);
-        break;
+    if (usage == 'W') {
+        return bag0_forest(G020);
     }
 
-    return BAG0;
+    return bag0_default(G020, record.ERT, record.BER, (record.P1S == 0 && record.ETPS == 0));
 }
 
 float EffectivenessUnsealedSurfaces::getG02(int nFK)
@@ -75,4 +51,57 @@ float EffectivenessUnsealedSurfaces::getG02(int nFK)
     };
 
     return G02tab[nFK];
+}
+
+float EffectivenessUnsealedSurfaces::bag0_forest(float G020)
+{
+    if (G020 <= 10.0) {
+        return 3.0F;
+    }
+
+    if (G020 <= 25.0) {
+        return 4.0F;
+    }
+
+    return 8.0F;
+}
+
+float EffectivenessUnsealedSurfaces::bag0_default(float G020, int yield, int irrigation, bool notSummer)
+{
+    int k;
+    float result;
+    bool condition_1, condition_2;
+
+    k = (int) ((yield > 49) ? (yield / 10 + 5) : (yield / 5));
+
+    if (k <= 0) {
+        k = 1;
+    }
+
+    if (k >= 4) {
+        k--;
+    }
+
+    k = 5 * MIN(k, 13) - 2;
+
+    result = EKA[k - 1] + EKA[k] * G020 + EKA[k + 1] * G020 * G020;
+
+    condition_1 = (result >= 2.0) && (yield < 60);
+    condition_2 = (G020 >= 20.0) && (yield >= 60);
+
+    if (condition_1 || condition_2) {
+        result = EKA[k - 3] * G020 + EKA[k - 2];
+    }
+
+    // Modifikation, wenn keine Sommerwerte
+    if (irrigation > 0 && notSummer) {
+        result = nonSummerCorrected(result, irrigation);
+    }
+
+    return result;
+}
+
+float EffectivenessUnsealedSurfaces::nonSummerCorrected(float x, int irrigation)
+{
+    return x * (0.9985F + 0.00284F * irrigation - 0.00000379762F * irrigation * irrigation);
 }
