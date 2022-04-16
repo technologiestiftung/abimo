@@ -429,7 +429,7 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString code)
      */
 
     // declaration of yield power (ERT) and irrigation (BER) for agricultural or gardening purposes
-    setUsageYieldPowerIrrigation(nutz, typ, code);
+    setUsageYieldIrrigation(nutz, typ, code);
 
     if (ptrDA.NUT != 'G')
     {
@@ -482,7 +482,7 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString code)
     }
 }
 
-void Calculation::setUsageYieldPowerIrrigation(int usage, int type, QString code)
+void Calculation::setUsageYieldIrrigation(int usage, int type, QString code)
 {
     switch (usage)
     {
