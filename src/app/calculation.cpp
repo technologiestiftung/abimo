@@ -402,8 +402,8 @@ bool Calculation::calc(QString fileOut, bool debug)
 
 void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString code)
 {
-    /* globale Groessen fuer den aktuellen Record */
-    float kr;  /* mittlere pot. kapillare Aufstiegsrate d. Sommerhalbjahres */
+    // mittlere pot. kapillare Aufstiegsrate d. Sommerhalbjahres
+    float kr;
 
     /*
      * Feldlaengen von iTAS und inFK_S, L, T, U ;
@@ -837,29 +837,37 @@ void Calculation::getKLIMA(int bez, QString code)
  */
 float Calculation::getF(float wa)
 {
-    int i, anz;
+    int i, n;
 
     const float watab[] =
     {
-        0.45F, 0.50F, 0.55F, 0.60F, 0.65F, 0.70F, 0.75F,
-        0.80F, 0.85F, 0.90F, 0.95F, 1.00F, 1.05F, 1.10F
+        0.45F, 0.50F, 0.55F, 0.60F, 0.65F, 0.70F, 0.75F, // 0 ..  6
+        0.80F, 0.85F, 0.90F, 0.95F, 1.00F, 1.05F, 1.10F  // 7 .. 13
     };
 
     const float Ftab[] =
     {
-        0.65F, 0.75F, 0.82F, 0.90F, 1.00F, 1.06F, 1.15F,
-        1.22F, 1.30F, 1.38F, 1.47F, 1.55F, 1.63F, 1.70F
+        0.65F, 0.75F, 0.82F, 0.90F, 1.00F, 1.06F, 1.15F, // 0 ..  6
+        1.22F, 1.30F, 1.38F, 1.47F, 1.55F, 1.63F, 1.70F  // 7 .. 13
     };
 
-    anz = 14;
+    n = 14;
 
-    if (wa <= watab[0]) return(Ftab[0]);
-    if (wa >= watab[anz - 1]) return(Ftab[anz - 1]);
+    if (wa <= watab[0]) {
+        return Ftab[0];
+    }
 
-    for (i = 1; i < anz; i++)
-        if (wa <= watab[i]) return((Ftab[i - 1] + Ftab[i]) / 2);
+    if (wa >= watab[n - 1]) {
+        return Ftab[n - 1];
+    }
 
-    return 0;
+    for (i = 1; i < n; i++) {
+        if (wa <= watab[i]) {
+            return (Ftab[i - 1] + Ftab[i]) / 2;
+        }
+    }
+
+    return 0.0;
 }
 
 void Calculation::calculate(QString inputFile, QString configFile, QString outputFile, bool debug)
