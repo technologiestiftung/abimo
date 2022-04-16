@@ -417,6 +417,73 @@ bool Calculation::calc(QString fileOut, bool debug)
  =======================================================================================================================
  */
 
+void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString code)
+{
+    /* globale Groessen fuer den aktuellen Record */
+    float TWS; /* Durchwurzelungstiefe */
+    float kr;  /* mittlere pot. kapillare Aufstiegsrate d. Sommerhalbjahres */
+    int   dw;  /* mittlere Zahl der Wachstumstage */
+
+    /*
+     * Feldlaengen von iTAS und inFK_S, L, T, U ;
+     * extern int lenTAS, lenS, lenL, lenT, lenU;
+     */
+
+    // declaration of yield power (ERT) and irrigation (BER) for agricultural or gardening purposes
+    setUsageYieldPowerIrrigation(nutz, typ, code);
+
+    if (ptrDA.NUT != 'G')
+    {
+        /* pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS */
+        TWS = Config::getTWS(ptrDA.ERT, ptrDA.NUT);
+        TAS = ptrDA.FLW - TWS;
+
+        /* Feldkapazitaet */
+        /* cls_6b: der Fall der mit NULL belegten FELD_30 und FELD_150 Werte
+           wird hier im erten Fall behandelt - ich erwarte dann den Wert 0 */
+        if (min(f30, f150)<1)
+            ptrDA.nFK = 13.0F;
+        else if (abs(f30 - f150) < min(f30, f150)) /* unwesentliche Abweichung */
+            if (ptrDA.NUT == 'W')
+                ptrDA.nFK = (float) f150;
+            else
+                ptrDA.nFK = (float) f30;
+        else if (ptrDA.NUT == 'W')
+            ptrDA.nFK = 0.75F * (float) f150 + 0.25F * (float) f30;
+        else
+            ptrDA.nFK = 0.75F * (float) f30 + 0.25F * (float) f150;
+
+        /*
+         * mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres ;
+         * switch (bod) { case S: case U: case L: case T: case LO: case HN: } wird
+         * eingefuegt, wenn die Bodenart in das Zahlenmaterial aufgenommen wird vorlaeufig
+         * wird Sande angenommen ;
+         * Sande
+         */
+        kr = (TAS <= 0.0) ?
+            7.0F :
+            ijkr_S[index(TAS, iTAS, lenTAS) + index(ptrDA.nFK, inFK_S, lenS) * lenTAS];
+
+        /* mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres */
+        switch (ptrDA.NUT)
+        {
+        case 'L': dw = (ptrDA.ERT <= 50) ? 60 : 75; break;
+        case 'K': dw = 100; break;
+        case 'W': dw = 90; break;
+        case 'D': dw = 50; break;
+        default:  dw = 50; break;
+        }
+
+        ptrDA.KR = (int) (dw * kr);
+    }
+
+    if (initValues.getBERtoZero() && ptrDA.BER != 0) {
+        //*protokollStream << "Erzwinge BER=0 fuer Code: " << code << ", Wert war:" << ptrDA.BER << " \r\n";
+        totalBERtoZeroForced++;
+        ptrDA.BER = 0;
+    }
+}
+
 void Calculation::setUsageYieldPowerIrrigation(int usage, int type, QString code)
 {
     switch (usage)
@@ -667,73 +734,6 @@ void Calculation::logNotDefined(QString code, int type)
                        QString::number(type) +
                        " angenommen\r\n";
     protcount++;
-}
-
-void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString code)
-{
-    /* globale Groessen fuer den aktuellen Record */
-    float TWS; /* Durchwurzelungstiefe */
-    float kr;  /* mittlere pot. kapillare Aufstiegsrate d. Sommerhalbjahres */
-    int   dw;  /* mittlere Zahl der Wachstumstage */
-
-    /*
-     * Feldlaengen von iTAS und inFK_S, L, T, U ;
-     * extern int lenTAS, lenS, lenL, lenT, lenU;
-     */
-
-    // declaration of yield power (ERT) and irrigation (BER) for agricultural or gardening purposes
-    setUsageYieldPowerIrrigation(nutz, typ, code);
-
-    if (ptrDA.NUT != 'G')
-    {
-        /* pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS */
-        TWS = Config::getTWS(ptrDA.ERT, ptrDA.NUT);
-        TAS = ptrDA.FLW - TWS;
-
-        /* Feldkapazitaet */
-        /* cls_6b: der Fall der mit NULL belegten FELD_30 und FELD_150 Werte
-           wird hier im erten Fall behandelt - ich erwarte dann den Wert 0 */
-        if (min(f30, f150)<1)
-            ptrDA.nFK = 13.0F;
-        else if (abs(f30 - f150) < min(f30, f150)) /* unwesentliche Abweichung */
-            if (ptrDA.NUT == 'W')
-                ptrDA.nFK = (float) f150;
-            else
-                ptrDA.nFK = (float) f30;
-        else if (ptrDA.NUT == 'W')
-            ptrDA.nFK = 0.75F * (float) f150 + 0.25F * (float) f30;
-        else
-            ptrDA.nFK = 0.75F * (float) f30 + 0.25F * (float) f150;
-
-        /*
-         * mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres ;
-         * switch (bod) { case S: case U: case L: case T: case LO: case HN: } wird
-         * eingefuegt, wenn die Bodenart in das Zahlenmaterial aufgenommen wird vorlaeufig
-         * wird Sande angenommen ;
-         * Sande
-         */
-        kr = (TAS <= 0.0) ?
-            7.0F :
-            ijkr_S[index(TAS, iTAS, lenTAS) + index(ptrDA.nFK, inFK_S, lenS) * lenTAS];
-
-        /* mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres */
-        switch (ptrDA.NUT)
-        {
-        case 'L': dw = (ptrDA.ERT <= 50) ? 60 : 75; break;
-        case 'K': dw = 100; break;
-        case 'W': dw = 90; break;
-        case 'D': dw = 50; break;
-        default:  dw = 50; break;
-        }
-
-        ptrDA.KR = (int) (dw * kr);
-    }
-
-    if (initValues.getBERtoZero() && ptrDA.BER != 0) {
-        //*protokollStream << "Erzwinge BER=0 fuer Code: " << code << ", Wert war:" << ptrDA.BER << " \r\n";
-        totalBERtoZeroForced++;
-        ptrDA.BER = 0;
-    }
 }
 
 /*
