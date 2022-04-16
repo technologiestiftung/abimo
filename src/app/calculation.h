@@ -114,6 +114,8 @@ private:
     float getNUV(PDR &B);
     float getF (float wa);
     float getG02 (int nFK);
+    void setUsageYieldPowerIrrigation(int usage, int type, QString code);
+    void logNotDefined(QString code, int type);
     void getNUTZ(int nutz, int typ, int f30, int f150, QString codestr);
     void getKLIMA(int bez, QString codestr);
     void fillRecord(int k, abimoRecord& record, bool debug = false);

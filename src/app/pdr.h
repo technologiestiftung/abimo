@@ -25,6 +25,7 @@ class PDR
 
 public:
     PDR();
+    void setUsageYieldIrrigation(char usage, int yieldPower = 0, int irrigation = 0);
 
     // Elementnummer EB_INDEX neu
     unsigned wIndex;

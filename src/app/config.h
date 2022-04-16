@@ -7,8 +7,7 @@ class Config
 {
 public:
     Config();
-    static float getTWS(int ert, char nutz);
-    static void set_NUT_ERT_BER(PDR &pdr, char nut, int ert = 0, int ber = 0);
+    static float getTWS(int ert, char nutz);    
 };
 
 #endif // CONFIG_H
