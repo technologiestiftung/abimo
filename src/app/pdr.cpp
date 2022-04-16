@@ -35,3 +35,10 @@ PDR::PDR():
     P1S(0.0F),
     ETPS(0)
 {}
+
+void PDR::setUsageYieldIrrigation(char usage, int yield, int irrigation)
+{
+    this->NUT = usage;
+    this->ERT = yield;
+    this->BER = irrigation;
+}

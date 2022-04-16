@@ -236,7 +236,7 @@ bool Calculation::calc(QString fileOut, bool debug)
         if (record.NUTZUNG != 0) {
 
             // get identifier number 'CODE' for each block partial area
-            QString codestr = record.CODE;
+            QString code = record.CODE;
 
             // get precipitation for entire year 'regenja' and for only summer season 'regenso'
             regenja = record.REGENJA; /* Jetzt regenja,-so OK */
@@ -246,7 +246,7 @@ bool Calculation::calc(QString fileOut, bool debug)
             ptrDA.FLW = record.FLUR;
 
             // get structure type 'TYP', field capacity [%] for 0-30cm 'FELD_30' and 0-150cm 'FELD_150' below ground level
-            getNUTZ(record.NUTZUNG, record.TYP, record.FELD_30, record.FELD_150, codestr);
+            getNUTZ(record.NUTZUNG, record.TYP, record.FELD_30, record.FELD_150, code);
 
             /* cls_6a: an dieser Stelle muss garantiert werden, dass f30 und f150
                als Parameter von getNutz einen definierten Wert erhalten und zwar 0.
@@ -257,7 +257,7 @@ bool Calculation::calc(QString fileOut, bool debug)
             */
 
             // Bagrov-calculation for sealed surfaces
-            getKLIMA(record.BEZIRK, codestr);
+            getKLIMA(record.BEZIRK, code);
 
             // get share of roof area [%] 'PROBAU'
             vgd = record.PROBAU / 100.0F;
@@ -293,7 +293,7 @@ bool Calculation::calc(QString fileOut, bool debug)
             // it is assumed, that the area is unknown and 100 % building development area will be given by default
             if (fb + fs < 0.0001)
             {
-                //*protokollStream << "\r\nDie Flaeche des Elements " + codestr + " ist 0 \r\nund wird automatisch auf 100 gesetzt\r\n";
+                //*protokollStream << "\r\nDie Flaeche des Elements " + code + " ist 0 \r\nund wird automatisch auf 100 gesetzt\r\n";
                 protcount++;
                 keineFlaechenAngegeben++;
                 fb = 100.0F;
@@ -373,7 +373,7 @@ bool Calculation::calc(QString fileOut, bool debug)
 
             // write the calculated variables into respective fields
             writer.addRecord();
-            writer.setRecordField("CODE", codestr);
+            writer.setRecordField("CODE", code);
             writer.setRecordField("R", r);
             writer.setRecordField("ROW", row);
             writer.setRecordField("RI", ri);
@@ -416,7 +416,260 @@ bool Calculation::calc(QString fileOut, bool debug)
     FIXME:
  =======================================================================================================================
  */
-void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
+
+void Calculation::setUsageYieldPowerIrrigation(int usage, int type, QString code)
+{
+    switch (usage)
+    {
+    case 10:
+    case 21:
+    case 22:
+    case 23:
+    case 30:
+        switch (type)
+        {
+        // cases for agricultural land use (NUT = 'L') of different yield power (ERT)
+
+        case 29:
+            ptrDA.setUsageYieldIrrigation('L', 30); break;
+
+        case  1:
+        case  2:
+        case  7:
+        case  8:
+        case 11:
+        case 33:
+        case 38:
+        case 39:
+            ptrDA.setUsageYieldIrrigation('L', 35); break;
+
+        case  4:
+        case  5:
+        case  6:
+        case  9:
+        case 10:
+        case 26:
+            ptrDA.setUsageYieldIrrigation('L', 40); break;
+
+        case  3:
+        case 21:
+        case 71:
+            ptrDA.setUsageYieldIrrigation('L', 45); break;
+
+        // cls_4: Baustrukturtypen 73 und 74 neu eingefuehrt - werden behandelt wie 72
+        case 72:
+        case 73:
+        case 74:
+            ptrDA.setUsageYieldIrrigation('L', 50); break;
+
+        // cases for gardening (NUT = 'K') of yield power (ERT) and certain irrigation (BER)
+        case 22:
+        case 23:
+            ptrDA.setUsageYieldIrrigation('K', 40, 75); break;
+
+        case 24:
+            ptrDA.setUsageYieldIrrigation('L', 55, 75); break;
+
+        case 25:
+            ptrDA.setUsageYieldIrrigation('K', 40, 75); break;
+
+        default:
+            logNotDefined(code, 72);
+            ptrDA.setUsageYieldIrrigation('L', 50);
+            break;
+        }
+        break;
+
+    case 40:
+        switch (type)
+        {
+        case 30:
+            ptrDA.setUsageYieldIrrigation('L', 35); break;
+        case 31:
+            ptrDA.setUsageYieldIrrigation('L', 30); break;
+        default:
+            logNotDefined(code, 31);
+            ptrDA.setUsageYieldIrrigation('L', 30);
+            break;
+        }
+        break;
+
+    case 50:
+        switch (type)
+        {
+        case 42:
+        case 43:
+            ptrDA.setUsageYieldIrrigation('L', 35); break;
+
+        case 28:
+        case 41:
+        case 45:
+            ptrDA.setUsageYieldIrrigation('L', 40); break;
+
+        case 12:
+        case 47:
+        case 51:
+        case 60:
+            ptrDA.setUsageYieldIrrigation('L', 45); break;
+
+        case 13:
+        case 14:
+            ptrDA.setUsageYieldIrrigation('L', 50); break;
+
+        case 44:
+        case 49:
+        case 50:
+            ptrDA.setUsageYieldIrrigation('L', 45, 50); break;
+
+        case 46:
+            ptrDA.setUsageYieldIrrigation('L', 50, 50); break;
+
+        default:
+            logNotDefined(code, 60);
+            ptrDA.setUsageYieldIrrigation('L', 45);
+            break;
+        }
+        break;
+
+    case 60:
+        ptrDA.setUsageYieldIrrigation('L', 45); break;
+
+    case 70:
+        switch (type)
+        {
+        case 59:
+            ptrDA.setUsageYieldIrrigation('K', 40, 75); break;
+        default:
+            logNotDefined(code, 59);
+            ptrDA.setUsageYieldIrrigation('K', 40, 75);
+            break;
+        }
+        break;
+
+    case 80:
+        switch (type)
+        {
+        case 99:
+            ptrDA.setUsageYieldIrrigation('L', 10); break;
+
+        case 92:
+            ptrDA.setUsageYieldIrrigation('L', 25); break;
+
+        case 93:
+        case 94:
+            ptrDA.setUsageYieldIrrigation('L', 30); break;
+
+        case 91:
+            ptrDA.setUsageYieldIrrigation('L', 40); break;
+
+        default:
+            logNotDefined(code, 99);
+            ptrDA.setUsageYieldIrrigation('L', 10);
+            break;
+        }
+        break;
+
+    case 90:
+        switch (type)
+        {
+        case 98:
+            ptrDA.setUsageYieldIrrigation('D', 1); break;
+        default:
+            logNotDefined(code, 98);
+            ptrDA.setUsageYieldIrrigation('D', 1);
+            break;
+        }
+        break;
+
+    case 100:
+        switch (type)
+        {
+        case 55:
+            ptrDA.setUsageYieldIrrigation('W'); break;
+        default:
+            logNotDefined(code, 55);
+            ptrDA.setUsageYieldIrrigation('W');
+            break;
+        }
+        break;
+
+    case 101:
+        ptrDA.setUsageYieldIrrigation('W'); break;
+
+    case 102:
+        ptrDA.setUsageYieldIrrigation('L', 60); break;
+
+    case 110:
+        ptrDA.setUsageYieldIrrigation('G'); break;
+
+    case 121:
+        ptrDA.setUsageYieldIrrigation('L', 40); break;
+
+    case 122:
+        ptrDA.setUsageYieldIrrigation('L', 35); break;
+
+    case 130:
+        ptrDA.setUsageYieldIrrigation('L', 50, 50); break;
+
+    case 140:
+        ptrDA.setUsageYieldIrrigation('L', 50); break;
+
+    case 150:
+        ptrDA.setUsageYieldIrrigation('L', 50, 100); break;
+
+    case 160:
+    case 161:
+    case 162:
+        ptrDA.setUsageYieldIrrigation('K', 40, 75); break;
+
+    case 170:
+        ptrDA.setUsageYieldIrrigation('L', 10); break;
+
+    case 171:
+        ptrDA.setUsageYieldIrrigation('D', 1); break;
+
+    case 172:
+    case 190:
+        ptrDA.setUsageYieldIrrigation('L', 40); break;
+
+    case 173:
+        ptrDA.setUsageYieldIrrigation('L', 45); break;
+
+    case 174:
+        ptrDA.setUsageYieldIrrigation('L', 60); break;
+
+    case 180:
+        ptrDA.setUsageYieldIrrigation('L', 50); break;
+
+    case 200:
+        ptrDA.setUsageYieldIrrigation('L', 50, 50); break;
+
+    default:
+        /*
+           logNotDefined(code, 200);
+           ptrDA.setUsageYieldIrrigation('L', 50, 50);
+           cls_3: dies ist nicht korrekt, da die Nutzung und nicht der Nutzungstyp im switch liegt
+           und ein NULL in NUTZUNG hoffentlich immer zu nutzung=0 fuehrt, wenn oben
+           int nutzung = dbReader.getRecord(k, "NUTZUNG").toInt();
+           aufgerufen wird (siehe auch cls_2) -
+           deshalb folgende Fehlermeldung
+        */
+        protokollStream << "\r\nDiese  Meldung sollte nie erscheinen: \r\nNutzung nicht definiert fuer Element " + code + "\r\n";
+        break;
+    }
+}
+
+void Calculation::logNotDefined(QString code, int type)
+{
+    protokollStream << "\r\nNutzungstyp nicht definiert fuer Element " +
+                       code +
+                       "\r\nTyp=" +
+                       QString::number(type) +
+                       " angenommen\r\n";
+    protcount++;
+}
+
+void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString code)
 {
     /* globale Groessen fuer den aktuellen Record */
     float TWS; /* Durchwurzelungstiefe */
@@ -427,197 +680,9 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
      * Feldlaengen von iTAS und inFK_S, L, T, U ;
      * extern int lenTAS, lenS, lenL, lenT, lenU;
      */
+
     // declaration of yield power (ERT) and irrigation (BER) for agricultural or gardening purposes
-    ptrDA.ERT = 0;
-    ptrDA.BER = 0;
-
-    switch (nutz)
-    {
-    case 10:
-    case 21:
-    case 22:
-    case 23:
-    case 30:
-        switch (typ)
-        {
-        // cases for agricultural land use (NUT = 'L') of different yield power (ERT)
-        case  1: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break; // @Hauke: many duplicate cases
-        case  2: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
-        case  3: ptrDA.NUT = 'L'; ptrDA.ERT = 45; break;
-        case  4: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
-        case  5: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
-        case  6: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
-        case  7: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
-        case  8: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
-        case  9: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
-        case 10: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
-        case 11: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
-        case 21: ptrDA.NUT = 'L'; ptrDA.ERT = 45; break;
-        
-        // cases for gardening (NUT = 'K') of yield power (ERT) and certain irrigation (BER)
-        case 22: ptrDA.NUT = 'K'; ptrDA.ERT = 40; ptrDA.BER = 75; break; // @Hauke: many duplicate cases
-        case 23: ptrDA.NUT = 'K'; ptrDA.ERT = 40; ptrDA.BER = 75; break;
-        case 24: ptrDA.NUT = 'L'; ptrDA.ERT = 55; ptrDA.BER = 75; break;
-        case 25: ptrDA.NUT = 'K'; ptrDA.ERT = 40; ptrDA.BER = 75; break;
-        case 26: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
-        case 29: ptrDA.NUT = 'L'; ptrDA.ERT = 30; break;
-        case 33: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
-        case 38: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
-        case 39: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
-        case 71: ptrDA.NUT = 'L'; ptrDA.ERT = 45; break;
-        /* cls_4: Baustrukturtypen 73 und 74 neu eingefuehrt - werden behandelt wie 72 */
-        case 72:
-        case 73:
-        case 74: ptrDA.NUT = 'L'; ptrDA.ERT = 50; break;
-        default:
-            protokollStream << "\r\nNutzungstyp nicht definiert fuer Element " + codestr +  "\r\nTyp=72 angenommen\r\n";
-            protcount++;
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 50;
-            break;
-        }
-        break;
-
-    case 40:
-        switch (typ)
-        {
-        case 30: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
-        case 31: ptrDA.NUT = 'L'; ptrDA.ERT = 30; break;
-        default:
-            protokollStream << "\r\nNutzungstyp nicht definiert fuer Element " + codestr + "\r\nTyp=31 angenommen\r\n";
-            protcount++;
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 30;
-            break;
-        }
-        break;
-
-    case 50:
-        switch (typ)
-        {
-        case 12: ptrDA.NUT = 'L'; ptrDA.ERT = 45; break;
-        case 13: ptrDA.NUT = 'L'; ptrDA.ERT = 50; break;
-        case 14: ptrDA.NUT = 'L'; ptrDA.ERT = 50; break;
-        case 28: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
-        case 41: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
-        case 42: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
-        case 43: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
-        case 44: ptrDA.NUT = 'L'; ptrDA.ERT = 45; ptrDA.BER = 50; break;
-        case 45: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
-        case 46: ptrDA.NUT = 'L'; ptrDA.ERT = 50; ptrDA.BER = 50; break;
-        case 47: ptrDA.NUT = 'L'; ptrDA.ERT = 45; break;
-        case 49: ptrDA.NUT = 'L'; ptrDA.ERT = 45; ptrDA.BER = 50; break;
-        case 50: ptrDA.NUT = 'L'; ptrDA.ERT = 45; ptrDA.BER = 50; break;
-        case 51: ptrDA.NUT = 'L'; ptrDA.ERT = 45; break;
-        case 60: ptrDA.NUT = 'L'; ptrDA.ERT = 45; break;
-        default:
-            protokollStream << "\r\nNutzungstyp nicht definiert fuer Element " + codestr + "\r\nTyp=60 angenommen\r\n";
-            protcount++;
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 45;
-            break;
-        }
-        break;
-
-    case 60: ptrDA.NUT = 'L'; ptrDA.ERT = 45; break;
-
-    case 70:
-        if (typ == 59)
-        {
-            ptrDA.NUT = 'K';
-            ptrDA.ERT = 40;
-            ptrDA.BER = 75;
-        }
-        else
-        {
-            protokollStream << "\r\nNutzungstyp nicht definiert fuer Element " + codestr + "\r\nTyp=59 angenommen\r\n";
-            protcount++;
-            ptrDA.NUT = 'K';
-            ptrDA.ERT = 40;
-            ptrDA.BER = 75;
-        }
-        break;
-
-    case 80:
-        switch (typ)
-        {
-        case 91: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
-        case 92: ptrDA.NUT = 'L'; ptrDA.ERT = 25; break;
-        case 93: ptrDA.NUT = 'L'; ptrDA.ERT = 30; break;
-        case 94: ptrDA.NUT = 'L'; ptrDA.ERT = 30; break;
-        case 99: ptrDA.NUT = 'L'; ptrDA.ERT = 10; break;
-        default:
-            protokollStream << "\r\nNutzungstyp nicht definiert fuer Element " + codestr + "\r\nTyp=99 angenommen\r\n";
-            protcount++;
-            ptrDA.NUT = 'L';
-            ptrDA.ERT = 10;
-            break;
-        }
-        break;
-
-    case 90:
-        if (typ == 98)
-        {
-            ptrDA.NUT = 'D';
-            ptrDA.ERT = 1;
-            ptrDA.BER = 0;
-        }
-        else
-        {
-            protokollStream << "\r\nNutzungstyp nicht definiert fuer Element " + codestr + "\r\nTyp=98 angenommen\r\n";
-            protcount++;
-            ptrDA.NUT = 'D';
-            ptrDA.ERT = 1;
-            ptrDA.BER = 0;
-        }
-        break;
-
-    case 100:
-        if (typ == 55)
-            ptrDA.NUT = 'W';
-        else
-        {
-            protokollStream << "\r\nNutzungstyp nicht definiert fuer Element " + codestr + "\r\nTyp=55 angenommen\r\n";
-            protcount++;
-            ptrDA.NUT = 'W';
-        }
-        break;
-
-    case 101: ptrDA.NUT = 'W'; break;
-    case 102: ptrDA.NUT = 'L'; ptrDA.ERT = 60; break;
-    case 110: ptrDA.NUT = 'G'; break;
-    case 121: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
-    case 122: ptrDA.NUT = 'L'; ptrDA.ERT = 35; break;
-    case 130: ptrDA.NUT = 'L'; ptrDA.ERT = 50; ptrDA.BER = 50; break;
-    case 140: ptrDA.NUT = 'L'; ptrDA.ERT = 50; break;
-    case 150: ptrDA.NUT = 'L'; ptrDA.ERT = 50; ptrDA.BER = 100; break;
-    case 160: ptrDA.NUT = 'K'; ptrDA.ERT = 40; ptrDA.BER = 75; break;
-    case 161: ptrDA.NUT = 'K'; ptrDA.ERT = 40; ptrDA.BER = 75; break;
-    case 162: ptrDA.NUT = 'K'; ptrDA.ERT = 40; ptrDA.BER = 75; break;
-    case 170: ptrDA.NUT = 'L'; ptrDA.ERT = 10; break;
-    case 171: ptrDA.NUT = 'D'; ptrDA.ERT = 1; ptrDA.BER = 0; break;
-    case 172: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
-    case 173: ptrDA.NUT = 'L'; ptrDA.ERT = 45; break;
-    case 174: ptrDA.NUT = 'L'; ptrDA.ERT = 60; break;
-    case 180: ptrDA.NUT = 'L'; ptrDA.ERT = 50; break;
-    case 190: ptrDA.NUT = 'L'; ptrDA.ERT = 40; break;
-    case 200: ptrDA.NUT = 'L'; ptrDA.ERT = 50; ptrDA.BER = 50; break;
-    default:
-        /*
-           *protokollStream << "\r\nNutzungstyp nicht definiert fuer Element " + codestr + "\r\nTyp=200 angenommen\r\n";
-           protcount++;
-           ptrDA.NUT = 'L';
-           ptrDA.ERT = 50;
-           ptrDA.BER = 50;
-           cls_3: dies ist nicht korrekt, da die Nutzung und nicht der Nutzungstyp im switch liegt
-           und ein NULL in NUTZUNG hoffentlich immer zu nutzung=0 fuehrt, wenn oben
-           int nutzung = dbReader.getRecord(k, "NUTZUNG").toInt();
-           aufgerufen wird (siehe auch cls_2) -
-           deshalb folgende Fehlermeldung
-        */
-        protokollStream << "\r\nDiese  Meldung sollte nie erscheinen: \r\nNutzung nicht definiert fuer Element " + codestr + "\r\n";
-        break;
-    }
+    setUsageYieldPowerIrrigation(nutz, typ, code);
 
     if (ptrDA.NUT != 'G')
     {
@@ -665,7 +730,7 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
     }
 
     if (initValues.getBERtoZero() && ptrDA.BER != 0) {
-        //*protokollStream << "Erzwinge BER=0 fuer Code: " << codestr << ", Wert war:" << ptrDA.BER << " \r\n";
+        //*protokollStream << "Erzwinge BER=0 fuer Code: " << code << ", Wert war:" << ptrDA.BER << " \r\n";
         totalBERtoZeroForced++;
         ptrDA.BER = 0;
     }
@@ -676,7 +741,7 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString codestr)
     FIXME:
  =======================================================================================================================
  */
-void Calculation::getKLIMA(int bez, QString codestr)
+void Calculation::getKLIMA(int bez, QString code)
 {
     /* Effektivitaetsparameter */
     float nd = initValues.getBagdach();
@@ -715,7 +780,7 @@ void Calculation::getKLIMA(int bez, QString codestr)
             ptrDA.ETP = initValues.hashEG.contains(0) ? initValues.hashEG.value(0) : 775;
             QString egString;
             egString.setNum(ptrDA.ETP);
-            protokollStream << "\r\nEG unbekannt fuer " + codestr + " von Bezirk " + bezString + "\r\nEG=" + egString + " angenommen\r\n";
+            protokollStream << "\r\nEG unbekannt fuer " + code + " von Bezirk " + bezString + "\r\nEG=" + egString + " angenommen\r\n";
             protcount++;
         }
     }
@@ -729,7 +794,7 @@ void Calculation::getKLIMA(int bez, QString codestr)
             ptrDA.ETP = initValues.hashETP.contains(0) ? initValues.hashETP.value(0) : 660;
             QString etpString;
             etpString.setNum(ptrDA.ETP);
-            protokollStream << "\r\nETP unbekannt fuer " + codestr + " von Bezirk " + bezString + "\r\nETP=" + etpString + " angenommen\r\n";
+            protokollStream << "\r\nETP unbekannt fuer " + code + " von Bezirk " + bezString + "\r\nETP=" + etpString + " angenommen\r\n";
             protcount++;
         }
 
@@ -741,7 +806,7 @@ void Calculation::getKLIMA(int bez, QString codestr)
             ptrDA.ETPS = initValues.hashETPS.contains(0) ? initValues.hashETPS.value(0) : 530;
             QString etpsString;
             etpsString.setNum(ptrDA.ETPS);
-            protokollStream << "\r\nETPS unbekannt fuer " + codestr + " von Bezirk " + bezString + "\r\nETPS=" + etpsString + " angenommen\r\n";
+            protokollStream << "\r\nETPS unbekannt fuer " + code + " von Bezirk " + bezString + "\r\nETPS=" + etpsString + " angenommen\r\n";
             protcount++;
         }
     }
