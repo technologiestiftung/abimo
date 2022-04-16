@@ -73,10 +73,6 @@ public:
 
     // potentielle Verdunstung im Sommer ID_ETPS neu
     int ETPS;
-
-private:
-    float estimateWaterHoldingCapacity(int f30, int f150, bool isForest);
-
 };
 
 #endif
