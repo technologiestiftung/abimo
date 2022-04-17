@@ -115,7 +115,6 @@ private:
     void setUsageYieldIrrigation(int usage, int type, QString code);
     void logNotDefined(QString code, int type);
     void getKLIMA(int bez, QString codestr);
-    void fillRecord(int k, abimoRecord& record, bool debug = false);
 };
 
 #endif

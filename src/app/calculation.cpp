@@ -58,7 +58,7 @@ const float Calculation::ijkr_S[] = {
     7.0F, 7.0F, 6.0F, 6.0F, 6.0F, 5.0F, 5.0F, 5.0F, 3.0F, 2.0F,  1.0F , 0.5F, 0.15F, 0.0F, 0.0F
 };
 
-Calculation::Calculation(DbaseReader & dbR, InitValues & init, QTextStream & protoStream):
+Calculation::Calculation(DbaseReader& dbR, InitValues & init, QTextStream & protoStream):
     initValues(init),
     protokollStream(protoStream),
     dbReader(dbR),
@@ -213,7 +213,7 @@ bool Calculation::calc(QString fileOut, bool debug)
         ptrDA.wIndex = index;
 
         // Fill record with data from row k
-        fillRecord(k, record, debug);
+        dbReader.fillRecord(k, record, debug);
 
         // NUTZUNG = integer representing the type of area usage for each block partial area
         if (record.NUTZUNG != 0) {
@@ -800,42 +800,6 @@ void Calculation::calculate(QString inputFile, QString configFile, QString outpu
     }
 
     logHandle.close();
-}
-
-void Calculation::fillRecord(int k, abimoRecord& record, bool debug)
-{
-    record.BELAG1 = dbReader.getRecord(k, "BELAG1").toFloat();
-    record.BELAG2 = dbReader.getRecord(k, "BELAG2").toFloat();
-    record.BELAG3 = dbReader.getRecord(k, "BELAG3").toFloat();
-    record.BELAG4 = dbReader.getRecord(k, "BELAG4").toFloat();
-    record.BEZIRK = dbReader.getRecord(k, "BEZIRK").toInt();
-    record.CODE = dbReader.getRecord(k, "CODE");
-    record.FELD_150 = dbReader.getRecord(k, "FELD_150").toInt();
-    record.FELD_30 = dbReader.getRecord(k, "FELD_30").toInt();
-    record.FLGES = dbReader.getRecord(k, "FLGES").toFloat();
-    record.FLUR = dbReader.getRecord(k, "FLUR").toFloat();
-    record.KAN_BEB = dbReader.getRecord(k, "KAN_BEB").toFloat();
-    record.KAN_STR = dbReader.getRecord(k, "KAN_STR").toFloat();
-    record.KAN_VGU = dbReader.getRecord(k, "KAN_VGU").toFloat();
-    record.NUTZUNG = Helpers::stringToInt(
-        dbReader.getRecord(k, "NUTZUNG"),
-        QString("k: %1, NUTZUNG = ").arg(QString::number(k)),
-        debug
-    );
-    record.PROBAU = Helpers::stringToFloat(
-        dbReader.getRecord(k, "PROBAU"),
-        QString("k: %1, PROBAU = ").arg(QString::number(k)),
-        debug
-    );
-    record.PROVGU = dbReader.getRecord(k, "PROVGU").toFloat();
-    record.REGENJA = dbReader.getRecord(k, "REGENJA").toInt();
-    record.REGENSO = dbReader.getRecord(k, "REGENSO").toInt();
-    record.STR_BELAG1 = dbReader.getRecord(k, "STR_BELAG1").toFloat();
-    record.STR_BELAG2 = dbReader.getRecord(k, "STR_BELAG2").toFloat();
-    record.STR_BELAG3 = dbReader.getRecord(k, "STR_BELAG3").toFloat();
-    record.STR_BELAG4 = dbReader.getRecord(k, "STR_BELAG4").toFloat();
-    record.TYP = dbReader.getRecord(k, "TYP").toInt();
-    record.VGSTRASSE = dbReader.getRecord(k, "VGSTRASSE").toFloat();
 }
 
 /*

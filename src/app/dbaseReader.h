@@ -68,13 +68,14 @@ public:
     int getLengthOfEachRecord();
     int getCountFields();
     QString getRecord(int num, int field);
-    QString getRecord(int num, const QString & name);
+    QString getRecord(int num, const QString& name);
     QString getError();
     QString getFullError();
     static QStringList requiredFields();
     bool isAbimoFile();
     bool checkAndRead();
     QString* getVals();
+    void fillRecord(int k, abimoRecord& record, bool debug = false);
 
 private:
     // VARIABLES:
