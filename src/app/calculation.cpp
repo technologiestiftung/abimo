@@ -725,7 +725,7 @@ void Calculation::getKLIMA(int bez, QString code)
         if (ptrDA.P1S > 0 && ptrDA.ETPS > 0)
         {
             zw = (float) (ptrDA.P1S + ptrDA.BER + ptrDA.KR) / ptrDA.ETPS;
-            bag = getF(zw) * n; /* Modifikation des Parameters durch "Sommer" */
+            bag = getSummerModificationFactor(zw) * n;
         }
         else
             bag = n;
@@ -741,12 +741,11 @@ void Calculation::getKLIMA(int bez, QString code)
     }
 }
 
-/*
- =======================================================================================================================
-    FIXME:
- =======================================================================================================================
- */
-float Calculation::getF(float wa)
+
+// ============================================================================
+// Get factor to be applied for "summer"
+// ============================================================================
+float Calculation::getSummerModificationFactor(float wa)
 {
     const float watab[] =
     {
