@@ -243,34 +243,34 @@ bool Calculation::calc(QString fileOut, bool debug)
             getKLIMA(record.BEZIRK, code);
 
             // get share of roof area [%] 'PROBAU'
-            vgd = record.PROBAU / 100.0F;
+            vgd = record.PROBAU_fraction;
           
             // get share of other sealed areas (e.g. Hofflaechen) and calculate total sealed area
-            vgb = record.PROVGU / 100.0F;
+            vgb = record.PROVGU_fraction;
             ptrDA.VER = (int)round((vgd * 100) + (vgb * 100));
             
             // get share of sealed road area
-            vgs = record.VGSTRASSE / 100.0F;
+            vgs = record.VGSTRASSE_fraction;
           
             // get degree of canalization for roof / other sealed areas / sealed roads
-            kd = record.KAN_BEB / 100.0F;
-            kb = record.KAN_VGU / 100.0F;
-            ks = record.KAN_STR / 100.0F;
+            kd = record.KAN_BEB_fraction;
+            kb = record.KAN_VGU_fraction;
+            ks = record.KAN_STR_fraction;
           
             // get share of each pavement class for surfaces except roads of block area
-            bl1 = record.BELAG1 / 100.0F;
-            bl2 = record.BELAG2 / 100.0F;
-            bl3 = record.BELAG3 / 100.0F;
-            bl4 = record.BELAG4 / 100.0F;
+            bl1 = record.BELAG1_fraction;
+            bl2 = record.BELAG2_fraction;
+            bl3 = record.BELAG3_fraction;
+            bl4 = record.BELAG4_fraction;
           
             // get share of each pavement class for roads of block area
-            bls1 = record.STR_BELAG1 / 100.0F;
-            bls2 = record.STR_BELAG2 / 100.0F;
-            bls3 = record.STR_BELAG3 / 100.0F;
-            bls4 = record.STR_BELAG4 / 100.0F;
+            bls1 = record.STR_BELAG1_fraction;
+            bls2 = record.STR_BELAG2_fraction;
+            bls3 = record.STR_BELAG3_fraction;
+            bls4 = record.STR_BELAG4_fraction;
           
             fb = record.FLGES;
-            fs = (dbReader.getRecord(k, "STR_FLGES")).toFloat();
+            fs = record.STR_FLGES;
             
             // if sum of total building development area and roads area is inconsiderably small
             // it is assumed, that the area is unknown and 100 % building development area will be given by default
