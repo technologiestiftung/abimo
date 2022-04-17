@@ -228,8 +228,13 @@ bool Calculation::calc(QString fileOut, bool debug)
             // depth to groundwater table 'FLUR'
             ptrDA.FLW = record.FLUR;
 
-            // structure type 'TYP', field capacity [%] for 0-30cm 'FELD_30' and 0-150cm 'FELD_150' below ground level
-            getNUTZ(record.NUTZUNG, record.TYP, record.FELD_30, record.FELD_150, record.CODE);
+            getNUTZ(
+                record.NUTZUNG,
+                record.TYP,      // structure type
+                record.FELD_30,  // field capacity [%] for 0- 30cm below ground level
+                record.FELD_150, // field capacity [%] for 0-150cm below ground level
+                record.CODE
+            );
 
             /* cls_6a: an dieser Stelle muss garantiert werden, dass f30 und f150
                als Parameter von getNUTZ einen definierten Wert erhalten und zwar 0.
@@ -356,7 +361,7 @@ bool Calculation::calc(QString fileOut, bool debug)
 
             // write the calculated variables into respective fields
             writer.addRecord();
-            writer.setRecordField("CODE", code);
+            writer.setRecordField("CODE", record.CODE);
             writer.setRecordField("R", r);
             writer.setRecordField("ROW", row);
             writer.setRecordField("RI", ri);
