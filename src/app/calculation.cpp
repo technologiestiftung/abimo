@@ -25,6 +25,7 @@
 #include "bagrov.h"
 #include "calculation.h"
 #include "config.h"
+#include "constants.h"
 #include "dbaseReader.h"
 #include "dbaseWriter.h"
 #include "effectivenessunsealedsurfaces.h"
@@ -218,21 +219,21 @@ bool Calculation::calc(QString fileOut, bool debug)
         // NUTZUNG = integer representing the type of area usage for each block partial area
         if (record.NUTZUNG != 0) {
 
-            // get identifier number 'CODE' for each block partial area
+            // identifier number 'CODE' for each block partial area
             QString code = record.CODE;
 
-            // get precipitation for entire year 'regenja' and for only summer season 'regenso'
+            // precipitation for entire year 'regenja' and for only summer season 'regenso'
             regenja = record.REGENJA; /* Jetzt regenja,-so OK */
             regenso = record.REGENSO;
 
-            // get depth to groundwater table 'FLUR'
+            // depth to groundwater table 'FLUR'
             ptrDA.FLW = record.FLUR;
 
-            // get structure type 'TYP', field capacity [%] for 0-30cm 'FELD_30' and 0-150cm 'FELD_150' below ground level
+            // structure type 'TYP', field capacity [%] for 0-30cm 'FELD_30' and 0-150cm 'FELD_150' below ground level
             getNUTZ(record.NUTZUNG, record.TYP, record.FELD_30, record.FELD_150, code);
 
             /* cls_6a: an dieser Stelle muss garantiert werden, dass f30 und f150
-               als Parameter von getNutz einen definierten Wert erhalten und zwar 0.
+               als Parameter von getNUTZ einen definierten Wert erhalten und zwar 0.
 
                FIXED: alle Werte sind definiert... wenn keine 0, sondern nichts bzw. Leerzeichen
                angegeben wurden, wird nun eine 0 eingesetzt
@@ -242,28 +243,28 @@ bool Calculation::calc(QString fileOut, bool debug)
             // Bagrov-calculation for sealed surfaces
             getKLIMA(record.BEZIRK, code);
 
-            // get share of roof area [%] 'PROBAU'
+            // share of roof area [%] 'PROBAU'
             vgd = record.PROBAU_fraction;
           
-            // get share of other sealed areas (e.g. Hofflaechen) and calculate total sealed area
+            // share of other sealed areas (e.g. Hofflaechen) and calculate total sealed area
             vgb = record.PROVGU_fraction;
-            ptrDA.VER = (int)round((vgd * 100) + (vgb * 100));
+            ptrDA.VER = INT_ROUND(vgd * 100 + vgb * 100);
             
-            // get share of sealed road area
+            // share of sealed road area
             vgs = record.VGSTRASSE_fraction;
           
-            // get degree of canalization for roof / other sealed areas / sealed roads
+            // degree of canalization for roof / other sealed areas / sealed roads
             kd = record.KAN_BEB_fraction;
             kb = record.KAN_VGU_fraction;
             ks = record.KAN_STR_fraction;
           
-            // get share of each pavement class for surfaces except roads of block area
+            // share of each pavement class for surfaces except roads of block area
             bl1 = record.BELAG1_fraction;
             bl2 = record.BELAG2_fraction;
             bl3 = record.BELAG3_fraction;
             bl4 = record.BELAG4_fraction;
           
-            // get share of each pavement class for roads of block area
+            // share of each pavement class for roads of block area
             bls1 = record.STR_BELAG1_fraction;
             bls2 = record.STR_BELAG2_fraction;
             bls3 = record.STR_BELAG3_fraction;
@@ -328,21 +329,21 @@ bool Calculation::calc(QString fileOut, bool debug)
 
             // calculate runoff 'row' for entire block patial area (FLGES+STR_FLGES)
             row = (row1 + row2 + row3 + row4 + rowd + rowuvs); // mm/a
-            ptrDA.ROW = (int)round(row);
+            ptrDA.ROW = INT_ROUND(row);
             
             // calculate volume 'rowvol' from runoff
             ROWVOL = row * 3.171F * (fb + fs) / 100000.0F;     // qcm/s
             
             // calculate infiltration rate 'ri' for entire block partial area
             ri = (ri1 + ri2 + ri3 + ri4 + rid + riuvs + riuv); // mm/a
-            ptrDA.RI = (int)round(ri);
+            ptrDA.RI = INT_ROUND(ri);
             
             // calculate volume 'rivol' from infiltration rate
             RIVOL = ri * 3.171F * (fb + fs) / 100000.0F;       // qcm/s
             
             // calculate total system losses 'r' due to runoff and infiltration for entire block partial area
             r = row + ri;
-            ptrDA.R = (int)round(r);
+            ptrDA.R = INT_ROUND(r);
             
             // calculate volume of system losses 'rvol'due to runoff and infiltration
             RVOL = ROWVOL + RIVOL;
