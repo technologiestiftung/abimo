@@ -219,8 +219,7 @@ bool Calculation::calc(QString fileOut, bool debug)
         // NUTZUNG = integer representing the type of area usage for each block partial area
         if (record.NUTZUNG != 0) {
 
-            // identifier number 'CODE' for each block partial area
-            QString code = record.CODE;
+            // CODE: unique identifier for each block partial area
 
             // precipitation for entire year 'regenja' and for only summer season 'regenso'
             regenja = record.REGENJA; /* Jetzt regenja,-so OK */
@@ -230,7 +229,7 @@ bool Calculation::calc(QString fileOut, bool debug)
             ptrDA.FLW = record.FLUR;
 
             // structure type 'TYP', field capacity [%] for 0-30cm 'FELD_30' and 0-150cm 'FELD_150' below ground level
-            getNUTZ(record.NUTZUNG, record.TYP, record.FELD_30, record.FELD_150, code);
+            getNUTZ(record.NUTZUNG, record.TYP, record.FELD_30, record.FELD_150, record.CODE);
 
             /* cls_6a: an dieser Stelle muss garantiert werden, dass f30 und f150
                als Parameter von getNUTZ einen definierten Wert erhalten und zwar 0.
@@ -241,7 +240,7 @@ bool Calculation::calc(QString fileOut, bool debug)
             */
 
             // Bagrov-calculation for sealed surfaces
-            getKLIMA(record.BEZIRK, code);
+            getKLIMA(record.BEZIRK, record.CODE);
 
             // share of roof area [%] 'PROBAU'
             vgd = record.PROBAU_fraction;
@@ -277,7 +276,7 @@ bool Calculation::calc(QString fileOut, bool debug)
             // it is assumed, that the area is unknown and 100 % building development area will be given by default
             if (fb + fs < 0.0001)
             {
-                //*protokollStream << "\r\nDie Flaeche des Elements " + code + " ist 0 \r\nund wird automatisch auf 100 gesetzt\r\n";
+                //*protokollStream << "\r\nDie Flaeche des Elements " + record.CODE + " ist 0 \r\nund wird automatisch auf 100 gesetzt\r\n";
                 protcount++;
                 keineFlaechenAngegeben++;
                 fb = 100.0F;
