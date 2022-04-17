@@ -86,9 +86,6 @@ private:
     // potentielle Aufstiegshoehe
     float TAS;
 
-    // Niederschlags-Korrekturfaktor
-    float niedKorrFaktor;
-
     // Feldlaenge von iTAS
     int lenTAS;
 

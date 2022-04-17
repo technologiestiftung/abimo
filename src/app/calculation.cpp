@@ -189,9 +189,6 @@ bool Calculation::calc(QString fileOut, bool debug)
     float r, ri, row;
     int k;
 
-    // get precipitation correction factor from config.xml containing the initial values
-    niedKorrFaktor = initValues.getNiedKorrF();
-
     // count protocol entries
     protcount = 0L;
     keineFlaechenAngegeben = 0L;
@@ -355,9 +352,10 @@ bool Calculation::calc(QString fileOut, bool debug)
             // calculate total area of building development area as well as roads area
             float flaeche1 = fb + fs;
 // cls_5b:
-            // calculate evaporation 'verdunst' by subtracting the sum of runoff and infiltration 'r'
-            // from precipitation of entire year 'regenja' multiplied by correction factor 'niedKorrFaktor'
-            float verdunst = (regenja * niedKorrFaktor) - r;
+            // calculate evaporation 'verdunst' by subtracting the sum of
+            // runoff and infiltration 'r' from precipitation of entire year
+            // 'regenja' multiplied by correction factor 'niedKorrFaktor'
+            float verdunst = (regenja * initValues.getNiedKorrF()) - r;
 
             // write the calculated variables into respective fields
             writer.addRecord();
@@ -690,7 +688,7 @@ void Calculation::getKLIMA(int bez, QString code)
 
     // declaration potential evaporation ep and precipitation p
     ep = (float) ptrDA.ETP;                /* Korrektur mit 1.1 gestrichen */
-    p = (float) ptrDA.P1 * niedKorrFaktor; /* ptrDA.KF */
+    p = (float) ptrDA.P1 * initValues.getNiedKorrF(); /* ptrDA.KF */
 
     /*
      * Berechnung der Abfluesse RDV und R1V bis R4V fuer versiegelte
