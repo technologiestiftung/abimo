@@ -450,243 +450,151 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString code)
 
 void Calculation::setUsageYieldIrrigation(int usage, int type, QString code)
 {
+    t_usageYieldIrrigation tuples[16];
+
+    // Define all different value combinations
+    // (usage - NUT, yield power - ERT, irrigation - BER)
+    // NUT = 'K': gardening
+    // NUT = 'L': agricultural land use
+
+    tuples[ 0] = {'D',  1,   0};
+    tuples[ 1] = {'G',  0,   0};
+    tuples[ 2] = {'K', 40,  75};
+    tuples[ 3] = {'L', 10,   0};
+    tuples[ 4] = {'L', 25,   0};
+    tuples[ 5] = {'L', 30,   0};
+    tuples[ 6] = {'L', 35,   0};
+    tuples[ 7] = {'L', 40,   0};
+    tuples[ 8] = {'L', 45,   0};
+    tuples[ 9] = {'L', 45,  50};
+    tuples[10] = {'L', 50,   0};
+    tuples[11] = {'L', 50, 100};
+    tuples[12] = {'L', 50,  50};
+    tuples[13] = {'L', 55,  75};
+    tuples[14] = {'L', 60,   0};
+    tuples[15] = {'W',  0,   0};
+
+    // index of tuple to be applied
+    int id = -1;
+
     switch (usage)
     {
-    case 10:
-    case 21:
-    case 22:
-    case 23:
-    case 30:
-        switch (type)
-        {
-        // cases for agricultural land use (NUT = 'L') of different yield power (ERT)
-
-        case 29:
-            ptrDA.setUsageYieldIrrigation('L', 30); break;
-
-        case  1:
-        case  2:
-        case  7:
-        case  8:
-        case 11:
-        case 33:
-        case 38:
-        case 39:
-            ptrDA.setUsageYieldIrrigation('L', 35); break;
-
-        case  4:
-        case  5:
-        case  6:
-        case  9:
         case 10:
-        case 26:
-            ptrDA.setUsageYieldIrrigation('L', 40); break;
-
-        case  3:
         case 21:
-        case 71:
-            ptrDA.setUsageYieldIrrigation('L', 45); break;
-
-        // cls_4: Baustrukturtypen 73 und 74 neu eingefuehrt - werden behandelt wie 72
-        case 72:
-        case 73:
-        case 74:
-            ptrDA.setUsageYieldIrrigation('L', 50); break;
-
-        // cases for gardening (NUT = 'K') of yield power (ERT) and certain irrigation (BER)
         case 22:
         case 23:
-            ptrDA.setUsageYieldIrrigation('K', 40, 75); break;
-
-        case 24:
-            ptrDA.setUsageYieldIrrigation('L', 55, 75); break;
-
-        case 25:
-            ptrDA.setUsageYieldIrrigation('K', 40, 75); break;
-
-        default:
-            logNotDefined(code, 72);
-            ptrDA.setUsageYieldIrrigation('L', 50);
-            break;
+        case 30: switch (type) {
+            case  1: id = 6; break;
+            case  2: id = 6; break;
+            case  3: id = 8; break;
+            case  4: id = 7; break;
+            case  5: id = 7; break;
+            case  6: id = 7; break;
+            case  7: id = 6; break;
+            case  8: id = 6; break;
+            case  9: id = 7; break;
+            case 10: id = 7; break;
+            case 11: id = 6; break;
+            case 21: id = 8; break;
+            case 22: id = 2; break;
+            case 23: id = 2; break;
+            case 24: id = 13; break;
+            case 25: id = 2; break;
+            case 26: id = 7; break;
+            case 29: id = 5; break;
+            case 33: id = 6; break;
+            case 38: id = 6; break;
+            case 39: id = 6; break;
+            case 71: id = 8; break;
+            case 72: id = 10; break;
+            case 73: id = 10; break;
+            case 74: id = 10; break;
+            default: id = 10; logNotDefined(code, 72);
         }
         break;
 
-    case 40:
-        switch (type)
-        {
-        case 30:
-            ptrDA.setUsageYieldIrrigation('L', 35); break;
-        case 31:
-            ptrDA.setUsageYieldIrrigation('L', 30); break;
-        default:
-            logNotDefined(code, 31);
-            ptrDA.setUsageYieldIrrigation('L', 30);
-            break;
+        case 40: switch (type) {
+            case 30: id = 6; break;
+            case 31: id = 5; break;
+            default: id = 5; logNotDefined(code, 31);
         }
         break;
 
-    case 50:
-        switch (type)
-        {
-        case 42:
-        case 43:
-            ptrDA.setUsageYieldIrrigation('L', 35); break;
-
-        case 28:
-        case 41:
-        case 45:
-            ptrDA.setUsageYieldIrrigation('L', 40); break;
-
-        case 12:
-        case 47:
-        case 51:
-        case 60:
-            ptrDA.setUsageYieldIrrigation('L', 45); break;
-
-        case 13:
-        case 14:
-            ptrDA.setUsageYieldIrrigation('L', 50); break;
-
-        case 44:
-        case 49:
-        case 50:
-            ptrDA.setUsageYieldIrrigation('L', 45, 50); break;
-
-        case 46:
-            ptrDA.setUsageYieldIrrigation('L', 50, 50); break;
-
-        default:
-            logNotDefined(code, 60);
-            ptrDA.setUsageYieldIrrigation('L', 45);
-            break;
+        case 50: switch (type) {
+            case 12: id = 8; break;
+            case 13: id = 10; break;
+            case 14: id = 10; break;
+            case 28: id = 7; break;
+            case 41: id = 7; break;
+            case 42: id = 6; break;
+            case 43: id = 6; break;
+            case 44: id = 9; break;
+            case 45: id = 7; break;
+            case 46: id = 12; break;
+            case 47: id = 8; break;
+            case 49: id = 9; break;
+            case 50: id = 9; break;
+            case 51: id = 8; break;
+            case 60: id = 8; break;
+            default: id = 8; logNotDefined(code, 60);
         }
         break;
 
-    case 60:
-        ptrDA.setUsageYieldIrrigation('L', 45); break;
+        case 60: id = 8; break;
 
-    case 70:
-        switch (type)
-        {
-        case 59:
-            ptrDA.setUsageYieldIrrigation('K', 40, 75); break;
-        default:
-            logNotDefined(code, 59);
-            ptrDA.setUsageYieldIrrigation('K', 40, 75);
-            break;
+        case 70: switch (type) {
+            case 59: id = 2; break;
+            default: id = 2; logNotDefined(code, 59);
         }
         break;
 
-    case 80:
-        switch (type)
-        {
-        case 99:
-            ptrDA.setUsageYieldIrrigation('L', 10); break;
-
-        case 92:
-            ptrDA.setUsageYieldIrrigation('L', 25); break;
-
-        case 93:
-        case 94:
-            ptrDA.setUsageYieldIrrigation('L', 30); break;
-
-        case 91:
-            ptrDA.setUsageYieldIrrigation('L', 40); break;
-
-        default:
-            logNotDefined(code, 99);
-            ptrDA.setUsageYieldIrrigation('L', 10);
-            break;
+        case 80: switch (type) {
+            case 91: id = 7; break;
+            case 92: id = 4; break;
+            case 93: id = 5; break;
+            case 94: id = 5; break;
+            case 99: id = 3; break;
+            default: id = 3; logNotDefined(code, 99);
         }
         break;
 
-    case 90:
-        switch (type)
-        {
-        case 98:
-            ptrDA.setUsageYieldIrrigation('D', 1); break;
-        default:
-            logNotDefined(code, 98);
-            ptrDA.setUsageYieldIrrigation('D', 1);
-            break;
+        case 90: switch (type) {
+            case 98: id = 0; break;
+            default: id = 0; logNotDefined(code, 98);
         }
         break;
 
-    case 100:
-        switch (type)
-        {
-        case 55:
-            ptrDA.setUsageYieldIrrigation('W'); break;
-        default:
-            logNotDefined(code, 55);
-            ptrDA.setUsageYieldIrrigation('W');
-            break;
+        case 100: switch (type) {
+            case 55: id = 15; break;
+            default: id = 15; logNotDefined(code, 55);
         }
         break;
 
-    case 101:
-        ptrDA.setUsageYieldIrrigation('W'); break;
+        case 101: id = 15; break;
+        case 102: id = 14; break;
+        case 110: id = 1; break;
+        case 121: id = 7; break;
+        case 122: id = 6; break;
+        case 130: id = 12; break;
+        case 140: id = 10; break;
+        case 150: id = 11; break;
+        case 160: id = 2; break;
+        case 161: id = 2; break;
+        case 162: id = 2; break;
+        case 170: id = 3; break;
+        case 171: id = 0; break;
+        case 172: id = 7; break;
+        case 173: id = 8; break;
+        case 174: id = 14; break;
+        case 180: id = 10; break;
+        case 190: id = 7; break;
+        case 200: id = 12; break;
+        default:
+            protokollStream << "\r\nDiese  Meldung sollte nie erscheinen: \r\nNutzung nicht definiert fuer Element " + code + "\r\n";
+    }
 
-    case 102:
-        ptrDA.setUsageYieldIrrigation('L', 60); break;
-
-    case 110:
-        ptrDA.setUsageYieldIrrigation('G'); break;
-
-    case 121:
-        ptrDA.setUsageYieldIrrigation('L', 40); break;
-
-    case 122:
-        ptrDA.setUsageYieldIrrigation('L', 35); break;
-
-    case 130:
-        ptrDA.setUsageYieldIrrigation('L', 50, 50); break;
-
-    case 140:
-        ptrDA.setUsageYieldIrrigation('L', 50); break;
-
-    case 150:
-        ptrDA.setUsageYieldIrrigation('L', 50, 100); break;
-
-    case 160:
-    case 161:
-    case 162:
-        ptrDA.setUsageYieldIrrigation('K', 40, 75); break;
-
-    case 170:
-        ptrDA.setUsageYieldIrrigation('L', 10); break;
-
-    case 171:
-        ptrDA.setUsageYieldIrrigation('D', 1); break;
-
-    case 172:
-    case 190:
-        ptrDA.setUsageYieldIrrigation('L', 40); break;
-
-    case 173:
-        ptrDA.setUsageYieldIrrigation('L', 45); break;
-
-    case 174:
-        ptrDA.setUsageYieldIrrigation('L', 60); break;
-
-    case 180:
-        ptrDA.setUsageYieldIrrigation('L', 50); break;
-
-    case 200:
-        ptrDA.setUsageYieldIrrigation('L', 50, 50); break;
-
-    default:
-        /*
-           logNotDefined(code, 200);
-           ptrDA.setUsageYieldIrrigation('L', 50, 50);
-           cls_3: dies ist nicht korrekt, da die Nutzung und nicht der Nutzungstyp im switch liegt
-           und ein NULL in NUTZUNG hoffentlich immer zu nutzung=0 fuehrt, wenn oben
-           int nutzung = dbReader.getRecord(k, "NUTZUNG").toInt();
-           aufgerufen wird (siehe auch cls_2) -
-           deshalb folgende Fehlermeldung
-        */
-        protokollStream << "\r\nDiese  Meldung sollte nie erscheinen: \r\nNutzung nicht definiert fuer Element " + code + "\r\n";
-        break;
+    if (id >= 0) {
+        ptrDA.setUsageYieldIrrigation(tuples[id]);
     }
 }
 
@@ -929,3 +837,96 @@ void Calculation::fillRecord(int k, abimoRecord& record, bool debug)
     record.TYP = dbReader.getRecord(k, "TYP").toInt();
     record.VGSTRASSE = dbReader.getRecord(k, "VGSTRASSE").toFloat();
 }
+
+/*
+usage_groups:
+usage_group,usages
+g1,10|21|22|23|30
+
+{usage_group,type,id}
+{g1,1,6}
+{g1,2,6}
+{g1,3,8}
+{g1,4,7}
+{g1,5,7}
+{g1,6,7}
+{g1,7,6}
+{g1,8,6}
+{g1,9,7}
+{g1,10,7}
+{g1,11,6}
+{g1,21,8}
+{g1,22,2}
+{g1,23,2}
+{g1,24,13}
+{g1,25,2}
+{g1,26,7}
+{g1,29,5}
+{g1,33,6}
+{g1,38,6}
+{g1,39,6}
+{g1,71,8}
+{g1,72,10}
+{g1,73,10}
+{g1,74,10}
+{g1,-72,10} -> logNotDefined(code, 72);
+
+{40,30,6}
+{40,31,5}
+{40,-31,5} -> logNotDefined(code, 31);
+
+{50,12,8}
+{50,13,10}
+{50,14,10}
+{50,28,7}
+{50,41,7}
+{50,42,6}
+{50,43,6}
+{50,44,9}
+{50,45,7}
+{50,46,12}
+{50,47,8}
+{50,49,9}
+{50,50,9}
+{50,51,8}
+{50,60,8}
+{50,-60,8} -> logNotDefined(code, 60);
+
+{60,*,8}
+
+{70,59,2}
+{70,-59,2} -> logNotDefined(code, 59);
+
+{80,91,7}
+{80,92,4}
+{80,93,5}
+{80,94,5}
+{80,99,3}
+{80,-99,3} -> logNotDefined(code, 99);
+
+{90,98,0}
+{90,-98,0) -> logNotDefined(code, 98);
+
+{100,55,15}
+{100,-55,15} -> logNotDefined(code, 55);
+
+{101,*,15}
+{102,*,14}
+{110,*,1}
+{121,*,7}
+{122,*,6}
+{130,*,12}
+{140,*,10}
+{150,*,11}
+{160,*,2}
+{161,*,2}
+{162,*,2}
+{170,*,3}
+{171,*,0}
+{172,*,7}
+{173,*,8}
+{174,*,14}
+{180,*,10}
+{190,*,7}
+{200,*,12}
+*/

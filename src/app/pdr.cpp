@@ -47,6 +47,13 @@ void PDR::setUsageYieldIrrigation(char usage, int yield, int irrigation)
     this->BER = irrigation;
 }
 
+void PDR::setUsageYieldIrrigation(t_usageYieldIrrigation tuple)
+{
+    this->NUT = tuple.usage;
+    this->ERT = tuple.yield;
+    this->BER = tuple.irrigation;
+}
+
 // mittlere Zahl der Wachstumstage
 int PDR::estimateDaysOfGrowth(char usage, int yield)
 {
