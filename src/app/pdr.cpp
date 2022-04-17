@@ -17,7 +17,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <math.h> // for abs()
+
+#include "constants.h" // for MIN() macro
 #include "pdr.h"
+
 PDR::PDR():
     wIndex(0),
     nFK(0),
@@ -41,4 +45,39 @@ void PDR::setUsageYieldIrrigation(char usage, int yield, int irrigation)
     this->NUT = usage;
     this->ERT = yield;
     this->BER = irrigation;
+}
+
+void PDR::setUsageYieldIrrigation(t_usageYieldIrrigation tuple)
+{
+    this->NUT = tuple.usage;
+    this->ERT = tuple.yield;
+    this->BER = tuple.irrigation;
+}
+
+// mittlere Zahl der Wachstumstage
+int PDR::estimateDaysOfGrowth(char usage, int yield)
+{
+    switch (usage)
+    {
+    case 'L': return (yield <= 50) ? 60 : 75;
+    case 'K': return 100;
+    case 'W': return 90;
+    case 'D': return 50;
+    default:  return 50;
+    }
+}
+
+float PDR::estimateWaterHoldingCapacity(int f30, int f150, bool isForest)
+{
+    if (MIN(f30, f150) < 1) {
+        return 13.0F;
+    }
+
+    if (abs(f30 - f150) < MIN(f30, f150)) { // unwesentliche Abweichung
+        return (float) (isForest ? f150 : f30);
+    }
+
+    return
+        0.75F * (float) (isForest ? f150 : f30) +
+        0.25F * (float) (isForest ? f30 : f150);
 }

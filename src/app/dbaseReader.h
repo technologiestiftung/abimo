@@ -25,6 +25,7 @@
 #include <QHash>
 #include <QString>
 
+// _fraction indicates numbers between 0 and 1 (instead of percentages)
 struct abimoRecord {
     int NUTZUNG;
     QString CODE;
@@ -35,20 +36,20 @@ struct abimoRecord {
     int FELD_30;
     int FELD_150;
     int BEZIRK;
-    float PROBAU;
-    float PROVGU;
-    float VGSTRASSE;
-    float KAN_BEB;
-    float KAN_VGU;
-    float KAN_STR;
-    float BELAG1;
-    float BELAG2;
-    float BELAG3;
-    float BELAG4;
-    float STR_BELAG1;
-    float STR_BELAG2;
-    float STR_BELAG3;
-    float STR_BELAG4;
+    float PROBAU_fraction;
+    float PROVGU_fraction;
+    float VGSTRASSE_fraction;
+    float KAN_BEB_fraction;
+    float KAN_VGU_fraction;
+    float KAN_STR_fraction;
+    float BELAG1_fraction;
+    float BELAG2_fraction;
+    float BELAG3_fraction;
+    float BELAG4_fraction;
+    float STR_BELAG1_fraction;
+    float STR_BELAG2_fraction;
+    float STR_BELAG3_fraction;
+    float STR_BELAG4_fraction;
     float FLGES;
     float STR_FLGES;
 };
@@ -68,13 +69,14 @@ public:
     int getLengthOfEachRecord();
     int getCountFields();
     QString getRecord(int num, int field);
-    QString getRecord(int num, const QString & name);
+    QString getRecord(int num, const QString& name);
     QString getError();
     QString getFullError();
     static QStringList requiredFields();
     bool isAbimoFile();
     bool checkAndRead();
     QString* getVals();
+    void fillRecord(int k, abimoRecord& record, bool debug = false);
 
 private:
     // VARIABLES:
@@ -122,6 +124,9 @@ private:
 
     // compute the count of fields
     int computeCountFields(int);
+
+    // convert string to float and divide by 100
+    float floatFraction(QString string);
 };
 
 #endif

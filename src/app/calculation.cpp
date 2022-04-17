@@ -25,29 +25,13 @@
 #include "bagrov.h"
 #include "calculation.h"
 #include "config.h"
+#include "constants.h"
 #include "dbaseReader.h"
 #include "dbaseWriter.h"
+#include "effectivenessunsealedsurfaces.h"
 #include "helpers.h"
 #include "initvalues.h"
 #include "pdr.h"
-
-// parameter values x1, x2, x3, x4 and x5 (one column each)
-// for calculating the effectiveness parameter n for unsealed surfaces
-const float Calculation::EKA[]= {
-    0.04176F, -0.647F , 0.218F  ,  0.01472F, 0.0002089F,
-    0.04594F, -0.314F , 0.417F  ,  0.02463F, 0.0001143F,
-    0.05177F, -0.010F , 0.596F  ,  0.02656F, 0.0002786F,
-    0.05693F,  0.033F , 0.676F  ,  0.0279F , 0.00035F  ,
-    0.06162F,  0.176F , 0.773F  ,  0.02809F, 0.0004695F,
-    0.06962F,  0.24F  , 0.904F  ,  0.02562F, 0.0007149F,
-    0.0796F ,  0.31F  , 1.039F  ,  0.0288F , 0.0008696F,
-    0.07998F,  0.7603F, 1.2F    ,  0.0471F , 0.000293F ,
-    0.08762F,  1.019F , 1.373F  ,  0.04099F, 0.0014141F,
-    0.11833F,  1.1334F, 1.95F   ,  0.0525F , 0.00125F  ,
-    0.155F  ,  1.5F   , 2.64999F,  0.0725F , 0.001249F ,
-    0.20041F,  2.0918F, 3.69999F,  0.08F   , 0.001999F ,
-    0.33895F,  3.721F , 6.69999F, -0.07F   , 0.013F
-};
 
 // potential ascent rate TAS (column labels for matrix 'Calculation::ijkr_S')
 const float Calculation::iTAS[] = {
@@ -75,7 +59,7 @@ const float Calculation::ijkr_S[] = {
     7.0F, 7.0F, 6.0F, 6.0F, 6.0F, 5.0F, 5.0F, 5.0F, 3.0F, 2.0F,  1.0F , 0.5F, 0.15F, 0.0F, 0.0F
 };
 
-Calculation::Calculation(DbaseReader & dbR, InitValues & init, QTextStream & protoStream):
+Calculation::Calculation(DbaseReader& dbR, InitValues & init, QTextStream & protoStream):
     initValues(init),
     protokollStream(protoStream),
     dbReader(dbR),
@@ -205,9 +189,6 @@ bool Calculation::calc(QString fileOut, bool debug)
     float r, ri, row;
     int k;
 
-    // get precipitation correction factor from config.xml containing the initial values
-    niedKorrFaktor = initValues.getNiedKorrF();
-
     // count protocol entries
     protcount = 0L;
     keineFlaechenAngegeben = 0L;
@@ -230,26 +211,30 @@ bool Calculation::calc(QString fileOut, bool debug)
         ptrDA.wIndex = index;
 
         // Fill record with data from row k
-        fillRecord(k, record, debug);
+        dbReader.fillRecord(k, record, debug);
 
         // NUTZUNG = integer representing the type of area usage for each block partial area
         if (record.NUTZUNG != 0) {
 
-            // get identifier number 'CODE' for each block partial area
-            QString code = record.CODE;
+            // CODE: unique identifier for each block partial area
 
-            // get precipitation for entire year 'regenja' and for only summer season 'regenso'
+            // precipitation for entire year 'regenja' and for only summer season 'regenso'
             regenja = record.REGENJA; /* Jetzt regenja,-so OK */
             regenso = record.REGENSO;
 
-            // get depth to groundwater table 'FLUR'
+            // depth to groundwater table 'FLUR'
             ptrDA.FLW = record.FLUR;
 
-            // get structure type 'TYP', field capacity [%] for 0-30cm 'FELD_30' and 0-150cm 'FELD_150' below ground level
-            getNUTZ(record.NUTZUNG, record.TYP, record.FELD_30, record.FELD_150, code);
+            getNUTZ(
+                record.NUTZUNG,
+                record.TYP,      // structure type
+                record.FELD_30,  // field capacity [%] for 0- 30cm below ground level
+                record.FELD_150, // field capacity [%] for 0-150cm below ground level
+                record.CODE
+            );
 
             /* cls_6a: an dieser Stelle muss garantiert werden, dass f30 und f150
-               als Parameter von getNutz einen definierten Wert erhalten und zwar 0.
+               als Parameter von getNUTZ einen definierten Wert erhalten und zwar 0.
 
                FIXED: alle Werte sind definiert... wenn keine 0, sondern nichts bzw. Leerzeichen
                angegeben wurden, wird nun eine 0 eingesetzt
@@ -257,43 +242,43 @@ bool Calculation::calc(QString fileOut, bool debug)
             */
 
             // Bagrov-calculation for sealed surfaces
-            getKLIMA(record.BEZIRK, code);
+            getKLIMA(record.BEZIRK, record.CODE);
 
-            // get share of roof area [%] 'PROBAU'
-            vgd = record.PROBAU / 100.0F;
+            // share of roof area [%] 'PROBAU'
+            vgd = record.PROBAU_fraction;
           
-            // get share of other sealed areas (e.g. Hofflaechen) and calculate total sealed area
-            vgb = record.PROVGU / 100.0F;
-            ptrDA.VER = (int)round((vgd * 100) + (vgb * 100));
+            // share of other sealed areas (e.g. Hofflaechen) and calculate total sealed area
+            vgb = record.PROVGU_fraction;
+            ptrDA.VER = INT_ROUND(vgd * 100 + vgb * 100);
             
-            // get share of sealed road area
-            vgs = record.VGSTRASSE / 100.0F;
+            // share of sealed road area
+            vgs = record.VGSTRASSE_fraction;
           
-            // get degree of canalization for roof / other sealed areas / sealed roads
-            kd = record.KAN_BEB / 100.0F;
-            kb = record.KAN_VGU / 100.0F;
-            ks = record.KAN_STR / 100.0F;
+            // degree of canalization for roof / other sealed areas / sealed roads
+            kd = record.KAN_BEB_fraction;
+            kb = record.KAN_VGU_fraction;
+            ks = record.KAN_STR_fraction;
           
-            // get share of each pavement class for surfaces except roads of block area
-            bl1 = record.BELAG1 / 100.0F;
-            bl2 = record.BELAG2 / 100.0F;
-            bl3 = record.BELAG3 / 100.0F;
-            bl4 = record.BELAG4 / 100.0F;
+            // share of each pavement class for surfaces except roads of block area
+            bl1 = record.BELAG1_fraction;
+            bl2 = record.BELAG2_fraction;
+            bl3 = record.BELAG3_fraction;
+            bl4 = record.BELAG4_fraction;
           
-            // get share of each pavement class for roads of block area
-            bls1 = record.STR_BELAG1 / 100.0F;
-            bls2 = record.STR_BELAG2 / 100.0F;
-            bls3 = record.STR_BELAG3 / 100.0F;
-            bls4 = record.STR_BELAG4 / 100.0F;
+            // share of each pavement class for roads of block area
+            bls1 = record.STR_BELAG1_fraction;
+            bls2 = record.STR_BELAG2_fraction;
+            bls3 = record.STR_BELAG3_fraction;
+            bls4 = record.STR_BELAG4_fraction;
           
             fb = record.FLGES;
-            fs = (dbReader.getRecord(k, "STR_FLGES")).toFloat();
+            fs = record.STR_FLGES;
             
             // if sum of total building development area and roads area is inconsiderably small
             // it is assumed, that the area is unknown and 100 % building development area will be given by default
             if (fb + fs < 0.0001)
             {
-                //*protokollStream << "\r\nDie Flaeche des Elements " + code + " ist 0 \r\nund wird automatisch auf 100 gesetzt\r\n";
+                //*protokollStream << "\r\nDie Flaeche des Elements " + record.CODE + " ist 0 \r\nund wird automatisch auf 100 gesetzt\r\n";
                 protcount++;
                 keineFlaechenAngegeben++;
                 fb = 100.0F;
@@ -345,21 +330,21 @@ bool Calculation::calc(QString fileOut, bool debug)
 
             // calculate runoff 'row' for entire block patial area (FLGES+STR_FLGES)
             row = (row1 + row2 + row3 + row4 + rowd + rowuvs); // mm/a
-            ptrDA.ROW = (int)round(row);
+            ptrDA.ROW = INT_ROUND(row);
             
             // calculate volume 'rowvol' from runoff
             ROWVOL = row * 3.171F * (fb + fs) / 100000.0F;     // qcm/s
             
             // calculate infiltration rate 'ri' for entire block partial area
             ri = (ri1 + ri2 + ri3 + ri4 + rid + riuvs + riuv); // mm/a
-            ptrDA.RI = (int)round(ri);
+            ptrDA.RI = INT_ROUND(ri);
             
             // calculate volume 'rivol' from infiltration rate
             RIVOL = ri * 3.171F * (fb + fs) / 100000.0F;       // qcm/s
             
             // calculate total system losses 'r' due to runoff and infiltration for entire block partial area
             r = row + ri;
-            ptrDA.R = (int)round(r);
+            ptrDA.R = INT_ROUND(r);
             
             // calculate volume of system losses 'rvol'due to runoff and infiltration
             RVOL = ROWVOL + RIVOL;
@@ -367,13 +352,14 @@ bool Calculation::calc(QString fileOut, bool debug)
             // calculate total area of building development area as well as roads area
             float flaeche1 = fb + fs;
 // cls_5b:
-            // calculate evaporation 'verdunst' by subtracting the sum of runoff and infiltration 'r'
-            // from precipitation of entire year 'regenja' multiplied by correction factor 'niedKorrFaktor'
-            float verdunst = (regenja * niedKorrFaktor) - r;
+            // calculate evaporation 'verdunst' by subtracting the sum of
+            // runoff and infiltration 'r' from precipitation of entire year
+            // 'regenja' multiplied by correction factor 'niedKorrFaktor'
+            float verdunst = (regenja * initValues.getNiedKorrF()) - r;
 
             // write the calculated variables into respective fields
             writer.addRecord();
-            writer.setRecordField("CODE", code);
+            writer.setRecordField("CODE", record.CODE);
             writer.setRecordField("R", r);
             writer.setRecordField("ROW", row);
             writer.setRecordField("RI", ri);
@@ -417,245 +403,201 @@ bool Calculation::calc(QString fileOut, bool debug)
  =======================================================================================================================
  */
 
-void Calculation::setUsageYieldPowerIrrigation(int usage, int type, QString code)
+void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString code)
 {
+    // mittlere pot. kapillare Aufstiegsrate d. Sommerhalbjahres
+    float kr;
+
+    /*
+     * Feldlaengen von iTAS und inFK_S, L, T, U ;
+     * extern int lenTAS, lenS, lenL, lenT, lenU;
+     */
+
+    // declaration of yield power (ERT) and irrigation (BER) for agricultural or gardening purposes
+    setUsageYieldIrrigation(nutz, typ, code);
+
+    if (ptrDA.NUT != 'G')
+    {
+        /* pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS */
+        TAS = ptrDA.FLW - Config::getTWS(ptrDA.ERT, ptrDA.NUT);
+
+        /* Feldkapazitaet */
+        /* cls_6b: der Fall der mit NULL belegten FELD_30 und FELD_150 Werte
+           wird hier im erten Fall behandelt - ich erwarte dann den Wert 0 */
+        ptrDA.nFK = PDR::estimateWaterHoldingCapacity(f30, f150, ptrDA.NUT == 'W');
+
+        /*
+         * mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres ;
+         * switch (bod) { case S: case U: case L: case T: case LO: case HN: } wird
+         * eingefuegt, wenn die Bodenart in das Zahlenmaterial aufgenommen wird vorlaeufig
+         * wird Sande angenommen ;
+         * Sande
+         */
+        kr = (TAS <= 0.0) ?
+            7.0F :
+            ijkr_S[
+                Helpers::index(TAS, iTAS, lenTAS) +
+                Helpers::index(ptrDA.nFK, inFK_S, lenS) * lenTAS
+            ];
+
+        /* mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres */
+        ptrDA.KR = (int) (PDR::estimateDaysOfGrowth(ptrDA.NUT, ptrDA.ERT) * kr);
+    }
+
+    if (initValues.getBERtoZero() && ptrDA.BER != 0) {
+        //*protokollStream << "Erzwinge BER=0 fuer Code: " << code << ", Wert war:" << ptrDA.BER << " \r\n";
+        totalBERtoZeroForced++;
+        ptrDA.BER = 0;
+    }
+}
+
+void Calculation::setUsageYieldIrrigation(int usage, int type, QString code)
+{
+    t_usageYieldIrrigation tuples[16];
+
+    // Define all different value combinations
+    // (usage - NUT, yield power - ERT, irrigation - BER)
+    // NUT = 'K': gardening
+    // NUT = 'L': agricultural land use
+
+    tuples[ 0] = {'D',  1,   0};
+    tuples[ 1] = {'G',  0,   0};
+    tuples[ 2] = {'K', 40,  75};
+    tuples[ 3] = {'L', 10,   0};
+    tuples[ 4] = {'L', 25,   0};
+    tuples[ 5] = {'L', 30,   0};
+    tuples[ 6] = {'L', 35,   0};
+    tuples[ 7] = {'L', 40,   0};
+    tuples[ 8] = {'L', 45,   0};
+    tuples[ 9] = {'L', 45,  50};
+    tuples[10] = {'L', 50,   0};
+    tuples[11] = {'L', 50, 100};
+    tuples[12] = {'L', 50,  50};
+    tuples[13] = {'L', 55,  75};
+    tuples[14] = {'L', 60,   0};
+    tuples[15] = {'W',  0,   0};
+
+    // index of tuple to be applied
+    int id = -1;
+
     switch (usage)
     {
-    case 10:
-    case 21:
-    case 22:
-    case 23:
-    case 30:
-        switch (type)
-        {
-        // cases for agricultural land use (NUT = 'L') of different yield power (ERT)
-
-        case 29:
-            ptrDA.setUsageYieldIrrigation('L', 30); break;
-
-        case  1:
-        case  2:
-        case  7:
-        case  8:
-        case 11:
-        case 33:
-        case 38:
-        case 39:
-            ptrDA.setUsageYieldIrrigation('L', 35); break;
-
-        case  4:
-        case  5:
-        case  6:
-        case  9:
         case 10:
-        case 26:
-            ptrDA.setUsageYieldIrrigation('L', 40); break;
-
-        case  3:
         case 21:
-        case 71:
-            ptrDA.setUsageYieldIrrigation('L', 45); break;
-
-        // cls_4: Baustrukturtypen 73 und 74 neu eingefuehrt - werden behandelt wie 72
-        case 72:
-        case 73:
-        case 74:
-            ptrDA.setUsageYieldIrrigation('L', 50); break;
-
-        // cases for gardening (NUT = 'K') of yield power (ERT) and certain irrigation (BER)
         case 22:
         case 23:
-            ptrDA.setUsageYieldIrrigation('K', 40, 75); break;
-
-        case 24:
-            ptrDA.setUsageYieldIrrigation('L', 55, 75); break;
-
-        case 25:
-            ptrDA.setUsageYieldIrrigation('K', 40, 75); break;
-
-        default:
-            logNotDefined(code, 72);
-            ptrDA.setUsageYieldIrrigation('L', 50);
-            break;
+        case 30: switch (type) {
+            case  1: id = 6; break;
+            case  2: id = 6; break;
+            case  3: id = 8; break;
+            case  4: id = 7; break;
+            case  5: id = 7; break;
+            case  6: id = 7; break;
+            case  7: id = 6; break;
+            case  8: id = 6; break;
+            case  9: id = 7; break;
+            case 10: id = 7; break;
+            case 11: id = 6; break;
+            case 21: id = 8; break;
+            case 22: id = 2; break;
+            case 23: id = 2; break;
+            case 24: id = 13; break;
+            case 25: id = 2; break;
+            case 26: id = 7; break;
+            case 29: id = 5; break;
+            case 33: id = 6; break;
+            case 38: id = 6; break;
+            case 39: id = 6; break;
+            case 71: id = 8; break;
+            case 72: id = 10; break;
+            case 73: id = 10; break;
+            case 74: id = 10; break;
+            default: id = 10; logNotDefined(code, 72);
         }
         break;
 
-    case 40:
-        switch (type)
-        {
-        case 30:
-            ptrDA.setUsageYieldIrrigation('L', 35); break;
-        case 31:
-            ptrDA.setUsageYieldIrrigation('L', 30); break;
-        default:
-            logNotDefined(code, 31);
-            ptrDA.setUsageYieldIrrigation('L', 30);
-            break;
+        case 40: switch (type) {
+            case 30: id = 6; break;
+            case 31: id = 5; break;
+            default: id = 5; logNotDefined(code, 31);
         }
         break;
 
-    case 50:
-        switch (type)
-        {
-        case 42:
-        case 43:
-            ptrDA.setUsageYieldIrrigation('L', 35); break;
-
-        case 28:
-        case 41:
-        case 45:
-            ptrDA.setUsageYieldIrrigation('L', 40); break;
-
-        case 12:
-        case 47:
-        case 51:
-        case 60:
-            ptrDA.setUsageYieldIrrigation('L', 45); break;
-
-        case 13:
-        case 14:
-            ptrDA.setUsageYieldIrrigation('L', 50); break;
-
-        case 44:
-        case 49:
-        case 50:
-            ptrDA.setUsageYieldIrrigation('L', 45, 50); break;
-
-        case 46:
-            ptrDA.setUsageYieldIrrigation('L', 50, 50); break;
-
-        default:
-            logNotDefined(code, 60);
-            ptrDA.setUsageYieldIrrigation('L', 45);
-            break;
+        case 50: switch (type) {
+            case 12: id = 8; break;
+            case 13: id = 10; break;
+            case 14: id = 10; break;
+            case 28: id = 7; break;
+            case 41: id = 7; break;
+            case 42: id = 6; break;
+            case 43: id = 6; break;
+            case 44: id = 9; break;
+            case 45: id = 7; break;
+            case 46: id = 12; break;
+            case 47: id = 8; break;
+            case 49: id = 9; break;
+            case 50: id = 9; break;
+            case 51: id = 8; break;
+            case 60: id = 8; break;
+            default: id = 8; logNotDefined(code, 60);
         }
         break;
 
-    case 60:
-        ptrDA.setUsageYieldIrrigation('L', 45); break;
+        case 60: id = 8; break;
 
-    case 70:
-        switch (type)
-        {
-        case 59:
-            ptrDA.setUsageYieldIrrigation('K', 40, 75); break;
-        default:
-            logNotDefined(code, 59);
-            ptrDA.setUsageYieldIrrigation('K', 40, 75);
-            break;
+        case 70: switch (type) {
+            case 59: id = 2; break;
+            default: id = 2; logNotDefined(code, 59);
         }
         break;
 
-    case 80:
-        switch (type)
-        {
-        case 99:
-            ptrDA.setUsageYieldIrrigation('L', 10); break;
-
-        case 92:
-            ptrDA.setUsageYieldIrrigation('L', 25); break;
-
-        case 93:
-        case 94:
-            ptrDA.setUsageYieldIrrigation('L', 30); break;
-
-        case 91:
-            ptrDA.setUsageYieldIrrigation('L', 40); break;
-
-        default:
-            logNotDefined(code, 99);
-            ptrDA.setUsageYieldIrrigation('L', 10);
-            break;
+        case 80: switch (type) {
+            case 91: id = 7; break;
+            case 92: id = 4; break;
+            case 93: id = 5; break;
+            case 94: id = 5; break;
+            case 99: id = 3; break;
+            default: id = 3; logNotDefined(code, 99);
         }
         break;
 
-    case 90:
-        switch (type)
-        {
-        case 98:
-            ptrDA.setUsageYieldIrrigation('D', 1); break;
-        default:
-            logNotDefined(code, 98);
-            ptrDA.setUsageYieldIrrigation('D', 1);
-            break;
+        case 90: switch (type) {
+            case 98: id = 0; break;
+            default: id = 0; logNotDefined(code, 98);
         }
         break;
 
-    case 100:
-        switch (type)
-        {
-        case 55:
-            ptrDA.setUsageYieldIrrigation('W'); break;
-        default:
-            logNotDefined(code, 55);
-            ptrDA.setUsageYieldIrrigation('W');
-            break;
+        case 100: switch (type) {
+            case 55: id = 15; break;
+            default: id = 15; logNotDefined(code, 55);
         }
         break;
 
-    case 101:
-        ptrDA.setUsageYieldIrrigation('W'); break;
+        case 101: id = 15; break;
+        case 102: id = 14; break;
+        case 110: id = 1; break;
+        case 121: id = 7; break;
+        case 122: id = 6; break;
+        case 130: id = 12; break;
+        case 140: id = 10; break;
+        case 150: id = 11; break;
+        case 160: id = 2; break;
+        case 161: id = 2; break;
+        case 162: id = 2; break;
+        case 170: id = 3; break;
+        case 171: id = 0; break;
+        case 172: id = 7; break;
+        case 173: id = 8; break;
+        case 174: id = 14; break;
+        case 180: id = 10; break;
+        case 190: id = 7; break;
+        case 200: id = 12; break;
+        default:
+            protokollStream << "\r\nDiese  Meldung sollte nie erscheinen: \r\nNutzung nicht definiert fuer Element " + code + "\r\n";
+    }
 
-    case 102:
-        ptrDA.setUsageYieldIrrigation('L', 60); break;
-
-    case 110:
-        ptrDA.setUsageYieldIrrigation('G'); break;
-
-    case 121:
-        ptrDA.setUsageYieldIrrigation('L', 40); break;
-
-    case 122:
-        ptrDA.setUsageYieldIrrigation('L', 35); break;
-
-    case 130:
-        ptrDA.setUsageYieldIrrigation('L', 50, 50); break;
-
-    case 140:
-        ptrDA.setUsageYieldIrrigation('L', 50); break;
-
-    case 150:
-        ptrDA.setUsageYieldIrrigation('L', 50, 100); break;
-
-    case 160:
-    case 161:
-    case 162:
-        ptrDA.setUsageYieldIrrigation('K', 40, 75); break;
-
-    case 170:
-        ptrDA.setUsageYieldIrrigation('L', 10); break;
-
-    case 171:
-        ptrDA.setUsageYieldIrrigation('D', 1); break;
-
-    case 172:
-    case 190:
-        ptrDA.setUsageYieldIrrigation('L', 40); break;
-
-    case 173:
-        ptrDA.setUsageYieldIrrigation('L', 45); break;
-
-    case 174:
-        ptrDA.setUsageYieldIrrigation('L', 60); break;
-
-    case 180:
-        ptrDA.setUsageYieldIrrigation('L', 50); break;
-
-    case 200:
-        ptrDA.setUsageYieldIrrigation('L', 50, 50); break;
-
-    default:
-        /*
-           logNotDefined(code, 200);
-           ptrDA.setUsageYieldIrrigation('L', 50, 50);
-           cls_3: dies ist nicht korrekt, da die Nutzung und nicht der Nutzungstyp im switch liegt
-           und ein NULL in NUTZUNG hoffentlich immer zu nutzung=0 fuehrt, wenn oben
-           int nutzung = dbReader.getRecord(k, "NUTZUNG").toInt();
-           aufgerufen wird (siehe auch cls_2) -
-           deshalb folgende Fehlermeldung
-        */
-        protokollStream << "\r\nDiese  Meldung sollte nie erscheinen: \r\nNutzung nicht definiert fuer Element " + code + "\r\n";
-        break;
+    if (id >= 0) {
+        ptrDA.setUsageYieldIrrigation(tuples[id]);
     }
 }
 
@@ -667,73 +609,6 @@ void Calculation::logNotDefined(QString code, int type)
                        QString::number(type) +
                        " angenommen\r\n";
     protcount++;
-}
-
-void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString code)
-{
-    /* globale Groessen fuer den aktuellen Record */
-    float TWS; /* Durchwurzelungstiefe */
-    float kr;  /* mittlere pot. kapillare Aufstiegsrate d. Sommerhalbjahres */
-    int   dw;  /* mittlere Zahl der Wachstumstage */
-
-    /*
-     * Feldlaengen von iTAS und inFK_S, L, T, U ;
-     * extern int lenTAS, lenS, lenL, lenT, lenU;
-     */
-
-    // declaration of yield power (ERT) and irrigation (BER) for agricultural or gardening purposes
-    setUsageYieldPowerIrrigation(nutz, typ, code);
-
-    if (ptrDA.NUT != 'G')
-    {
-        /* pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS */
-        TWS = Config::getTWS(ptrDA.ERT, ptrDA.NUT);
-        TAS = ptrDA.FLW - TWS;
-
-        /* Feldkapazitaet */
-        /* cls_6b: der Fall der mit NULL belegten FELD_30 und FELD_150 Werte
-           wird hier im erten Fall behandelt - ich erwarte dann den Wert 0 */
-        if (min(f30, f150)<1)
-            ptrDA.nFK = 13.0F;
-        else if (abs(f30 - f150) < min(f30, f150)) /* unwesentliche Abweichung */
-            if (ptrDA.NUT == 'W')
-                ptrDA.nFK = (float) f150;
-            else
-                ptrDA.nFK = (float) f30;
-        else if (ptrDA.NUT == 'W')
-            ptrDA.nFK = 0.75F * (float) f150 + 0.25F * (float) f30;
-        else
-            ptrDA.nFK = 0.75F * (float) f30 + 0.25F * (float) f150;
-
-        /*
-         * mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres ;
-         * switch (bod) { case S: case U: case L: case T: case LO: case HN: } wird
-         * eingefuegt, wenn die Bodenart in das Zahlenmaterial aufgenommen wird vorlaeufig
-         * wird Sande angenommen ;
-         * Sande
-         */
-        kr = (TAS <= 0.0) ?
-            7.0F :
-            ijkr_S[index(TAS, iTAS, lenTAS) + index(ptrDA.nFK, inFK_S, lenS) * lenTAS];
-
-        /* mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres */
-        switch (ptrDA.NUT)
-        {
-        case 'L': dw = (ptrDA.ERT <= 50) ? 60 : 75; break;
-        case 'K': dw = 100; break;
-        case 'W': dw = 90; break;
-        case 'D': dw = 50; break;
-        default:  dw = 50; break;
-        }
-
-        ptrDA.KR = (int) (dw * kr);
-    }
-
-    if (initValues.getBERtoZero() && ptrDA.BER != 0) {
-        //*protokollStream << "Erzwinge BER=0 fuer Code: " << code << ", Wert war:" << ptrDA.BER << " \r\n";
-        totalBERtoZeroForced++;
-        ptrDA.BER = 0;
-    }
 }
 
 /*
@@ -813,7 +688,7 @@ void Calculation::getKLIMA(int bez, QString code)
 
     // declaration potential evaporation ep and precipitation p
     ep = (float) ptrDA.ETP;                /* Korrektur mit 1.1 gestrichen */
-    p = (float) ptrDA.P1 * niedKorrFaktor; /* ptrDA.KF */
+    p = (float) ptrDA.P1 * initValues.getNiedKorrF(); /* ptrDA.KF */
 
     /*
      * Berechnung der Abfluesse RDV und R1V bis R4V fuer versiegelte
@@ -845,12 +720,12 @@ void Calculation::getKLIMA(int bez, QString code)
     else
     {
         // Determine effectiveness parameter bag for unsealed surfaces
-        n = getNUV(ptrDA); /* Modul Raster abgespeckt */
+        n = EffectivenessUnsealedSurfaces::getNUV(ptrDA); /* Modul Raster abgespeckt */
 
         if (ptrDA.P1S > 0 && ptrDA.ETPS > 0)
         {
             zw = (float) (ptrDA.P1S + ptrDA.BER + ptrDA.KR) / ptrDA.ETPS;
-            bag = getF(zw) * n; /* Modifikation des Parameters durch "Sommer" */
+            bag = getSummerModificationFactor(zw) * n;
         }
         else
             bag = n;
@@ -866,120 +741,25 @@ void Calculation::getKLIMA(int bez, QString code)
     }
 }
 
-/*
- =======================================================================================================================
-    FIXME:
- =======================================================================================================================
- */
-float Calculation::min(float x, float y)
+
+// ============================================================================
+// Get factor to be applied for "summer"
+// ============================================================================
+float Calculation::getSummerModificationFactor(float wa)
 {
-    return x < y ? x : y;
-}
-
-/*
- =======================================================================================================================
-    FIXME:
- =======================================================================================================================
- */
-int Calculation::index(float wert, const float *feld, int anz)
-{
-    int i;
-    float eps = 0.0001F;
-
-    for (i = 0; i < anz; i++)
-        if (wert <= feld[i] + eps) return(i);
-
-    return anz - 1;
-}
-
-/*
- =======================================================================================================================
-    FIXME:
- =======================================================================================================================
- */
-float Calculation::getF(float wa)
-{
-    int i, anz;
-
     const float watab[] =
     {
-        0.45F, 0.50F, 0.55F, 0.60F, 0.65F, 0.70F, 0.75F,
-        0.80F, 0.85F, 0.90F, 0.95F, 1.00F, 1.05F, 1.10F
+        0.45F, 0.50F, 0.55F, 0.60F, 0.65F, 0.70F, 0.75F, // 0 ..  6
+        0.80F, 0.85F, 0.90F, 0.95F, 1.00F, 1.05F, 1.10F  // 7 .. 13
     };
 
     const float Ftab[] =
     {
-        0.65F, 0.75F, 0.82F, 0.90F, 1.00F, 1.06F, 1.15F,
-        1.22F, 1.30F, 1.38F, 1.47F, 1.55F, 1.63F, 1.70F
+        0.65F, 0.75F, 0.82F, 0.90F, 1.00F, 1.06F, 1.15F, // 0 ..  6
+        1.22F, 1.30F, 1.38F, 1.47F, 1.55F, 1.63F, 1.70F  // 7 .. 13
     };
 
-    anz = 14;
-
-    if (wa <= watab[0]) return(Ftab[0]);
-    if (wa >= watab[anz - 1]) return(Ftab[anz - 1]);
-
-    for (i = 1; i < anz; i++)
-        if (wa <= watab[i]) return((Ftab[i - 1] + Ftab[i]) / 2);
-
-    return 0;
-}
-
-/*
- =======================================================================================================================
-    FIXME:
- =======================================================================================================================
- */
-float Calculation::getG02(int nFK)
-{
-    const float G02tab [] = {
-        0.0F,   0.0F,  0.0F,  0.0F,  0.3F,  0.8F,  1.4F,  2.4F,  3.7F,  5.0F,
-        6.3F,   7.7F,  9.3F, 11.0F, 12.4F, 14.7F, 17.4F, 21.0F, 26.0F, 32.0F,
-        39.4F, 44.7F, 48.0F, 50.7F, 52.7F, 54.0F, 55.0F, 55.0F, 55.0F, 55.0F, 55.0F
-    };
-
-    return G02tab[nFK];
-}
-
-/**
- =======================================================================================================================
-    g e t N U V ( Pointer auf aktuellen DataRecord) Berechnung eines Records (abgespecktes Raster)
- =======================================================================================================================
- */
-float Calculation::getNUV(PDR &B) /* DataRecord_t *B) */
-{
-    int K;
-    float G020, BAG0;
-
-    G020 = getG02((int) (B.nFK + 0.5));
-
-    switch (B.NUT)
-    {
-    case 'W':
-        if (G020 <= 10.0)
-            BAG0 = 3.0F;
-        else if (G020 <= 25.0)
-            BAG0 = 4.0F;
-        else
-            BAG0 = 8.0F;
-        break;
-
-    default:
-        K = (int) (B.ERT / 5);
-        if (B.ERT > 49) K = (int) (B.ERT / 10 + 5);
-        if (K <= 0) K = 1;
-        if (K >= 4) K = K - 1;
-        if (K > 13) K = 13;
-        K = 5 * K - 2;
-        BAG0 = EKA[K - 1] + EKA[K] * G020 + EKA[K + 1] * G020 * G020;
-        if ((BAG0 >= 2.0) && (B.ERT < 60)) BAG0 = EKA[K - 3] * G020 + EKA[K - 2];
-        if ((G020 >= 20.0) && (B.ERT >= 60)) BAG0 = EKA[K - 3] * G020 + EKA[K - 2];
-
-        if (B.BER > 0 && (B.P1S == 0 && B.ETPS == 0)) /* Modifikation, wenn keine Sommerwerte */
-            BAG0 = BAG0 * (0.9985F + 0.00284F * B.BER - 0.00000379762F * B.BER * B.BER);
-        break;
-    }
-
-    return BAG0;
+    return Helpers::interpolate(wa, watab, Ftab, 14);
 }
 
 void Calculation::calculate(QString inputFile, QString configFile, QString outputFile, bool debug)
@@ -1024,38 +804,95 @@ void Calculation::calculate(QString inputFile, QString configFile, QString outpu
     logHandle.close();
 }
 
-void Calculation::fillRecord(int k, abimoRecord& record, bool debug)
-{
-    record.BELAG1 = dbReader.getRecord(k, "BELAG1").toFloat();
-    record.BELAG2 = dbReader.getRecord(k, "BELAG2").toFloat();
-    record.BELAG3 = dbReader.getRecord(k, "BELAG3").toFloat();
-    record.BELAG4 = dbReader.getRecord(k, "BELAG4").toFloat();
-    record.BEZIRK = dbReader.getRecord(k, "BEZIRK").toInt();
-    record.CODE = dbReader.getRecord(k, "CODE");
-    record.FELD_150 = dbReader.getRecord(k, "FELD_150").toInt();
-    record.FELD_30 = dbReader.getRecord(k, "FELD_30").toInt();
-    record.FLGES = dbReader.getRecord(k, "FLGES").toFloat();
-    record.FLUR = dbReader.getRecord(k, "FLUR").toFloat();
-    record.KAN_BEB = dbReader.getRecord(k, "KAN_BEB").toFloat();
-    record.KAN_STR = dbReader.getRecord(k, "KAN_STR").toFloat();
-    record.KAN_VGU = dbReader.getRecord(k, "KAN_VGU").toFloat();
-    record.NUTZUNG = Helpers::stringToInt(
-        dbReader.getRecord(k, "NUTZUNG"),
-        QString("k: %1, NUTZUNG = ").arg(QString::number(k)),
-        debug
-    );
-    record.PROBAU = Helpers::stringToFloat(
-        dbReader.getRecord(k, "PROBAU"),
-        QString("k: %1, PROBAU = ").arg(QString::number(k)),
-        debug
-    );
-    record.PROVGU = dbReader.getRecord(k, "PROVGU").toFloat();
-    record.REGENJA = dbReader.getRecord(k, "REGENJA").toInt();
-    record.REGENSO = dbReader.getRecord(k, "REGENSO").toInt();
-    record.STR_BELAG1 = dbReader.getRecord(k, "STR_BELAG1").toFloat();
-    record.STR_BELAG2 = dbReader.getRecord(k, "STR_BELAG2").toFloat();
-    record.STR_BELAG3 = dbReader.getRecord(k, "STR_BELAG3").toFloat();
-    record.STR_BELAG4 = dbReader.getRecord(k, "STR_BELAG4").toFloat();
-    record.TYP = dbReader.getRecord(k, "TYP").toInt();
-    record.VGSTRASSE = dbReader.getRecord(k, "VGSTRASSE").toFloat();
-}
+/*
+usage_groups:
+usage_group,usages
+g1,10|21|22|23|30
+
+{usage_group,type,id}
+{g1,1,6}
+{g1,2,6}
+{g1,3,8}
+{g1,4,7}
+{g1,5,7}
+{g1,6,7}
+{g1,7,6}
+{g1,8,6}
+{g1,9,7}
+{g1,10,7}
+{g1,11,6}
+{g1,21,8}
+{g1,22,2}
+{g1,23,2}
+{g1,24,13}
+{g1,25,2}
+{g1,26,7}
+{g1,29,5}
+{g1,33,6}
+{g1,38,6}
+{g1,39,6}
+{g1,71,8}
+{g1,72,10}
+{g1,73,10}
+{g1,74,10}
+{g1,-72,10} -> logNotDefined(code, 72);
+
+{40,30,6}
+{40,31,5}
+{40,-31,5} -> logNotDefined(code, 31);
+
+{50,12,8}
+{50,13,10}
+{50,14,10}
+{50,28,7}
+{50,41,7}
+{50,42,6}
+{50,43,6}
+{50,44,9}
+{50,45,7}
+{50,46,12}
+{50,47,8}
+{50,49,9}
+{50,50,9}
+{50,51,8}
+{50,60,8}
+{50,-60,8} -> logNotDefined(code, 60);
+
+{60,*,8}
+
+{70,59,2}
+{70,-59,2} -> logNotDefined(code, 59);
+
+{80,91,7}
+{80,92,4}
+{80,93,5}
+{80,94,5}
+{80,99,3}
+{80,-99,3} -> logNotDefined(code, 99);
+
+{90,98,0}
+{90,-98,0) -> logNotDefined(code, 98);
+
+{100,55,15}
+{100,-55,15} -> logNotDefined(code, 55);
+
+{101,*,15}
+{102,*,14}
+{110,*,1}
+{121,*,7}
+{122,*,6}
+{130,*,12}
+{140,*,10}
+{150,*,11}
+{160,*,2}
+{161,*,2}
+{162,*,2}
+{170,*,3}
+{171,*,0}
+{172,*,7}
+{173,*,8}
+{174,*,14}
+{180,*,10}
+{190,*,7}
+{200,*,12}
+*/

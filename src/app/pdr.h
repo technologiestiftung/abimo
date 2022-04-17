@@ -20,17 +20,26 @@
 #ifndef PDR_H
 #define PDR_H
 
+typedef struct {
+    char usage;
+    int yield;
+    int irrigation;
+} t_usageYieldIrrigation;
+
 class PDR
 {
-
 public:
     PDR();
-    void setUsageYieldIrrigation(char usage, int yieldPower = 0, int irrigation = 0);
+    void setUsageYieldIrrigation(char usage, int yield = 0, int irrigation = 0);
+    void setUsageYieldIrrigation(t_usageYieldIrrigation tuple);
+    static float estimateWaterHoldingCapacity(int f30, int f150, bool isForest);
+    static int estimateDaysOfGrowth(char usage, int yield);
 
     // Elementnummer EB_INDEX neu
     unsigned wIndex;
 
     // nFK-Wert (ergibt sich aus Bodenart) ID_NFK neu
+    // water holding capacity (= nutzbare Feldkapazitaet)
     float nFK;
 
     // Flurabstandswert [m] ID_FLW 4.1 N
@@ -51,7 +60,7 @@ public:
     // Versiegelungsgrad bebauter Flaechen [%] ID_VER 002 N
     int VER;
 
-    // ERTragsklasse landw. Nutzflaechen ID_ERT 002 N
+    // Ertragsklasse landw. Nutzflaechen ID_ERT 002 N
     int ERT;
 
     // j. Beregnungshoehe landw. Nutzfl. [mm/a] ID_BER 003 N

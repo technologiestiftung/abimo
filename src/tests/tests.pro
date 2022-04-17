@@ -31,6 +31,7 @@ HEADERS += \
     $$INCDIR/dbaseField.h \
     $$INCDIR/dbaseReader.h \
     $$INCDIR/dbaseWriter.h \
+    $$INCDIR/effectivenessunsealedsurfaces.h \
     $$INCDIR/helpers.h \
     $$INCDIR/initvalues.h \
     $$INCDIR/pdr.h \
@@ -43,6 +44,7 @@ SOURCES += \
     $$INCDIR/dbaseField.cpp \
     $$INCDIR/dbaseReader.cpp \
     $$INCDIR/dbaseWriter.cpp \
+    $$INCDIR/effectivenessunsealedsurfaces.cpp \
     $$INCDIR/helpers.cpp \
     $$INCDIR/initvalues.cpp \
     $$INCDIR/pdr.cpp \

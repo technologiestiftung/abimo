@@ -49,7 +49,6 @@ signals:
     void processSignal(int, QString);
 
 private:
-    const static float EKA[];
     const static float iTAS[];
     const static float inFK_S[];
     const static float ijkr_S[];
@@ -87,9 +86,6 @@ private:
     // potentielle Aufstiegshoehe
     float TAS;
 
-    // Niederschlags-Korrekturfaktor
-    float niedKorrFaktor;
-
     // Feldlaenge von iTAS
     int lenTAS;
 
@@ -109,16 +105,13 @@ private:
     bool weiter;
 
     // functions
-    float min(float  x,float  y);
-    int index (float wert, const float *feld, int anz);
     float getNUV(PDR &B);
-    float getF (float wa);
+    float getSummerModificationFactor(float wa);
     float getG02 (int nFK);
-    void setUsageYieldPowerIrrigation(int usage, int type, QString code);
+    void getNUTZ(int nutz, int typ, int f30, int f150, QString code);
+    void setUsageYieldIrrigation(int usage, int type, QString code);
     void logNotDefined(QString code, int type);
-    void getNUTZ(int nutz, int typ, int f30, int f150, QString codestr);
     void getKLIMA(int bez, QString codestr);
-    void fillRecord(int k, abimoRecord& record, bool debug = false);
 };
 
 #endif

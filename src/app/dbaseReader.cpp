@@ -358,3 +358,45 @@ int DbaseReader::computeCountFields(int headerLength)
     //32 byte file information, 1 byte Terminator (0Dh), und jedes Feld hat 32 byte im header
     return (headerLength - 32 - 1)/32;
 }
+
+void DbaseReader::fillRecord(int k, abimoRecord& record, bool debug)
+{
+    record.BELAG1_fraction = floatFraction(getRecord(k, "BELAG1"));
+    record.BELAG2_fraction = floatFraction(getRecord(k, "BELAG2"));
+    record.BELAG3_fraction = floatFraction(getRecord(k, "BELAG3"));
+    record.BELAG4_fraction = floatFraction(getRecord(k, "BELAG4"));
+    record.BEZIRK = getRecord(k, "BEZIRK").toInt();
+    record.CODE = getRecord(k, "CODE");
+    record.FELD_150 = getRecord(k, "FELD_150").toInt();
+    record.FELD_30 = getRecord(k, "FELD_30").toInt();
+    record.FLGES = getRecord(k, "FLGES").toFloat();
+    record.FLUR = getRecord(k, "FLUR").toFloat();
+    record.KAN_BEB_fraction = floatFraction(getRecord(k, "KAN_BEB"));
+    record.KAN_STR_fraction = floatFraction(getRecord(k, "KAN_STR"));
+    record.KAN_VGU_fraction = floatFraction(getRecord(k, "KAN_VGU"));
+    record.NUTZUNG = Helpers::stringToInt(
+        getRecord(k, "NUTZUNG"),
+        QString("k: %1, NUTZUNG = ").arg(QString::number(k)),
+        debug
+    );
+    record.PROBAU_fraction = Helpers::stringToFloat(
+        getRecord(k, "PROBAU"),
+        QString("k: %1, PROBAU = ").arg(QString::number(k)),
+        debug
+    ) / 100.0F;
+    record.PROVGU_fraction = floatFraction(getRecord(k, "PROVGU"));
+    record.REGENJA = getRecord(k, "REGENJA").toInt();
+    record.REGENSO = getRecord(k, "REGENSO").toInt();
+    record.STR_BELAG1_fraction = floatFraction(getRecord(k, "STR_BELAG1"));
+    record.STR_BELAG2_fraction = floatFraction(getRecord(k, "STR_BELAG2"));
+    record.STR_BELAG3_fraction = floatFraction(getRecord(k, "STR_BELAG3"));
+    record.STR_BELAG4_fraction = floatFraction(getRecord(k, "STR_BELAG4"));
+    record.TYP = getRecord(k, "TYP").toInt();
+    record.VGSTRASSE_fraction = floatFraction(getRecord(k, "VGSTRASSE"));
+    record.STR_FLGES = getRecord(k, "STR_FLGES").toFloat();
+}
+
+float DbaseReader::floatFraction(QString string)
+{
+    return (string.toFloat() / 100.0);
+}
