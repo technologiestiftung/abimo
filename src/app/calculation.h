@@ -106,9 +106,9 @@ private:
 
     // functions
     float getNUV(PDR &B);
-    float getF (float wa);
+    float getSummerModificationFactor(float wa);
     float getG02 (int nFK);
-    void getNUTZ(int nutz, int typ, int f30, int f150, QString codestr);
+    void getNUTZ(int nutz, int typ, int f30, int f150, QString code);
     void setUsageYieldIrrigation(int usage, int type, QString code);
     void logNotDefined(QString code, int type);
     void getKLIMA(int bez, QString codestr);
