@@ -125,13 +125,11 @@ QString Calculation::getError()
     return error;
 }
 
-/**
- =======================================================================================================================
-    Diese Funktion importiert die Datensaetze aus der DBASE-Datei FileName in das DA Feld ein
-    (GWD-Daten). Parameter: out-file Rueckgabewert: BOOL TRUE, wenn das Einlesen der Datei
-    erfolgreich war.
- =======================================================================================================================
- */
+// =============================================================================
+// Diese Funktion importiert die Datensaetze aus der DBASE-Datei FileName in das DA Feld ein
+// (GWD-Daten). Parameter: out-file Rueckgabewert: BOOL TRUE, wenn das Einlesen der Datei
+// erfolgreich war.
+// =============================================================================
 bool Calculation::calc(QString fileOut, bool debug)
 {
     // Current Abimo record (represents one row of the input dbf file)
@@ -397,12 +395,9 @@ bool Calculation::calc(QString fileOut, bool debug)
     return true;
 }
 
-/*
- =======================================================================================================================
-    FIXME:
- =======================================================================================================================
- */
-
+// =============================================================================
+// FIXME:
+// =============================================================================
 void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString code)
 {
     // mittlere pot. kapillare Aufstiegsrate d. Sommerhalbjahres
@@ -611,11 +606,9 @@ void Calculation::logNotDefined(QString code, int type)
     protcount++;
 }
 
-/*
- =======================================================================================================================
-    FIXME:
- =======================================================================================================================
- */
+// =============================================================================
+// FIXME:
+// =============================================================================
 void Calculation::getKLIMA(int bez, QString code)
 {
     /* Effektivitaetsparameter */
@@ -742,9 +735,9 @@ void Calculation::getKLIMA(int bez, QString code)
 }
 
 
-// ============================================================================
+// =============================================================================
 // Get factor to be applied for "summer"
-// ============================================================================
+// =============================================================================
 float Calculation::getSummerModificationFactor(float wa)
 {
     const float watab[] =
