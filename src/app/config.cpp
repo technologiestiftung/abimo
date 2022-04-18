@@ -5,6 +5,7 @@
 Config::Config()
 {    
     initUsageYieldIrrigationTuples();
+    initUsageAndTypeToTupleHash();
 }
 
 void Config::initUsageYieldIrrigationTuples()
@@ -60,13 +61,8 @@ float Config::getTWS(int ert, char nutz)
 // irrigation)-tuples
 //==============================================================================
 
-UsageResult Config::getUsageResult(int usage, int type, QString code)
+void Config::initUsageAndTypeToTupleHash()
 {
-    UsageResult result = {-1, ""};
-
-    // assignment of usage identifiers to "type2tuple" hashes (see below)
-    QHash<int,QHash<int,int>> usageHash;
-
     // assignment of type identifiers to tuple indices
     //
     // For each type, define the "tuple index", i.e. the index in the array
@@ -192,7 +188,10 @@ UsageResult Config::getUsageResult(int usage, int type, QString code)
     type2tuple.clear(); type2tuple[-2] = 10; usageHash[180] = type2tuple;
     type2tuple.clear(); type2tuple[-2] =  7; usageHash[190] = type2tuple;
     type2tuple.clear(); type2tuple[-2] = 12; usageHash[200] = type2tuple;
+}
 
+UsageResult Config::getUsageResult(int usage, int type, QString code)
+{
     if (!usageHash.contains(usage)) {
         return {
             -1,

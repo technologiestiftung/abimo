@@ -25,7 +25,13 @@ public:
 
 private:
     UsageTuple usageTuples[16];
+
+    // assignment of usage identifiers to "type -> tuple index" hashes
+    QHash<int,QHash<int,int>> usageHash;
+
     void initUsageYieldIrrigationTuples();
+    void initUsageAndTypeToTupleHash();
+
     UsageResult lookup(QHash<int,int>hash, int type, QString code);
 };
 
