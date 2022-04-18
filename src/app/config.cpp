@@ -173,21 +173,23 @@ void Config::initUsageAndTypeToTupleHash()
 float Config::getTWS(int ert, char nutz)
 {
     // Zuordnung Durchwurzelungstiefe in Abhaengigkeit der Nutzung
+    switch(nutz) {
 
-    // D - Devastierung
-    if (nutz == 'D') return 0.2F;
+        // D - Devastierung
+        case 'D': return 0.2F;
 
-    // L - landwirtschaftliche Nutzung
-    if (nutz == 'L') return (ert <= 50) ? 0.6F : 0.7F;
+        // L - landwirtschaftliche Nutzung
+        case 'L': return (ert <= 50) ? 0.6F : 0.7F;
 
-    // K - Kleingaerten
-    if (nutz == 'K') return 0.7F;
+        // K - Kleingaerten
+        case 'K': return 0.7F;
 
-    // W - Wald
-    if (nutz == 'W') return 1.0F;
+        // W - Wald
+        case 'W': return 1.0F;
 
-    // Other
-    return 0.2F;
+        // Other
+        default: return 0.2F;
+    }
 }
 
 UsageResult Config::getUsageResult(int usage, int type, QString code)
