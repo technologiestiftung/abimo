@@ -19,6 +19,7 @@
 
 #include <math.h> // for abs()
 
+#include "config.h"
 #include "constants.h" // for MIN() macro
 #include "pdr.h"
 
@@ -47,7 +48,7 @@ void PDR::setUsageYieldIrrigation(char usage, int yield, int irrigation)
     this->BER = irrigation;
 }
 
-void PDR::setUsageYieldIrrigation(t_usageYieldIrrigation tuple)
+void PDR::setUsageYieldIrrigation(UsageTuple tuple)
 {
     this->NUT = tuple.usage;
     this->ERT = tuple.yield;
