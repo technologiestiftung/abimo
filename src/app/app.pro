@@ -22,7 +22,7 @@ HEADERS += \
     dbaseField.h \
     dbaseReader.h \
     dbaseWriter.h \
-    effectivenessunsealedsurfaces.h \
+    effectivenessunsealed.h \
     helpers.h \
     initvalues.h \
     main.h \
@@ -37,7 +37,7 @@ SOURCES += \
     dbaseField.cpp \
     dbaseReader.cpp \
     dbaseWriter.cpp \
-    effectivenessunsealedsurfaces.cpp \
+    effectivenessunsealed.cpp \
     helpers.cpp \
     initvalues.cpp \
     main.cpp \

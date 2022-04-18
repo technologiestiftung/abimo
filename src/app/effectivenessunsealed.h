@@ -1,9 +1,9 @@
-#ifndef EFFECTIVENESSUNSEALEDSURFACES_H
-#define EFFECTIVENESSUNSEALEDSURFACES_H
+#ifndef EFFECTIVENESSUNSEALED_H
+#define EFFECTIVENESSUNSEALED_H
 
 #include "pdr.h"
 
-class EffectivenessUnsealedSurfaces
+class EffectivenessUnsealed
 {
 private:
     const static float EKA[];
@@ -13,8 +13,8 @@ private:
     static float nonSummerCorrected(float x, int irrigation);
 
 public:
-    EffectivenessUnsealedSurfaces();
+    EffectivenessUnsealed();
     static float getNUV(PDR &record);
 };
 
-#endif // EFFECTIVENESSUNSEALEDSURFACES_H
+#endif // EFFECTIVENESSUNSEALED_H

@@ -1,11 +1,11 @@
-#include "effectivenessunsealedsurfaces.h"
+#include "effectivenessunsealed.h"
 
 #include "constants.h"
 #include "pdr.h"
 
 // parameter values x1, x2, x3, x4 and x5 (one column each)
 // for calculating the effectiveness parameter n for unsealed surfaces
-const float EffectivenessUnsealedSurfaces::EKA[]= {
+const float EffectivenessUnsealed::EKA[]= {
     0.04176F, -0.647F , 0.218F  ,  0.01472F, 0.0002089F,
     0.04594F, -0.314F , 0.417F  ,  0.02463F, 0.0001143F,
     0.05177F, -0.010F , 0.596F  ,  0.02656F, 0.0002786F,
@@ -21,7 +21,7 @@ const float EffectivenessUnsealedSurfaces::EKA[]= {
     0.33895F,  3.721F , 6.69999F, -0.07F   , 0.013F
 };
 
-EffectivenessUnsealedSurfaces::EffectivenessUnsealedSurfaces()
+EffectivenessUnsealed::EffectivenessUnsealed()
 {
 }
 
@@ -30,7 +30,7 @@ EffectivenessUnsealedSurfaces::EffectivenessUnsealedSurfaces()
     g e t N U V ( Pointer auf aktuellen DataRecord) Berechnung eines Records (abgespecktes Raster)
  =======================================================================================================================
  */
-float EffectivenessUnsealedSurfaces::getNUV(PDR &record)
+float EffectivenessUnsealed::getNUV(PDR &record)
 {
     float G020 = getG02((int) (record.nFK + 0.5));
     char usage = record.NUT;
@@ -42,7 +42,7 @@ float EffectivenessUnsealedSurfaces::getNUV(PDR &record)
     return bag0_default(G020, record.ERT, record.BER, (record.P1S == 0 && record.ETPS == 0));
 }
 
-float EffectivenessUnsealedSurfaces::getG02(int nFK)
+float EffectivenessUnsealed::getG02(int nFK)
 {
     const float G02tab [] = {
         0.0F,   0.0F,  0.0F,  0.0F,  0.3F,  0.8F,  1.4F,  2.4F,  3.7F,  5.0F,
@@ -53,7 +53,7 @@ float EffectivenessUnsealedSurfaces::getG02(int nFK)
     return G02tab[nFK];
 }
 
-float EffectivenessUnsealedSurfaces::bag0_forest(float G020)
+float EffectivenessUnsealed::bag0_forest(float G020)
 {
     if (G020 <= 10.0) {
         return 3.0F;
@@ -66,7 +66,7 @@ float EffectivenessUnsealedSurfaces::bag0_forest(float G020)
     return 8.0F;
 }
 
-float EffectivenessUnsealedSurfaces::bag0_default(float G020, int yield, int irrigation, bool notSummer)
+float EffectivenessUnsealed::bag0_default(float G020, int yield, int irrigation, bool notSummer)
 {
     int k;
     float result;
@@ -101,7 +101,7 @@ float EffectivenessUnsealedSurfaces::bag0_default(float G020, int yield, int irr
     return result;
 }
 
-float EffectivenessUnsealedSurfaces::nonSummerCorrected(float x, int irrigation)
+float EffectivenessUnsealed::nonSummerCorrected(float x, int irrigation)
 {
     return x * (0.9985F + 0.00284F * irrigation - 0.00000379762F * irrigation * irrigation);
 }

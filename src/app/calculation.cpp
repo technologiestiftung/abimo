@@ -28,7 +28,7 @@
 #include "constants.h"
 #include "dbaseReader.h"
 #include "dbaseWriter.h"
-#include "effectivenessunsealedsurfaces.h"
+#include "effectivenessunsealed.h"
 #include "helpers.h"
 #include "initvalues.h"
 #include "pdr.h"
@@ -574,7 +574,7 @@ void Calculation::getKLIMA(int bez, QString code)
     else
     {
         // Determine effectiveness parameter bag for unsealed surfaces
-        n = EffectivenessUnsealedSurfaces::getNUV(ptrDA); /* Modul Raster abgespeckt */
+        n = EffectivenessUnsealed::getNUV(ptrDA); /* Modul Raster abgespeckt */
 
         if (ptrDA.P1S > 0 && ptrDA.ETPS > 0)
         {
