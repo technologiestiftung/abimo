@@ -63,7 +63,6 @@ Calculation::Calculation(DbaseReader& dbR, InitValues & init, QTextStream & prot
     initValues(init),
     protokollStream(protoStream),
     dbReader(dbR),
-    protcount(0),
     regenja(0),
     regenso(0),
     RDV(0),
@@ -78,9 +77,7 @@ Calculation::Calculation(DbaseReader& dbR, InitValues & init, QTextStream & prot
     TAS(0),
     lenTAS(15),
     lenS(7),
-    totalRecWrite(0),
-    totalRecRead(0),
-    totalBERtoZeroForced(0),
+    counters({0, 0, 0, 0L, 0L, 0L}),
     weiter(true)
 {
     config = new Config();
@@ -91,34 +88,9 @@ void Calculation::stop()
     weiter = false;
 }
 
-long Calculation::getProtCount()
+Counters Calculation::getCounters()
 {
-    return protcount;
-}
-
-long Calculation::getKeineFlaechenAngegeben()
-{
-    return keineFlaechenAngegeben;
-}
-
-int Calculation::getTotalRecWrite()
-{
-    return totalRecWrite;
-}
-
-int Calculation::getTotalRecRead()
-{
-    return totalRecRead;
-}
-
-int Calculation::getTotalBERtoZeroForced()
-{
-    return totalBERtoZeroForced;
-}
-
-long Calculation::getNutzungIstNull()
-{
-    return nutzungIstNull;
+    return counters;
 }
 
 QString Calculation::getError()
@@ -189,18 +161,18 @@ bool Calculation::calc(QString fileOut, bool debug)
     int k;
 
     // count protocol entries
-    protcount = 0L;
-    keineFlaechenAngegeben = 0L;
-    nutzungIstNull = 0L;
+    counters.protcount = 0L;
+    counters.keineFlaechenAngegeben = 0L;
+    counters.nutzungIstNull = 0L;
 
     // first entry into protocol
     DbaseWriter writer(fileOut, initValues);
 
     // get the number of rows in the input data ?
-    totalRecRead = dbReader.getNumberOfRecords();
+    counters.totalRecRead = dbReader.getNumberOfRecords();
 
     // loop over all block partial areas (records) of input data
-    for (k = 0; k < totalRecRead; k++) {
+    for (k = 0; k < counters.totalRecRead; k++) {
 
         if (! weiter) {
             protokollStream << "Berechnungen abgebrochen.\r\n";
@@ -278,8 +250,8 @@ bool Calculation::calc(QString fileOut, bool debug)
             if (fb + fs < 0.0001)
             {
                 //*protokollStream << "\r\nDie Flaeche des Elements " + record.CODE + " ist 0 \r\nund wird automatisch auf 100 gesetzt\r\n";
-                protcount++;
-                keineFlaechenAngegeben++;
+                counters.protcount++;
+                counters.keineFlaechenAngegeben++;
                 fb = 100.0F;
             }
 
@@ -372,7 +344,7 @@ bool Calculation::calc(QString fileOut, bool debug)
             index++;
         }
         else {
-            nutzungIstNull++;
+            counters.nutzungIstNull++;
 
         }
 
@@ -380,10 +352,10 @@ bool Calculation::calc(QString fileOut, bool debug)
            deren NUTZUNG=NULL (siehe auch cls_3)
         */
 
-        emit processSignal((int)((float) k / (float) totalRecRead * 50.0), "Berechne");
+        emit processSignal((int)((float) k / (float) counters.totalRecRead * 50.0), "Berechne");
     }
 
-    totalRecWrite = index;
+    counters.totalRecWrite = index;
 
     emit processSignal(50, "Schreibe Ergebnisse.");
 
@@ -442,7 +414,7 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString code)
 
     if (initValues.getBERtoZero() && ptrDA.BER != 0) {
         //*protokollStream << "Erzwinge BER=0 fuer Code: " << code << ", Wert war:" << ptrDA.BER << " \r\n";
-        totalBERtoZeroForced++;
+        counters.totalBERtoZeroForced++;
         ptrDA.BER = 0;
     }
 }
@@ -461,7 +433,7 @@ void Calculation::setUsageYieldIrrigation(int usage, int type, QString code)
 
     if (!result.message.isEmpty()) {
         protokollStream << result.message;
-        protcount++;
+        counters.protcount++;
     }
 
     ptrDA.setUsageYieldIrrigation(config->getUsageTuple(result.tupleIndex));
@@ -510,7 +482,7 @@ void Calculation::getKLIMA(int bez, QString code)
             QString egString;
             egString.setNum(ptrDA.ETP);
             protokollStream << "\r\nEG unbekannt fuer " + code + " von Bezirk " + bezString + "\r\nEG=" + egString + " angenommen\r\n";
-            protcount++;
+            counters.protcount++;
         }
     }
     else
@@ -524,7 +496,7 @@ void Calculation::getKLIMA(int bez, QString code)
             QString etpString;
             etpString.setNum(ptrDA.ETP);
             protokollStream << "\r\nETP unbekannt fuer " + code + " von Bezirk " + bezString + "\r\nETP=" + etpString + " angenommen\r\n";
-            protcount++;
+            counters.protcount++;
         }
 
         if (initValues.hashETPS.contains(bez)) {
@@ -536,7 +508,7 @@ void Calculation::getKLIMA(int bez, QString code)
             QString etpsString;
             etpsString.setNum(ptrDA.ETPS);
             protokollStream << "\r\nETPS unbekannt fuer " + code + " von Bezirk " + bezString + "\r\nETPS=" + etpsString + " angenommen\r\n";
-            protcount++;
+            counters.protcount++;
         }
     }
 

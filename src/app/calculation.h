@@ -28,6 +28,25 @@
 #include "initvalues.h"
 #include "pdr.h"
 
+struct Counters {
+
+    // total written records
+    int totalRecWrite;
+
+    // total read records
+    int totalRecRead;
+
+    // Anzahl der Records fuer die BER == 0 gesetzt werden musste
+    int totalBERtoZeroForced;
+
+    // Anzahl der nicht berechneten Flaechen
+    long keineFlaechenAngegeben;
+    long nutzungIstNull;
+
+    // Anzahl der Protokolleintraege
+    long protcount;
+};
+
 class Calculation: public QObject
 {
     Q_OBJECT
@@ -38,9 +57,7 @@ public:
     long getProtCount();
     long getKeineFlaechenAngegeben();
     long getNutzungIstNull();
-    int getTotalRecWrite();
-    int getTotalRecRead();
-    int getTotalBERtoZeroForced();
+    Counters getCounters();
     QString getError();
     void stop();
     static void calculate(QString inputFile, QString configFile, QString outputFile, bool debug = false);
@@ -58,14 +75,6 @@ private:
     DbaseReader & dbReader;
     PDR ptrDA;
     QString error;
-
-    // Anzahl der Protokolleintraege
-    long protcount;
-
-    // Anzahl der nicht berechneten Flaechen
-    long keineFlaechenAngegeben;
-
-    long nutzungIstNull;
 
     // ******vorlaeufig aus Teilblock 0 wird fuer die Folgeblocks genommen
     float regenja, regenso;
@@ -93,14 +102,7 @@ private:
     // Feldlaenge von inFK_S
     int lenS;
 
-    // total written records
-    int totalRecWrite;
-
-    // total read records
-    int totalRecRead;
-
-    // Anzahl der Records fuer die BER == 0 gesetzt werden musste
-    int totalBERtoZeroForced;
+    Counters counters;
 
     // to stop calc
     bool weiter;

@@ -261,11 +261,13 @@ void MainWindow::reportSuccess(
     QString readRecCount;
     QString writeRecCount;
 
-    protCount.setNum(calc->getProtCount());
-    nutzungIstNull.setNum(calc->getNutzungIstNull());
-    keineFlaechenAngegeben.setNum(calc->getKeineFlaechenAngegeben());
-    readRecCount.setNum(calc->getTotalRecRead());
-    writeRecCount.setNum(calc->getTotalRecWrite());
+    Counters counters = calc->getCounters();
+
+    protCount.setNum(counters.protcount);
+    nutzungIstNull.setNum(counters.nutzungIstNull);
+    keineFlaechenAngegeben.setNum(counters.keineFlaechenAngegeben);
+    readRecCount.setNum(counters.totalRecRead);
+    writeRecCount.setNum(counters.totalRecWrite);
 
     setText(
         "Berechnungen mit " + protCount + " Fehlern beendet.\n" +
@@ -278,18 +280,18 @@ void MainWindow::reportSuccess(
     protokollStream << "\r\nBei der Berechnung traten " << protCount <<
         " Fehler auf.\r\n";
 
-    if (calc->getKeineFlaechenAngegeben() != 0) {
+    if (counters.keineFlaechenAngegeben != 0) {
         protokollStream << "\r\nBei " + keineFlaechenAngegeben +
             " Flaechen deren Wert 0 war wurde 100 eingesetzt.\r\n";
     }
 
-    if (calc->getNutzungIstNull() != 0) {
+    if (counters.nutzungIstNull != 0) {
         protokollStream << "\r\nBei " + nutzungIstNull +
             " Records war die Nutzung 0, diese wurden ignoriert.\r\n";
     }
 
-    if (calc->getTotalBERtoZeroForced() != 0) {
-        protokollStream << "\r\nBei " << calc->getTotalBERtoZeroForced() <<
+    if (counters.totalBERtoZeroForced != 0) {
+        protokollStream << "\r\nBei " << counters.totalBERtoZeroForced <<
             " Records wurde BER==0 erzwungen.\r\n";
     }
 
