@@ -34,29 +34,6 @@ void Config::initUsageYieldIrrigationTuples()
 }
 
 //==============================================================================
-//    Bestimmung der Durchwurzelungstiefe TWS
-//==============================================================================
-float Config::getTWS(int ert, char nutz)
-{
-    // Zuordnung Durchwurzelungstiefe in Abhaengigkeit der Nutzung
-
-    // D - Devastierung
-    if (nutz == 'D') return 0.2F;
-
-    // L - landwirtschaftliche Nutzung
-    if (nutz == 'L') return (ert <= 50) ? 0.6F : 0.7F;
-
-    // K - Kleingaerten
-    if (nutz == 'K') return 0.7F;
-
-    // W - Wald
-    if (nutz == 'W') return 1.0F;
-
-    // Other
-    return 0.2F;
-}
-
-//==============================================================================
 // Define the mapping between usage and type identifiers and (usage, yield,
 // irrigation)-tuples
 //==============================================================================
@@ -188,6 +165,29 @@ void Config::initUsageAndTypeToTupleHash()
     type2tuple.clear(); type2tuple[-2] = 10; usageHash[180] = type2tuple;
     type2tuple.clear(); type2tuple[-2] =  7; usageHash[190] = type2tuple;
     type2tuple.clear(); type2tuple[-2] = 12; usageHash[200] = type2tuple;
+}
+
+//==============================================================================
+//    Bestimmung der Durchwurzelungstiefe TWS
+//==============================================================================
+float Config::getTWS(int ert, char nutz)
+{
+    // Zuordnung Durchwurzelungstiefe in Abhaengigkeit der Nutzung
+
+    // D - Devastierung
+    if (nutz == 'D') return 0.2F;
+
+    // L - landwirtschaftliche Nutzung
+    if (nutz == 'L') return (ert <= 50) ? 0.6F : 0.7F;
+
+    // K - Kleingaerten
+    if (nutz == 'K') return 0.7F;
+
+    // W - Wald
+    if (nutz == 'W') return 1.0F;
+
+    // Other
+    return 0.2F;
 }
 
 UsageResult Config::getUsageResult(int usage, int type, QString code)
