@@ -133,12 +133,14 @@ void TestAbimo::test_xmlReader()
 
 void TestAbimo::test_config_getTWS()
 {
-    QVERIFY(qFuzzyCompare(Config::getTWS(50, 'D'), 0.2F));
-    QVERIFY(qFuzzyCompare(Config::getTWS(50, 'L'), 0.6F));
-    QVERIFY(qFuzzyCompare(Config::getTWS(51, 'L'), 0.7F));
-    QVERIFY(qFuzzyCompare(Config::getTWS(50, 'K'), 0.7F));
-    QVERIFY(qFuzzyCompare(Config::getTWS(50, 'W'), 1.0F));
-    QVERIFY(qFuzzyCompare(Config::getTWS(50, '?'), 0.2F));
+    // Create configuration object
+    Config config;
+    QVERIFY(qFuzzyCompare(config.getTWS(50, 'D'), 0.2F));
+    QVERIFY(qFuzzyCompare(config.getTWS(50, 'L'), 0.6F));
+    QVERIFY(qFuzzyCompare(config.getTWS(51, 'L'), 0.7F));
+    QVERIFY(qFuzzyCompare(config.getTWS(50, 'K'), 0.7F));
+    QVERIFY(qFuzzyCompare(config.getTWS(50, 'W'), 1.0F));
+    QVERIFY(qFuzzyCompare(config.getTWS(50, '?'), 0.2F));
 }
 
 void TestAbimo::test_calc()
