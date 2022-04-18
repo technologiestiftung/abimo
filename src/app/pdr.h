@@ -20,18 +20,14 @@
 #ifndef PDR_H
 #define PDR_H
 
-typedef struct {
-    char usage;
-    int yield;
-    int irrigation;
-} t_usageYieldIrrigation;
+#include "config.h"
 
 class PDR
 {
 public:
     PDR();
     void setUsageYieldIrrigation(char usage, int yield = 0, int irrigation = 0);
-    void setUsageYieldIrrigation(t_usageYieldIrrigation tuple);
+    void setUsageYieldIrrigation(UsageTuple tuple);
     static float estimateWaterHoldingCapacity(int f30, int f150, bool isForest);
     static int estimateDaysOfGrowth(char usage, int yield);
 
