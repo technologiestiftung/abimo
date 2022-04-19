@@ -28,6 +28,7 @@ private slots:
     void test_xmlReader();
     void test_config_getTWS();
     void test_calc();
+    void test_bagrov();
 
     QString testDataDir();
     QString dataFilePath(QString fileName, bool mustExist = true);
@@ -159,6 +160,11 @@ void TestAbimo::test_calc()
     // Run the simulation with initial values from config file
     Calculation::calculate(inputFile, configFile, outputFile);
     QVERIFY(dbfStringsAreIdentical(outputFile, outFile_xmlConfig));
+}
+
+void TestAbimo::test_bagrov()
+{
+
 }
 
 bool TestAbimo::dbfStringsAreIdentical(QString file_1, QString file_2)

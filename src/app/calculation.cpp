@@ -444,20 +444,23 @@ void Calculation::setUsageYieldIrrigation(int usage, int type, QString code)
 // =============================================================================
 void Calculation::getKLIMA(int bez, QString code)
 {
-    /* Effektivitaetsparameter */
-    float nd = initValues.getBagdach();
-    float n1 = initValues.getBagbel1();
-    float n2 = initValues.getBagbel2();
-    float n3 = initValues.getBagbel3();
-    float n4 = initValues.getBagbel4();
-    float n, bag, zw;
+    // Effektivitaetsparameter
+    float bag;
 
-    /* ep = potential evaporation,
-       p = prepcipitation at ground level,
-       x = ratio of precipitation to potential evaporation,
-       y = ratio of real evaporation to potential evaporation,
-       etr = real evapotranspiration */
-    float ep, p, x, y, etr;
+    // ep = potential evaporation
+    float ep;
+
+    // prepcipitation at ground level
+    float p;
+
+    // ratio of precipitation to potential evaporation
+    float x;
+
+    // ratio of real evaporation to potential evaporation
+    float y;
+
+    // real evapotranspiration
+    float etr;
 
     QString bezString;
     bezString.setNum(bez);
@@ -473,10 +476,11 @@ void Calculation::getKLIMA(int bez, QString code)
     // parameter for the city districts
     if (ptrDA.NUT == 'G')
     {
-        if(initValues.hashEG.contains(bez)) {
+        if (initValues.hashEG.contains(bez)) {
             //take from xml
             ptrDA.ETP = initValues.hashEG.value(bez);
-        } else {
+        }
+        else {
             //default
             ptrDA.ETP = initValues.hashEG.contains(0) ? initValues.hashEG.value(0) : 775;
             QString egString;
@@ -529,44 +533,38 @@ void Calculation::getKLIMA(int bez, QString code)
     /* Berechnung des Abflusses RxV fuer versiegelte Teilflaechen mittels
        Umrechnung potentieller Verdunstungen ep zu realen über Umrechnungsfaktor y und
        subtrahiert von Niederschlag p */
-    bagrovObj.nbagro(&nd, &y, &x);
-    RDV = p - y * ep;
-    bagrovObj.nbagro(&n1, &y, &x);
-    R1V = p - y * ep;
-    bagrovObj.nbagro(&n2, &y, &x);
-    R2V = p - y * ep;
-    bagrovObj.nbagro(&n3, &y, &x);
-    R3V = p - y * ep;
-    bagrovObj.nbagro(&n4, &y, &x);
-    R4V = p - y * ep;
+
+    RDV = p - bagrovObj.nbagro(initValues.getBagdach(), x) * ep;
+    R1V = p - bagrovObj.nbagro(initValues.getBagbel1(), x) * ep;
+    R2V = p - bagrovObj.nbagro(initValues.getBagbel2(), x) * ep;
+    R3V = p - bagrovObj.nbagro(initValues.getBagbel3(), x) * ep;
+    R4V = p - bagrovObj.nbagro(initValues.getBagbel4(), x) * ep;
 
     // Calculate runoff RUV for unsealed partial surfaces
     if (ptrDA.NUT == 'G')
+    {
         RUV = p - ep;
+    }
     else
     {
         // Determine effectiveness parameter bag for unsealed surfaces
-        n = EffectivenessUnsealed::getNUV(ptrDA); /* Modul Raster abgespeckt */
+        bag = EffectivenessUnsealed::getNUV(ptrDA); /* Modul Raster abgespeckt */
 
-        if (ptrDA.P1S > 0 && ptrDA.ETPS > 0)
-        {
-            zw = (float) (ptrDA.P1S + ptrDA.BER + ptrDA.KR) / ptrDA.ETPS;
-            bag = getSummerModificationFactor(zw) * n;
+        if (ptrDA.P1S > 0 && ptrDA.ETPS > 0) {
+            bag *= getSummerModificationFactor((float) (ptrDA.P1S + ptrDA.BER + ptrDA.KR) / ptrDA.ETPS);
         }
-        else
-            bag = n;
-        x = (p + ptrDA.KR + ptrDA.BER) / ep;
-        bagrovObj.nbagro(&bag, &y, &x);
 
-        if (TAS < 0)
-            etr = (ep - y * ep) * (float) exp(ptrDA.FLW / TAS) + y * ep;
-        else
-            etr = y * ep;
+        y = bagrovObj.nbagro(bag, (p + ptrDA.KR + ptrDA.BER) / ep);
+
+        etr = y * ep;
+
+        if (TAS < 0) {
+            etr += (ep - y * ep) * (float) exp(ptrDA.FLW / TAS);
+        }
 
         RUV = p - etr;
     }
 }
-
 
 // =============================================================================
 // Get factor to be applied for "summer"
