@@ -528,17 +528,17 @@ void Calculation::getKLIMA(int bez, QString code)
     // ratio precipitation to potential evaporation
     x = p / ep;
 
-    Bagrov bagrovObj;
+    Bagrov bagrov;
 
     /* Berechnung des Abflusses RxV fuer versiegelte Teilflaechen mittels
        Umrechnung potentieller Verdunstungen ep zu realen über Umrechnungsfaktor y und
        subtrahiert von Niederschlag p */
 
-    RDV = p - bagrovObj.nbagro(initValues.getBagdach(), x) * ep;
-    R1V = p - bagrovObj.nbagro(initValues.getBagbel1(), x) * ep;
-    R2V = p - bagrovObj.nbagro(initValues.getBagbel2(), x) * ep;
-    R3V = p - bagrovObj.nbagro(initValues.getBagbel3(), x) * ep;
-    R4V = p - bagrovObj.nbagro(initValues.getBagbel4(), x) * ep;
+    RDV = p - bagrov.nbagro(initValues.getBagdach(), x) * ep;
+    R1V = p - bagrov.nbagro(initValues.getBagbel1(), x) * ep;
+    R2V = p - bagrov.nbagro(initValues.getBagbel2(), x) * ep;
+    R3V = p - bagrov.nbagro(initValues.getBagbel3(), x) * ep;
+    R4V = p - bagrov.nbagro(initValues.getBagbel4(), x) * ep;
 
     // Calculate runoff RUV for unsealed partial surfaces
     if (ptrDA.NUT == 'G')
@@ -551,10 +551,12 @@ void Calculation::getKLIMA(int bez, QString code)
         bag = EffectivenessUnsealed::getNUV(ptrDA); /* Modul Raster abgespeckt */
 
         if (ptrDA.P1S > 0 && ptrDA.ETPS > 0) {
-            bag *= getSummerModificationFactor((float) (ptrDA.P1S + ptrDA.BER + ptrDA.KR) / ptrDA.ETPS);
+            bag *= getSummerModificationFactor(
+                (float) (ptrDA.P1S + ptrDA.BER + ptrDA.KR) / ptrDA.ETPS
+            );
         }
 
-        y = bagrovObj.nbagro(bag, (p + ptrDA.KR + ptrDA.BER) / ep);
+        y = bagrov.nbagro(bag, (p + ptrDA.KR + ptrDA.BER) / ep);
 
         etr = y * ep;
 
