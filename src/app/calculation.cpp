@@ -462,9 +462,6 @@ void Calculation::getKLIMA(int bez, QString code)
     // real evapotranspiration
     float etr;
 
-    QString bezString;
-    bezString.setNum(bez);
-
     /*
      * spaeter zeizusaetzliche Parameter Hier ;
      * ptrDA.P1 = p1;
@@ -476,48 +473,23 @@ void Calculation::getKLIMA(int bez, QString code)
     // parameter for the city districts
     if (ptrDA.NUT == 'G')
     {
-        if (initValues.hashEG.contains(bez)) {
-            //take from xml
-            ptrDA.ETP = initValues.hashEG.value(bez);
-        }
-        else {
-            //default
-            ptrDA.ETP = initValues.hashEG.contains(0) ? initValues.hashEG.value(0) : 775;
-            QString egString;
-            egString.setNum(ptrDA.ETP);
-            protokollStream << "\r\nEG unbekannt fuer " + code + " von Bezirk " + bezString + "\r\nEG=" + egString + " angenommen\r\n";
-            counters.protcount++;
-        }
+        ptrDA.ETP = initValueOrReportedDefaultValue(
+            bez, code, initValues.hashEG, 775, "EG"
+        );
     }
     else
     {
-        if (initValues.hashETP.contains(bez)) {
-            //take from xml
-            ptrDA.ETP = initValues.hashETP.value(bez);
-        } else {
-            //default
-            ptrDA.ETP = initValues.hashETP.contains(0) ? initValues.hashETP.value(0) : 660;
-            QString etpString;
-            etpString.setNum(ptrDA.ETP);
-            protokollStream << "\r\nETP unbekannt fuer " + code + " von Bezirk " + bezString + "\r\nETP=" + etpString + " angenommen\r\n";
-            counters.protcount++;
-        }
+        ptrDA.ETP = initValueOrReportedDefaultValue(
+            bez, code, initValues.hashETP, 660, "ETP"
+        );
 
-        if (initValues.hashETPS.contains(bez)) {
-            //take from xml
-            ptrDA.ETPS = initValues.hashETPS.value(bez);
-        } else {
-            //default
-            ptrDA.ETPS = initValues.hashETPS.contains(0) ? initValues.hashETPS.value(0) : 530;
-            QString etpsString;
-            etpsString.setNum(ptrDA.ETPS);
-            protokollStream << "\r\nETPS unbekannt fuer " + code + " von Bezirk " + bezString + "\r\nETPS=" + etpsString + " angenommen\r\n";
-            counters.protcount++;
-        }
+        ptrDA.ETPS = initValueOrReportedDefaultValue(
+            bez, code, initValues.hashETPS, 530, "ETPS"
+        );
     }
 
     // declaration potential evaporation ep and precipitation p
-    ep = (float) ptrDA.ETP;                /* Korrektur mit 1.1 gestrichen */
+    ep = (float) ptrDA.ETP; /* Korrektur mit 1.1 gestrichen */
     p = (float) ptrDA.P1 * initValues.getNiedKorrF(); /* ptrDA.KF */
 
     /*
@@ -566,6 +538,32 @@ void Calculation::getKLIMA(int bez, QString code)
 
         RUV = p - etr;
     }
+}
+
+float Calculation::initValueOrReportedDefaultValue(
+    int bez, QString code, QHash<int, int> &hash, int defaultValue, QString name
+)
+{
+    if (hash.contains(bez)) {
+        //take from xml
+        return hash.value(bez);
+    }
+
+    //default
+    float result = hash.contains(0) ? hash.value(0) : defaultValue;
+
+    QString bezString;
+    bezString.setNum(bez);
+
+    QString string;
+    string.setNum(result);
+
+    protokollStream << "\r\n" + name + " unbekannt fuer " + code +
+        " von Bezirk " + bezString + "\r\n" + name +
+        "=" + string + " angenommen\r\n";
+    counters.protcount++;
+
+    return result;
 }
 
 // =============================================================================

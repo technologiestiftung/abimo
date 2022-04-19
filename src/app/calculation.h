@@ -115,6 +115,10 @@ private:
     void setUsageYieldIrrigation(int usage, int type, QString code);
     void logNotDefined(QString code, int type);
     void getKLIMA(int bez, QString codestr);
+    float initValueOrReportedDefaultValue(
+        int bez, QString code, QHash<int, int> &hash, int defaultValue,
+        QString name
+    );
 };
 
 #endif
