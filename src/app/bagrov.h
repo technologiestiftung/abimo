@@ -25,7 +25,7 @@ class Bagrov
 
 public:
     Bagrov();
-    void nbagro(float *bage, float *y, float *x);
+    float nbagro(float bage, float x);
     void bagrov(float *bagf, float *x0, float *y0);
 
 private:

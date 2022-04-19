@@ -70,29 +70,27 @@ const float Bagrov::aa[]= {
     6515.556685F   // 15
 };
 
-void Bagrov::nbagro(float *bage, float *y, float *x)
+float Bagrov::nbagro(float bage, float x)
 {
     int i, ia, ie, j;
     float bag, bag_plus_one, reciprocal_bag_plus_one;
-    float a, a0, a1, a2, b, c, epa, eyn, h13, h23, s1, s2, w, y0;
+    float a, a0, a1, a2, b, c, epa, eyn, h13, h23, sum_1, sum_2, w, y0;
 
     // General helper variable of type float
     float h;
 
-    // Set local bag value to input value bage, but to 20.0 at maximum
-    // read as: "take the smaller of the two values *bage, 20.0"
-    bag = MIN(*bage, 20.0);
-
-    // If input value x is already below a threshold, set y to 0.0 and return
-    if (*x < 0.0005F) {
-        *y = 0.0F;
-        return;
+    // If input value x is already below a threshold, return 0.0
+    if (x < 0.0005F) {
+        return 0.0F;
     }
 
     // Set input value x to 15.0 at maximum
-    *x = MIN(*x, 15.0F);
+    x = MIN(x, 15.0F);
 
-    // Calculate expressions that are used more than once
+    // Set local variable bag to value of parameter bage (20.0 at maximum)
+    bag = MIN(bage, 20.0);
+
+    // Calculate expressions that are based on bag
     bag_plus_one = bag + 1.0F;
     reciprocal_bag_plus_one = (float) (1.0 / bag_plus_one);
 
@@ -116,30 +114,45 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
     c = a1 - b;
     a = a0 / (b - c);
 
-    epa = (float) exp(*x / a);
+    epa = (float) exp(x / a);
 
     // NULLTE NAEHERUNGSLOESUNG (1. Naeherungsloesung)
     // Limit y0 to its maximum allowed value
     y0 = MIN((epa - 1.0F) / (b - c * epa), ALMOST_ONE);
 
-    // If bag is between a certain range set y to y0 and return
+    // If bag is between a certain range return y0
     if (bag >= 0.7F && bag <= 3.8F) {
-        *y = y0;
-        return;
+        return y0;
     }
 
+    // NUMERISCHE INTEGRATION FUER BAG > 3.8 (3. Naeherungsloesung)
     if (bag >= 3.8F) {
-        goto THIRD_APPROXIMATE_SOLUTION;
+        h = 1.0F;
+        i = 0;
+        while(fabs(h) > 0.001 && i < 15) {
+            y0 = MIN(y0, 0.999F);
+            epa = (float) exp(bag * log(y0));
+            h = MIN(MAX(1.0F - epa, ALMOST_ZERO), ALMOST_ONE);
+            h *= (y0 + epa * y0 / (float) (h - bag * epa / (float) log(h)) - x);
+            y0 -= h;
+            i++;
+        }
+
+        // Return y0 (1.0 at maximum)
+        return MIN(y0, 1.0);
     }
 
     // NUMERISCHE INTEGRATION FUER BAG<0.7 (2.Naeherungsloesung)
-    for (j = 1; j <= 30; j++)
+    //j = 1;
+
+    while (true/*j <= 30*/)
     {
         eyn = (float) exp(bag * log(y0));
 
-        // We have finished if eyn and/or bag are in a certain range
+        // If eyn, bag are in a certain range, return y0 (1.0 at maximum)
         if ((eyn > 0.9F) || (eyn >= UPPER_LIMIT_EYN && bag > 4.0F)) {
-            goto FINISH;
+            //*y = MIN(y0, 1.0);
+            return MIN(y0, 1.0);
         }
 
         // Set start and end index (?), depending on the value of eyn
@@ -152,8 +165,8 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
             ie = 6;
         }
 
-        s1 = 0.0F;
-        s2 = 0.0F;
+        sum_1 = 0.0F;
+        sum_2 = 0.0F;
         h = 1.0F;
 
         // Let i loop between start index ia and end index ie
@@ -162,54 +175,32 @@ void Bagrov::nbagro(float *bage, float *y, float *x)
             h *= eyn;
             w = aa[i - 1] * h;
             j = i - ia + 1; /* cls J=I-IA+1 */
-            s2 += w / (j * (float) bag + 1.0F);
-            s1 += w;
+            sum_2 += w / (j * (float) bag + 1.0F);
+            sum_1 += w;
         }
 
-        ia--;
-
-        h = aa[ia - 1];
-        h = (*x - y0 * s2 - y0 * h) / (h + s1);
+        h = aa[ia - 2];
+        h = (x - y0 * sum_2 - y0 * h) / (h + sum_1);
 
         y0 += h;
 
         // Break out of this loop if a condition is met
-        if (fabs(h) / y0 < 0.007F) break;
+        if (fabs(h) / y0 < 0.007F) {
+            break;
+        }
+
+        //j++;
     }
 
     if (y0 > 0.9) {
-        bagrov(&bag, x, &y0);
+        bagrov(&bag, &x, &y0);
     }
     else {
       //qDebug() << "y0 <= 0.9 -> not calling bagrov()";
     }
-    goto FINISH;
 
-THIRD_APPROXIMATE_SOLUTION:
-
-    // NUMERISCHE INTEGRATION FUER BAG > 3.8 (3. Naeherungsloesung)
-    h = 1.0F;
-
-    // Reset iterator variable to be used in following while()
-    i = 0;
-
-    while(fabs(h) > 0.001 && i < 15) {
-
-        y0 = MIN(y0, 0.999F);
-
-        epa = (float) exp(bag * log(y0));
-
-        h = MIN(MAX(1.0F - epa, ALMOST_ZERO), ALMOST_ONE);
-        h *= (y0 + epa * y0 / (float) (h - bag * epa / (float) log(h)) - *x);
-
-        y0 -= h;
-
-        i++;
-    }
-
-FINISH:
-    // Set result value y to y0 or 1.0 at maximum
-    *y = MIN(y0, 1.0);
+    // Return y0 (1.0 at maximum)
+    return MIN(y0, 1.0);
 }
 
 /*
