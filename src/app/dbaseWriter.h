@@ -46,8 +46,6 @@ public:
     QString getError();
 
 private:
-    // VARIABLES:
-    /////////////
     QString fileName;
     QVector< QVector<QString> > record;
     QDate date;
