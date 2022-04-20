@@ -136,12 +136,12 @@ void TestAbimo::test_config_getTWS()
 {
     // Create configuration object
     Config config;
-    QVERIFY(qFuzzyCompare(config.getTWS(50, 'D'), 0.2F));
-    QVERIFY(qFuzzyCompare(config.getTWS(50, 'L'), 0.6F));
-    QVERIFY(qFuzzyCompare(config.getTWS(51, 'L'), 0.7F));
-    QVERIFY(qFuzzyCompare(config.getTWS(50, 'K'), 0.7F));
-    QVERIFY(qFuzzyCompare(config.getTWS(50, 'W'), 1.0F));
-    QVERIFY(qFuzzyCompare(config.getTWS(50, '?'), 0.2F));
+    QVERIFY(qFuzzyCompare(config.getTWS(50, Usage::vegetationless_D), 0.2F));
+    QVERIFY(qFuzzyCompare(config.getTWS(50, Usage::agricultural_L), 0.6F));
+    QVERIFY(qFuzzyCompare(config.getTWS(51, Usage::agricultural_L), 0.7F));
+    QVERIFY(qFuzzyCompare(config.getTWS(50, Usage::horticultural_K), 0.7F));
+    QVERIFY(qFuzzyCompare(config.getTWS(50, Usage::forested_W), 1.0F));
+    QVERIFY(qFuzzyCompare(config.getTWS(50, Usage::unknown), 0.2F));
 }
 
 void TestAbimo::test_calc()

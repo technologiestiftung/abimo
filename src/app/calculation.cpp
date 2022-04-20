@@ -384,7 +384,7 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString code)
     // declaration of yield power (ERT) and irrigation (BER) for agricultural or gardening purposes
     setUsageYieldIrrigation(nutz, typ, code);
 
-    if (ptrDA.NUT != 'G')
+    if (ptrDA.NUT != Usage::waterbody_G)
     {
         /* pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS */
         TAS = ptrDA.FLW - config->getTWS(ptrDA.ERT, ptrDA.NUT);
@@ -392,7 +392,7 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString code)
         /* Feldkapazitaet */
         /* cls_6b: der Fall der mit NULL belegten FELD_30 und FELD_150 Werte
            wird hier im erten Fall behandelt - ich erwarte dann den Wert 0 */
-        ptrDA.nFK = PDR::estimateWaterHoldingCapacity(f30, f150, ptrDA.NUT == 'W');
+        ptrDA.nFK = PDR::estimateWaterHoldingCapacity(f30, f150, ptrDA.NUT == Usage::forested_W);
 
         /*
          * mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres ;
@@ -471,7 +471,7 @@ void Calculation::getKLIMA(int bez, QString code)
     ptrDA.P1S = regenso;
 
     // parameter for the city districts
-    if (ptrDA.NUT == 'G')
+    if (ptrDA.NUT == Usage::waterbody_G)
     {
         ptrDA.ETP = initValueOrReportedDefaultValue(
             bez, code, initValues.hashEG, 775, "EG"
@@ -513,7 +513,7 @@ void Calculation::getKLIMA(int bez, QString code)
     R4V = p - bagrov.nbagro(initValues.getBagbel4(), x) * ep;
 
     // Calculate runoff RUV for unsealed partial surfaces
-    if (ptrDA.NUT == 'G')
+    if (ptrDA.NUT == Usage::waterbody_G)
     {
         RUV = p - ep;
     }

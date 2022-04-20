@@ -26,7 +26,7 @@
 
 #include "dbaseReader.h"
 #include "initvalues.h"
-#include "pdr.h"
+#include "config.h"
 
 struct Counters {
 

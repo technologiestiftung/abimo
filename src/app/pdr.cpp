@@ -27,7 +27,7 @@ PDR::PDR():
     wIndex(0),
     nFK(0),
     FLW(0),
-    NUT(0),
+    NUT(Usage::unknown),
     R(0),
     ROW(0),
     RI(0),
@@ -41,7 +41,7 @@ PDR::PDR():
     ETPS(0)
 {}
 
-void PDR::setUsageYieldIrrigation(char usage, int yield, int irrigation)
+void PDR::setUsageYieldIrrigation(Usage usage, int yield, int irrigation)
 {
     this->NUT = usage;
     this->ERT = yield;
@@ -56,15 +56,15 @@ void PDR::setUsageYieldIrrigation(UsageTuple tuple)
 }
 
 // mittlere Zahl der Wachstumstage
-int PDR::estimateDaysOfGrowth(char usage, int yield)
+int PDR::estimateDaysOfGrowth(Usage usage, int yield)
 {
     switch (usage)
     {
-    case 'L': return (yield <= 50) ? 60 : 75;
-    case 'K': return 100;
-    case 'W': return 90;
-    case 'D': return 50;
-    default:  return 50;
+        case Usage::agricultural_L: return (yield <= 50) ? 60 : 75;
+        case Usage::horticultural_K: return 100;
+        case Usage::forested_W: return 90;
+        case Usage::vegetationless_D: return 50;
+        default: return 50;
     }
 }
 

@@ -33,9 +33,9 @@ EffectivenessUnsealed::EffectivenessUnsealed()
 float EffectivenessUnsealed::getNUV(PDR &record)
 {
     float G020 = getG02((int) (record.nFK + 0.5));
-    char usage = record.NUT;
+    Usage usage = record.NUT;
 
-    if (usage == 'W') {
+    if (usage == Usage::forested_W) {
         return bag0_forest(G020);
     }
 
