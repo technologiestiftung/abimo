@@ -4,22 +4,13 @@
 #include <QHash>
 #include <QString>
 
-struct UsageResult{
-    int tupleIndex;
-    QString message;
-};
-
-struct UsageTuple{
-    char usage;
-    int yield;
-    int irrigation;
-};
+#include "pdr.h" // for MainUsage, UsageResult, UsageTuple
 
 class Config
 {
 public:
     Config();
-    float getTWS(int ert, char nutz);
+    float getTWS(int ert, Usage nutz);
     UsageResult getUsageResult(int usage, int type, QString code);
     UsageTuple getUsageTuple(int tupleID);
 

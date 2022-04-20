@@ -20,16 +20,45 @@
 #ifndef PDR_H
 #define PDR_H
 
-#include "config.h"
+#include <QString>
+
+// Descriptions from here:
+// https://www.berlin.de/umweltatlas/_assets/wasser/wasserhaushalt/
+//   de-abbildungen/maxsize_405ab3ac7c0e2104d3a03c317ddd93f0_a213_02a.jpg
+enum struct Usage: char {
+    // landwirtschaftliche Nutzflaeche (einschliesslich Graland)
+    agricultural_L = 'L',
+    // forstliche Nutzflaeche (Annahme gleichmaessig verteilter Bestandsaltersgruppen)
+    forested_W = 'W',
+    // Gewaesserflaeche
+    waterbody_G = 'G',
+    whatDoesBMean_B = 'B',
+    // gaertnerische Nutzflaeche (programmintern: BER = 75 mm/a)
+    horticultural_K = 'K',
+    // vegetationslose Flaeche
+    vegetationless_D = 'D',
+    unknown = '?'
+};
+
+struct UsageResult {
+    int tupleIndex;
+    QString message;
+};
+
+struct UsageTuple {
+    Usage usage;
+    int yield;
+    int irrigation;
+};
 
 class PDR
 {
 public:
     PDR();
-    void setUsageYieldIrrigation(char usage, int yield = 0, int irrigation = 0);
+    void setUsageYieldIrrigation(Usage usage, int yield = 0, int irrigation = 0);
     void setUsageYieldIrrigation(UsageTuple tuple);
     static float estimateWaterHoldingCapacity(int f30, int f150, bool isForest);
-    static int estimateDaysOfGrowth(char usage, int yield);
+    static int estimateDaysOfGrowth(Usage usage, int yield);
 
     // Elementnummer EB_INDEX neu
     unsigned wIndex;
@@ -42,7 +71,7 @@ public:
     float FLW;
 
     // Hauptnutzungsform [L,W,G,B,K,D] ID_NUT 001 C
-    char NUT;
+    Usage NUT;
 
     // Langjaehriger MW des Gesamtabflusses [mm/a] 004 N
     int R;

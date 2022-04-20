@@ -1,6 +1,7 @@
 #include <QHash>
 
 #include "config.h"
+#include "pdr.h"
 
 Config::Config()
 {    
@@ -15,22 +16,22 @@ void Config::initUsageYieldIrrigationTuples()
     // NUT = 'K': gardening
     // NUT = 'L': agricultural land use
 
-    usageTuples[ 0] = {'D',  1,   0};
-    usageTuples[ 1] = {'G',  0,   0};
-    usageTuples[ 2] = {'K', 40,  75};
-    usageTuples[ 3] = {'L', 10,   0};
-    usageTuples[ 4] = {'L', 25,   0};
-    usageTuples[ 5] = {'L', 30,   0};
-    usageTuples[ 6] = {'L', 35,   0};
-    usageTuples[ 7] = {'L', 40,   0};
-    usageTuples[ 8] = {'L', 45,   0};
-    usageTuples[ 9] = {'L', 45,  50};
-    usageTuples[10] = {'L', 50,   0};
-    usageTuples[11] = {'L', 50, 100};
-    usageTuples[12] = {'L', 50,  50};
-    usageTuples[13] = {'L', 55,  75};
-    usageTuples[14] = {'L', 60,   0};
-    usageTuples[15] = {'W',  0,   0};
+    usageTuples[ 0] = {Usage::vegetationless_D,  1,   0};
+    usageTuples[ 1] = {Usage::waterbody_G,       0,   0};
+    usageTuples[ 2] = {Usage::horticultural_K,  40,  75};
+    usageTuples[ 3] = {Usage::agricultural_L,   10,   0};
+    usageTuples[ 4] = {Usage::agricultural_L,   25,   0};
+    usageTuples[ 5] = {Usage::agricultural_L,   30,   0};
+    usageTuples[ 6] = {Usage::agricultural_L,   35,   0};
+    usageTuples[ 7] = {Usage::agricultural_L,   40,   0};
+    usageTuples[ 8] = {Usage::agricultural_L,   45,   0};
+    usageTuples[ 9] = {Usage::agricultural_L,   45,  50};
+    usageTuples[10] = {Usage::agricultural_L,   50,   0};
+    usageTuples[11] = {Usage::agricultural_L,   50, 100};
+    usageTuples[12] = {Usage::agricultural_L,   50,  50};
+    usageTuples[13] = {Usage::agricultural_L,   55,  75};
+    usageTuples[14] = {Usage::agricultural_L,   60,   0};
+    usageTuples[15] = {Usage::forested_W,        0,   0};
 }
 
 //==============================================================================
@@ -170,22 +171,22 @@ void Config::initUsageAndTypeToTupleHash()
 //==============================================================================
 //    Bestimmung der Durchwurzelungstiefe TWS
 //==============================================================================
-float Config::getTWS(int ert, char nutz)
+float Config::getTWS(int ert, Usage nutz)
 {
     // Zuordnung Durchwurzelungstiefe in Abhaengigkeit der Nutzung
     switch(nutz) {
 
         // D - Devastierung
-        case 'D': return 0.2F;
+        case Usage::vegetationless_D: return 0.2F;
 
         // L - landwirtschaftliche Nutzung
-        case 'L': return (ert <= 50) ? 0.6F : 0.7F;
+        case Usage::agricultural_L: return (ert <= 50) ? 0.6F : 0.7F;
 
         // K - Kleingaerten
-        case 'K': return 0.7F;
+        case Usage::horticultural_K: return 0.7F;
 
         // W - Wald
-        case 'W': return 1.0F;
+        case Usage::forested_W: return 1.0F;
 
         // Other
         default: return 0.2F;
