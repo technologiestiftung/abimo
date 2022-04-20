@@ -168,7 +168,7 @@ bool DbaseWriter::write()
     return true;
 }
 
-void DbaseWriter::writeDate(QByteArray &data, int startIndex, QDate date)
+void DbaseWriter::writeDate(QByteArray &data, int index, QDate date)
 {
     int year = date.year();
     int year2 = year % 100;
@@ -180,9 +180,9 @@ void DbaseWriter::writeDate(QByteArray &data, int startIndex, QDate date)
     int month = date.month();
     int day = date.day();
 
-    data[1] = (quint8)year2; // Jahr
-    data[2] = (quint8)month; // Monat
-    data[3] = (quint8)day;   // Tag
+    data[index] = (quint8)year2; // Jahr
+    data[index + 1] = (quint8)month; // Monat
+    data[index + 2] = (quint8)day;   // Tag
 }
 
 void DbaseWriter::addRecord()
