@@ -66,19 +66,7 @@ bool DbaseWriter::write()
     data.resize(lengthOfHeader);
     data[0] = (quint8)0x03;
 
-    int year = date.year();
-    int year2 = year % 100;
-
-    if (year > 2000) {
-        year2 += 100;
-    }
-
-    int month = date.month();
-    int day = date.day();
-
-    data[1] = (quint8)year2; // Jahr
-    data[2] = (quint8)month; // Monat
-    data[3] = (quint8)day;   // Tag
+    writeDate(data, 1, date);
 
     data[4] = (quint8)recNum;
     data[5] = (quint8)(recNum >> 8);
@@ -178,6 +166,23 @@ bool DbaseWriter::write()
     o_file.close();
 
     return true;
+}
+
+void DbaseWriter::writeDate(QByteArray &data, int startIndex, QDate date)
+{
+    int year = date.year();
+    int year2 = year % 100;
+
+    if (year > 2000) {
+        year2 += 100;
+    }
+
+    int month = date.month();
+    int day = date.day();
+
+    data[1] = (quint8)year2; // Jahr
+    data[2] = (quint8)month; // Monat
+    data[3] = (quint8)day;   // Tag
 }
 
 void DbaseWriter::addRecord()

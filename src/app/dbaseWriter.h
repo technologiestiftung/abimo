@@ -20,6 +20,7 @@
 #ifndef DBASEWRITER_H
 #define DBASEWRITER_H
 
+#include <QByteArray>
 #include <QDate>
 #include <QHash>
 #include <QString>
@@ -55,6 +56,7 @@ private:
     int lengthOfEachRecord;
     int recNum;
     DbaseField fields[countFields];
+    void writeDate(QByteArray &data, int startIndex, QDate date);
 };
 
 #endif
