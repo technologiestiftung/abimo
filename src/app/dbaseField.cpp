@@ -23,26 +23,27 @@
 
 #include "dbaseField.h"
 
-DbaseField::DbaseField()
+DbaseField::DbaseField():
+    fieldLength(0),
+    decimalCount(0)
 {
-    fieldLength = 0;
-    decimalCount = 0;
 }
 
 DbaseField::DbaseField(QByteArray array)
 {
     this->name = QString(array.left(10));
-    this->type = QString((QChar)array[11]);
-    this->fieldLength = (quint8)array[16];
-    this->decimalCount = (quint8)array[17];
+    this->type = QString((QChar) array[11]);
+    this->fieldLength = (quint8) array[16];
+    this->decimalCount = (quint8) array[17];
 }
 
 DbaseField::DbaseField(QString name, QString type, int decimalCount)
 {
-    this->name = QString(name);
-    this->type = QString(type);
-    this->fieldLength = 0;
-    this->decimalCount = decimalCount;
+    set(name, type, decimalCount);
+}
+
+DbaseField::~DbaseField()
+{
 }
 
 void DbaseField::set(QString name, QString type, int decimalCount)
@@ -51,10 +52,6 @@ void DbaseField::set(QString name, QString type, int decimalCount)
     this->type = QString(type);
     this->fieldLength = 0;
     this->decimalCount = decimalCount;
-}
-
-DbaseField::~DbaseField()
-{
 }
 
 QString DbaseField::getName()
