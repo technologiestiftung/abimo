@@ -54,7 +54,9 @@ private:
     int lengthOfEachRecord;
     int recNum;
     DbaseField fields[countFields];
-    void writeDate(QByteArray &data, int index, QDate date);
+    void writeThreeByteDate(QByteArray &data, int index, QDate date);
+    void writeFourByteInteger(QByteArray &data, int index, int value);
+    void writeTwoByteInteger(QByteArray &data, int index, int value);
 };
 
 #endif

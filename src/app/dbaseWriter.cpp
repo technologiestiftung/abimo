@@ -64,17 +64,18 @@ bool DbaseWriter::write()
 {
     QByteArray data;
     data.resize(lengthOfHeader);
+
+    // Write start byte
     data[0] = (quint8)0x03;
 
-    writeDate(data, 1, date);
+    // Write date at bytes 1 to 3
+    writeThreeByteDate(data, 1, date);
 
-    data[4] = (quint8)recNum;
-    data[5] = (quint8)(recNum >> 8);
-    data[6] = (quint8)(recNum >> 16);
-    data[7] = (quint8)(recNum >> 24);
+    // Write record number at bytes 4 to 7
+    writeFourByteInteger(data, 4, recNum);
 
-    data[8] = (quint8)lengthOfHeader;
-    data[9] = (quint8)(lengthOfHeader >> 8);
+    // Write length of header at bytes 8 to 9
+    writeTwoByteInteger(data, 8, lengthOfHeader);
 
     lengthOfEachRecord = 1;
 
@@ -168,7 +169,7 @@ bool DbaseWriter::write()
     return true;
 }
 
-void DbaseWriter::writeDate(QByteArray &data, int index, QDate date)
+void DbaseWriter::writeThreeByteDate(QByteArray &data, int index, QDate date)
 {
     int year = date.year();
     int year2 = year % 100;
@@ -183,6 +184,20 @@ void DbaseWriter::writeDate(QByteArray &data, int index, QDate date)
     data[index] = (quint8)year2; // Jahr
     data[index + 1] = (quint8)month; // Monat
     data[index + 2] = (quint8)day;   // Tag
+}
+
+void DbaseWriter::writeFourByteInteger(QByteArray &data, int index, int value)
+{
+    data[index] = (quint8) value;
+    data[index + 1] = (quint8) (value >> 8);
+    data[index + 2] = (quint8) (value >> 16);
+    data[index + 3] = (quint8) (value >> 24);
+}
+
+void DbaseWriter::writeTwoByteInteger(QByteArray &data, int index, int value)
+{
+    data[index] = (quint8) value;
+    data[index + 1] = (quint8)(value >> 8);
 }
 
 void DbaseWriter::addRecord()
