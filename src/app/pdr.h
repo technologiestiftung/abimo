@@ -32,11 +32,11 @@ enum struct Usage: char {
     forested_W = 'W',
     // Gewaesserflaeche
     waterbody_G = 'G',
-    whatDoesBMean_B = 'B',
     // gaertnerische Nutzflaeche (programmintern: BER = 75 mm/a)
     horticultural_K = 'K',
     // vegetationslose Flaeche
     vegetationless_D = 'D',
+    // initial value
     unknown = '?'
 };
 
