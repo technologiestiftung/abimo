@@ -63,98 +63,14 @@ QString DbaseWriter::getError()
 bool DbaseWriter::write()
 {
     QByteArray data;
+
     data.resize(lengthOfHeader);
 
-    // Write start byte
-    data[0] = (quint8)0x03;
+    // Write the file header containing e.g. names and types of fields
+    writeFileHeader(data);
 
-    // Write date at bytes 1 to 3
-    writeThreeByteDate(data, 1, date);
-
-    // Write record number at bytes 4 to 7
-    writeFourByteInteger(data, 4, recNum);
-
-    // Write length of header at bytes 8 to 9
-    writeTwoByteInteger(data, 8, lengthOfHeader);
-
-    lengthOfEachRecord = 1;
-
-    for (int i = 0; i < countFields; i++) {
-        lengthOfEachRecord += fields[i].getFieldLength();
-    }
-
-    data[10] = (quint8)lengthOfEachRecord;
-    data[11] = (quint8)(lengthOfEachRecord >> 8);
-
-    for (int i = 12; i <= 28; i++) {
-        data[i] = (quint8)0x00;
-    }
-
-    data[29] = (quint8)0x57; // wie in der input-Datei ???
-    data[30] = (quint8)0x00;
-    data[31] = (quint8)0x00;
-
-    int headCounter = 32;
-
-    for (int i = 0; i < countFields; i++) {
-
-        // name
-        QString name = fields[i].getName();
-        QString typ = fields[i].getType();
-
-        for (int k = 0; k < 11; k++) {
-            if (k < name.size()) {
-                data[headCounter++] = (quint8)(name[k].toLatin1());
-            }
-            else {
-                data[headCounter++]= (quint8)0x00;
-            }
-        }
-
-        data[headCounter++] = (quint8)(typ[0].toLatin1());
-
-        for (int k = 12; k < 16; k++) {
-            data[headCounter++]= (quint8)0x00;
-        }
-
-        data[headCounter++] = (quint8)fields[i].getFieldLength();
-        data[headCounter++] = (quint8)fields[i].getDecimalCount();
-
-        for(int k = 18; k < 32; k++) {
-            data[headCounter++]= (quint8)0x00;
-        }
-    }
-
-    data[headCounter++] = (quint8)0x0D;
-
-    for (int rec = 0; rec < recNum; rec++) {
-
-        QVector<QString> vec = record.at(rec);
-        data.append(QChar(0x20));
-
-        for (int field = 0; field < countFields; field++) {
-            int fieldLength = fields[field].getFieldLength();
-            if (fields[field].getDecimalCount() > 0) {
-                QString str = vec.at(field);
-                QStringList strlist = str.split(".");
-                int frontLength = fieldLength - 1 - fields[field].getDecimalCount();
-                if (strlist.at(0).contains('-')) {
-                    data.append(QString("-"));
-                    data.append(strlist.at(0).right(strlist.at(0).length() - 1).rightJustified(frontLength-1, QChar(0x30)));
-                }
-                else {
-                    data.append(strlist.at(0).rightJustified(frontLength, QChar(0x30)));
-                }
-                data.append(".");
-                data.append(strlist.at(1).leftJustified(fields[field].getDecimalCount(), QChar(0x30)));
-            }
-            else {
-                data.append(vec.at(field).rightJustified(fieldLength, QChar(0x30)));
-            }
-        }
-    }
-
-    data.append(QChar(0x1A));
+    // Append the actual data
+    writeFileData(data);
 
     QFile o_file(fileName);
 
@@ -169,7 +85,113 @@ bool DbaseWriter::write()
     return true;
 }
 
-void DbaseWriter::writeThreeByteDate(QByteArray &data, int index, QDate date)
+int DbaseWriter::writeFileHeader(QByteArray &data)
+{
+    int index = 0;
+
+    // Write start byte
+    index = writeBytes(data, index, 0x03, 1);
+
+    // Write date at bytes 1 to 3
+    index = writeThreeByteDate(data, index, date);
+
+    // Write record number at bytes 4 to 7
+    index = writeFourByteInteger(data, index, recNum);
+
+    // Write length of header at bytes 8 to 9
+    index = writeTwoByteInteger(data, index, lengthOfHeader);
+
+    // Calculate the length of one data row in bytes (1 byte separator?)
+    lengthOfEachRecord = 1;
+
+    for (int i = 0; i < countFields; i++) {
+        lengthOfEachRecord += fields[i].getFieldLength();
+    }
+
+    // Write length of data row at bytes 10, 11
+    index = writeTwoByteInteger(data, index, lengthOfEachRecord);
+
+    // Write zeros at bytes 12 .. 28
+    index = writeBytes(data, index, 0x00, 17);
+
+    // wie in der input-Datei ??? byte 29 = language driver code (0x57 = ANSI)
+    index = writeBytes(data, index, 0x57, 1); // byte 29
+    index = writeBytes(data, index, 0x00, 2); // bytes 30, 31
+
+    for (int i = 0; i < countFields; i++) {
+
+        // Write name to data, fill up with zeros
+        QString name = fields[i].getName();
+        for (int k = 0; k < 11; k++) {
+            int value = ((k < name.size())? name[k].toLatin1() : 0x00);
+            index = writeBytes(data, index, value, 1);
+        }
+
+        // Write type to data, fill up with zeros
+        QString type = fields[i].getType();
+        index = writeBytes(data, index, type[0].toLatin1(), 1);
+        index = writeBytes(data, index, 0x00, 4);
+
+        // Write field length and decimal count to data (one byte each)
+        index = writeBytes(data, index, fields[i].getFieldLength(), 1);
+        index = writeBytes(data, index, fields[i].getDecimalCount(), 1);
+
+        // Write 14 zeros
+        index = writeBytes(data, index, 0x00, 14);
+    }
+
+    // Indicate the end of the header by writing a special byte
+    index = writeBytes(data, index, 0x0D, 1);
+
+    return index;
+}
+
+void DbaseWriter::writeFileData(QByteArray &data)
+{
+    QVector<QString> strings;
+
+    for (int rec = 0; rec < recNum; rec++) {
+
+        strings = record.at(rec);
+        data.append(QChar(0x20));
+
+        for (int field = 0; field < countFields; field++) {
+
+            int fieldLength = fields[field].getFieldLength();
+
+            if (fields[field].getDecimalCount() > 0) {
+                QString str = strings.at(field);
+                QStringList strlist = str.split(".");
+                int frontLength = fieldLength - 1 - fields[field].getDecimalCount();
+                if (strlist.at(0).contains('-')) {
+                    data.append(QString("-"));
+                    data.append(strlist.at(0).right(strlist.at(0).length() - 1).rightJustified(frontLength-1, QChar(0x30)));
+                }
+                else {
+                    data.append(strlist.at(0).rightJustified(frontLength, QChar(0x30)));
+                }
+                data.append(".");
+                data.append(strlist.at(1).leftJustified(fields[field].getDecimalCount(), QChar(0x30)));
+            }
+            else {
+                data.append(strings.at(field).rightJustified(fieldLength, QChar(0x30)));
+            }
+        }
+    }
+
+    data.append(QChar(0x1A));
+}
+
+int DbaseWriter::writeBytes(QByteArray &data, int index, int value, int n_values)
+{
+    for (int i = index; i < index + n_values; i++) {
+        data[i] = (quint8) value;
+    }
+
+    return index + n_values;
+}
+
+int DbaseWriter::writeThreeByteDate(QByteArray &data, int index, QDate date)
 {
     int year = date.year();
     int year2 = year % 100;
@@ -181,23 +203,29 @@ void DbaseWriter::writeThreeByteDate(QByteArray &data, int index, QDate date)
     int month = date.month();
     int day = date.day();
 
-    data[index] = (quint8)year2; // Jahr
-    data[index + 1] = (quint8)month; // Monat
-    data[index + 2] = (quint8)day;   // Tag
+    data[index] = (quint8) year2;
+    data[index + 1] = (quint8) month;
+    data[index + 2] = (quint8) day;
+
+    return index + 3;
 }
 
-void DbaseWriter::writeFourByteInteger(QByteArray &data, int index, int value)
+int DbaseWriter::writeFourByteInteger(QByteArray &data, int index, int value)
 {
     data[index] = (quint8) value;
     data[index + 1] = (quint8) (value >> 8);
     data[index + 2] = (quint8) (value >> 16);
     data[index + 3] = (quint8) (value >> 24);
+
+    return index + 4;
 }
 
-void DbaseWriter::writeTwoByteInteger(QByteArray &data, int index, int value)
+int DbaseWriter::writeTwoByteInteger(QByteArray &data, int index, int value)
 {
     data[index] = (quint8) value;
     data[index + 1] = (quint8)(value >> 8);
+
+    return index + 2;
 }
 
 void DbaseWriter::addRecord()
