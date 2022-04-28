@@ -128,12 +128,14 @@ int main_batch(int argc, char *argv[])
     parser.process(app);
 
     const QStringList positionalArgs = parser.positionalArguments();
-    //QString inputFileName = positionalArgs.at(0);
     QString inputFileName = Helpers::positionalArgOrNULL(&parser, 0);
 
-    //QString outputFileName = positionalArgs.at(1);
-    //QString outputFileName = Helpers::positionalArgOrNULL(&parser, 1);
-    QString outputFileName = Helpers::defaultOutputFileName(inputFileName);
+    QString outputFileName = Helpers::positionalArgOrNULL(&parser, 1);
+
+    // If no output file name was given, create a default output file name
+    if (outputFileName == NULL) {
+        outputFileName = Helpers::defaultOutputFileName(inputFileName);
+    }
 
     QString configFileName= parser.value("config");
 
@@ -141,7 +143,6 @@ int main_batch(int argc, char *argv[])
     bool debug = parser.isSet("debug");
 
     // Handle --write_bagrov-table
-    //if (argc > 1 && strcmp(argv[1], "--write-bagrov-table") == 0) {
     if (parser.isSet("write-bagrov-table")) {
         writeBagrovTable();
         return 0;
