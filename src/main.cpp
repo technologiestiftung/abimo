@@ -18,12 +18,60 @@
  ***************************************************************************/
 
 #include <QApplication>
+#include <QDebug>
 #include <QLabel>
 #include "mainwindow.h"
+
+void writeBagrovTable(
+    float bag_min = 0.1F,
+    float bag_max = 1.0F,
+    float bag_step = 0.1F,
+    float x_min = 0.1F,
+    float x_max = 15.1F,
+    float x_step = 0.1F
+);
+
 int main(int argc, char *argv[])
 {
+    if (argc > 1 && strcmp(argv[1], "--write-bagrov-table") == 0) {
+        writeBagrovTable();
+        return 0;
+    }
+
     QApplication app(argc, argv);
     MainWindow mainWin(&app);
     mainWin.show();
     return app.exec();
+}
+
+QTextStream& qStdOut()
+{
+    static QTextStream ts( stdout );
+    return ts;
+}
+
+void writeBagrovTable(float bag_min, float bag_max, float bag_step,
+                      float x_min, float x_max, float x_step)
+{
+    qStdOut() << "# Writing a table of bagrov values to stdout...\n";
+    qStdOut() << "bag,x,y\n";
+
+    Bagrov bagrov;
+
+    float y = 0.0;
+    float bag = bag_min;
+
+    while(bag <= bag_max) {
+
+        float x = x_min;
+
+        while(x <= x_max) {
+            float xtmp = x;
+            bagrov.nbagro(&bag, &y, &xtmp);
+            qStdOut() << bag << "," << x << "," << y << "\n";
+            x += x_step;
+        }
+
+        bag += bag_step;
+    }
 }
