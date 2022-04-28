@@ -28,6 +28,7 @@
 #include <QtDebug>
 
 #include "main.h"
+#include "bagrov.h"
 #include "calculation.h"
 #include "constants.h"
 #include "dbaseReader.h"
@@ -82,10 +83,18 @@ void defineParser(QCommandLineParser* parser)
     QCommandLineOption configOption(
         QStringList() << "c" << "config",
         QCoreApplication::translate("main", "Override initial values with values in 'config.xml'"),
-        QCoreApplication::translate("main", "config-file"));
+        QCoreApplication::translate("main", "config-file")
+    );
+
+    // Option --write-bagrov-table
+    QCommandLineOption bagrovOption(
+        QStringList() << "b" << "write-bagrov-table",
+        QCoreApplication::translate("main", "Output table of Bagrov calculations")
+    );
 
     parser->addOption(debugOption);
     parser->addOption(configOption);
+    parser->addOption(bagrovOption);
 }
 
 void debugInputs(
@@ -108,7 +117,7 @@ void debugInputs(
 // --config ..\config.xml ..\abimo_2012ges.dbf ..\abimo-result.dbf
 
 int main_batch(int argc, char *argv[])
-{
+{    
     QCoreApplication app(argc, argv);
     app.setApplicationVersion(VERSION_STRING);
 
@@ -130,6 +139,13 @@ int main_batch(int argc, char *argv[])
 
     QString logFileName = Helpers::defaultLogFileName(outputFileName);
     bool debug = parser.isSet("debug");
+
+    // Handle --write_bagrov-table
+    //if (argc > 1 && strcmp(argv[1], "--write-bagrov-table") == 0) {
+    if (parser.isSet("write-bagrov-table")) {
+        writeBagrovTable();
+        return 0;
+    }
 
     debugInputs(inputFileName, outputFileName, configFileName, logFileName, debug);
 
@@ -204,4 +220,36 @@ int main(int argc, char *argv[])
 
     // Start GUI version...
     return main_gui(argc, argv);
+}
+
+QTextStream& qStdOut()
+{
+    static QTextStream ts( stdout );
+    return ts;
+}
+
+void writeBagrovTable(float bag_min, float bag_max, float bag_step,
+                      float x_min, float x_max, float x_step)
+{
+    qStdOut() << "# Writing a table of bagrov values to stdout...\n";
+    qStdOut() << "bag,x,y\n";
+
+    Bagrov bagrov;
+
+    float y = 0.0;
+    float bag = bag_min;
+
+    while(bag <= bag_max) {
+
+        float x = x_min;
+
+        while(x <= x_max) {
+            float xtmp = x;
+            y = bagrov.nbagro(bag, xtmp);
+            qStdOut() << bag << "," << x << "," << y << "\n";
+            x += x_step;
+        }
+
+        bag += bag_step;
+    }
 }
