@@ -1,8 +1,8 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-#define VERSION_STRING "3.3 (KWB)"
-#define PROGRAM_NAME "Abimo 3.2"
+#define VERSION_STRING "3.3.0 (cleaned by KWB)"
+#define PROGRAM_NAME "Abimo 3.3"
 
 // Define macros
 
