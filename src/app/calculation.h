@@ -26,7 +26,26 @@
 
 #include "dbaseReader.h"
 #include "initvalues.h"
-#include "pdr.h"
+#include "config.h"
+
+struct Counters {
+
+    // total written records
+    int totalRecWrite;
+
+    // total read records
+    int totalRecRead;
+
+    // Anzahl der Records fuer die BER == 0 gesetzt werden musste
+    int totalBERtoZeroForced;
+
+    // Anzahl der nicht berechneten Flaechen
+    long keineFlaechenAngegeben;
+    long nutzungIstNull;
+
+    // Anzahl der Protokolleintraege
+    long protcount;
+};
 
 class Calculation: public QObject
 {
@@ -34,21 +53,20 @@ class Calculation: public QObject
 
 public:
     Calculation(DbaseReader & dbR, InitValues & init, QTextStream & protoStream);
-    bool calc(QString fileOut);
+    bool calc(QString fileOut, bool debug = false);
     long getProtCount();
     long getKeineFlaechenAngegeben();
     long getNutzungIstNull();
-    int getTotalRecWrite();
-    int getTotalRecRead();
-    int getTotalBERtoZeroForced();
+    Counters getCounters();
     QString getError();
     void stop();
+    static void calculate(QString inputFile, QString configFile, QString outputFile, bool debug = false);
 
 signals:
     void processSignal(int, QString);
 
 private:
-    const static float EKA[];
+    Config *config;
     const static float iTAS[];
     const static float inFK_S[];
     const static float ijkr_S[];
@@ -57,14 +75,6 @@ private:
     DbaseReader & dbReader;
     PDR ptrDA;
     QString error;
-
-    // Anzahl der Protokolleintraege
-    long protcount;
-
-    // Anzahl der nicht berechneten Flaechen
-    long keineFlaechenAngegeben;
-
-    long nutzungIstNull;
 
     // ******vorlaeufig aus Teilblock 0 wird fuer die Folgeblocks genommen
     float regenja, regenso;
@@ -86,36 +96,29 @@ private:
     // potentielle Aufstiegshoehe
     float TAS;
 
-    // Niederschlags-Korrekturfaktor
-    float niedKorrFaktor;
-
     // Feldlaenge von iTAS
     int lenTAS;
 
     // Feldlaenge von inFK_S
     int lenS;
 
-    // total written records
-    int totalRecWrite;
-
-    // total read records
-    int totalRecRead;
-
-    // Anzahl der Records fuer die BER == 0 gesetzt werden musste
-    int totalBERtoZeroForced;
+    Counters counters;
 
     // to stop calc
     bool weiter;
 
     // functions
-    float getTWS (int ert, char nutz);
-    float min(float  x,float  y);
-    int index (float wert, const float *feld, int anz);
     float getNUV(PDR &B);
-    float getF (float wa);
+    float getSummerModificationFactor(float wa);
     float getG02 (int nFK);
-    void getNUTZ(int nutz, int typ, int f30, int f150, QString codestr);
+    void getNUTZ(int nutz, int typ, int f30, int f150, QString code);
+    void setUsageYieldIrrigation(int usage, int type, QString code);
+    void logNotDefined(QString code, int type);
     void getKLIMA(int bez, QString codestr);
+    float initValueOrReportedDefaultValue(
+        int bez, QString code, QHash<int, int> &hash, int defaultValue,
+        QString name
+    );
 };
 
 #endif

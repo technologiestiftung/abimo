@@ -17,56 +17,50 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef SAXHANDLER_H
+#define SAXHANDLER_H
 
-#include <QAction>
-#include <QApplication>
-#include <QCommandLineParser>
-#include <QLabel>
-#include <QMainWindow>
-#include <QObject>
-#include <QProgressDialog>
-#include <QString>
-#include <QTextStream>
-#include <QWidget>
+#include <QXmlDefaultHandler>
+#include <QXmlAttributes>
+#include <QXmlParseException>
 
-#include "calculation.h"
 #include "initvalues.h"
 
-class MainWindow : public QMainWindow
+enum struct ParameterGroup {
+    None = 0,
+    Infiltrationsfaktoren = 1,
+    Bagrovwerte = 2,
+    Nachkomma = 3,
+    Diverse = 4,
+    GewVerd = 5,
+    PotVerd = 6,
+    Invalid = 99
+};
+
+class SaxHandler : public QXmlDefaultHandler
 {
-    Q_OBJECT
 
 public:
-    MainWindow(QApplication*, QCommandLineParser* = NULL);
-    ~MainWindow();
-    static QString updateInitialValues(InitValues &, QString);
-
-private slots:
-    void processEvent(int, QString);
-    void about();
-    void computeFile();
-    void userCancel();
+    SaxHandler(InitValues &initValues);
+    bool startElement(
+        const QString &namespaceURI,
+        const QString &localName,
+        const QString &qName,
+        const QXmlAttributes &attribs
+    );
+    bool fatalError(const QXmlParseException &exception);
 
 private:
-    const char* programName;
-    void setText(QString);
-    void critical(QString);
-    void warning(QString);
-    QString selectDbfFile(QString, QString, bool);
-    void reportSuccess(Calculation*, QTextStream&, QString, QString);
-    void reportCancelled(QTextStream&);
-    QAction *openAct;
-    QAction *aboutAct;
-    QLabel *textfield;
-    QProgressDialog * progress;
-    bool userStop;
-    Calculation* calc;
-    QApplication* app;
-    QCommandLineParser* arguments;
-    QString folder;
-    QWidget *widget;
+    ParameterGroup state;
+    InitValues &initValues;
+    void gewVerdEntry(const QXmlAttributes &attribs);
+    void potVerdEntry(const QXmlAttributes &attribs);
+    static ParameterGroup nameToState(QString name);
+    void setInfiltrationsfaktor(QString key, float value);
+    void setBagrovwert(QString key, float value);
+    void setNachkomma(QString key, int value);
+    void setDivers(QString key, QString value);
+
 };
 
 #endif

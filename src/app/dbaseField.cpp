@@ -17,41 +17,64 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef SAXHANDLER_H
-#define SAXHANDLER_H
+#include <QByteArray>
+#include <QChar>
+#include <QString>
 
-#include <QXmlDefaultHandler>
-#include <QXmlAttributes>
-#include <QXmlParseException>
+#include "dbaseField.h"
 
-#include "initvalues.h"
-
-#define Infiltrationsfaktoren 1
-#define Bagrovwerte 2
-#define Nachkomma 3
-#define Diverse 4
-#define GewVerd 5
-#define PotVerd 6
-
-class SaxHandler : public QXmlDefaultHandler
+DbaseField::DbaseField():
+    fieldLength(0),
+    decimalCount(0)
 {
+}
 
-public:
-    SaxHandler(InitValues &initValues);
-    bool startElement(
-        const QString &namespaceURI,
-        const QString &localName,
-        const QString &qName,
-        const QXmlAttributes &attribs
-    );
-    bool fatalError(const QXmlParseException &exception);
+DbaseField::DbaseField(QByteArray array)
+{
+    this->name = QString(array.left(10));
+    this->type = QString((QChar) array[11]);
+    this->fieldLength = (quint8) array[16];
+    this->decimalCount = (quint8) array[17];
+}
 
-private:
-    int state;
-    InitValues &initValues;
-    void gewVerdEntry(const QXmlAttributes &attribs);
-    void potVerdEntry(const QXmlAttributes &attribs);
+DbaseField::DbaseField(QString name, QString type, int decimalCount)
+{
+    set(name, type, decimalCount);
+}
 
-};
+DbaseField::~DbaseField()
+{
+}
 
-#endif
+void DbaseField::set(QString name, QString type, int decimalCount)
+{
+    this->name = QString(name);
+    this->type = QString(type);
+    this->fieldLength = 0;
+    this->decimalCount = decimalCount;
+}
+
+QString DbaseField::getName()
+{
+    return name;
+}
+
+QString DbaseField::getType()
+{
+    return type;
+}
+
+int DbaseField::getFieldLength()
+{
+    return fieldLength;
+}
+
+void DbaseField::setFieldLength(int fl)
+{
+    fieldLength = fl;
+}
+
+int DbaseField::getDecimalCount()
+{
+    return decimalCount;
+}

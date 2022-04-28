@@ -42,7 +42,7 @@
 
 MainWindow::MainWindow(QApplication* app, QCommandLineParser* arguments):
     QMainWindow(),
-    programName(PROGRAM_NAME),
+    programName(tr(PROGRAM_NAME)),
     userStop(false),
     calc(0),
     app(app),
@@ -64,7 +64,7 @@ MainWindow::MainWindow(QApplication* app, QCommandLineParser* arguments):
     menuBar()->addAction(aboutAct);
 
     // Set window title and size
-    setWindowTitle(tr(programName));
+    setWindowTitle(programName);
     resize(350, 150);
 
     widget = new QWidget();
@@ -75,7 +75,7 @@ MainWindow::MainWindow(QApplication* app, QCommandLineParser* arguments):
     textfield->setFont(QFont("Arial", 8, QFont::Bold));
 
     progress = new QProgressDialog( "Lese Datei.", "Abbrechen", 0, 50, this, 0);
-    progress->setWindowTitle(tr(programName));
+    progress->setWindowTitle(programName);
     progress->setModal(true);
     progress->setMinimumDuration (0);
     connect(progress, SIGNAL(canceled()), this, SLOT(userCancel()));
@@ -113,7 +113,7 @@ void MainWindow::about()
 {
     QMessageBox::about(
         this,
-        tr("About ") + tr(programName),
+        tr("About ") + programName,
         tr("Claus & Meiko Rachimow\nCopyright 2009")
     );
 }
@@ -135,37 +135,30 @@ void MainWindow::warning(QString string)
     QMessageBox::warning(this, programName, string);
 }
 
-QString MainWindow::selectDbfFile(QString caption, QString dir, bool forSaving)
-{
-    QString pattern = "dBase (*.dbf)";
-
-    return forSaving ?
-        QFileDialog::getSaveFileName(this, caption, dir, pattern) :
-        QFileDialog::getOpenFileName(this, caption, dir, pattern);
-}
-
 void MainWindow::computeFile()
 {
     QString inputFileName = Helpers::positionalArgOrNULL(arguments, 0);
     QString outputFileName = Helpers::positionalArgOrNULL(arguments, 1);
     QString configFileName = arguments->value("config");
-    QString protokollFileName = NULL;
+    QString protokollFileName;
 
-    if (inputFileName == NULL) {
-        inputFileName = selectDbfFile(
-            "Daten einlesen von...",
-            folder,
-            false // do not select file for saving
-        );
-    }
+    userStop = false;
 
-    if (inputFileName == NULL) {
+    // Select input file
+    inputFileName = QFileDialog::getOpenFileName(
+        this,
+        "Daten einlesen von...",
+        folder,
+        Helpers::patternDbfFile()
+    );
+
+    // Return if no file was selected
+    if (inputFileName.isNull()) {
         return;
     }
 
-    if (configFileName == NULL) {
-        configFileName = "config.xml";
-    };
+    // Select configuration file
+    configFileName = QString("config.xml");
 
     // Open a DBASE File
     DbaseReader dbReader(inputFileName);
@@ -187,16 +180,16 @@ void MainWindow::computeFile()
     }
 
     setText("Quelldatei eingelesen, waehlen Sie eine Zieldatei...");
-    userStop = false;
 
-    if (outputFileName == NULL) {
-        outputFileName = selectDbfFile(
-            "Ergebnisse schreiben nach...",
-            Helpers::removeFileExtension(inputFileName)  + "out.dbf",
-            true // select file for saving
-        );
-    }
+    // Select output file
+    outputFileName = QFileDialog::getSaveFileName(
+        this,
+        "Ergebnisse schreiben nach...",
+        Helpers::defaultOutputFileName(inputFileName),
+        Helpers::patternDbfFile()
+    );
 
+    // Return if no output file was selected
     if (outputFileName == NULL) {
         setText("Willkommen...");
         return;
@@ -206,9 +199,7 @@ void MainWindow::computeFile()
     processEvent(0, "Lese Datei.");
 
     // Protokoll
-    if (protokollFileName == NULL) {
-        protokollFileName = Helpers::removeFileExtension(outputFileName) + "Protokoll.txt";
-    }
+    protokollFileName = Helpers::defaultLogFileName(outputFileName);
 
     QFile protokollFile(protokollFileName);
 
@@ -270,11 +261,13 @@ void MainWindow::reportSuccess(
     QString readRecCount;
     QString writeRecCount;
 
-    protCount.setNum(calc->getProtCount());
-    nutzungIstNull.setNum(calc->getNutzungIstNull());
-    keineFlaechenAngegeben.setNum(calc->getKeineFlaechenAngegeben());
-    readRecCount.setNum(calc->getTotalRecRead());
-    writeRecCount.setNum(calc->getTotalRecWrite());
+    Counters counters = calc->getCounters();
+
+    protCount.setNum(counters.protcount);
+    nutzungIstNull.setNum(counters.nutzungIstNull);
+    keineFlaechenAngegeben.setNum(counters.keineFlaechenAngegeben);
+    readRecCount.setNum(counters.totalRecRead);
+    writeRecCount.setNum(counters.totalRecWrite);
 
     setText(
         "Berechnungen mit " + protCount + " Fehlern beendet.\n" +
@@ -287,18 +280,18 @@ void MainWindow::reportSuccess(
     protokollStream << "\r\nBei der Berechnung traten " << protCount <<
         " Fehler auf.\r\n";
 
-    if (calc->getKeineFlaechenAngegeben() != 0) {
+    if (counters.keineFlaechenAngegeben != 0) {
         protokollStream << "\r\nBei " + keineFlaechenAngegeben +
             " Flaechen deren Wert 0 war wurde 100 eingesetzt.\r\n";
     }
 
-    if (calc->getNutzungIstNull() != 0) {
+    if (counters.nutzungIstNull != 0) {
         protokollStream << "\r\nBei " + nutzungIstNull +
             " Records war die Nutzung 0, diese wurden ignoriert.\r\n";
     }
 
-    if (calc->getTotalBERtoZeroForced() != 0) {
-        protokollStream << "\r\nBei " << calc->getTotalBERtoZeroForced() <<
+    if (counters.totalBERtoZeroForced != 0) {
+        protokollStream << "\r\nBei " << counters.totalBERtoZeroForced <<
             " Records wurde BER==0 erzwungen.\r\n";
     }
 
@@ -307,7 +300,7 @@ void MainWindow::reportSuccess(
     protokollStream << "\r\nEnde der Berechnung " + Helpers::nowString() + "\r\n";
 }
 
-void MainWindow::reportCancelled(QTextStream &protokollStream)
+void MainWindow::reportCancelled(QTextStream & /*protokollStream*/)
 {
     setText("Die Berechnungen wurden durch den Benutzer abgebrochen.");
 

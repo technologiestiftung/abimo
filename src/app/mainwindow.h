@@ -17,21 +17,55 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "pdr.h"
-PDR::PDR():
-    wIndex(0),
-    nFK(0),
-    FLW(0),
-    NUT(0),
-    R(0),
-    ROW(0),
-    RI(0),
-    VER(0),
-    ERT(0),
-    BER(0),
-    P1(0.0F),
-    ETP(0),
-    KR(0),
-    P1S(0.0F),
-    ETPS(0)
-{}
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
+
+#include <QAction>
+#include <QApplication>
+#include <QCommandLineParser>
+#include <QLabel>
+#include <QMainWindow>
+#include <QObject>
+#include <QProgressDialog>
+#include <QString>
+#include <QTextStream>
+#include <QWidget>
+
+#include "calculation.h"
+#include "initvalues.h"
+
+class MainWindow : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    MainWindow(QApplication*, QCommandLineParser* = NULL);
+    ~MainWindow();
+    static QString updateInitialValues(InitValues &, QString);
+
+private slots:
+    void processEvent(int, QString);
+    void about();
+    void computeFile();
+    void userCancel();
+
+private:
+    const QString programName;
+    void setText(QString);
+    void critical(QString);
+    void warning(QString);
+    void reportSuccess(Calculation*, QTextStream&, QString, QString);
+    void reportCancelled(QTextStream&);
+    QAction *openAct;
+    QAction *aboutAct;
+    QLabel *textfield;
+    QProgressDialog * progress;
+    bool userStop;
+    Calculation* calc;
+    QApplication* app;
+    QCommandLineParser* arguments;
+    QString folder;
+    QWidget *widget;
+};
+
+#endif

@@ -17,67 +17,68 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <QByteArray>
-#include <QChar>
-#include <QString>
+#include <math.h> // for abs()
 
-#include "dbaseField.h"
+#include "config.h"
+#include "constants.h" // for MIN() macro
+#include "pdr.h"
 
-DbaseField::DbaseField()
+PDR::PDR():
+    wIndex(0),
+    nFK(0),
+    FLW(0),
+    NUT(Usage::unknown),
+    R(0),
+    ROW(0),
+    RI(0),
+    VER(0),
+    ERT(0),
+    BER(0),
+    P1(0.0F),
+    ETP(0),
+    KR(0),
+    P1S(0.0F),
+    ETPS(0)
+{}
+
+void PDR::setUsageYieldIrrigation(Usage usage, int yield, int irrigation)
 {
-    fieldLength = 0;
-    decimalCount = 0;
+    this->NUT = usage;
+    this->ERT = yield;
+    this->BER = irrigation;
 }
 
-DbaseField::DbaseField(QByteArray array)
+void PDR::setUsageYieldIrrigation(UsageTuple tuple)
 {
-    this->name = QString(array.left(10));
-    this->type = QString((QChar)array[11]);
-    this->fieldLength = (quint8)array[16];
-    this->decimalCount = (quint8)array[17];
+    this->NUT = tuple.usage;
+    this->ERT = tuple.yield;
+    this->BER = tuple.irrigation;
 }
 
-DbaseField::DbaseField(QString name, QString type, int decimalCount)
+// mittlere Zahl der Wachstumstage
+int PDR::estimateDaysOfGrowth(Usage usage, int yield)
 {
-    this->name = QString(name);
-    this->type = QString(type);
-    this->fieldLength = 0;
-    this->decimalCount = decimalCount;
+    switch (usage)
+    {
+        case Usage::agricultural_L: return (yield <= 50) ? 60 : 75;
+        case Usage::horticultural_K: return 100;
+        case Usage::forested_W: return 90;
+        case Usage::vegetationless_D: return 50;
+        default: return 50;
+    }
 }
 
-void DbaseField::set(QString name, QString type, int decimalCount)
+float PDR::estimateWaterHoldingCapacity(int f30, int f150, bool isForest)
 {
-    this->name = QString(name);
-    this->type = QString(type);
-    this->fieldLength = 0;
-    this->decimalCount = decimalCount;
-}
+    if (MIN(f30, f150) < 1) {
+        return 13.0F;
+    }
 
-DbaseField::~DbaseField()
-{
-}
+    if (abs(f30 - f150) < MIN(f30, f150)) { // unwesentliche Abweichung
+        return (float) (isForest ? f150 : f30);
+    }
 
-QString DbaseField::getName()
-{
-    return name;
-}
-
-QString DbaseField::getType()
-{
-    return type;
-}
-
-int DbaseField::getFieldLength()
-{
-    return fieldLength;
-}
-
-void DbaseField::setFieldLength(int fl)
-{
-    fieldLength = fl;
-}
-
-int DbaseField::getDecimalCount()
-{
-    return decimalCount;
+    return
+        0.75F * (float) (isForest ? f150 : f30) +
+        0.25F * (float) (isForest ? f30 : f150);
 }

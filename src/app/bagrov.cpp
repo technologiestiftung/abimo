@@ -17,9 +17,22 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <QDebug>
 #include <math.h>
 
 #include "bagrov.h"
+
+#define ALMOST_ONE 0.99999F
+#define ALMOST_ZERO 1.0e-07F
+
+#define UPPER_LIMIT_EYN 0.7F
+
+#define ONE_THIRD 1.0F / 3.0F
+#define TWO_THIRDS 2.0F / 3.0F
+
+// Define macros to calculate the minimum or maximum of two values
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
 
 /*
  =======================================================================================================================
@@ -38,127 +51,157 @@ Bagrov::Bagrov()
 {
 }
 
-void Bagrov::nbagro(float *bage, float *y, float *x)
+const float Bagrov::aa[]= {
+    0.9946811499F, //  0
+    1.213648255F,  //  1
+    -1.350801214F, //  2
+    11.80883489F,  //  3
+    -21.53832235F, //  4
+    19.3775197F,   //  5
+    0.862954876F,  //  6
+    9.184851852F,  //  7
+    -147.2049991F, //  8
+    1291.164889F,  //  9
+    -6357.554955F, // 10
+    19022.42165F,  // 11
+    -35235.40521F, // 12
+    39509.02815F,  // 13
+    -24573.23867F, // 14
+    6515.556685F   // 15
+};
+
+float Bagrov::nbagro(float bage, float x)
 {
-    int _do0, i, i_, ia, ie, j;
-    float bag, bag1;
-    float a, a0, a1, a2, b, c, epa, eyn, h, h13, h23, qbag1, s1, s2, w, w13, w23, y0;
-    static float aa[16] =
-    {
-        0.9946811499F,
-        1.213648255F,
-        -1.350801214F,
-        11.80883489F,
-        -21.53832235F,
-        19.3775197F,
-        0.862954876F,
-        9.184851852F,
-        -147.2049991F,
-        1291.164889F,
-        -6357.554955F,
-        19022.42165F,
-        -35235.40521F,
-        39509.02815F,
-        -24573.23867F,
-        6515.556685F
-    };
+    int i, ia, ie, j;
+    float bag, bag_plus_one, reciprocal_bag_plus_one;
+    float a, a0, a1, a2, b, c, epa, eyn, h13, h23, sum_1, sum_2, w, y0;
 
-    y0 = 0.0F;
-    bag = *bage;
-    if (bag > 20.0) bag = 20.0F;
-    if (*x < 0.0005F) goto L_13;
-    if (*x > 15.0F) *x = 15.0F;
-    bag1 = bag + 1.0F;
-    qbag1 = (float) (1.0 / bag1);
-    h13 = 1.0F / 3.0F;
-    w13 = h13;
-    h23 = h13 + h13;
-    w23 = h23;
-    h13 = (float) exp(-bag1 * 1.09861);
-    h23 = (float) exp(-bag1 * 0.405465);
+    // General helper variable of type float
+    float h;
 
-    /* KOEFFIZIENTEN DER BEDINGUNGSGLEICHUNG */
-    a2 = -13.5F * qbag1 * (1.0F + 3.0F * (h13 - h23));
-    a1 = 9.0F * qbag1 * (h13 + h13 - h23) - w23 * a2;
-    a0 = 1.0F - qbag1 - 0.5F * a1 - w13 * a2;
-    a0 = 1.0F / a0;
-    a1 = a0 * a1;
-    a2 = a0 * a2;
+    // If input value x is already below a threshold, return 0.0
+    if (x < 0.0005F) {
+        return 0.0F;
+    }
 
-    /* KOEFFIZIENTEN DES LOESUNSANSATZES */
-    if (bag >= 0.49999F)
-        b = 0.5F * a1 - (float) sqrt(0.25 * a1 * a1 - a2);
-    else
-        b = -(float) sqrt(0.5F * a1 * a1 - a2);
+    // Set input value x to 15.0 at maximum
+    x = MIN(x, 15.0F);
+
+    // Set local variable bag to value of parameter bage (20.0 at maximum)
+    bag = MIN(bage, 20.0);
+
+    // Calculate expressions that are based on bag
+    bag_plus_one = bag + 1.0F;
+    reciprocal_bag_plus_one = (float) (1.0 / bag_plus_one);
+
+    h13 = (float) exp(-bag_plus_one * 1.09861);
+    h23 = (float) exp(-bag_plus_one * 0.405465);
+
+    // KOEFFIZIENTEN DER BEDINGUNGSGLEICHUNG
+    a2 = -13.5F * reciprocal_bag_plus_one * (1.0F + 3.0F * (h13 - h23));
+    a1 = 9.0F * reciprocal_bag_plus_one * (h13 + h13 - h23) - TWO_THIRDS * a2;
+    a0 = 1.0F / (1.0F - reciprocal_bag_plus_one - 0.5F * a1 - ONE_THIRD * a2);
+
+    // Multiply each of a1, a2 with a0
+    a1 *= a0;
+    a2 *= a0;
+
+    // KOEFFIZIENTEN DES LOESUNSANSATZES
+    b = (bag >= 0.49999F) ?
+        (- (float) sqrt(0.25 * a1 * a1 - a2) + 0.5F * a1) :
+        (- (float) sqrt(0.5F * a1 * a1 - a2));
 
     c = a1 - b;
     a = a0 / (b - c);
 
-    epa = (float) exp(*x / a);
-    w = b - c * epa;
+    epa = (float) exp(x / a);
 
-    /* NULLTE NAEHERUNGSLOESUNG (1. Naeherungsloesung) */
-    y0 = (epa - 1.0F) / w;
-    if (y0 > 0.99999F) y0 = 0.99999F;
-    if (bag >= 0.7F && bag <= 3.8F) goto L_13;
-    j = 0;
-    if (bag >= 3.8F) goto L_12;
+    // NULLTE NAEHERUNGSLOESUNG (1. Naeherungsloesung)
+    // Limit y0 to its maximum allowed value
+    y0 = MIN((epa - 1.0F) / (b - c * epa), ALMOST_ONE);
 
-    /* NUMERISCHE INTEGRATION FUER BAG<0.7 (2.Naeherungsloesung) */
-    for (j = 1; j <= 30; j++)
-    {
-        eyn = (float) exp(bag * log(y0));
-        if (eyn > 0.9F) goto L_13;
-        if (eyn >= 0.7F && bag > 4.0F) goto L_13;
-        ia = 2;
-        ie = 6;
-        if (eyn > 0.7F) ia = 8;
-        if (eyn > 0.7F) ie = 16;
-        s1 = 0.0F;
-        s2 = 0.0F;
-        h = 1.0F;
-        for (i = ia, _do0 = ie; i <= _do0; i++)
-        {
-            i_ = i - 1;
-            h = h * eyn;
-            w = aa[i_] * h;
-            j = i - ia + 1; /* cls J=I-IA+1 */
-            s2 = s2 + w / (j * (float) bag + 1.0F);
-            s1 = s1 + w;
-        }
-
-        ia = ia - 1;
-        h = aa[ia - 1];
-        h = (*x - y0 * s2 - y0 * h) / (h + s1);
-        y0 = y0 + h;
-        if (fabs(h) / y0 < 0.007F) goto L_15;
+    // If bag is between a certain range return y0
+    if (bag >= 0.7F && bag <= 3.8F) {
+        return y0;
     }
 
-L_15:
-    ;
-    if (y0 > 0.9) bagrov(&bag, x, &y0);
-    goto L_13;
+    // NUMERISCHE INTEGRATION FUER BAG > 3.8 (3. Naeherungsloesung)
+    if (bag >= 3.8F) {
+        h = 1.0F;
+        i = 0;
+        while(fabs(h) > 0.001 && i < 15) {
+            y0 = MIN(y0, 0.999F);
+            epa = (float) exp(bag * log(y0));
+            h = MIN(MAX(1.0F - epa, ALMOST_ZERO), ALMOST_ONE);
+            h *= (y0 + epa * y0 / (float) (h - bag * epa / (float) log(h)) - x);
+            y0 -= h;
+            i++;
+        }
 
-    /* NUMERISCHE INTEGRATION FUER BAG>3.8 (3. Naeherungsloesung) */
-L_12:
-    ;
-    j = j + 1;
-    if (j > 15) goto L_13;
-    if (y0 > 0.999) y0 = 0.999F;
-    epa = (float) exp(bag * log(y0));
-    h = 1.0f - epa;
-    if (h < 1.0e-07) h = 1.0e-07F;
-    if (h > 0.99999) h = 0.99999F;
-    s1 = h - bag * epa / (float) log(h);
-    h = h * (y0 + epa * y0 / s1 -*x);
-    y0 = y0 - h;
-    if (fabs(h) > 0.001) goto L_12;
-L_13:
-    ;
-    if (y0 > 1.0) y0 = 1.0F;
-    *y = y0;
-    return;
-}	/* end of function */
+        // Return y0 (1.0 at maximum)
+        return MIN(y0, 1.0);
+    }
+
+    // NUMERISCHE INTEGRATION FUER BAG<0.7 (2.Naeherungsloesung)
+    //j = 1;
+
+    while (true/*j <= 30*/)
+    {
+        eyn = (float) exp(bag * log(y0));
+
+        // If eyn, bag are in a certain range, return y0 (1.0 at maximum)
+        if ((eyn > 0.9F) || (eyn >= UPPER_LIMIT_EYN && bag > 4.0F)) {
+            //*y = MIN(y0, 1.0);
+            return MIN(y0, 1.0);
+        }
+
+        // Set start and end index (?), depending on the value of eyn
+        if (eyn > UPPER_LIMIT_EYN) {
+            ia = 8;
+            ie = 16;
+        }
+        else {
+            ia = 2;
+            ie = 6;
+        }
+
+        sum_1 = 0.0F;
+        sum_2 = 0.0F;
+        h = 1.0F;
+
+        // Let i loop between start index ia and end index ie
+        for (i = ia; i <= ie; i++)
+        {
+            h *= eyn;
+            w = aa[i - 1] * h;
+            j = i - ia + 1; /* cls J=I-IA+1 */
+            sum_2 += w / (j * (float) bag + 1.0F);
+            sum_1 += w;
+        }
+
+        h = aa[ia - 2];
+        h = (x - y0 * sum_2 - y0 * h) / (h + sum_1);
+
+        y0 += h;
+
+        // Break out of this loop if a condition is met
+        if (fabs(h) / y0 < 0.007F) {
+            break;
+        }
+
+        //j++;
+    }
+
+    if (y0 > 0.9) {
+        bagrov(&bag, &x, &y0);
+    }
+    else {
+      //qDebug() << "y0 <= 0.9 -> not calling bagrov()";
+    }
+
+    // Return y0 (1.0 at maximum)
+    return MIN(y0, 1.0);
+}
 
 /*
  =======================================================================================================================
@@ -169,6 +212,8 @@ void Bagrov::bagrov(float *bagf, float *x0, float *y0)
 {
     bool doloop; /* LOGICAL16 */
     int _do0, i, ii, j;
+
+    qDebug() << "In bagrov()...";
 
     /* meiko : initialisiere i (einzige Aenderung) */
     i = 0;
