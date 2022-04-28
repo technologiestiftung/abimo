@@ -49,8 +49,7 @@ DbaseWriter::DbaseWriter(QString &file, InitValues &initValues):
 
     this->date = QDateTime::currentDateTime().date();
 
-    hash = QHash<QString, int>();
-
+    // Fill the hash that assigns field numbers to field names
     for (int i = 0; i < countFields; i++) {
         hash[fields[i].getName()] = i;
     }
