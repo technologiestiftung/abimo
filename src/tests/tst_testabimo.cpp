@@ -32,6 +32,7 @@ private slots:
 
     QString testDataDir();
     QString dataFilePath(QString fileName, bool mustExist = true);
+    bool dbfHeadersAreIdentical(QString file_1, QString file_2);
     bool dbfStringsAreIdentical(QString file_1, QString file_2);
     bool numbersInFilesDiffer(QString file_1, QString file_2, int n_1, int n_2, QString subject);
 };
@@ -155,6 +156,7 @@ void TestAbimo::test_calc()
     Calculation::calculate(inputFile, "", outputFile, false);
 
     //QVERIFY(Helpers::filesAreIdentical(outputFile, referenceFile));
+    QVERIFY(dbfHeadersAreIdentical(outputFile, outFile_noConfig));
     QVERIFY(dbfStringsAreIdentical(outputFile, outFile_noConfig));
 
     // Run the simulation with initial values from config file
@@ -165,6 +167,54 @@ void TestAbimo::test_calc()
 void TestAbimo::test_bagrov()
 {
 
+}
+
+bool TestAbimo::dbfHeadersAreIdentical(QString file_1, QString file_2)
+{
+    DbaseReader reader_1(file_1);
+    DbaseReader reader_2(file_2);
+
+    reader_1.read();
+    reader_2.read();
+
+    if (reader_1.getVersion() != reader_2.getVersion()) {
+        qDebug() << "version differs";
+        return false;
+    }
+
+    QDate date_1 = reader_1.getDate();
+    QDate date_2 = reader_2.getDate();
+
+    if (date_1 != date_2) {
+        qDebug() << "date differs (" << date_1 << "vs" << date_2 << ")."
+                 << "This is expected.";
+    }
+
+    if (reader_1.getNumberOfRecords() != reader_2.getNumberOfRecords()) {
+        qDebug() << "numberOfRecords differs";
+        return false;
+    }
+
+    if (reader_1.getLengthOfHeader() != reader_2.getLengthOfHeader()) {
+        qDebug() << "lengthOfHeader differs";
+        return false;
+    }
+
+    if (reader_1.getLengthOfEachRecord() != reader_2.getLengthOfEachRecord()) {
+        qDebug() << "lengthOfEachRecord differs";
+        return false;
+    }
+
+    QString lng_1 = reader_1.getLanguageDriver();
+    QString lng_2 = reader_2.getLanguageDriver();
+
+    if (lng_1 != lng_2) {
+        qDebug() << "languageDriver differs"
+                 << "(" << lng_1 << "vs" << lng_2 << ")";
+        //return false;
+    }
+
+    return true;
 }
 
 bool TestAbimo::dbfStringsAreIdentical(QString file_1, QString file_2)

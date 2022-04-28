@@ -20,6 +20,7 @@
 #ifndef DBASEWRITER_H
 #define DBASEWRITER_H
 
+#include <QByteArray>
 #include <QDate>
 #include <QHash>
 #include <QString>
@@ -45,8 +46,6 @@ public:
     QString getError();
 
 private:
-    // VARIABLES:
-    /////////////
     QString fileName;
     QVector< QVector<QString> > record;
     QDate date;
@@ -55,6 +54,12 @@ private:
     int lengthOfEachRecord;
     int recNum;
     DbaseField fields[countFields];
+    int writeFileHeader(QByteArray &data);
+    void writeFileData(QByteArray &data);
+    int writeBytes(QByteArray &data, int index, int value, int n_values);
+    int writeThreeByteDate(QByteArray &data, int index, QDate date);
+    int writeFourByteInteger(QByteArray &data, int index, int value);
+    int writeTwoByteInteger(QByteArray &data, int index, int value);
 };
 
 #endif
