@@ -528,8 +528,11 @@ void Calculation::getKLIMA(int bez, QString code)
             );
         }
 
+        // Calculate the x-factor of bagrov relation: x = (P + KR + BER)/ETP
+        // Then get the y-factor: y = fbag(n, x)
         y = bagrov.nbagro(bag, (p + ptrDA.KR + ptrDA.BER) / ep);
 
+        // Get the real evapotransporation using estimated y-factor
         etr = y * ep;
 
         if (TAS < 0) {
