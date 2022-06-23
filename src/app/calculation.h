@@ -1,5 +1,5 @@
 /***************************************************************************
- * For copyright information please see COPYRIGHT.txt in the base directory
+ * For copyright information please see COPYRIGHT in the base directory
  * of this repository (https://github.com/KWB-R/abimo).
  ***************************************************************************/
 
