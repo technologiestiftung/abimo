@@ -1,20 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2009 by Meiko Rachimow, Claus Rachimow                  *
- *   This file is part of Abimo 3.2                                        *
- *   Abimo 3.2 is free software; you can redistribute it and/or modify     *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- *   This program is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
- *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
- *   along with this program; if not, write to the                         *
- *   Free Software Foundation, Inc.,                                       *
- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ * For copyright information please see COPYRIGHT in the base directory
+ * of this repository (https://github.com/KWB-R/abimo).
  ***************************************************************************/
 
 #include <QApplication>
@@ -128,12 +114,14 @@ int main_batch(int argc, char *argv[])
     parser.process(app);
 
     const QStringList positionalArgs = parser.positionalArguments();
-    //QString inputFileName = positionalArgs.at(0);
     QString inputFileName = Helpers::positionalArgOrNULL(&parser, 0);
 
-    //QString outputFileName = positionalArgs.at(1);
-    //QString outputFileName = Helpers::positionalArgOrNULL(&parser, 1);
-    QString outputFileName = Helpers::defaultOutputFileName(inputFileName);
+    QString outputFileName = Helpers::positionalArgOrNULL(&parser, 1);
+
+    // If no output file name was given, create a default output file name
+    if (outputFileName == NULL) {
+        outputFileName = Helpers::defaultOutputFileName(inputFileName);
+    }
 
     QString configFileName= parser.value("config");
 
@@ -141,7 +129,6 @@ int main_batch(int argc, char *argv[])
     bool debug = parser.isSet("debug");
 
     // Handle --write_bagrov-table
-    //if (argc > 1 && strcmp(argv[1], "--write-bagrov-table") == 0) {
     if (parser.isSet("write-bagrov-table")) {
         writeBagrovTable();
         return 0;
