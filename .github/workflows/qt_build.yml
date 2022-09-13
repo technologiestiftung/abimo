@@ -36,6 +36,8 @@ jobs:
         run: qmake src/app/app.pro
       - name: Build
         run: make
+      - name: List files
+        run: ls -l
       - name: Upload linux release
         uses: actions/upload-artifact@v3
         with:
@@ -53,6 +55,8 @@ jobs:
         run: qmake src/app/app.pro
       - name: Build
         run: make
+      - name: List files
+        run: ls -l        
       - name: Upload macos release
         uses: actions/upload-artifact@v3
         with:
