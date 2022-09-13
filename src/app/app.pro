@@ -4,7 +4,7 @@
 }
 
 #TEMPLATE = app
-#TARGET = Abimo
+TARGET = Abimo
 #DEPENDPATH += .
 #INCLUDEPATH += .
 QT += \
