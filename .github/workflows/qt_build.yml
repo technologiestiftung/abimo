@@ -20,12 +20,17 @@ jobs:
       - name: Deploy
         run: windeployqt.exe debug
       - name: List files
-        run: dir;dir abimo
-      - name: Upload artifacts
+        run: dir debug;dir release
+      - name: Upload windows release
         uses: actions/upload-artifact@v3
         with:
-          name: windows_abimo
-          path: $HOME/abimo
+          name: windows_abimo_release
+          path: release
+      - name: Upload windows debug
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows_abimo_debug
+          path: debug
   linux:
     name: Linux (Build only)
     runs-on: ubuntu-latest
