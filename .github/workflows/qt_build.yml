@@ -18,19 +18,12 @@ jobs:
       - name: Build
         run: nmake debug
       - name: Deploy
-        run: windeployqt.exe debug
-      - name: List files
-        run: dir debug;dir release
+        run: windeployqt.exe release
       - name: Upload windows release
         uses: actions/upload-artifact@v3
         with:
           name: windows_abimo_release
           path: release
-      - name: Upload windows debug
-        uses: actions/upload-artifact@v3
-        with:
-          name: windows_abimo_debug
-          path: debug
   linux:
     name: Linux (Build only)
     runs-on: ubuntu-latest
@@ -43,11 +36,11 @@ jobs:
         run: qmake src/app/app.pro
       - name: Build
         run: make
-      - name: Upload artifacts
+      - name: Upload linux release
         uses: actions/upload-artifact@v3
         with:
-          name: linux_abimo
-          path: $HOME/abimo
+          name: linux_abimo_release
+          path: release
   mac:
     name: Mac (Build only)
     runs-on: macos-latest
@@ -60,8 +53,8 @@ jobs:
         run: qmake src/app/app.pro
       - name: Build
         run: make
-      - name: Upload artifacts
+      - name: Upload macos release
         uses: actions/upload-artifact@v3
         with:
-          name: macos_abimo
-          path: $HOME/abimo
+          name: macos_abimo_release
+          path: release
