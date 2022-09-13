@@ -1,0 +1,111 @@
+name: QT Test
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: npm
+          cache-dependency-path: action/
+
+      - run: |
+          cd action
+          npm ci || npm install
+        shell: bash
+
+      - run: |
+          cd action
+          npm run lint
+
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-22.04
+          - ubuntu-20.04
+          - ubuntu-18.04
+          - windows-2022
+          - windows-2019
+          - macos-11
+          - macos-12
+        version:
+          - "5.9.0"
+          - "5.15.2"
+          - "6.2.0"
+        cache:
+          - cached
+          - uncached
+
+        # Ubuntu 18 is not a supported target for Qt 6: https://www.qt.io/blog/qt6-development-hosts-and-targets
+        exclude:
+          - os: ubuntu-18.04
+            version: "6.2.0"
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: npm
+          cache-dependency-path: action/
+
+      - run: |
+          cd action
+          npm ci || npm install
+        shell: bash
+
+      - run: |
+          cd action
+          npm run build
+
+      - name: Install Qt5 with options
+        if: startsWith(matrix.version, '5')
+        uses: ./
+        with:
+          modules: qtwebengine
+          version: ${{ matrix.version }}
+          tools: tools_ifw tools_qtcreator,qt.tools.qtcreator
+          cache: ${{ matrix.cache == 'cached' }}
+
+      - name: Install Qt6 with options
+        if: startsWith(matrix.version, '6.2')
+        uses: ./
+        with:
+          # In Qt 6.2.0, qtwebengine requires qtpositioning and qtwebchannel
+          modules: qtwebengine qtpositioning qtwebchannel
+          version: ${{ matrix.version }}
+          tools: tools_ifw tools_qtcreator,qt.tools.qtcreator
+          cache: ${{ matrix.cache == 'cached' }}
+
+      - name: Configure test project on windows
+        if: startsWith(matrix.os, 'windows')
+        env:
+          QT_VERSION: ${{ matrix.version }}
+        run: |
+          cd src/tests
+          for /f "delims=" %%d in ( 'vswhere.exe -latest -property installationPath' ) do @( call "%%d\VC\Auxiliary\Build\vcvars64.bat" )
+          IF "%QT_VERSION:~0,1%"=="5" ( dir %Qt5_DIR%\lib\cmake ) ELSE ( dir %Qt6_DIR%\lib\cmake )
+          qmake
+        shell: cmd
+
+      - name: Configure test project on unix
+        if: (!startsWith(matrix.os, 'windows'))
+        env:
+          QT_VERSION: ${{ matrix.version }}
+        run: |
+          cd src/tests
+          if [[ $QT_VERSION == 6* ]]; then
+            ls "$Qt6_DIR/lib/cmake"
+          else
+            ls "$Qt5_DIR/lib/cmake"
+          fi
+          qmake
+        shell: bash
