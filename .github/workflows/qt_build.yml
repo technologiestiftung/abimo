@@ -19,6 +19,8 @@ jobs:
         run: nmake debug
       - name: Deploy
         run: windeployqt.exe debug
+      - name: List files
+        run: dir;dir abimo
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
