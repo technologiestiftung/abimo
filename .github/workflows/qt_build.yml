@@ -1,10 +1,10 @@
-name: QT Test
+name: QT Build
 
 on: [push, pull_request]
 
 jobs:
   windows:
-    name: Windows Test
+    name: Windows (Build only)
     runs-on: windows-latest
     steps:
       - name: Checkout
@@ -17,8 +17,6 @@ jobs:
         run: nmake debug
       - name: Deploy
         run: windeployqt.exe debug
-      - name: Test
-        run: cmd.exe /C "cd debug & start /wait Abimo.exe --test & exit /b errorlevel"
   linux:
     name: Linux (Build only)
     runs-on: ubuntu-latest
