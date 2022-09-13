@@ -16,7 +16,7 @@ jobs:
       - name: Run QMake
         run: qmake src/app/app.pro
       - name: Build
-        run: nmake debug
+        run: nmake release
       - name: Deploy
         run: windeployqt.exe release
       - name: Upload windows release
@@ -42,7 +42,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: linux_abimo_release
-          path: release
+          path: Abimo
   mac:
     name: Mac (Build only)
     runs-on: macos-latest
@@ -61,4 +61,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: macos_abimo_release
-          path: release
+          path: Abimo.app
