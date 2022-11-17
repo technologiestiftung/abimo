@@ -1,3 +1,10 @@
 AbimoProject.pro.user
 data
 src/app/Abimo.pro.user
+.vscode
+.qmake*
+Makefile
+*.o
+src/app/app.app
+moc_*
+.DS_STore
