@@ -5,6 +5,10 @@
 
 #TEMPLATE = app
 #TARGET = Abimo
+
+TARGET = myAbimo
+TEMPLATE = lib
+
 #DEPENDPATH += .
 #INCLUDEPATH += .
 QT += \
