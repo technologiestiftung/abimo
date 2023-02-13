@@ -17,8 +17,8 @@ R environment.
 
 ## Change Log
 
-The main changes so far (June 2022) are:
+Main changes since 3.2:
 
-- make runnable on Qt 5.15.2 (MSVC 2019, 64 bit)
+- runs on Qt 5.15 (MSVC 2019, 64 bit)
 - clean and refactor the code
 - allow to run in batch mode (specify input/config file on the command line)
