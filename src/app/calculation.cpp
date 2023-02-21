@@ -19,23 +19,25 @@
 #include "initvalues.h"
 #include "pdr.h"
 
-// potential ascent rate TAS (column labels for matrix 'Calculation::ijkr_S')
-const float Calculation::iTAS[] = {
+// Potential rate of ascent
+// (column labels for matrix meanPotentialCapillaryRiseRateSummer)
+const float Calculation::potentialRateOfAscent[] = {
     0.1F, 0.2F, 0.3F, 0.4F, 0.5F, 0.6F, 0.7F, 0.8F,
     0.9F, 1.0F, 1.2F, 1.4F, 1.7F, 2.0F, 2.3F
 };
 
 // soil type unknown - default soil type used in the following: sand
 
-// Usable field capacity nFK (row labels for matrix 'Calculation::ijkr_S')
-const float Calculation::inFK_S[] = {
+// Usable field capacity
+// (row labels for matrix meanPotentialCapillaryRiseRateSummer)
+const float Calculation::usableFieldCapacity[] = {
     8.0F, 9.0F, 14.0F, 14.5F, 15.5F, 17.0F, 20.5F
 };
 
-/* Mean potential capillary rise rate kr [mm/d] of a summer season depending on:
- * potential ascent rate TAS (one column each) and
- * usable field capacity nFK (one row each) */
-const float Calculation::ijkr_S[] = {
+// Mean potential capillary rise rate kr [mm/d] of a summer season depending on:
+// - Potential rate of ascent (one column each) and
+// - Usable field capacity (one row each)
+const float Calculation::meanPotentialCapillaryRiseRateSummer[] = {
     7.0F, 6.0F, 5.0F, 1.5F, 0.5F, 0.2F, 0.1F, 0.0F, 0.0F, 0.0F,  0.0F , 0.0F, 0.0F , 0.0F, 0.0F,
     7.0F, 7.0F, 6.0F, 5.0F, 3.0F, 1.2F, 0.5F, 0.2F, 0.1F, 0.0F,  0.0F , 0.0F, 0.0F , 0.0F, 0.0F,
     7.0F, 7.0F, 6.0F, 6.0F, 5.0F, 3.0F, 1.5F, 0.7F, 0.3F, 0.15F, 0.1F , 0.0F, 0.0F , 0.0F, 0.0F,
@@ -389,9 +391,9 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString code)
          */
         kr = (TAS <= 0.0) ?
             7.0F :
-            ijkr_S[
-                Helpers::index(TAS, iTAS, lenTAS) +
-                Helpers::index(ptrDA.nFK, inFK_S, lenS) * lenTAS
+            meanPotentialCapillaryRiseRateSummer[
+                Helpers::index(TAS, potentialRateOfAscent, lenTAS) +
+                Helpers::index(ptrDA.nFK, usableFieldCapacity, lenS) * lenTAS
             ];
 
         /* mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres */

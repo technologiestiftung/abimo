@@ -53,9 +53,9 @@ signals:
 
 private:
     Config *config;
-    const static float iTAS[];
-    const static float inFK_S[];
-    const static float ijkr_S[];
+    const static float potentialRateOfAscent[];
+    const static float usableFieldCapacity[];
+    const static float meanPotentialCapillaryRiseRateSummer[];
     InitValues & initValues;
     QTextStream & protokollStream;
     DbaseReader & dbReader;
