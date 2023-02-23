@@ -55,7 +55,7 @@ public:
     int getDecFLAECHE();
     int getDecVERDUNSTUNG();
     bool getBERtoZero();
-    float getNiedKorrF();
+    float getPrecipitationCorrectionFactor();
     bool allSet();
     void putToHash(QString bezirkeString, int value, int hashtyp);
     QHash<int, int> hashETP;

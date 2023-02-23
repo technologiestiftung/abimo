@@ -261,7 +261,7 @@ bool InitValues::getBERtoZero() {
     return BERtoZero;
 }
 
-float InitValues::getNiedKorrF() {
+float InitValues::getPrecipitationCorrectionFactor() {
     return niedKorrF;
 }
 
