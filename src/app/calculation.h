@@ -16,21 +16,21 @@
 
 struct Counters {
 
-    // total written records
-    int totalRecWrite;
+    // Total records written
+    int recordsWritten;
 
-    // total read records
-    int totalRecRead;
+    // Total records read
+    int recordsRead;
 
-    // Anzahl der Records fuer die BER == 0 gesetzt werden musste
-    int totalBERtoZeroForced;
+    // Number of records for which irrigation (BER) was set to zero
+    int irrigationForcedToZero;
 
-    // Anzahl der nicht berechneten Flaechen
-    long keineFlaechenAngegeben;
-    long nutzungIstNull;
+    // Number of cases in which no calculation was performed
+    long noAreaGiven;
+    long noUsageGiven;
 
     // Anzahl der Protokolleintraege
-    long protcount;
+    long recordsProtocol;
 };
 
 class Calculation: public QObject
@@ -38,32 +38,43 @@ class Calculation: public QObject
     Q_OBJECT
 
 public:
-    Calculation(DbaseReader & dbR, InitValues & init, QTextStream & protoStream);
-    bool calc(QString fileOut, bool debug = false);
-    long getProtCount();
-    long getKeineFlaechenAngegeben();
-    long getNutzungIstNull();
+    Calculation(
+            DbaseReader &dbaseReader,
+            InitValues &initValues,
+            QTextStream & protocolStream
+    );
+
+    static void calculate(
+            QString inputFile,
+            QString configFile,
+            QString outputFile,
+            bool debug = false
+    );
+
+    bool calculate(QString fileOut, bool debug = false);
+    long getNumberOfProtocolRecords();
+    long getNumberOfNoAreaGiven();
+    long getNumberOfNoUsageGiven();
     Counters getCounters();
     QString getError();
-    void stop();
-    static void calculate(QString inputFile, QString configFile, QString outputFile, bool debug = false);
+    void stopProcessing();
 
 signals:
     void processSignal(int, QString);
 
 private:
     Config *config;
-    const static float potentialRateOfAscent[];
-    const static float usableFieldCapacity[];
-    const static float meanPotentialCapillaryRiseRateSummer[];
-    InitValues & initValues;
-    QTextStream & protokollStream;
-    DbaseReader & dbReader;
+    const static float POTENTIAL_RATES_OF_ASCENT[];
+    const static float USABLE_FIELD_CAPACITIES[];
+    const static float MEAN_POTENTIAL_CAPILLARY_RISE_RATES_SUMMER[];
+    InitValues &initValues;
+    QTextStream &protocolStream;
+    DbaseReader &dbReader;
     PDR ptrDA;
     QString error;
 
-    // ******vorlaeufig aus Teilblock 0 wird fuer die Folgeblocks genommen
-    float regenja, regenso;
+    // *** vorlaeufig aus Teilblock 0 wird fuer die Folgeblocks genommen
+    float precipitationYear, precipitationSummer;
 
     // Abfluesse nach Bagrov fuer N1 bis N4
     float RDV, R1V, R2V, R3V, R4V;
@@ -90,10 +101,10 @@ private:
 
     Counters counters;
 
-    // to stop calc
-    bool weiter;
+    // Variable to control whether to stop processing
+    bool continueProcessing;
 
-    // functions
+    // Methods
     float getNUV(PDR &B);
     float getSummerModificationFactor(float wa);
     float getG02 (int nFK);
