@@ -65,13 +65,28 @@ public:
 
 private:
     // Infiltrationsfaktoren
-    float infdach, infbel1, infbel2, infbel3, infbel4;
+    float infdach;
+    float infbel1;
+    float infbel2;
+    float infbel3;
+    float infbel4;
 
     // Bagrovwerte
-    float bagdach, bagbel1, bagbel2, bagbel3, bagbel4;
+    float bagdach;
+    float bagbel1;
+    float bagbel2;
+    float bagbel3;
+    float bagbel4;
 
     // Nachkomma
-    int decR, decROW, decRI, decRVOL, decROWVOL, decRIVOL, decFLAECHE, decVERDUNSTUNG;
+    int decR;
+    int decROW;
+    int decRI;
+    int decRVOL;
+    int decROWVOL;
+    int decRIVOL;
+    int decFLAECHE;
+    int decVERDUNSTUNG;
 
     // BER to Zero hack
     bool BERtoZero;
