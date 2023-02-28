@@ -29,7 +29,7 @@ struct Counters {
     long noAreaGiven;
     long noUsageGiven;
 
-    // Anzahl der Protokolleintraege
+    // Number of records written to the (error) protocol
     long recordsProtocol;
 };
 
@@ -68,9 +68,11 @@ signals:
 
 private:
     Config *config;
+
     const static float POTENTIAL_RATES_OF_ASCENT[];
     const static float USABLE_FIELD_CAPACITIES[];
     const static float MEAN_POTENTIAL_CAPILLARY_RISE_RATES_SUMMER[];
+
     InitValues &initValues;
     QTextStream &protocolStream;
     DbaseReader &dbReader;
@@ -81,27 +83,32 @@ private:
     float precipitationYear, precipitationSummer;
 
     // Abfluesse nach Bagrov fuer N1 bis N4
-    float RDV, R1V, R2V, R3V, R4V;
+    float bagrovRoof; // old: RDV
+    float bagrovSurfaceClass1; // old: R1V
+    float bagrovSurfaceClass2; // old: R2V
+    float bagrovSurfaceClass3; // old: R3V
+    float bagrovSurfaceClass4; // old: R4V
 
-    float RUV;
+    // runoff for unsealed partial surfaces
+    float unsealedSurfaceRunoff; // old: RUV
 
     // Regenwasserabfluss in Qubikzentimeter pro Sekunde
-    float ROWVOL;
+    float rainwaterRunoff; // old: ROWVOL
 
     // unterirdischer Gesamtabfluss in qcm/s
-    float RIVOL;
+    float totalSubsurfaceFlow; // old: RIVOL
 
     // Gesamtabfluss in qcm/s
-    float RVOL;
+    float totalRunoff; // old: RVOL
 
     // potentielle Aufstiegshoehe
-    float TAS;
+    float potentialCapillaryRise; // old: TAS
 
-    // Feldlaenge von iTAS
-    int lenTAS;
+    // Length of array POTENTIAL_RATES_OF_ASCENT
+    int n_POTENTIAL_RATES_OF_ASCENT; // old: lenTAS
 
-    // Feldlaenge von inFK_S
-    int lenS;
+    // Length of array USABLE_FIELD_CAPACITIES
+    int n_USABLE_FIELD_CAPACITIES; // old: lenS
 
     Counters counters;
 

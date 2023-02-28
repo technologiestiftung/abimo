@@ -19,8 +19,12 @@
 #include "initvalues.h"
 #include "pdr.h"
 
+// Macro to calculate the number of elements in an array
+#define ARRAY_SIZE(array) (sizeof(array) / sizeof((array)[0]))
+
 // Potential rate of ascent (column labels for matrix
 // meanPotentialCapillaryRiseRateSummer)
+// old: iTAS
 const float Calculation::POTENTIAL_RATES_OF_ASCENT[] = {
     0.1F, 0.2F, 0.3F, 0.4F, 0.5F, 0.6F, 0.7F, 0.8F,
     0.9F, 1.0F, 1.2F, 1.4F, 1.7F, 2.0F, 2.3F
@@ -30,6 +34,7 @@ const float Calculation::POTENTIAL_RATES_OF_ASCENT[] = {
 
 // Usable field capacity (row labels for matrix
 // meanPotentialCapillaryRiseRateSummer)
+// old: inFK_S
 const float Calculation::USABLE_FIELD_CAPACITIES[] = {
     8.0F, 9.0F, 14.0F, 14.5F, 15.5F, 17.0F, 20.5F
 };
@@ -37,6 +42,7 @@ const float Calculation::USABLE_FIELD_CAPACITIES[] = {
 // Mean potential capillary rise rate kr [mm/d] of a summer season depending on:
 // - Potential rate of ascent (one column each) and
 // - Usable field capacity (one row each)
+// old: ijkr_S
 const float Calculation::MEAN_POTENTIAL_CAPILLARY_RISE_RATES_SUMMER[] = {
     7.0F, 6.0F, 5.0F, 1.5F, 0.5F, 0.2F, 0.1F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F,
     7.0F, 7.0F, 6.0F, 5.0F, 3.0F, 1.2F, 0.5F, 0.2F, 0.1F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F,
@@ -55,24 +61,30 @@ Calculation::Calculation(
     initValues(initValues),
     protocolStream(protocolStream),
     dbReader(dbaseReader),
-    precipitationYear(0),
-    precipitationSummer(0),
-    RDV(0),
-    R1V(0),
-    R2V(0),
-    R3V(0),
-    R4V(0),
-    RUV(0),
-    ROWVOL(0),
-    RIVOL(0),
-    RVOL(0),
-    TAS(0),
-    lenTAS(15),
-    lenS(7),
+
+    precipitationYear(0), // old: regenja
+    precipitationSummer(0), // old: regenso
+    bagrovRoof(0), // old: RDV
+    bagrovSurfaceClass1(0), // old: R1V
+    bagrovSurfaceClass2(0), // old: R2V
+    bagrovSurfaceClass3(0), // old: R3V
+    bagrovSurfaceClass4(0), // old: R4V
+    unsealedSurfaceRunoff(0), // old: RUV
+    rainwaterRunoff(0), // old: ROWVOL
+    totalSubsurfaceFlow(0), // old: RIVOL
+    totalRunoff(0), // old: RVOL
+    // old: TAS
+    potentialCapillaryRise(0),
+    // old: lenTAS
+    n_POTENTIAL_RATES_OF_ASCENT(ARRAY_SIZE(POTENTIAL_RATES_OF_ASCENT)),
+    // old: lenS
+    n_USABLE_FIELD_CAPACITIES(ARRAY_SIZE(USABLE_FIELD_CAPACITIES)),
+
     counters({0, 0, 0, 0L, 0L, 0L}),
-    continueProcessing(true)
+    continueProcessing(true) // old: weiter
 {
     config = new Config();
+
 }
 
 void Calculation::stopProcessing()
@@ -107,68 +119,68 @@ bool Calculation::calculate(QString outputFile, bool debug)
     
     // Versiegelungsgrad Dachflaechen / sonst. versiegelte Flaechen / Strassen
     // degree of sealing of roof surfaces / other sealed surfaces / roads
-    float imperviousnessRoof;
-    float imperviousnessOther;
-    float imperviousnessRoad;
+    float imperviousnessRoof; // old: vgd
+    float imperviousnessOther; // old: vgb
+    float imperviousnessRoad; // old: vgs
 
     // Kanalisierungsgrad Dachflaechen / sonst. versiegelte Flaechen / Strassen
     // degree of canalization for roof surfaces / other sealed surfaces / roads
-    float connectednessRoof;
-    float connectednessOther;
-    float connectednessRoad;
+    float connectednessRoof; // old: kd
+    float connectednessOther; // old: kb
+    float connectednessRoad; // old: ks
     
     // Anteil der jeweiligen Belagsklasse
     // share of respective pavement class
-    float shareOfSurfaceClass1;
-    float shareOfSurfaceClass2;
-    float shareOfSurfaceClass3;
-    float shareOfSurfaceClass4;
+    float shareOfSurfaceClass1; // old: bl1
+    float shareOfSurfaceClass2; // old: bl2
+    float shareOfSurfaceClass3; // old: bl3
+    float shareOfSurfaceClass4; // old: bl4
 
     // Anteil der jeweiligen Strassenbelagsklasse
     // share of respective road pavement class
-    float shareOfRoadClass1;
-    float shareOfRoadClass2;
-    float shareOfRoadClass3;
-    float shareOfRoadClass4;
+    float shareOfRoadClass1; // old: bls1
+    float shareOfRoadClass2; // old: bls2
+    float shareOfRoadClass3; // old: bls3
+    float shareOfRoadClass4; // old: bls4
 
     // Gesamtflaeche Bebauung / Strasse
     // total area of building development / road
-    float totalAreaBuildings;
-    float totalAreaRoads;
+    float totalAreaBuildings; // old: fb
+    float totalAreaRoads; // old: fs
 
     // Verhaeltnis Bebauungsflaeche / Strassenflaeche zu Gesamtflaeche
     // (ant = Anteil)
     // share of building development area / road area to total area
-    float areaShareBuildings;
-    float areaShareRoads;
+    float areaShareBuildings; // old: fbant
+    float areaShareRoads; // old: fsant
     
     // Abflussvariablen der versiegelten Flaechen
     // runoff variables of sealed surfaces
-    float runoffSealedSurface1;
-    float runoffSealedSurface2;
-    float runoffSealedSurface3;
-    float runoffSealedSurface4;
+    float runoffSealedSurface1; // old: row1
+    float runoffSealedSurface2; // old: row2
+    float runoffSealedSurface3; // old: row3
+    float runoffSealedSurface4; // old: row4
     
     // Infiltrationsvariablen der versiegelten Flaechen
     // infiltration variables of sealed surfaces
-    float infiltrationFromSealedSurface1;
-    float infiltrationFromSealedSurface2;
-    float infiltrationFromSealedSurface3;
-    float infiltrationFromSealedSurface4;
+    float infiltrationFromSealedSurface1; // old: ri1
+    float infiltrationFromSealedSurface2; // old: ri2
+    float infiltrationFromSealedSurface3; // old: ri3
+    float infiltrationFromSealedSurface4; // old: ri4
     
     // Abfluss- / Infiltrationsvariablen der Dachflaechen
     // runoff- / infiltration variables of roof surfaces
-    float runoffRoofs;
-    float infiltrationFromRoofs;
+    float runoffRoofs; // old: rowd
+    float infiltrationFromRoofs; // old: rid
     
     // Abfluss- / Infiltrationsvariablen unversiegelter Strassenflaechen
     // runoff- / infiltration variables of unsealed road surfaces
-    float runoffPerviousRoads;
-    float infiltrationFromPerviousRoads;
+    float runoffPerviousRoads; // old: rowuvs
+    float infiltrationFromPerviousRoads; // old: riuvs
     
     // Infiltration unversiegelter Flaechen
     // infiltration of unsealed areas
-    float infiltrationFromPerviousSurfaces;
+    float infiltrationFromPerviousSurfaces; // old: riuv
     
     // float-Zwischenwerte
     // float intermediate values
@@ -309,50 +321,50 @@ bool Calculation::calculate(QString outputFile, bool debug)
                 imperviousnessRoof *
                 connectednessRoof *
                 areaShareBuildings *
-                RDV;
+                bagrovRoof;
 
             runoffSealedSurface1 = (1.0F - initValues.getInfbel1()) * (
                 shareOfSurfaceClass1 * connectednessOther * imperviousnessOther * areaShareBuildings +
                 shareOfRoadClass1 * connectednessRoad * imperviousnessRoad * areaShareRoads
-            ) * R1V;
+            ) * bagrovSurfaceClass1;
 
             runoffSealedSurface2 = (1.0F - initValues.getInfbel2()) * (
                 shareOfSurfaceClass2 * connectednessOther * imperviousnessOther * areaShareBuildings +
                 shareOfRoadClass2 * connectednessRoad * imperviousnessRoad * areaShareRoads
-            ) * R2V;
+            ) * bagrovSurfaceClass2;
 
             runoffSealedSurface3 = (1.0F - initValues.getInfbel3()) * (
                 shareOfSurfaceClass3 * connectednessOther * imperviousnessOther * areaShareBuildings +
                 shareOfRoadClass3 * connectednessRoad * imperviousnessRoad * areaShareRoads
-            ) * R3V;
+            ) * bagrovSurfaceClass3;
 
             runoffSealedSurface4 = (1.0F - initValues.getInfbel4()) * (
                 shareOfSurfaceClass4 * connectednessOther * imperviousnessOther * areaShareBuildings +
             shareOfRoadClass4 * connectednessRoad * imperviousnessRoad * areaShareRoads
-                        ) * R4V;
+                        ) * bagrovSurfaceClass4;
 
             // Infiltration for sealed surfaces
-            infiltrationFromRoofs = (1 - connectednessRoof) * imperviousnessRoof * areaShareBuildings * RDV;
+            infiltrationFromRoofs = (1 - connectednessRoof) * imperviousnessRoof * areaShareBuildings * bagrovRoof;
 
             infiltrationFromSealedSurface1 = (
                 shareOfSurfaceClass1 * imperviousnessOther * areaShareBuildings +
                 shareOfRoadClass1 * imperviousnessRoad * areaShareRoads
-            ) * R1V - runoffSealedSurface1;
+            ) * bagrovSurfaceClass1 - runoffSealedSurface1;
 
             infiltrationFromSealedSurface2 = (
                 shareOfSurfaceClass2 * imperviousnessOther * areaShareBuildings +
                 shareOfRoadClass2 * imperviousnessRoad * areaShareRoads
-            ) * R2V - runoffSealedSurface2;
+            ) * bagrovSurfaceClass2 - runoffSealedSurface2;
 
             infiltrationFromSealedSurface3 = (
                 shareOfSurfaceClass3 * imperviousnessOther * areaShareBuildings +
                 shareOfRoadClass3 * imperviousnessRoad * areaShareRoads
-            ) * R3V - runoffSealedSurface3;
+            ) * bagrovSurfaceClass3 - runoffSealedSurface3;
 
             infiltrationFromSealedSurface4 = (
                 shareOfSurfaceClass4 * imperviousnessOther * areaShareBuildings +
                 shareOfRoadClass4 * imperviousnessRoad * areaShareRoads
-            ) * R4V - runoffSealedSurface4;
+            ) * bagrovSurfaceClass4 - runoffSealedSurface4;
             
             // consider unsealed road surfaces as pavement class 4
             // old: 0.11F * (1-vgs) * fsant * R4V;
@@ -360,12 +372,12 @@ bool Calculation::calculate(QString outputFile, bool debug)
 
             // old: 0.89F * (1-vgs) * fsant * R4V;
             infiltrationFromPerviousRoads = (1 - imperviousnessRoad) *
-                areaShareRoads * R4V;
+                areaShareRoads * bagrovSurfaceClass4;
 
             // runoff for unsealed surfaces rowuv = 0
             infiltrationFromPerviousSurfaces = (
                 100.0F - (float) ptrDA.VER
-            ) / 100.0F * RUV;
+            ) / 100.0F * unsealedSurfaceRunoff;
 
             // calculate runoff 'row' for entire block patial area (FLGES +
             // STR_FLGES) (mm/a)
@@ -381,7 +393,7 @@ bool Calculation::calculate(QString outputFile, bool debug)
             ptrDA.ROW = INT_ROUND(row);
             
             // calculate volume 'rowvol' from runoff (qcm/s)
-            ROWVOL = row * 3.171F * (
+            rainwaterRunoff = row * 3.171F * (
                 totalAreaBuildings + totalAreaRoads
             ) / 100000.0F;
             
@@ -400,7 +412,7 @@ bool Calculation::calculate(QString outputFile, bool debug)
             ptrDA.RI = INT_ROUND(ri);
             
             // calculate volume 'rivol' from infiltration rate (qcm/s)
-            RIVOL = ri * 3.171F * (
+            totalSubsurfaceFlow = ri * 3.171F * (
                 totalAreaBuildings + totalAreaRoads
             ) / 100000.0F;
 
@@ -411,7 +423,7 @@ bool Calculation::calculate(QString outputFile, bool debug)
             
             // calculate volume of system losses 'rvol' due to runoff and
             // infiltration
-            RVOL = ROWVOL + RIVOL;
+            totalRunoff = rainwaterRunoff + totalSubsurfaceFlow;
 
             // calculate total area of building development area as well as
             // roads area
@@ -432,9 +444,9 @@ bool Calculation::calculate(QString outputFile, bool debug)
             writer.setRecordField("R", r);
             writer.setRecordField("ROW", row);
             writer.setRecordField("RI", ri);
-            writer.setRecordField("RVOL", RVOL);
-            writer.setRecordField("ROWVOL", ROWVOL);
-            writer.setRecordField("RIVOL", RIVOL);
+            writer.setRecordField("RVOL", totalRunoff);
+            writer.setRecordField("ROWVOL", rainwaterRunoff);
+            writer.setRecordField("RIVOL", totalSubsurfaceFlow);
             writer.setRecordField("FLAECHE", flaeche1);
 // cls_5c:
             writer.setRecordField("VERDUNSTUN", verdunst);
@@ -486,7 +498,7 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString code)
     if (ptrDA.NUT != Usage::waterbody_G)
     {
         // pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS
-        TAS = ptrDA.FLW - config->getTWS(ptrDA.ERT, ptrDA.NUT);
+        potentialCapillaryRise = ptrDA.FLW - config->getTWS(ptrDA.ERT, ptrDA.NUT);
 
         // Feldkapazitaet
         // cls_6b: der Fall der mit NULL belegten FELD_30 und FELD_150 Werte
@@ -504,11 +516,11 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString code)
         // wird eingefuegt, wenn die Bodenart in das Zahlenmaterial aufgenommen
         // wird. Vorlaeufig wird Sande angenommen.
 
-        kr = (TAS <= 0.0) ?
+        kr = (potentialCapillaryRise <= 0.0) ?
             7.0F :
             MEAN_POTENTIAL_CAPILLARY_RISE_RATES_SUMMER[
-                Helpers::index(TAS, POTENTIAL_RATES_OF_ASCENT, lenTAS) +
-                Helpers::index(ptrDA.nFK, USABLE_FIELD_CAPACITIES, lenS) * lenTAS
+                Helpers::index(potentialCapillaryRise, POTENTIAL_RATES_OF_ASCENT, n_POTENTIAL_RATES_OF_ASCENT) +
+                Helpers::index(ptrDA.nFK, USABLE_FIELD_CAPACITIES, n_USABLE_FIELD_CAPACITIES) * n_POTENTIAL_RATES_OF_ASCENT
             ];
 
         // mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres
@@ -607,16 +619,16 @@ void Calculation::getKLIMA(int district, QString code)
     // ueber Umrechnungsfaktor yRatio und subtrahiert von Niederschlag
     // precipitation
 
-    RDV = precipitation - bagrov.nbagro(initValues.getBagdach(), xRatio) * potentialEvaporation;
-    R1V = precipitation - bagrov.nbagro(initValues.getBagbel1(), xRatio) * potentialEvaporation;
-    R2V = precipitation - bagrov.nbagro(initValues.getBagbel2(), xRatio) * potentialEvaporation;
-    R3V = precipitation - bagrov.nbagro(initValues.getBagbel3(), xRatio) * potentialEvaporation;
-    R4V = precipitation - bagrov.nbagro(initValues.getBagbel4(), xRatio) * potentialEvaporation;
+    bagrovRoof = precipitation - bagrov.nbagro(initValues.getBagdach(), xRatio) * potentialEvaporation;
+    bagrovSurfaceClass1 = precipitation - bagrov.nbagro(initValues.getBagbel1(), xRatio) * potentialEvaporation;
+    bagrovSurfaceClass2 = precipitation - bagrov.nbagro(initValues.getBagbel2(), xRatio) * potentialEvaporation;
+    bagrovSurfaceClass3 = precipitation - bagrov.nbagro(initValues.getBagbel3(), xRatio) * potentialEvaporation;
+    bagrovSurfaceClass4 = precipitation - bagrov.nbagro(initValues.getBagbel4(), xRatio) * potentialEvaporation;
 
     // Calculate runoff RUV for unsealed partial surfaces
     if (ptrDA.NUT == Usage::waterbody_G)
     {
-        RUV = precipitation - potentialEvaporation;
+        unsealedSurfaceRunoff = precipitation - potentialEvaporation;
     }
     else
     {
@@ -640,13 +652,13 @@ void Calculation::getKLIMA(int district, QString code)
         // Get the real evapotransporation using estimated y-factor
         realEvapotranspiration = yRatio * potentialEvaporation;
 
-        if (TAS < 0) {
+        if (potentialCapillaryRise < 0) {
             realEvapotranspiration += (
                 potentialEvaporation - yRatio * potentialEvaporation
-            ) * (float) exp(ptrDA.FLW / TAS);
+            ) * (float) exp(ptrDA.FLW / potentialCapillaryRise);
         }
 
-        RUV = precipitation - realEvapotranspiration;
+        unsealedSurfaceRunoff = precipitation - realEvapotranspiration;
     }
 }
 
