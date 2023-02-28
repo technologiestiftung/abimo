@@ -32,14 +32,14 @@ EffectivenessUnsealed::EffectivenessUnsealed()
  */
 float EffectivenessUnsealed::calculate(PDR &record)
 {
-    float G020 = getG02((int) (record.nFK + 0.5));
-    Usage usage = record.NUT;
+    float G020 = getG02((int) (record.usableFieldCapacity + 0.5));
+    Usage usage = record.usage;
 
     if (usage == Usage::forested_W) {
         return bag0_forest(G020);
     }
 
-    return bag0_default(G020, record.ERT, record.BER, (record.P1S == 0 && record.ETPS == 0));
+    return bag0_default(G020, record.yieldPower, record.irrigation, (record.precipitationSummer == 0 && record.potentialEvaporationSummer == 0));
 }
 
 float EffectivenessUnsealed::getG02(int nFK)

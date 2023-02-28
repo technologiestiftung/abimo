@@ -79,7 +79,6 @@ Calculation::Calculation(
     continueProcessing(true) // old: weiter
 {
     config = new Config();
-
 }
 
 void Calculation::stopProcessing()
@@ -217,7 +216,7 @@ bool Calculation::calculate(QString outputFile, bool debug)
             precipitationSummer = record.REGENSO;
 
             // depth to groundwater table 'FLUR'
-            resultRecord.FLW = record.FLUR;
+            resultRecord.depthToWaterTable = record.FLUR;
 
             getUsage(
                 record.NUTZUNG,
@@ -246,7 +245,7 @@ bool Calculation::calculate(QString outputFile, bool debug)
             // share of other sealed areas (e.g. Hofflaechen) and calculate
             // total sealed area
             imperviousnessOther = record.PROVGU_fraction;
-            resultRecord.VER = INT_ROUND(
+            resultRecord.imperviousness = INT_ROUND(
                 imperviousnessRoof * 100 +
                 imperviousnessOther * 100
             );
@@ -371,7 +370,7 @@ bool Calculation::calculate(QString outputFile, bool debug)
 
             // runoff for unsealed surfaces rowuv = 0
             infiltrationFromPerviousSurfaces = (
-                100.0F - (float) resultRecord.VER
+                100.0F - (float) resultRecord.imperviousness
             ) / 100.0F * unsealedSurfaceRunoff;
 
             // calculate runoff 'row' for entire block patial area (FLGES +
@@ -385,7 +384,7 @@ bool Calculation::calculate(QString outputFile, bool debug)
                 runoffPerviousRoads
             );
 
-            resultRecord.ROW = INT_ROUND(row);
+            resultRecord.runoff = INT_ROUND(row);
             
             // calculate volume 'rowvol' from runoff (qcm/s)
             rainwaterRunoff = row * 3.171F * (
@@ -404,7 +403,7 @@ bool Calculation::calculate(QString outputFile, bool debug)
                 infiltrationFromPerviousSurfaces
             );
 
-            resultRecord.RI = INT_ROUND(ri);
+            resultRecord.infiltrationRate = INT_ROUND(ri);
             
             // calculate volume 'rivol' from infiltration rate (qcm/s)
             totalSubsurfaceFlow = ri * 3.171F * (
@@ -414,7 +413,7 @@ bool Calculation::calculate(QString outputFile, bool debug)
             // calculate total system losses 'r' due to runoff and infiltration
             // for entire block partial area
             r = row + ri;
-            resultRecord.R = INT_ROUND(r);
+            resultRecord.totalSystemLosses = INT_ROUND(r);
             
             // calculate volume of system losses 'rvol' due to runoff and
             // infiltration
@@ -490,16 +489,17 @@ void Calculation::getUsage(int nutz, int typ, int f30, int f150, QString code)
     // gardening purposes
     setUsageYieldIrrigation(nutz, typ, code);
 
-    if (resultRecord.NUT != Usage::waterbody_G)
+    if (resultRecord.usage != Usage::waterbody_G)
     {
         // pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS
-        potentialCapillaryRise = resultRecord.FLW - config->getTWS(resultRecord.ERT, resultRecord.NUT);
+        potentialCapillaryRise = resultRecord.depthToWaterTable -
+                config->getTWS(resultRecord.yieldPower, resultRecord.usage);
 
         // Feldkapazitaet
         // cls_6b: der Fall der mit NULL belegten FELD_30 und FELD_150 Werte
         // wird hier im erten Fall behandelt - ich erwarte dann den Wert 0
-        resultRecord.nFK = PDR::estimateWaterHoldingCapacity(
-                    f30, f150, resultRecord.NUT == Usage::forested_W
+        resultRecord.usableFieldCapacity = PDR::estimateWaterHoldingCapacity(
+                    f30, f150, resultRecord.usage == Usage::forested_W
         );
 
         // mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres
@@ -520,20 +520,25 @@ void Calculation::getUsage(int nutz, int typ, int f30, int f150, QString code)
                     n_POTENTIAL_RATES_OF_ASCENT
                 ) +
                 Helpers::index(
-                    resultRecord.nFK,
+                    resultRecord.usableFieldCapacity,
                     USABLE_FIELD_CAPACITIES,
                     n_USABLE_FIELD_CAPACITIES
                 ) * n_POTENTIAL_RATES_OF_ASCENT
             ];
 
         // mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres
-        resultRecord.KR = (int) (PDR::estimateDaysOfGrowth(resultRecord.NUT, resultRecord.ERT) * kr);
+        resultRecord.meanPotentialCapillaryRiseRate = (int) (
+                    PDR::estimateDaysOfGrowth(
+                        resultRecord.usage,
+                        resultRecord.yieldPower
+                    ) * kr
+        );
     }
 
-    if (initValues.getBERtoZero() && resultRecord.BER != 0) {
+    if (initValues.getBERtoZero() && resultRecord.irrigation != 0) {
         //*protokollStream << "Erzwinge BER=0 fuer Code: " << code << ", Wert war:" << ptrDA.BER << " \r\n";
         counters.irrigationForcedToZero++;
-        resultRecord.BER = 0;
+        resultRecord.irrigation = 0;
     }
 }
 
@@ -583,30 +588,30 @@ void Calculation::getClimaticConditions(int district, QString code)
     // Later on two additional parameters, (now and?) here:
     // * ptrDA.P1 = p1;
     // * ptrDA.PS = ps;
-    resultRecord.P1 = precipitationYear;
-    resultRecord.P1S = precipitationSummer;
+    resultRecord.precipitationYear = precipitationYear;
+    resultRecord.precipitationSummer = precipitationSummer;
 
     // Parameter for the city districts
-    if (resultRecord.NUT == Usage::waterbody_G)
+    if (resultRecord.usage == Usage::waterbody_G)
     {
-        resultRecord.ETP = initValueOrReportedDefaultValue(
+        resultRecord.longtimeMeanPotentialEvaporation = initValueOrReportedDefaultValue(
             district, code, initValues.hashEG, 775, "EG"
         );
     }
     else
     {
-        resultRecord.ETP = initValueOrReportedDefaultValue(
+        resultRecord.longtimeMeanPotentialEvaporation = initValueOrReportedDefaultValue(
             district, code, initValues.hashETP, 660, "ETP"
         );
 
-        resultRecord.ETPS = initValueOrReportedDefaultValue(
+        resultRecord.potentialEvaporationSummer = initValueOrReportedDefaultValue(
             district, code, initValues.hashETPS, 530, "ETPS"
         );
     }
 
     // Declaration of potential evaporation and precipitation
-    potentialEvaporation = (float) resultRecord.ETP; // no more correction with 1.1
-    precipitation = (float) resultRecord.P1 * initValues.getPrecipitationCorrectionFactor();
+    potentialEvaporation = (float) resultRecord.longtimeMeanPotentialEvaporation; // no more correction with 1.1
+    precipitation = (float) resultRecord.precipitationYear * initValues.getPrecipitationCorrectionFactor();
       // ptrDA.KF
 
     // Berechnung der Abfluesse RDV und R1V bis R4V fuer versiegelte
@@ -629,7 +634,7 @@ void Calculation::getClimaticConditions(int district, QString code)
     bagrovSurfaceClass4 = precipitation - bagrov.nbagro(initValues.getBagbel4(), xRatio) * potentialEvaporation;
 
     // Calculate runoff RUV for unsealed partial surfaces
-    if (resultRecord.NUT == Usage::waterbody_G)
+    if (resultRecord.usage == Usage::waterbody_G)
     {
         unsealedSurfaceRunoff = precipitation - potentialEvaporation;
     }
@@ -639,9 +644,9 @@ void Calculation::getClimaticConditions(int district, QString code)
         // Modul Raster abgespeckt
         effectivityParameter = EffectivenessUnsealed::calculate(resultRecord);
 
-        if (resultRecord.P1S > 0 && resultRecord.ETPS > 0) {
+        if (resultRecord.precipitationSummer > 0 && resultRecord.potentialEvaporationSummer > 0) {
             effectivityParameter *= getSummerModificationFactor(
-                (float) (resultRecord.P1S + resultRecord.BER + resultRecord.KR) / resultRecord.ETPS
+                (float) (resultRecord.precipitationSummer + resultRecord.irrigation + resultRecord.meanPotentialCapillaryRiseRate) / resultRecord.potentialEvaporationSummer
             );
         }
 
@@ -649,7 +654,7 @@ void Calculation::getClimaticConditions(int district, QString code)
         // Then get the y-factor: y = fbag(n, x)
         yRatio = bagrov.nbagro(
             effectivityParameter,
-            (precipitation + resultRecord.KR + resultRecord.BER) / potentialEvaporation
+            (precipitation + resultRecord.meanPotentialCapillaryRiseRate + resultRecord.irrigation) / potentialEvaporation
         );
 
         // Get the real evapotransporation using estimated y-factor
@@ -658,7 +663,7 @@ void Calculation::getClimaticConditions(int district, QString code)
         if (potentialCapillaryRise < 0) {
             realEvapotranspiration += (
                 potentialEvaporation - yRatio * potentialEvaporation
-            ) * (float) exp(resultRecord.FLW / potentialCapillaryRise);
+            ) * (float) exp(resultRecord.depthToWaterTable / potentialCapillaryRise);
         }
 
         unsealedSurfaceRunoff = precipitation - realEvapotranspiration;
