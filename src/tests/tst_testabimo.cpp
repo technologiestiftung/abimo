@@ -47,7 +47,7 @@ TestAbimo::~TestAbimo()
 
 QString TestAbimo::testDataDir()
 {
-    return QString("../../../../data");
+    return QString("../../../abimo/data");
 }
 
 QString TestAbimo::dataFilePath(QString fileName, bool mustExist)
