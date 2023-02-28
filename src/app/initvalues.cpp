@@ -273,20 +273,20 @@ int InitValues::getCountSets() {
     return countSets;
 }
 
-void InitValues::putToHash(QString districts, int value, int hashType) {
+void InitValues::putToHashOfType(QString districts, int value, int hashType) {
 
     if (hashType == 11) {
-        putToHashL(districts, value, hashETP);
+        putToReferencedHash(districts, value, hashETP);
     }
     else if (hashType == 12) {
-        putToHashL(districts, value, hashETPS);
+        putToReferencedHash(districts, value, hashETPS);
     }
     else if (hashType == 13) {
-        putToHashL(districts, value, hashEG);
+        putToReferencedHash(districts, value, hashEG);
     }
 }
 
-void InitValues::putToHashL(QString districts, int value, QHash<int, int> &hash) {
+void InitValues::putToReferencedHash(QString districts, int value, QHash<int, int> &hash) {
 
     if (districts.length() == 0) {
         districts = "0";

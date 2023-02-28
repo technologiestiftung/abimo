@@ -162,7 +162,7 @@ void SaxHandler::gewVerdEntry(const QXmlAttributes &attribs)
     QString bezirke = attribs.value("bezirke");
     QString eg = attribs.value("eg");
 
-    initValues.putToHash(bezirke, eg.toInt(), 13);
+    initValues.putToHashOfType(bezirke, eg.toInt(), 13);
 }
 
 void SaxHandler::potVerdEntry(const QXmlAttributes &attribs)
@@ -175,11 +175,11 @@ void SaxHandler::potVerdEntry(const QXmlAttributes &attribs)
         QString bezirke = attribs.value("bezirke");
 
         if (etp.length() > 0) {
-            initValues.putToHash(bezirke, etp.toInt(), 11);
+            initValues.putToHashOfType(bezirke, etp.toInt(), 11);
         }
 
         if (etps.length() > 0) {
-            initValues.putToHash(bezirke, etps.toInt(), 12);
+            initValues.putToHashOfType(bezirke, etps.toInt(), 12);
         }
     }
 }

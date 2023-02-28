@@ -57,7 +57,7 @@ public:
     bool getIrrigationToZero();
     float getPrecipitationCorrectionFactor();
     bool allSet();
-    void putToHash(QString districts, int value, int hashType);
+    void putToHashOfType(QString districts, int value, int hashType);
     QHash<int, int> hashETP;
     QHash<int, int> hashETPS;
     QHash<int, int> hashEG;
@@ -96,7 +96,7 @@ private:
 
     int countSets;
 
-    void putToHashL(QString districts, int value, QHash<int, int> &hash);
+    void putToReferencedHash(QString districts, int value, QHash<int, int> &hash);
 };
 
 #endif
