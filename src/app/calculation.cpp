@@ -207,26 +207,26 @@ bool Calculation::calculate(QString outputFile, bool debug)
 
         // NUTZUNG = integer representing the type of area usage for each block
         // partial area
-        if (record.NUTZUNG != 0) {
+        if (record.usage != 0) {
 
             // CODE: unique identifier for each block partial area
 
             // precipitation for entire year and for summer season only
-            precipitationYear = record.REGENJA;
-            precipitationSummer = record.REGENSO;
+            precipitationYear = record.precipitationYear;
+            precipitationSummer = record.precipitationSummer;
 
             // depth to groundwater table 'FLUR'
-            resultRecord.depthToWaterTable = record.FLUR;
+            resultRecord.depthToWaterTable = record.depthToWaterTable;
 
             getUsage(
-                record.NUTZUNG,
+                record.usage,
                 // structure type
-                record.TYP,
+                record.type,
                 // field capacity [%] for 0-30cm below ground level
-                record.FELD_30,
+                record.fieldCapacity_30,
                 // field capacity [%] for 0-150cm below ground level
-                record.FELD_150,
-                record.CODE
+                record.fieldCapacity_150,
+                record.code
             );
 
             // cls_6a: an dieser Stelle muss garantiert werden, dass f30 und
@@ -237,43 +237,43 @@ bool Calculation::calculate(QString outputFile, bool debug)
             // aber eigentlich war das auch schon so ... ???
 
             // Bagrov-calculation for sealed surfaces
-            getClimaticConditions(record.BEZIRK, record.CODE);
+            getClimaticConditions(record.district, record.code);
 
             // share of roof area [%] 'PROBAU'
-            imperviousnessRoof = record.PROBAU_fraction;
+            imperviousnessRoof = record.imperviousnessRoof;
           
             // share of other sealed areas (e.g. Hofflaechen) and calculate
             // total sealed area
-            imperviousnessOther = record.PROVGU_fraction;
+            imperviousnessOther = record.imperviousnessOther;
             resultRecord.imperviousness = INT_ROUND(
                 imperviousnessRoof * 100 +
                 imperviousnessOther * 100
             );
             
             // share of sealed road area
-            imperviousnessRoad = record.VGSTRASSE_fraction;
+            imperviousnessRoad = record.imperviousnessRoad;
           
             // degree of canalization for roof / other sealed areas /
             // sealed roads
-            connectednessRoof = record.KAN_BEB_fraction;
-            connectednessOther = record.KAN_VGU_fraction;
-            connectednessRoad = record.KAN_STR_fraction;
+            connectednessRoof = record.connectednessRoof;
+            connectednessOther = record.connectednessOther;
+            connectednessRoad = record.connectednessRoad;
           
             // share of each pavement class for surfaces except roads of block
             // area
-            shareOfSurfaceClass1 = record.BELAG1_fraction;
-            shareOfSurfaceClass2 = record.BELAG2_fraction;
-            shareOfSurfaceClass3 = record.BELAG3_fraction;
-            shareOfSurfaceClass4 = record.BELAG4_fraction;
+            shareOfSurfaceClass1 = record.shareOfSurfaceClass1;
+            shareOfSurfaceClass2 = record.shareOfSurfaceClass2;
+            shareOfSurfaceClass3 = record.shareOfSurfaceClass3;
+            shareOfSurfaceClass4 = record.shareOfSurfaceClass4;
           
             // share of each pavement class for roads of block area
-            shareOfRoadClass1 = record.STR_BELAG1_fraction;
-            shareOfRoadClass2 = record.STR_BELAG2_fraction;
-            shareOfRoadClass3 = record.STR_BELAG3_fraction;
-            shareOfRoadClass4 = record.STR_BELAG4_fraction;
+            shareOfRoadClass1 = record.shareOfRoadClass1;
+            shareOfRoadClass2 = record.shareOfRoadClass2;
+            shareOfRoadClass3 = record.shareOfRoadClass3;
+            shareOfRoadClass4 = record.shareOfRoadClass4;
           
-            totalAreaBuildings = record.FLGES;
-            totalAreaRoads = record.STR_FLGES;
+            totalAreaBuildings = record.totalAreaBuildings;
+            totalAreaRoads = record.totalAreaRoads;
             
             // if sum of total building development area and road area is
             // inconsiderably small it is assumed, that the area is unknown and
@@ -434,7 +434,7 @@ bool Calculation::calculate(QString outputFile, bool debug)
 
             // write the calculated variables into respective fields
             writer.addRecord();
-            writer.setRecordField("CODE", record.CODE);
+            writer.setRecordField("CODE", record.code);
             writer.setRecordField("R", r);
             writer.setRecordField("ROW", row);
             writer.setRecordField("RI", ri);

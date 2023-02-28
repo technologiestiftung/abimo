@@ -13,31 +13,31 @@
 
 // _fraction indicates numbers between 0 and 1 (instead of percentages)
 struct abimoRecord {
-    int NUTZUNG;
-    QString CODE;
-    int REGENJA;
-    int REGENSO;
-    float FLUR;
-    int TYP;
-    int FELD_30;
-    int FELD_150;
-    int BEZIRK;
-    float PROBAU_fraction;
-    float PROVGU_fraction;
-    float VGSTRASSE_fraction;
-    float KAN_BEB_fraction;
-    float KAN_VGU_fraction;
-    float KAN_STR_fraction;
-    float BELAG1_fraction;
-    float BELAG2_fraction;
-    float BELAG3_fraction;
-    float BELAG4_fraction;
-    float STR_BELAG1_fraction;
-    float STR_BELAG2_fraction;
-    float STR_BELAG3_fraction;
-    float STR_BELAG4_fraction;
-    float FLGES;
-    float STR_FLGES;
+    int usage; // old: NUTZUNG
+    QString code; // old: CODE
+    int precipitationYear; // old: REGENJA
+    int precipitationSummer; // old: REGENSO
+    float depthToWaterTable; // old: FLUR
+    int type; // old: TYP
+    int fieldCapacity_30; // old: FELD_30
+    int fieldCapacity_150; // old: FELD_150
+    int district; // old: BEZIRK
+    float imperviousnessRoof; // old: PROBAU_fraction
+    float imperviousnessOther; // old: PROVGU_fraction
+    float imperviousnessRoad; // old: VGSTRASSE_fraction
+    float connectednessRoof; // old: KAN_BEB_fraction
+    float connectednessOther; // old: KAN_VGU_fraction
+    float connectednessRoad; // old: KAN_STR_fraction
+    float shareOfSurfaceClass1; // old: BELAG1_fraction
+    float shareOfSurfaceClass2; // old: BELAG2_fraction
+    float shareOfSurfaceClass3; // old: BELAG3_fraction
+    float shareOfSurfaceClass4; // old: BELAG4_fraction
+    float shareOfRoadClass1; // old: STR_BELAG1_fraction
+    float shareOfRoadClass2; // old: STR_BELAG2_fraction
+    float shareOfRoadClass3; // old: STR_BELAG3_fraction
+    float shareOfRoadClass4; // old: STR_BELAG4_fraction
+    float totalAreaBuildings; // old: FLGES;
+    float totalAreaRoads; // old: STR_FLGES;
 };
 
 class DbaseReader
@@ -65,8 +65,9 @@ public:
     void fillRecord(int k, abimoRecord& record, bool debug = false);
 
 private:
-    // VARIABLES:
-    /////////////
+
+    // VARIABLES
+
     QFile file;
     QString version;
     QString languageDriver;
@@ -88,8 +89,7 @@ private:
     // count of fields
     int countFields;
 
-    // FUNCTIONS:
-    /////////////
+    // FUNCTIONS
 
     int expectedFileSize();
 
