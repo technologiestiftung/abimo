@@ -93,11 +93,11 @@ QString Calculation::getError()
 // =============================================================================
 // Diese Funktion importiert die Datensaetze aus der DBASE-Datei FileName in das
 // DA Feld ein (GWD-Daten).
-// Parameter: fileOut: Name der Ausgabedatei
+// Parameter: outputFile: Name der Ausgabedatei
 //            debug: whether or not to show debug messages
 // Rueckgabewert: BOOL. TRUE, wenn das Einlesen der Datei erfolgreich war.
 // =============================================================================
-bool Calculation::calculate(QString fileOut, bool debug)
+bool Calculation::calculate(QString outputFile, bool debug)
 {
     // Current Abimo record (represents one row of the input dbf file)
     abimoRecord record;
@@ -180,7 +180,7 @@ bool Calculation::calculate(QString fileOut, bool debug)
     counters.noUsageGiven = 0L;
 
     // first entry into protocol
-    DbaseWriter writer(fileOut, initValues);
+    DbaseWriter writer(outputFile, initValues);
 
     // get the number of rows in the input data
     counters.recordsRead = dbReader.getNumberOfRecords();

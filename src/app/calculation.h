@@ -51,11 +51,15 @@ public:
             bool debug = false
     );
 
-    bool calculate(QString fileOut, bool debug = false);
+    bool calculate(QString outputFile, bool debug = false);
+
+    // Accessor functions to specific counters (never used!)
     long getNumberOfProtocolRecords();
     long getNumberOfNoAreaGiven();
     long getNumberOfNoUsageGiven();
+
     Counters getCounters();
+
     QString getError();
     void stopProcessing();
 
