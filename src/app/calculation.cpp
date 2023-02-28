@@ -240,7 +240,8 @@ bool Calculation::calculate(QString fileOut, bool debug)
             // total sealed area
             imperviousnessOther = record.PROVGU_fraction;
             ptrDA.VER = INT_ROUND(
-                100*(imperviousnessRoof + imperviousnessOther)
+                imperviousnessRoof * 100 +
+                imperviousnessOther * 100
             );
             
             // share of sealed road area
