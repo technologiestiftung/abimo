@@ -14,7 +14,7 @@ private:
 
 public:
     EffectivenessUnsealed();
-    static float getNUV(PDR &record);
+    static float calculate(PDR &record);
 };
 
 #endif // EFFECTIVENESSUNSEALED_H

@@ -38,12 +38,15 @@ class Calculation: public QObject
     Q_OBJECT
 
 public:
+
+    // Constructor
     Calculation(
             DbaseReader &dbaseReader,
             InitValues &initValues,
             QTextStream & protocolStream
     );
 
+    // Static function to perform a "batch run"
     static void runCalculation(
             QString inputFile,
             QString configFile,
@@ -51,6 +54,8 @@ public:
             bool debug = false
     );
 
+    // Member function to perform the calculation on an instance of the
+    // Calculation class
     bool calculate(QString outputFile, bool debug = false);
 
     // Accessor functions to specific counters (never used!)
@@ -61,6 +66,7 @@ public:
     Counters getCounters();
 
     QString getError();
+
     void stopProcessing();
 
 signals:
@@ -76,11 +82,12 @@ private:
     InitValues &initValues;
     QTextStream &protocolStream;
     DbaseReader &dbReader;
-    PDR ptrDA;
+    PDR resultRecord; // old: ptrDA
     QString error;
 
     // *** vorlaeufig aus Teilblock 0 wird fuer die Folgeblocks genommen
-    float precipitationYear, precipitationSummer;
+    float precipitationYear; // old: regenja
+    float precipitationSummer; // old: regenso
 
     // Abfluesse nach Bagrov fuer N1 bis N4
     float bagrovRoof; // old: RDV
@@ -116,13 +123,21 @@ private:
     bool continueProcessing;
 
     // Methods
-    float getNUV(PDR &B);
+
+    //float getNUV(PDR &B); // now EffectivenessUnsealed::calculate()
+
     float getSummerModificationFactor(float wa);
-    float getG02 (int nFK);
-    void getNUTZ(int nutz, int typ, int f30, int f150, QString code);
+
+    //float getG02 (int nFK); // now EffectivenessUnsealed::getG02
+
+    // old: getNUTZ()
+    void getUsage(int nutz, int typ, int f30, int f150, QString code);
+
     void setUsageYieldIrrigation(int usage, int type, QString code);
     void logNotDefined(QString code, int type);
-    void getKLIMA(int bez, QString codestr);
+
+    void getClimaticConditions(int bez, QString codestr);
+
     float initValueOrReportedDefaultValue(
         int bez, QString code, QHash<int, int> &hash, int defaultValue,
         QString name

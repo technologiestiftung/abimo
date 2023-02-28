@@ -30,7 +30,7 @@ EffectivenessUnsealed::EffectivenessUnsealed()
     g e t N U V ( Pointer auf aktuellen DataRecord) Berechnung eines Records (abgespecktes Raster)
  =======================================================================================================================
  */
-float EffectivenessUnsealed::getNUV(PDR &record)
+float EffectivenessUnsealed::calculate(PDR &record)
 {
     float G020 = getG02((int) (record.nFK + 0.5));
     Usage usage = record.NUT;
