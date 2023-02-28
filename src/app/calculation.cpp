@@ -311,28 +311,28 @@ bool Calculation::calculate(QString outputFile, bool debug)
             //    fbant / fsant: ?
             //    RDV / RxV: Gesamtabfluss versiegelte Flaeche
 
-            runoffRoofs = (1.0F - initValues.getInfdach()) *
+            runoffRoofs = (1.0F - initValues.getInfiltrationFactorRoof()) *
                 imperviousnessRoof *
                 connectednessRoof *
                 areaShareBuildings *
                 bagrovRoof;
 
-            runoffSealedSurface1 = (1.0F - initValues.getInfbel1()) * (
+            runoffSealedSurface1 = (1.0F - initValues.getInfiltrationFactorSurfaceClass1()) * (
                 shareOfSurfaceClass1 * connectednessOther * imperviousnessOther * areaShareBuildings +
                 shareOfRoadClass1 * connectednessRoad * imperviousnessRoad * areaShareRoads
             ) * bagrovSurfaceClass1;
 
-            runoffSealedSurface2 = (1.0F - initValues.getInfbel2()) * (
+            runoffSealedSurface2 = (1.0F - initValues.getInfiltrationFactorSurfaceClass2()) * (
                 shareOfSurfaceClass2 * connectednessOther * imperviousnessOther * areaShareBuildings +
                 shareOfRoadClass2 * connectednessRoad * imperviousnessRoad * areaShareRoads
             ) * bagrovSurfaceClass2;
 
-            runoffSealedSurface3 = (1.0F - initValues.getInfbel3()) * (
+            runoffSealedSurface3 = (1.0F - initValues.getInfiltrationFactorSurfaceClass3()) * (
                 shareOfSurfaceClass3 * connectednessOther * imperviousnessOther * areaShareBuildings +
                 shareOfRoadClass3 * connectednessRoad * imperviousnessRoad * areaShareRoads
             ) * bagrovSurfaceClass3;
 
-            runoffSealedSurface4 = (1.0F - initValues.getInfbel4()) * (
+            runoffSealedSurface4 = (1.0F - initValues.getInfiltrationFactorSurfaceClass4()) * (
                 shareOfSurfaceClass4 * connectednessOther * imperviousnessOther * areaShareBuildings +
             shareOfRoadClass4 * connectednessRoad * imperviousnessRoad * areaShareRoads
                         ) * bagrovSurfaceClass4;
@@ -535,7 +535,7 @@ void Calculation::getUsage(int nutz, int typ, int f30, int f150, QString code)
         );
     }
 
-    if (initValues.getBERtoZero() && resultRecord.irrigation != 0) {
+    if (initValues.getIrrigationToZero() && resultRecord.irrigation != 0) {
         //*protokollStream << "Erzwinge BER=0 fuer Code: " << code << ", Wert war:" << ptrDA.BER << " \r\n";
         counters.irrigationForcedToZero++;
         resultRecord.irrigation = 0;
@@ -627,11 +627,11 @@ void Calculation::getClimaticConditions(int district, QString code)
     // ueber Umrechnungsfaktor yRatio und subtrahiert von Niederschlag
     // precipitation
 
-    bagrovRoof = precipitation - bagrov.nbagro(initValues.getBagdach(), xRatio) * potentialEvaporation;
-    bagrovSurfaceClass1 = precipitation - bagrov.nbagro(initValues.getBagbel1(), xRatio) * potentialEvaporation;
-    bagrovSurfaceClass2 = precipitation - bagrov.nbagro(initValues.getBagbel2(), xRatio) * potentialEvaporation;
-    bagrovSurfaceClass3 = precipitation - bagrov.nbagro(initValues.getBagbel3(), xRatio) * potentialEvaporation;
-    bagrovSurfaceClass4 = precipitation - bagrov.nbagro(initValues.getBagbel4(), xRatio) * potentialEvaporation;
+    bagrovRoof = precipitation - bagrov.nbagro(initValues.getBagrovRoof(), xRatio) * potentialEvaporation;
+    bagrovSurfaceClass1 = precipitation - bagrov.nbagro(initValues.getBagrovSufaceClass1(), xRatio) * potentialEvaporation;
+    bagrovSurfaceClass2 = precipitation - bagrov.nbagro(initValues.getBagrovSufaceClass2(), xRatio) * potentialEvaporation;
+    bagrovSurfaceClass3 = precipitation - bagrov.nbagro(initValues.getBagrovSufaceClass3(), xRatio) * potentialEvaporation;
+    bagrovSurfaceClass4 = precipitation - bagrov.nbagro(initValues.getBagrovSufaceClass4(), xRatio) * potentialEvaporation;
 
     // Calculate runoff RUV for unsealed partial surfaces
     if (resultRecord.usage == Usage::waterbody_G)

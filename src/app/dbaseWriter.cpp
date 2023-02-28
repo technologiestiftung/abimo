@@ -24,14 +24,14 @@ DbaseWriter::DbaseWriter(QString &file, InitValues &initValues):
 {
     // Felder mit Namen, Typ, Nachkommastellen
     fields[0].set("CODE", "C", 0);
-    fields[1].set("R", "N", initValues.getDecR());
-    fields[2].set("ROW", "N", initValues.getDecROW());
-    fields[3].set("RI", "N", initValues.getDecRI());
-    fields[4].set("RVOL", "N", initValues.getDecRVOL());
-    fields[5].set("ROWVOL", "N", initValues.getDecROWVOL());
-    fields[6].set("RIVOL", "N", initValues.getDecRIVOL());
-    fields[7].set("FLAECHE", "N", initValues.getDecFLAECHE());
-    fields[8].set("VERDUNSTUN", "N", initValues.getDecVERDUNSTUNG());
+    fields[1].set("R", "N", initValues.getDigitsTotalSystemLosses());
+    fields[2].set("ROW", "N", initValues.getDigitsRunoff());
+    fields[3].set("RI", "N", initValues.getDigitsInfiltrationRate());
+    fields[4].set("RVOL", "N", initValues.getDigitsTotalRunoff());
+    fields[5].set("ROWVOL", "N", initValues.getDigitsRainwaterRunoff());
+    fields[6].set("RIVOL", "N", initValues.getDigitsTotalSubsurfaceFlow());
+    fields[7].set("FLAECHE", "N", initValues.getDigitsTotalArea());
+    fields[8].set("VERDUNSTUN", "N", initValues.getDigitsEvaporation());
 
     this->date = QDateTime::currentDateTime().date();
 
