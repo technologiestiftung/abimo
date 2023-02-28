@@ -61,7 +61,6 @@ Calculation::Calculation(
     initValues(initValues),
     protocolStream(protocolStream),
     dbReader(dbaseReader),
-
     precipitationYear(0), // old: regenja
     precipitationSummer(0), // old: regenso
     bagrovRoof(0), // old: RDV
@@ -73,13 +72,9 @@ Calculation::Calculation(
     rainwaterRunoff(0), // old: ROWVOL
     totalSubsurfaceFlow(0), // old: RIVOL
     totalRunoff(0), // old: RVOL
-    // old: TAS
-    potentialCapillaryRise(0),
-    // old: lenTAS
-    n_POTENTIAL_RATES_OF_ASCENT(ARRAY_SIZE(POTENTIAL_RATES_OF_ASCENT)),
-    // old: lenS
-    n_USABLE_FIELD_CAPACITIES(ARRAY_SIZE(USABLE_FIELD_CAPACITIES)),
-
+    potentialCapillaryRise(0), // old: TAS
+    n_POTENTIAL_RATES_OF_ASCENT(ARRAY_SIZE(POTENTIAL_RATES_OF_ASCENT)), // old: lenTAS
+    n_USABLE_FIELD_CAPACITIES(ARRAY_SIZE(USABLE_FIELD_CAPACITIES)), // old: lenS
     counters({0, 0, 0, 0L, 0L, 0L}),
     continueProcessing(true) // old: weiter
 {
@@ -519,8 +514,16 @@ void Calculation::getNUTZ(int nutz, int typ, int f30, int f150, QString code)
         kr = (potentialCapillaryRise <= 0.0) ?
             7.0F :
             MEAN_POTENTIAL_CAPILLARY_RISE_RATES_SUMMER[
-                Helpers::index(potentialCapillaryRise, POTENTIAL_RATES_OF_ASCENT, n_POTENTIAL_RATES_OF_ASCENT) +
-                Helpers::index(ptrDA.nFK, USABLE_FIELD_CAPACITIES, n_USABLE_FIELD_CAPACITIES) * n_POTENTIAL_RATES_OF_ASCENT
+                Helpers::index(
+                    potentialCapillaryRise,
+                    POTENTIAL_RATES_OF_ASCENT,
+                    n_POTENTIAL_RATES_OF_ASCENT
+                ) +
+                Helpers::index(
+                    ptrDA.nFK,
+                    USABLE_FIELD_CAPACITIES,
+                    n_USABLE_FIELD_CAPACITIES
+                ) * n_POTENTIAL_RATES_OF_ASCENT
             ];
 
         // mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres
