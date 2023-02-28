@@ -153,14 +153,14 @@ void TestAbimo::test_calc()
     QString outFile_noConfig = dataFilePath("abimo_2019_mitstrassenout_3.2.1_default-config.dbf");
     QString outFile_xmlConfig = dataFilePath("abimo_2019_mitstrassenout_3.2.1_xml-config.dbf");
 
-    Calculation::calculate(inputFile, "", outputFile, false);
+    Calculation::runCalculation(inputFile, "", outputFile, false);
 
     //QVERIFY(Helpers::filesAreIdentical(outputFile, referenceFile));
     QVERIFY(dbfHeadersAreIdentical(outputFile, outFile_noConfig));
     QVERIFY(dbfStringsAreIdentical(outputFile, outFile_noConfig));
 
     // Run the simulation with initial values from config file
-    Calculation::calculate(inputFile, configFile, outputFile);
+    Calculation::runCalculation(inputFile, configFile, outputFile);
     QVERIFY(dbfStringsAreIdentical(outputFile, outFile_xmlConfig));
 }
 

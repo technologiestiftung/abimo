@@ -44,7 +44,7 @@ public:
             QTextStream & protocolStream
     );
 
-    static void calculate(
+    static void runCalculation(
             QString inputFile,
             QString configFile,
             QString outputFile,

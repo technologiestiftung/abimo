@@ -700,7 +700,7 @@ float Calculation::getSummerModificationFactor(float wa)
     return Helpers::interpolate(wa, VALUES_WA, VALUES_F, 14);
 }
 
-void Calculation::calculate(
+void Calculation::runCalculation(
         QString inputFile,
         QString configFile,
         QString outputFile,
