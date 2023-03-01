@@ -193,9 +193,9 @@ float Config::getRootingDepth(Usage usage, int yield)
     }
 }
 
-UsageResult Config::getUsageResult(int usage, int type, QString code)
+UsageResult Config::getUsageResult(int usageID, int type, QString code)
 {
-    if (!usageHash.contains(usage)) {
+    if (!usageHash.contains(usageID)) {
         return {
             -1,
             QString("\r\nDiese  Meldung sollte nie erscheinen: \r\n") +
@@ -203,7 +203,7 @@ UsageResult Config::getUsageResult(int usage, int type, QString code)
         };
     }
 
-    return lookup(usageHash[usage], type, code);
+    return lookup(usageHash[usageID], type, code);
 }
 
 UsageResult Config::lookup(QHash<int,int>hash, int type, QString code)

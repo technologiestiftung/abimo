@@ -131,9 +131,10 @@ private:
     //float getG02 (int nFK); // now EffectivenessUnsealed::getG02
 
     // old: getNUTZ()
-    void getUsage(int nutz, int typ, int f30, int f150, QString code);
+    void getUsage(int usageID, int type, int f30, int f150, QString code);
 
-    void setUsageYieldIrrigation(int usage, int type, QString code);
+    void setUsageYieldIrrigation(int usageID, int type, QString code);
+
     void logNotDefined(QString code, int type);
 
     void getClimaticConditions(int bez, QString codestr);
