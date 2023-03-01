@@ -61,7 +61,7 @@ public:
     static QStringList requiredFields();
     bool isAbimoFile();
     bool checkAndRead();
-    QString* getVals();
+    QString* getValues();
     void fillRecord(int k, abimoRecord& record, bool debug = false);
 
 private:
@@ -75,7 +75,7 @@ private:
     QHash<QString, int> hash;
     QString error;
     QString fullError;
-    QString* vals;
+    QString* values;
 
     // count of records in file
     int numberOfRecords;

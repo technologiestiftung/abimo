@@ -15,9 +15,9 @@
 #include "dbaseReader.h"
 #include "helpers.h"
 
-DbaseReader::DbaseReader(const QString &i_file):
-    file(i_file),
-    vals(0),
+DbaseReader::DbaseReader(const QString &file):
+    file(file),
+    values(0),
     numberOfRecords(0),
     lengthOfHeader(0),
     lengthOfEachRecord(0),
@@ -26,8 +26,8 @@ DbaseReader::DbaseReader(const QString &i_file):
 
 DbaseReader::~DbaseReader()
 {
-    if (vals != 0) {
-        delete[] vals;
+    if (values != 0) {
+        delete[] values;
     }
 }
 
@@ -41,9 +41,9 @@ QString DbaseReader::getFullError()
     return fullError;
 }
 
-QString* DbaseReader::getVals()
+QString* DbaseReader::getValues()
 {
-    return vals;
+    return values;
 }
 
 QStringList DbaseReader::requiredFields()
@@ -182,12 +182,12 @@ bool DbaseReader::read()
     QBuffer buffer(&arr);
     buffer.open(QIODevice::ReadOnly);
 
-    vals = new QString[numberOfRecords * countFields];
+    values = new QString[numberOfRecords * countFields];
 
     for (int i = 0; i < numberOfRecords; i++) {
         for (int j = 0; j < countFields; j++) {
             QString s = buffer.read(fields[j].getFieldLength()).trimmed();
-            vals[i * countFields + j] = ((s.size() > 0) ? s : "0");
+            values[i * countFields + j] = ((s.size() > 0) ? s : "0");
         }
         buffer.read(1);
     }
@@ -216,7 +216,7 @@ QString DbaseReader::getRecord(int num, int field)
         return 0;
     }
 
-    return vals[num * countFields + field];
+    return values[num * countFields + field];
 }
 
 int DbaseReader::getCountFields()

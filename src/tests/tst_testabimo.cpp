@@ -240,7 +240,7 @@ bool TestAbimo::dbfStringsAreIdentical(QString file_1, QString file_2)
     };
 
     return Helpers::stringsAreEqual(
-        reader_1.getVals(), reader_2.getVals(), nrows_1 * ncols_1, 5, true
+        reader_1.getValues(), reader_2.getValues(), nrows_1 * ncols_1, 5, true
     );
 }
 
