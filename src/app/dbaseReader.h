@@ -22,22 +22,60 @@ struct abimoRecord {
     int fieldCapacity_30; // old: FELD_30
     int fieldCapacity_150; // old: FELD_150
     int district; // old: BEZIRK
-    float imperviousnessRoof; // old: PROBAU_fraction
-    float imperviousnessOther; // old: PROVGU_fraction
-    float imperviousnessRoad; // old: VGSTRASSE_fraction
-    float connectednessRoof; // old: KAN_BEB_fraction
-    float connectednessOther; // old: KAN_VGU_fraction
-    float connectednessRoad; // old: KAN_STR_fraction
-    float shareOfSurfaceClass1; // old: BELAG1_fraction
-    float shareOfSurfaceClass2; // old: BELAG2_fraction
-    float shareOfSurfaceClass3; // old: BELAG3_fraction
-    float shareOfSurfaceClass4; // old: BELAG4_fraction
-    float shareOfRoadClass1; // old: STR_BELAG1_fraction
-    float shareOfRoadClass2; // old: STR_BELAG2_fraction
-    float shareOfRoadClass3; // old: STR_BELAG3_fraction
-    float shareOfRoadClass4; // old: STR_BELAG4_fraction
-    float totalAreaBuildings; // old: FLGES;
-    float totalAreaRoads; // old: STR_FLGES;
+
+    //
+    // degree of sealing (Versiegelungsgrad) of ...
+    //
+
+    // ... roof surfaces (Dachflaechen), share of roof area [%] 'PROBAU'
+    float imperviousnessRoof; // old: PROBAU_fraction, vgd
+
+    // ... other sealed surfaces (sonst. versiegelte Flaechen)
+    float imperviousnessOther; // old: PROVGU_fraction, vgb
+
+    // ... roads (Strassen)
+    float imperviousnessRoad; // old: VGSTRASSE_fraction, vgs
+
+    //
+    // degree of canalization (Kanalisierungsgrad) for ...
+    //
+
+    // ... roof surfaces (Dachflaechen)
+    float connectednessRoof; // old: KAN_BEB_fraction, kd
+
+    // ... other sealed surfaces (sonst. versiegelte Flaechen)
+    float connectednessOther; // old: KAN_VGU_fraction, kb
+
+    // ... sealed roads (Strassen)
+    float connectednessRoad; // old: KAN_STR_fraction, ks
+
+    //
+    // share of each pavement class for surfaces except roads of block area
+    // Anteil der jeweiligen Belagsklasse
+    //
+
+    float shareOfSurfaceClass1; // old: BELAG1_fraction, bl1
+    float shareOfSurfaceClass2; // old: BELAG2_fraction, bl2
+    float shareOfSurfaceClass3; // old: BELAG3_fraction, bl3
+    float shareOfSurfaceClass4; // old: BELAG4_fraction, bl4
+
+    //
+    // share of each road pavement class for roads of block area
+    // Anteil der jeweiligen Strassenbelagsklasse
+    //
+
+    float shareOfRoadClass1; // old: STR_BELAG1_fraction, bls1
+    float shareOfRoadClass2; // old: STR_BELAG2_fraction, bls2
+    float shareOfRoadClass3; // old: STR_BELAG3_fraction, bls3
+    float shareOfRoadClass4; // old: STR_BELAG4_fraction, bls4
+
+    //
+    // total area of building development / road
+    // Gesamtflaeche Bebauung / Strasse
+    //
+
+    float totalAreaBuildings; // old: FLGES, fb;
+    float totalAreaRoads; // old: STR_FLGES, fs;
 };
 
 class DbaseReader
