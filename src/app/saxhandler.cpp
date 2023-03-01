@@ -32,27 +32,27 @@ bool SaxHandler::startElement(
         switch (state) {
 
         case ParameterGroup::Infiltrationsfaktoren:
-            setInfiltrationsfaktor(key, value.toFloat());
+            setInfiltrationFactor(key, value.toFloat());
             break;
 
         case ParameterGroup::Bagrovwerte :
-            setBagrovwert(key, value.toFloat());
+            setBagrovValue(key, value.toFloat());
             break;
 
         case ParameterGroup::Nachkomma :
-            setNachkomma(key, value.toInt());
+            setDigits(key, value.toInt());
             break;
 
         case ParameterGroup::Diverse :
-            setDivers(key, value);
+            setDiverse(key, value);
             break;
 
         case ParameterGroup::GewVerd :
-            gewVerdEntry(attribs);
+            waterEvaporationEntry(attribs);
             break;
 
         case ParameterGroup::PotVerd :
-            potVerdEntry(attribs);
+            potentialEvaporationEntry(attribs);
             break;
 
         case ParameterGroup::None:
@@ -101,7 +101,7 @@ ParameterGroup SaxHandler::nameToState(QString name)
     return ParameterGroup::Invalid;
 }
 
-void SaxHandler::setInfiltrationsfaktor(QString key, float value)
+void SaxHandler::setInfiltrationFactor(QString key, float value)
 {
     if (key == "Dachflaechen")
         initValues.setInfiltrationFactorRoof(value);
@@ -115,7 +115,7 @@ void SaxHandler::setInfiltrationsfaktor(QString key, float value)
         initValues.setInfiltrationFactorSurfaceClass4(value);
 }
 
-void SaxHandler::setBagrovwert(QString key, float value)
+void SaxHandler::setBagrovValue(QString key, float value)
 {
     if (key == "Dachflaechen")
         initValues.setBagrovRoof(value);
@@ -129,7 +129,7 @@ void SaxHandler::setBagrovwert(QString key, float value)
         initValues.setBagrovSufaceClass4(value);
 }
 
-void SaxHandler::setNachkomma(QString key, int value)
+void SaxHandler::setDigits(QString key, int value)
 {
     if (key == "R")
         initValues.setDigitsTotalSystemLosses(value);
@@ -149,7 +149,7 @@ void SaxHandler::setNachkomma(QString key, int value)
         initValues.setDigitsEvaporation(value);
 }
 
-void SaxHandler::setDivers(QString key, QString value)
+void SaxHandler::setDiverse(QString key, QString value)
 {
     if (key == "BERtoZero")
         initValues.setIrrigationToZero(value == "true");
@@ -157,7 +157,7 @@ void SaxHandler::setDivers(QString key, QString value)
         initValues.setPrecipitationCorrectionFactor(value.toFloat());
 }
 
-void SaxHandler::gewVerdEntry(const QXmlAttributes &attribs)
+void SaxHandler::waterEvaporationEntry(const QXmlAttributes &attribs)
 {
     QString bezirke = attribs.value("bezirke");
     QString eg = attribs.value("eg");
@@ -165,7 +165,7 @@ void SaxHandler::gewVerdEntry(const QXmlAttributes &attribs)
     initValues.putToHashOfType(bezirke, eg.toInt(), 13);
 }
 
-void SaxHandler::potVerdEntry(const QXmlAttributes &attribs)
+void SaxHandler::potentialEvaporationEntry(const QXmlAttributes &attribs)
 {
     QString etp = attribs.value("etp");
     QString etps = attribs.value("etps");
