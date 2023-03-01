@@ -137,12 +137,12 @@ void TestAbimo::test_config_getTWS()
 {
     // Create configuration object
     Config config;
-    QVERIFY(qFuzzyCompare(config.getTWS(50, Usage::vegetationless_D), 0.2F));
-    QVERIFY(qFuzzyCompare(config.getTWS(50, Usage::agricultural_L), 0.6F));
-    QVERIFY(qFuzzyCompare(config.getTWS(51, Usage::agricultural_L), 0.7F));
-    QVERIFY(qFuzzyCompare(config.getTWS(50, Usage::horticultural_K), 0.7F));
-    QVERIFY(qFuzzyCompare(config.getTWS(50, Usage::forested_W), 1.0F));
-    QVERIFY(qFuzzyCompare(config.getTWS(50, Usage::unknown), 0.2F));
+    QVERIFY(qFuzzyCompare(config.getRootingDepth(Usage::vegetationless_D, 50), 0.2F));
+    QVERIFY(qFuzzyCompare(config.getRootingDepth(Usage::agricultural_L, 50), 0.6F));
+    QVERIFY(qFuzzyCompare(config.getRootingDepth(Usage::agricultural_L, 51), 0.7F));
+    QVERIFY(qFuzzyCompare(config.getRootingDepth(Usage::horticultural_K, 50), 0.7F));
+    QVERIFY(qFuzzyCompare(config.getRootingDepth(Usage::forested_W, 50), 1.0F));
+    QVERIFY(qFuzzyCompare(config.getRootingDepth(Usage::unknown, 50), 0.2F));
 }
 
 void TestAbimo::test_calc()

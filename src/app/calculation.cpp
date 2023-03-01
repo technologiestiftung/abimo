@@ -493,7 +493,7 @@ void Calculation::getUsage(int nutz, int typ, int f30, int f150, QString code)
     {
         // pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS
         potentialCapillaryRise = resultRecord.depthToWaterTable -
-                config->getTWS(resultRecord.yieldPower, resultRecord.usage);
+                config->getRootingDepth(resultRecord.usage, resultRecord.yieldPower);
 
         // Feldkapazitaet
         // cls_6b: der Fall der mit NULL belegten FELD_30 und FELD_150 Werte

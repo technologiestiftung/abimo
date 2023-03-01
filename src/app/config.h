@@ -10,7 +10,7 @@ class Config
 {
 public:
     Config();
-    float getTWS(int ert, Usage nutz);
+    float getRootingDepth(Usage usage, int yield);
     UsageResult getUsageResult(int usage, int type, QString code);
     UsageTuple getUsageTuple(int tupleID);
 

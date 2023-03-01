@@ -171,16 +171,16 @@ void Config::initUsageAndTypeToTupleHash()
 //==============================================================================
 //    Bestimmung der Durchwurzelungstiefe TWS
 //==============================================================================
-float Config::getTWS(int ert, Usage nutz)
+float Config::getRootingDepth(Usage usage, int yield)
 {
     // Zuordnung Durchwurzelungstiefe in Abhaengigkeit der Nutzung
-    switch(nutz) {
+    switch(usage) {
 
         // D - Devastierung
         case Usage::vegetationless_D: return 0.2F;
 
         // L - landwirtschaftliche Nutzung
-        case Usage::agricultural_L: return (ert <= 50) ? 0.6F : 0.7F;
+        case Usage::agricultural_L: return (yield <= 50) ? 0.6F : 0.7F;
 
         // K - Kleingaerten
         case Usage::horticultural_K: return 0.7F;
