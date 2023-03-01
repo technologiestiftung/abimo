@@ -16,21 +16,21 @@
 
 InitValues::InitValues():
 
-    /* Infiltrationsfaktoren */
+    // Infiltrationsfaktoren
     infiltrationFactorRoof(0.00F),
     infiltrationFactorSurfaceClass1(0.10F),
     infiltrationFactorSurfaceClass2(0.30F),
     infiltrationFactorSurfaceClass3(0.60F),
     infiltrationFactorSurfaceClass4(0.90F),
 
-    /* Bagrovwerte */
+    // Bagrovwerte
     bagrovRoof(0.05F),
     bagrovSufaceClass1(0.11F),
     bagrovSufaceClass2(0.11F),
     bagrovSufaceClass3(0.25F),
     bagrovSufaceClass4(0.40F),
 
-    /* Nachkomma der Ergebnisse */
+    // Nachkomma der Ergebnisse
     digitsTotalSystemLosses(3),
     digitsRunoff(3),
     digitsInfiltrationRate(3),
