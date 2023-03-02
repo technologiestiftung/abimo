@@ -69,9 +69,9 @@ Calculation::Calculation(
     bagrovSurfaceClass3(0), // old: R3V
     bagrovSurfaceClass4(0), // old: R4V
     unsealedSurfaceRunoff(0), // old: RUV
-    rainwaterRunoff(0), // old: ROWVOL
-    totalSubsurfaceFlow(0), // old: RIVOL
-    totalRunoff(0), // old: RVOL
+    surfaceRunoffFlow(0), // old: ROWVOL
+    infiltrationFlow(0), // old: RIVOL
+    totalRunoffFlow(0), // old: RVOL
     potentialCapillaryRise(0), // old: TAS
     n_POTENTIAL_RATES_OF_ASCENT(ARRAY_SIZE(POTENTIAL_RATES_OF_ASCENT)), // old: lenTAS
     n_USABLE_FIELD_CAPACITIES(ARRAY_SIZE(USABLE_FIELD_CAPACITIES)), // old: lenS
@@ -146,9 +146,9 @@ bool Calculation::calculate(QString outputFile, bool debug)
     float infiltrationFromPerviousSurfaces; // old: riuv
     
     // intermediate float values
-    float totalSystemLosses;
-    float infiltrationRate;
-    float runoff;
+    float totalRunoff;
+    float infiltration;
+    float surfaceRunoff;
 
     // count protocol entries
     counters.recordsProtocol = 0L;
@@ -352,7 +352,7 @@ bool Calculation::calculate(QString outputFile, bool debug)
 
             // calculate runoff 'row' for entire block patial area (FLGES +
             // STR_FLGES) (mm/a)
-            runoff = (
+            surfaceRunoff = (
                 runoffSealedSurface1 +
                 runoffSealedSurface2 +
                 runoffSealedSurface3 +
@@ -361,17 +361,17 @@ bool Calculation::calculate(QString outputFile, bool debug)
                 runoffPerviousRoads
             );
 
-            resultRecord.runoff = INT_ROUND(runoff);
+            resultRecord.runoff = INT_ROUND(surfaceRunoff);
             
             // calculate volume 'rowvol' from runoff (qcm/s)
-            rainwaterRunoff = runoff * 3.171F * (
+            surfaceRunoffFlow = surfaceRunoff * 3.171F * (
                 record.totalAreaBuildings +
                 record.totalAreaRoads
             ) / 100000.0F;
             
             // calculate infiltration rate 'ri' for entire block partial area
             // (mm/a)
-            infiltrationRate = (
+            infiltration = (
                 infiltrationFromSealedSurface1 +
                 infiltrationFromSealedSurface2 +
                 infiltrationFromSealedSurface3 +
@@ -381,24 +381,24 @@ bool Calculation::calculate(QString outputFile, bool debug)
                 infiltrationFromPerviousSurfaces
             );
 
-            resultRecord.infiltrationRate = INT_ROUND(infiltrationRate);
+            resultRecord.infiltrationRate = INT_ROUND(infiltration);
             
             // calculate volume 'rivol' from infiltration rate (qcm/s)
-            totalSubsurfaceFlow = infiltrationRate * 3.171F * (
+            infiltrationFlow = infiltration * 3.171F * (
                 record.totalAreaBuildings +
                 record.totalAreaRoads
             ) / 100000.0F;
 
             // calculate total system losses 'r' due to runoff and infiltration
             // for entire block partial area
-            totalSystemLosses = runoff + infiltrationRate;
+            totalRunoff = surfaceRunoff + infiltration;
 
-            // set totalSystemLosses in the result record
-            resultRecord.totalSystemLosses = INT_ROUND(totalSystemLosses);
+            // set totalRunoff in the result record
+            resultRecord.totalRunoff = INT_ROUND(totalRunoff);
             
             // calculate volume of system losses 'rvol' due to runoff and
             // infiltration
-            totalRunoff = rainwaterRunoff + totalSubsurfaceFlow;
+            totalRunoffFlow = surfaceRunoffFlow + infiltrationFlow;
 
             // calculate total area of building development area as well as
             // roads area
@@ -411,17 +411,17 @@ bool Calculation::calculate(QString outputFile, bool debug)
             float evaporation = (
                 precipitationYear *
                 initValues.getPrecipitationCorrectionFactor()
-            ) - totalSystemLosses;
+            ) - totalRunoff;
 
             // write the calculated variables into respective fields
             writer.addRecord();
             writer.setRecordField("CODE", record.code);
-            writer.setRecordField("R", totalSystemLosses);
-            writer.setRecordField("ROW", runoff);
-            writer.setRecordField("RI", infiltrationRate);
-            writer.setRecordField("RVOL", totalRunoff);
-            writer.setRecordField("ROWVOL", rainwaterRunoff);
-            writer.setRecordField("RIVOL", totalSubsurfaceFlow);
+            writer.setRecordField("R", totalRunoff);
+            writer.setRecordField("ROW", surfaceRunoff);
+            writer.setRecordField("RI", infiltration);
+            writer.setRecordField("RVOL", totalRunoffFlow);
+            writer.setRecordField("ROWVOL", surfaceRunoffFlow);
+            writer.setRecordField("RIVOL", infiltrationFlow);
             writer.setRecordField("FLAECHE", imperviousArea);
 // cls_5c:
             writer.setRecordField("VERDUNSTUN", evaporation);

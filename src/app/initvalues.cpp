@@ -31,10 +31,10 @@ InitValues::InitValues():
     bagrovSufaceClass4(0.40F),
 
     // Nachkomma der Ergebnisse
-    digitsTotalSystemLosses(3),
+    digitsTotalRunoff(3),
     digitsRunoff(3),
     digitsInfiltrationRate(3),
-    digitsTotalRunoff(3),
+    digitsTotalRunoffFlow(3),
     digitsRainwaterRunoff(3),
     digitsTotalSubsurfaceFlow(3),
     digitsTotalArea(0),
@@ -134,8 +134,8 @@ void InitValues::setBagrovSufaceClass4(float v) {
     countSets |= 512;
 }
 
-void InitValues::setDigitsTotalSystemLosses(int v) {
-    digitsTotalSystemLosses = v;
+void InitValues::setDigitsTotalRunoff(int v) {
+    digitsTotalRunoff = v;
     countSets |= 1024;
 }
 
@@ -149,8 +149,8 @@ void InitValues::setDigitsInfiltrationRate(int v) {
     countSets |= 4096;
 }
 
-void InitValues::setDigitsTotalRunoff(int v) {
-    digitsTotalRunoff = v;
+void InitValues::setDigitsTotalRunoffFlow(int v) {
+    digitsTotalRunoffFlow = v;
     countSets |= 8192;
 }
 
@@ -225,8 +225,8 @@ float InitValues::getBagrovSufaceClass4() {
     return bagrovSufaceClass4;
 }
 
-int InitValues::getDigitsTotalSystemLosses() {
-    return digitsTotalSystemLosses;
+int InitValues::getDigitsTotalRunoff() {
+    return digitsTotalRunoff;
 }
 
 int InitValues::getDigitsRunoff() {
@@ -237,8 +237,8 @@ int InitValues::getDigitsInfiltrationRate() {
     return digitsInfiltrationRate;
 }
 
-int InitValues::getDigitsTotalRunoff() {
-    return digitsTotalRunoff;
+int InitValues::getDigitsTotalRunoffFlow() {
+    return digitsTotalRunoffFlow;
 }
 
 int InitValues::getDigitsRainwaterRunoff() {

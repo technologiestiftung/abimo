@@ -100,13 +100,13 @@ private:
     float unsealedSurfaceRunoff; // old: RUV
 
     // Regenwasserabfluss in Qubikzentimeter pro Sekunde
-    float rainwaterRunoff; // old: ROWVOL
+    float surfaceRunoffFlow; // old: ROWVOL
 
     // unterirdischer Gesamtabfluss in qcm/s
-    float totalSubsurfaceFlow; // old: RIVOL
+    float infiltrationFlow; // old: RIVOL
 
     // Gesamtabfluss in qcm/s
-    float totalRunoff; // old: RVOL
+    float totalRunoffFlow; // old: RVOL
 
     // potentielle Aufstiegshoehe
     float potentialCapillaryRise; // old: TAS

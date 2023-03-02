@@ -132,13 +132,13 @@ void SaxHandler::setBagrovValue(QString key, float value)
 void SaxHandler::setDigits(QString key, int value)
 {
     if (key == "R")
-        initValues.setDigitsTotalSystemLosses(value);
+        initValues.setDigitsTotalRunoff(value);
     else if (key == "ROW")
         initValues.setDigitsRunoff(value);
     else if (key == "RI")
         initValues.setDigitsInfiltrationRate(value);
     else if (key == "RVOL")
-        initValues.setDigitsTotalRunoff(value);
+        initValues.setDigitsTotalRunoffFlow(value);
     else if (key == "ROWVOL")
         initValues.setDigitsRainwaterRunoff(value);
     else if (key == "RIVOL")

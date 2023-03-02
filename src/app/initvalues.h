@@ -26,10 +26,10 @@ public:
     void setBagrovSufaceClass2(float v);
     void setBagrovSufaceClass3(float v);
     void setBagrovSufaceClass4(float v);
-    void setDigitsTotalSystemLosses(int v);
+    void setDigitsTotalRunoff(int v);
     void setDigitsRunoff(int v);
     void setDigitsInfiltrationRate(int v);
-    void setDigitsTotalRunoff(int v);
+    void setDigitsTotalRunoffFlow(int v);
     void setDigitsRainwaterRunoff(int v);
     void setDigitsTotalSubsurfaceFlow(int v);
     void setDigitsTotalArea(int v);
@@ -46,10 +46,10 @@ public:
     float getBagrovSufaceClass2();
     float getBagrovSufaceClass3();
     float getBagrovSufaceClass4();
-    int getDigitsTotalSystemLosses();
+    int getDigitsTotalRunoff();
     int getDigitsRunoff();
     int getDigitsInfiltrationRate();
-    int getDigitsTotalRunoff();
+    int getDigitsTotalRunoffFlow();
     int getDigitsRainwaterRunoff();
     int getDigitsTotalSubsurfaceFlow();
     int getDigitsTotalArea();
@@ -79,10 +79,10 @@ private:
     float bagrovSufaceClass4; // old: bagbel4
 
     // Nachkomma
-    int digitsTotalSystemLosses; // old: decR
+    int digitsTotalRunoff; // old: decR
     int digitsRunoff; // old: decROW
     int digitsInfiltrationRate; // old: decRI
-    int digitsTotalRunoff; // old: decRVOL
+    int digitsTotalRunoffFlow; // old: decRVOL
     int digitsRainwaterRunoff; // old: decROWVOL
     int digitsTotalSubsurfaceFlow; // old: decRIVOL
     int digitsTotalArea; // old: decFLAECHE
