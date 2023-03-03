@@ -17,7 +17,7 @@ PDR::PDR():
     totalRunoff(0),
     runoff(0),
     infiltrationRate(0),
-    imperviousness(0),
+    nonRoadPercentageSealed(0),
     yieldPower(0),
     irrigation(0),
     precipitationYear(0.0F),

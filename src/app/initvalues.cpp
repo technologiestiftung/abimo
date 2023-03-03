@@ -18,17 +18,17 @@ InitValues::InitValues():
 
     // Infiltrationsfaktoren
     infiltrationFactorRoof(0.00F),
-    infiltrationFactorSurfaceClass1(0.10F),
-    infiltrationFactorSurfaceClass2(0.30F),
-    infiltrationFactorSurfaceClass3(0.60F),
-    infiltrationFactorSurfaceClass4(0.90F),
+    infiltrationFactorSurface1(0.10F),
+    infiltrationFactorSurface2(0.30F),
+    infiltrationFactorSurface3(0.60F),
+    infiltrationFactorSurface4(0.90F),
 
     // Bagrovwerte
-    bagrovRoof(0.05F),
-    bagrovSufaceClass1(0.11F),
-    bagrovSufaceClass2(0.11F),
-    bagrovSufaceClass3(0.25F),
-    bagrovSufaceClass4(0.40F),
+    bagrovValueRoof(0.05F),
+    bagrovValueSuface1(0.11F),
+    bagrovValueSuface2(0.11F),
+    bagrovValueSuface3(0.25F),
+    bagrovValueSuface4(0.40F),
 
     // Nachkomma der Ergebnisse
     digitsTotalRunoff(3),
@@ -89,48 +89,48 @@ void InitValues::setInfiltrationFactorRoof(float v) {
     countSets |= 1;
 }
 
-void InitValues::setInfiltrationFactorSurfaceClass1(float v) {
-    infiltrationFactorSurfaceClass1 = v;
+void InitValues::setInfiltrationFactorSurface1(float v) {
+    infiltrationFactorSurface1 = v;
     countSets |= 2;
 }
 
-void InitValues::setInfiltrationFactorSurfaceClass2(float v) {
-    infiltrationFactorSurfaceClass2 = v;
+void InitValues::setInfiltrationFactorSurface2(float v) {
+    infiltrationFactorSurface2 = v;
     countSets |= 4;
 }
 
-void InitValues::setInfiltrationFactorSurfaceClass3(float v) {
-    infiltrationFactorSurfaceClass3 = v;
+void InitValues::setInfiltrationFactorSurface3(float v) {
+    infiltrationFactorSurface3 = v;
     countSets |= 8;
 }
 
-void InitValues::setInfiltrationFactorSurfaceClass4(float v) {
-    infiltrationFactorSurfaceClass4 = v;
+void InitValues::setInfiltrationFactorSurface4(float v) {
+    infiltrationFactorSurface4 = v;
     countSets |= 16;
 }
 
-void InitValues::setBagrovRoof(float v) {
-    bagrovRoof = v;
+void InitValues::setBagrovValueRoof(float v) {
+    bagrovValueRoof = v;
     countSets |= 32;
 }
 
-void InitValues::setBagrovSufaceClass1(float v) {
-    bagrovSufaceClass1 = v;
+void InitValues::setBagrovValueSuface1(float v) {
+    bagrovValueSuface1 = v;
     countSets |= 64;
 }
 
-void InitValues::setBagrovSufaceClass2(float v) {
-    bagrovSufaceClass2 = v;
+void InitValues::setBagrovValueSuface2(float v) {
+    bagrovValueSuface2 = v;
     countSets |= 128;
 }
 
-void InitValues::setBagrovSufaceClass3(float v) {
-    bagrovSufaceClass3 = v;
+void InitValues::setBagrovValueSuface3(float v) {
+    bagrovValueSuface3 = v;
     countSets |= 256;
 }
 
 void InitValues::setBagrovSufaceClass4(float v) {
-    bagrovSufaceClass4 = v;
+    bagrovValueSuface4 = v;
     countSets |= 512;
 }
 
@@ -189,40 +189,40 @@ float InitValues::getInfiltrationFactorRoof()
     return infiltrationFactorRoof;
 }
 
-float InitValues::getInfiltrationFactorSurfaceClass1() {
-    return infiltrationFactorSurfaceClass1;
+float InitValues::getInfiltrationFactorSurface1() {
+    return infiltrationFactorSurface1;
 }
 
-float InitValues::getInfiltrationFactorSurfaceClass2() {
-    return infiltrationFactorSurfaceClass2;
+float InitValues::getInfiltrationFactorSurface2() {
+    return infiltrationFactorSurface2;
 }
 
-float InitValues::getInfiltrationFactorSurfaceClass3() {
-    return infiltrationFactorSurfaceClass3;
+float InitValues::getInfiltrationFactorSurface3() {
+    return infiltrationFactorSurface3;
 }
 
-float InitValues::getInfiltrationFactorSurfaceClass4() {
-    return infiltrationFactorSurfaceClass4;
+float InitValues::getInfiltrationFactorSurface4() {
+    return infiltrationFactorSurface4;
 }
 
-float InitValues::getBagrovRoof() {
-    return bagrovRoof;
+float InitValues::getBagrovValueRoof() {
+    return bagrovValueRoof;
 }
 
-float InitValues::getBagrovSufaceClass1() {
-    return bagrovSufaceClass1;
+float InitValues::getBagrovValueSuface1() {
+    return bagrovValueSuface1;
 }
 
-float InitValues::getBagrovSufaceClass2() {
-    return bagrovSufaceClass2;
+float InitValues::getBagrovValueSuface2() {
+    return bagrovValueSuface2;
 }
 
-float InitValues::getBagrovSufaceClass3() {
-    return bagrovSufaceClass3;
+float InitValues::getBagrovValueSuface3() {
+    return bagrovValueSuface3;
 }
 
-float InitValues::getBagrovSufaceClass4() {
-    return bagrovSufaceClass4;
+float InitValues::getBagrovValueSuface4() {
+    return bagrovValueSuface4;
 }
 
 int InitValues::getDigitsTotalRunoff() {

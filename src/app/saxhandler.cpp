@@ -106,25 +106,25 @@ void SaxHandler::setInfiltrationFactor(QString key, float value)
     if (key == "Dachflaechen")
         initValues.setInfiltrationFactorRoof(value);
     else if (key == "Belaglsklasse1")
-        initValues.setInfiltrationFactorSurfaceClass1(value);
+        initValues.setInfiltrationFactorSurface1(value);
     else if (key == "Belaglsklasse2")
-        initValues.setInfiltrationFactorSurfaceClass2(value);
+        initValues.setInfiltrationFactorSurface2(value);
     else if (key == "Belaglsklasse3")
-        initValues.setInfiltrationFactorSurfaceClass3(value);
+        initValues.setInfiltrationFactorSurface3(value);
     else if (key == "Belaglsklasse4")
-        initValues.setInfiltrationFactorSurfaceClass4(value);
+        initValues.setInfiltrationFactorSurface4(value);
 }
 
 void SaxHandler::setBagrovValue(QString key, float value)
 {
     if (key == "Dachflaechen")
-        initValues.setBagrovRoof(value);
+        initValues.setBagrovValueRoof(value);
     else if (key == "Belaglsklasse1")
-        initValues.setBagrovSufaceClass1(value);
+        initValues.setBagrovValueSuface1(value);
     else if (key == "Belaglsklasse2")
-        initValues.setBagrovSufaceClass2(value);
+        initValues.setBagrovValueSuface2(value);
     else if (key == "Belaglsklasse3")
-        initValues.setBagrovSufaceClass3(value);
+        initValues.setBagrovValueSuface3(value);
     else if (key == "Belaglsklasse4")
         initValues.setBagrovSufaceClass4(value);
 }

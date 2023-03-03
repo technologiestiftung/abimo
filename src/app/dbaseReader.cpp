@@ -347,39 +347,39 @@ int DbaseReader::computeCountFields(int headerLength)
 
 void DbaseReader::fillRecord(int k, abimoRecord& record, bool debug)
 {
-    record.shareOfSurfaceClass1 = floatFraction(getRecord(k, "BELAG1"));
-    record.shareOfSurfaceClass2 = floatFraction(getRecord(k, "BELAG2"));
-    record.shareOfSurfaceClass3 = floatFraction(getRecord(k, "BELAG3"));
-    record.shareOfSurfaceClass4 = floatFraction(getRecord(k, "BELAG4"));
+    record.otherSealedFractionSurface1 = floatFraction(getRecord(k, "BELAG1"));
+    record.otherSealedFractionSurface2 = floatFraction(getRecord(k, "BELAG2"));
+    record.otherSealedFractionSurface3 = floatFraction(getRecord(k, "BELAG3"));
+    record.otherSealedFractionSurface4 = floatFraction(getRecord(k, "BELAG4"));
     record.district = getRecord(k, "BEZIRK").toInt();
     record.code = getRecord(k, "CODE");
     record.fieldCapacity_150 = getRecord(k, "FELD_150").toInt();
     record.fieldCapacity_30 = getRecord(k, "FELD_30").toInt();
-    record.totalAreaBuildings = getRecord(k, "FLGES").toFloat();
+    record.nonRoadArea = getRecord(k, "FLGES").toFloat();
     record.depthToWaterTable = getRecord(k, "FLUR").toFloat();
-    record.connectednessRoof = floatFraction(getRecord(k, "KAN_BEB"));
-    record.connectednessRoad = floatFraction(getRecord(k, "KAN_STR"));
-    record.connectednessOther = floatFraction(getRecord(k, "KAN_VGU"));
+    record.builtSealedFractionConnected = floatFraction(getRecord(k, "KAN_BEB"));
+    record.roadSealedFractionConnected = floatFraction(getRecord(k, "KAN_STR"));
+    record.otherSealedFractionConnected = floatFraction(getRecord(k, "KAN_VGU"));
     record.usage = Helpers::stringToInt(
         getRecord(k, "NUTZUNG"),
         QString("k: %1, NUTZUNG = ").arg(QString::number(k)),
         debug
     );
-    record.imperviousnessRoof = Helpers::stringToFloat(
+    record.nonRoadFractionBuiltSealed = Helpers::stringToFloat(
         getRecord(k, "PROBAU"),
         QString("k: %1, PROBAU = ").arg(QString::number(k)),
         debug
     ) / 100.0F;
-    record.imperviousnessOther = floatFraction(getRecord(k, "PROVGU"));
+    record.nonRoadFractionOtherSealed = floatFraction(getRecord(k, "PROVGU"));
     record.precipitationYear = getRecord(k, "REGENJA").toInt();
     record.precipitationSummer = getRecord(k, "REGENSO").toInt();
-    record.shareOfRoadClass1 = floatFraction(getRecord(k, "STR_BELAG1"));
-    record.shareOfRoadClass2 = floatFraction(getRecord(k, "STR_BELAG2"));
-    record.shareOfRoadClass3 = floatFraction(getRecord(k, "STR_BELAG3"));
-    record.shareOfRoadClass4 = floatFraction(getRecord(k, "STR_BELAG4"));
+    record.roadSealedFractionSurface1 = floatFraction(getRecord(k, "STR_BELAG1"));
+    record.roadSealedFractionSurface2 = floatFraction(getRecord(k, "STR_BELAG2"));
+    record.roadSealedFractionSurface3 = floatFraction(getRecord(k, "STR_BELAG3"));
+    record.roadSealedFractionSurface4 = floatFraction(getRecord(k, "STR_BELAG4"));
     record.type = getRecord(k, "TYP").toInt();
-    record.imperviousnessRoad = floatFraction(getRecord(k, "VGSTRASSE"));
-    record.totalAreaRoads = getRecord(k, "STR_FLGES").toFloat();
+    record.roadFractionSealed = floatFraction(getRecord(k, "VGSTRASSE"));
+    record.roadArea = getRecord(k, "STR_FLGES").toFloat();
 }
 
 float DbaseReader::floatFraction(QString string)

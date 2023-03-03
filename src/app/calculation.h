@@ -90,11 +90,11 @@ private:
     float precipitationSummer; // old: regenso
 
     // Abfluesse nach Bagrov fuer N1 bis N4
-    float bagrovRoof; // old: RDV
-    float bagrovSurfaceClass1; // old: R1V
-    float bagrovSurfaceClass2; // old: R2V
-    float bagrovSurfaceClass3; // old: R3V
-    float bagrovSurfaceClass4; // old: R4V
+    float bagrovValueRoof; // old: RDV
+    float bagrovValueSurface1; // old: R1V
+    float bagrovValueSurface2; // old: R2V
+    float bagrovValueSurface3; // old: R3V
+    float bagrovValueSurface4; // old: R4V
 
     // runoff for unsealed partial surfaces
     float unsealedSurfaceRunoff; // old: RUV

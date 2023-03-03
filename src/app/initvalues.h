@@ -17,14 +17,14 @@ public:
     ~InitValues();
     static QString updateFromConfig(InitValues &initValues, QString configFileName);
     void setInfiltrationFactorRoof(float v);
-    void setInfiltrationFactorSurfaceClass1(float v);
-    void setInfiltrationFactorSurfaceClass2(float v);
-    void setInfiltrationFactorSurfaceClass3(float v);
-    void setInfiltrationFactorSurfaceClass4(float v);
-    void setBagrovRoof(float v);
-    void setBagrovSufaceClass1(float v);
-    void setBagrovSufaceClass2(float v);
-    void setBagrovSufaceClass3(float v);
+    void setInfiltrationFactorSurface1(float v);
+    void setInfiltrationFactorSurface2(float v);
+    void setInfiltrationFactorSurface3(float v);
+    void setInfiltrationFactorSurface4(float v);
+    void setBagrovValueRoof(float v);
+    void setBagrovValueSuface1(float v);
+    void setBagrovValueSuface2(float v);
+    void setBagrovValueSuface3(float v);
     void setBagrovSufaceClass4(float v);
     void setDigitsTotalRunoff(int v);
     void setDigitsRunoff(int v);
@@ -37,15 +37,15 @@ public:
     void setIrrigationToZero(bool v);
     void setPrecipitationCorrectionFactor(float v);
     float getInfiltrationFactorRoof();
-    float getInfiltrationFactorSurfaceClass1();
-    float getInfiltrationFactorSurfaceClass2();
-    float getInfiltrationFactorSurfaceClass3();
-    float getInfiltrationFactorSurfaceClass4();
-    float getBagrovRoof();
-    float getBagrovSufaceClass1();
-    float getBagrovSufaceClass2();
-    float getBagrovSufaceClass3();
-    float getBagrovSufaceClass4();
+    float getInfiltrationFactorSurface1();
+    float getInfiltrationFactorSurface2();
+    float getInfiltrationFactorSurface3();
+    float getInfiltrationFactorSurface4();
+    float getBagrovValueRoof();
+    float getBagrovValueSuface1();
+    float getBagrovValueSuface2();
+    float getBagrovValueSuface3();
+    float getBagrovValueSuface4();
     int getDigitsTotalRunoff();
     int getDigitsRunoff();
     int getDigitsInfiltrationRate();
@@ -66,17 +66,17 @@ public:
 private:
     // Infiltrationsfaktoren
     float infiltrationFactorRoof; // old: infdach
-    float infiltrationFactorSurfaceClass1; // old: infbel1
-    float infiltrationFactorSurfaceClass2; // old: infbel2
-    float infiltrationFactorSurfaceClass3; // old: infbel3
-    float infiltrationFactorSurfaceClass4; // old: infbel4
+    float infiltrationFactorSurface1; // old: infbel1
+    float infiltrationFactorSurface2; // old: infbel2
+    float infiltrationFactorSurface3; // old: infbel3
+    float infiltrationFactorSurface4; // old: infbel4
 
     // Bagrovwerte
-    float bagrovRoof; // old: bagdach
-    float bagrovSufaceClass1; // old: bagbel1
-    float bagrovSufaceClass2; // old: bagbel2
-    float bagrovSufaceClass3; // old: bagbel3
-    float bagrovSufaceClass4; // old: bagbel4
+    float bagrovValueRoof; // old: bagdach
+    float bagrovValueSuface1; // old: bagbel1
+    float bagrovValueSuface2; // old: bagbel2
+    float bagrovValueSuface3; // old: bagbel3
+    float bagrovValueSuface4; // old: bagbel4
 
     // Nachkomma
     int digitsTotalRunoff; // old: decR
