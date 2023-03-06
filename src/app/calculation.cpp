@@ -153,11 +153,26 @@ bool Calculation::calculate(QString outputFile, bool debug)
             // depth to groundwater table 'FLUR'
             resultRecord.depthToWaterTable = record.depthToWaterTable;
 
-            // Now comes code that was extracted to getUsage() before >>>
-
             // declaration of yield power (ERT) and irrigation (BER) for agricultural or
             // gardening purposes
-            setUsageYieldIrrigation(record.usage, record.type, record.code);
+            UsageResult usageResult = config->getUsageResult(
+                record.usage, record.type, record.code
+            );
+
+            if (usageResult.tupleIndex < 0) {
+                protocolStream << usageResult.message;
+                qDebug() << usageResult.message;
+                abort();
+            }
+
+            if (!usageResult.message.isEmpty()) {
+                protocolStream << usageResult.message;
+                counters.recordsProtocol++;
+            }
+
+            resultRecord.setUsageYieldIrrigation(
+                config->getUsageTuple(usageResult.tupleIndex)
+            );
 
             if (resultRecord.usage != Usage::waterbody_G)
             {
@@ -194,8 +209,6 @@ bool Calculation::calculate(QString outputFile, bool debug)
                 counters.irrigationForcedToZero++;
                 resultRecord.irrigation = 0;
             }
-
-            // <<< end of code that was in getUsage() before
 
             // cls_6a: an dieser Stelle muss garantiert werden, dass f30 und
             // f150 als Parameter von getNUTZ einen definierten Wert erhalten
@@ -466,26 +479,6 @@ bool Calculation::calculate(QString outputFile, bool debug)
     }
 
     return true;
-}
-
-void Calculation::setUsageYieldIrrigation(int usageID, int type, QString code)
-{
-    UsageResult result;
-
-    result = config->getUsageResult(usageID, type, code);
-
-    if (result.tupleIndex < 0) {
-        protocolStream << result.message;
-        qDebug() << result.message;
-        abort();
-    }
-
-    if (!result.message.isEmpty()) {
-        protocolStream << result.message;
-        counters.recordsProtocol++;
-    }
-
-    resultRecord.setUsageYieldIrrigation(config->getUsageTuple(result.tupleIndex));
 }
 
 // =============================================================================

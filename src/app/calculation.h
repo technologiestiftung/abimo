@@ -116,8 +116,6 @@ private:
 
     float getSummerModificationFactor(float wa);
 
-    void setUsageYieldIrrigation(int usageID, int type, QString code);
-
     void logNotDefined(QString code, int type);
 
     void getClimaticConditions(int bez, QString codestr);
