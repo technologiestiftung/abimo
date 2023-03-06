@@ -21,9 +21,6 @@
 #include "initvalues.h"
 #include "pdr.h"
 
-// Macro to calculate the number of elements in an array
-#define ARRAY_SIZE(array) (sizeof(array) / sizeof((array)[0]))
-
 Calculation::Calculation(
         DbaseReader &dbaseReader,
         InitValues &initValues,
