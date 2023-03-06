@@ -3,6 +3,8 @@
 // * of this repository (https://github.com/KWB-R/abimo).
 // ***************************************************************************
 
+#include <vector>
+
 #include <math.h>
 #include <QDebug>
 #include <QString>
@@ -25,7 +27,7 @@
 // Potential rate of ascent (column labels for matrix
 // meanPotentialCapillaryRiseRateSummer)
 // old: iTAS
-const float Calculation::POTENTIAL_RATES_OF_ASCENT[] = {
+const std::vector<float> Calculation::POTENTIAL_RATES_OF_ASCENT = {
     0.1F, 0.2F, 0.3F, 0.4F, 0.5F, 0.6F, 0.7F, 0.8F,
     0.9F, 1.0F, 1.2F, 1.4F, 1.7F, 2.0F, 2.3F
 };
@@ -35,7 +37,7 @@ const float Calculation::POTENTIAL_RATES_OF_ASCENT[] = {
 // Usable field capacity (row labels for matrix
 // meanPotentialCapillaryRiseRateSummer)
 // old: inFK_S
-const float Calculation::USABLE_FIELD_CAPACITIES[] = {
+const std::vector<float> Calculation::USABLE_FIELD_CAPACITIES = {
     8.0F, 9.0F, 14.0F, 14.5F, 15.5F, 17.0F, 20.5F
 };
 
@@ -43,7 +45,7 @@ const float Calculation::USABLE_FIELD_CAPACITIES[] = {
 // - Potential rate of ascent (one column each) and
 // - Usable field capacity (one row each)
 // old: ijkr_S
-const float Calculation::MEAN_POTENTIAL_CAPILLARY_RISE_RATES_SUMMER[] = {
+const std::vector<float> Calculation::MEAN_POTENTIAL_CAPILLARY_RISE_RATES_SUMMER = {
     7.0F, 6.0F, 5.0F, 1.5F, 0.5F, 0.2F, 0.1F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F,
     7.0F, 7.0F, 6.0F, 5.0F, 3.0F, 1.2F, 0.5F, 0.2F, 0.1F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F,
     7.0F, 7.0F, 6.0F, 6.0F, 5.0F, 3.0F, 1.5F, 0.7F, 0.3F, 0.15F, 0.1F, 0.0F, 0.0F, 0.0F, 0.0F,
@@ -73,8 +75,8 @@ Calculation::Calculation(
     infiltrationFlow(0), // old: RIVOL
     totalRunoffFlow(0), // old: RVOL
     potentialCapillaryRise(0), // old: TAS
-    n_POTENTIAL_RATES_OF_ASCENT(ARRAY_SIZE(POTENTIAL_RATES_OF_ASCENT)), // old: lenTAS
-    n_USABLE_FIELD_CAPACITIES(ARRAY_SIZE(USABLE_FIELD_CAPACITIES)), // old: lenS
+    //n_POTENTIAL_RATES_OF_ASCENT(ARRAY_SIZE(POTENTIAL_RATES_OF_ASCENT)), // old: lenTAS
+    //n_USABLE_FIELD_CAPACITIES(ARRAY_SIZE(USABLE_FIELD_CAPACITIES)), // old: lenS
     counters({0, 0, 0, 0L, 0L, 0L}),
     continueProcessing(true) // old: weiter
 {
@@ -521,14 +523,12 @@ void Calculation::getUsage(
             MEAN_POTENTIAL_CAPILLARY_RISE_RATES_SUMMER[
                 Helpers::index(
                     potentialCapillaryRise,
-                    POTENTIAL_RATES_OF_ASCENT,
-                    n_POTENTIAL_RATES_OF_ASCENT
+                    POTENTIAL_RATES_OF_ASCENT
                 ) +
                 Helpers::index(
                     resultRecord.usableFieldCapacity,
-                    USABLE_FIELD_CAPACITIES,
-                    n_USABLE_FIELD_CAPACITIES
-                ) * n_POTENTIAL_RATES_OF_ASCENT
+                    USABLE_FIELD_CAPACITIES
+                ) * POTENTIAL_RATES_OF_ASCENT.size()
             ];
 
         int daysOfGrowth = PDR::estimateDaysOfGrowth(

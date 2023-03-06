@@ -6,6 +6,8 @@
 #ifndef CALCULATION_H
 #define CALCULATION_H
 
+#include <vector>
+
 #include <QObject>
 #include <QString>
 #include <QTextStream>
@@ -75,9 +77,9 @@ signals:
 private:
     Config *config;
 
-    const static float POTENTIAL_RATES_OF_ASCENT[];
-    const static float USABLE_FIELD_CAPACITIES[];
-    const static float MEAN_POTENTIAL_CAPILLARY_RISE_RATES_SUMMER[];
+    const static std::vector<float> POTENTIAL_RATES_OF_ASCENT;
+    const static std::vector<float> USABLE_FIELD_CAPACITIES;
+    const static std::vector<float> MEAN_POTENTIAL_CAPILLARY_RISE_RATES_SUMMER;
 
     InitValues &initValues;
     QTextStream &protocolStream;
@@ -110,12 +112,6 @@ private:
 
     // potentielle Aufstiegshoehe
     float potentialCapillaryRise; // old: TAS
-
-    // Length of array POTENTIAL_RATES_OF_ASCENT
-    int n_POTENTIAL_RATES_OF_ASCENT; // old: lenTAS
-
-    // Length of array USABLE_FIELD_CAPACITIES
-    int n_USABLE_FIELD_CAPACITIES; // old: lenS
 
     Counters counters;
 

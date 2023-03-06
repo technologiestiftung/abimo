@@ -1,3 +1,5 @@
+#include <vector>
+
 #include <QCommandLineParser>
 #include <QDateTime>
 #include <QDebug>
@@ -193,12 +195,12 @@ float Helpers::stringToFloat(QString string, QString context, bool debug)
 //
 // Find the index of a value in a sorted array
 //
-int Helpers::index(float xi, const float *x, int n, float epsilon)
+int Helpers::index(float xi, const std::vector<float> &x, float epsilon)
 {
-    int i;
+    int n = x.size();
 
-    for (i = 0; i < n; i++) {
-        if (xi <= x[i] + epsilon) {
+    for (int i = 0; i < n; i++) {
+        if (xi <= x.at(i) + epsilon) {
             return i;
         }
     }
