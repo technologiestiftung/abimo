@@ -114,7 +114,7 @@ bool Calculation::calculate(QString outputFile, bool debug)
     // Verhaeltnis Bebauungsflaeche / Strassenflaeche zu Gesamtflaeche
     // (ant = Anteil)
     // share of building development area / road area to total area
-    float areaFractionNonRoad; // old: fbant
+    float areaFractionMain; // old: fbant
     float areaFractionRoad; // old: fsant
     
     // Abflussvariablen der versiegelten Flaechen
@@ -209,29 +209,29 @@ bool Calculation::calculate(QString outputFile, bool debug)
             getClimaticConditions(record.district, record.code);
 
             // percentage of total sealed area
-            resultRecord.nonRoadPercentageSealed = INT_ROUND(
+            resultRecord.mainPercentageSealed = INT_ROUND(
                 // share of roof area [%] 'PROBAU'
-                record.nonRoadFractionBuiltSealed * 100 +
-                // share of other sealed areas (e.g. Hofflaechen)
-                record.nonRoadFractionOtherSealed * 100
+                record.mainFractionBuiltSealed * 100 +
+                // share of other (unbuilt) sealed areas (e.g. Hofflaechen)
+                record.mainFractionUnbuiltSealed * 100
             );
 
             // if sum of total building development area and road area is
             // inconsiderably small it is assumed, that the area is unknown and
             // 100 % building development area will be given by default
-            if (record.nonRoadArea + record.roadArea < 0.0001) {
+            if (record.mainArea + record.roadArea < 0.0001) {
                 // *protokollStream << "\r\nDie Flaeche des Elements " +
                 // record.CODE + " ist 0 \r\nund wird automatisch auf 100 gesetzt\r\n";
                 counters.recordsProtocol++;
                 counters.noAreaGiven++;
-                record.nonRoadArea = 100.0F;
+                record.mainArea = 100.0F;
             }
 
-            float totalArea = record.nonRoadArea + record.roadArea;
+            float totalArea = record.mainArea + record.roadArea;
 
             // Verhaeltnis Bebauungsflaeche zu Gesamtflaeche
             // ratio of building development area to total area
-            areaFractionNonRoad = record.nonRoadArea / totalArea;
+            areaFractionMain = record.mainArea / totalArea;
             
             // Verhaeltnis Strassenflaeche zu Gesamtflaeche
             // ratio of roads area to total area
@@ -254,18 +254,18 @@ bool Calculation::calculate(QString outputFile, bool debug)
 
             runoffRoofs =
                 (1.0F - initValues.getInfiltrationFactorRoof()) *
-                record.nonRoadFractionBuiltSealed *
+                record.mainFractionBuiltSealed *
                 record.builtSealedFractionConnected *
-                areaFractionNonRoad *
+                areaFractionMain *
                 bagrovValueRoof;
 
             runoffSealedSurface1 =
                 (1.0F - initValues.getInfiltrationFactorSurface1()) *
                 (
-                    record.otherSealedFractionSurface1 *
-                    record.otherSealedFractionConnected *
-                    record.nonRoadFractionOtherSealed *
-                    areaFractionNonRoad +
+                    record.unbuiltSealedFractionSurface1 *
+                    record.unbuiltSealedFractionConnected *
+                    record.mainFractionUnbuiltSealed *
+                    areaFractionMain +
                     record.roadSealedFractionSurface1 *
                     record.roadSealedFractionConnected *
                     record.roadFractionSealed *
@@ -275,10 +275,10 @@ bool Calculation::calculate(QString outputFile, bool debug)
             runoffSealedSurface2 =
                 (1.0F - initValues.getInfiltrationFactorSurface2()) *
                 (
-                    record.otherSealedFractionSurface2 *
-                    record.otherSealedFractionConnected *
-                    record.nonRoadFractionOtherSealed *
-                    areaFractionNonRoad +
+                    record.unbuiltSealedFractionSurface2 *
+                    record.unbuiltSealedFractionConnected *
+                    record.mainFractionUnbuiltSealed *
+                    areaFractionMain +
                     record.roadSealedFractionSurface2 *
                     record.roadSealedFractionConnected *
                     record.roadFractionSealed *
@@ -288,10 +288,10 @@ bool Calculation::calculate(QString outputFile, bool debug)
             runoffSealedSurface3 =
                 (1.0F - initValues.getInfiltrationFactorSurface3()) *
                 (
-                    record.otherSealedFractionSurface3 *
-                    record.otherSealedFractionConnected *
-                    record.nonRoadFractionOtherSealed *
-                    areaFractionNonRoad +
+                    record.unbuiltSealedFractionSurface3 *
+                    record.unbuiltSealedFractionConnected *
+                    record.mainFractionUnbuiltSealed *
+                    areaFractionMain +
                     record.roadSealedFractionSurface3 *
                     record.roadSealedFractionConnected *
                     record.roadFractionSealed *
@@ -301,10 +301,10 @@ bool Calculation::calculate(QString outputFile, bool debug)
             runoffSealedSurface4 =
                 (1.0F - initValues.getInfiltrationFactorSurface4()) *
                 (
-                    record.otherSealedFractionSurface4 *
-                    record.otherSealedFractionConnected *
-                    record.nonRoadFractionOtherSealed *
-                    areaFractionNonRoad +
+                    record.unbuiltSealedFractionSurface4 *
+                    record.unbuiltSealedFractionConnected *
+                    record.mainFractionUnbuiltSealed *
+                    areaFractionMain +
                     record.roadSealedFractionSurface4 *
                     record.roadSealedFractionConnected *
                     record.roadFractionSealed *
@@ -314,41 +314,41 @@ bool Calculation::calculate(QString outputFile, bool debug)
             // Infiltration for sealed surfaces
             infiltrationRoofs =
                 (1 - record.builtSealedFractionConnected) *
-                record.nonRoadFractionBuiltSealed *
-                areaFractionNonRoad *
+                record.mainFractionBuiltSealed *
+                areaFractionMain *
                 bagrovValueRoof;
 
             infiltrationSealedSurface1 = (
-                record.otherSealedFractionSurface1 *
-                record.nonRoadFractionOtherSealed *
-                areaFractionNonRoad +
+                record.unbuiltSealedFractionSurface1 *
+                record.mainFractionUnbuiltSealed *
+                areaFractionMain +
                 record.roadSealedFractionSurface1 *
                 record.roadFractionSealed *
                 areaFractionRoad
             ) * bagrovValueSurface1 - runoffSealedSurface1;
 
             infiltrationSealedSurface2 = (
-                record.otherSealedFractionSurface2 *
-                record.nonRoadFractionOtherSealed *
-                areaFractionNonRoad +
+                record.unbuiltSealedFractionSurface2 *
+                record.mainFractionUnbuiltSealed *
+                areaFractionMain +
                 record.roadSealedFractionSurface2 *
                 record.roadFractionSealed *
                 areaFractionRoad
             ) * bagrovValueSurface2 - runoffSealedSurface2;
 
             infiltrationSealedSurface3 = (
-                record.otherSealedFractionSurface3 *
-                record.nonRoadFractionOtherSealed *
-                areaFractionNonRoad +
+                record.unbuiltSealedFractionSurface3 *
+                record.mainFractionUnbuiltSealed *
+                areaFractionMain +
                 record.roadSealedFractionSurface3 *
                 record.roadFractionSealed *
                 areaFractionRoad
             ) * bagrovValueSurface3 - runoffSealedSurface3;
 
             infiltrationSealedSurface4 = (
-                record.otherSealedFractionSurface4 *
-                record.nonRoadFractionOtherSealed *
-                areaFractionNonRoad +
+                record.unbuiltSealedFractionSurface4 *
+                record.mainFractionUnbuiltSealed *
+                areaFractionMain +
                 record.roadSealedFractionSurface4 *
                 record.roadFractionSealed *
                 areaFractionRoad
@@ -366,7 +366,7 @@ bool Calculation::calculate(QString outputFile, bool debug)
 
             // runoff for unsealed surfaces rowuv = 0
             infiltrationPerviousSurfaces = (
-                100.0F - (float) resultRecord.nonRoadPercentageSealed
+                100.0F - (float) resultRecord.mainPercentageSealed
             ) / 100.0F * unsealedSurfaceRunoff;
 
             // calculate runoff 'row' for entire block patial area (FLGES +
@@ -384,7 +384,7 @@ bool Calculation::calculate(QString outputFile, bool debug)
             
             // calculate volume 'rowvol' from runoff (qcm/s)
             surfaceRunoffFlow = surfaceRunoff * 3.171F * (
-                record.nonRoadArea +
+                record.mainArea +
                 record.roadArea
             ) / 100000.0F;
             
@@ -404,7 +404,7 @@ bool Calculation::calculate(QString outputFile, bool debug)
             
             // calculate volume 'rivol' from infiltration rate (qcm/s)
             infiltrationFlow = infiltration * 3.171F * (
-                record.nonRoadArea +
+                record.mainArea +
                 record.roadArea
             ) / 100000.0F;
 

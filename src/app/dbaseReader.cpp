@@ -347,30 +347,30 @@ int DbaseReader::computeCountFields(int headerLength)
 
 void DbaseReader::fillRecord(int k, abimoRecord& record, bool debug)
 {
-    record.otherSealedFractionSurface1 = floatFraction(getRecord(k, "BELAG1"));
-    record.otherSealedFractionSurface2 = floatFraction(getRecord(k, "BELAG2"));
-    record.otherSealedFractionSurface3 = floatFraction(getRecord(k, "BELAG3"));
-    record.otherSealedFractionSurface4 = floatFraction(getRecord(k, "BELAG4"));
+    record.unbuiltSealedFractionSurface1 = floatFraction(getRecord(k, "BELAG1"));
+    record.unbuiltSealedFractionSurface2 = floatFraction(getRecord(k, "BELAG2"));
+    record.unbuiltSealedFractionSurface3 = floatFraction(getRecord(k, "BELAG3"));
+    record.unbuiltSealedFractionSurface4 = floatFraction(getRecord(k, "BELAG4"));
     record.district = getRecord(k, "BEZIRK").toInt();
     record.code = getRecord(k, "CODE");
     record.fieldCapacity_150 = getRecord(k, "FELD_150").toInt();
     record.fieldCapacity_30 = getRecord(k, "FELD_30").toInt();
-    record.nonRoadArea = getRecord(k, "FLGES").toFloat();
+    record.mainArea = getRecord(k, "FLGES").toFloat();
     record.depthToWaterTable = getRecord(k, "FLUR").toFloat();
     record.builtSealedFractionConnected = floatFraction(getRecord(k, "KAN_BEB"));
     record.roadSealedFractionConnected = floatFraction(getRecord(k, "KAN_STR"));
-    record.otherSealedFractionConnected = floatFraction(getRecord(k, "KAN_VGU"));
+    record.unbuiltSealedFractionConnected = floatFraction(getRecord(k, "KAN_VGU"));
     record.usage = Helpers::stringToInt(
         getRecord(k, "NUTZUNG"),
         QString("k: %1, NUTZUNG = ").arg(QString::number(k)),
         debug
     );
-    record.nonRoadFractionBuiltSealed = Helpers::stringToFloat(
+    record.mainFractionBuiltSealed = Helpers::stringToFloat(
         getRecord(k, "PROBAU"),
         QString("k: %1, PROBAU = ").arg(QString::number(k)),
         debug
     ) / 100.0F;
-    record.nonRoadFractionOtherSealed = floatFraction(getRecord(k, "PROVGU"));
+    record.mainFractionUnbuiltSealed = floatFraction(getRecord(k, "PROVGU"));
     record.precipitationYear = getRecord(k, "REGENJA").toInt();
     record.precipitationSummer = getRecord(k, "REGENSO").toInt();
     record.roadSealedFractionSurface1 = floatFraction(getRecord(k, "STR_BELAG1"));

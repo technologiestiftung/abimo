@@ -69,7 +69,7 @@ public:
     int infiltrationRate; // old: RI
 
     // Versiegelungsgrad bebauter Flaechen [%] ID_VER 002 N
-    int nonRoadPercentageSealed; // old: VER
+    int mainPercentageSealed; // old: VER
 
     // Ertragsklasse landw. Nutzflaechen ID_ERT 002 N
     int yieldPower; // old: ERT

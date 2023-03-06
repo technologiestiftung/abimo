@@ -28,10 +28,10 @@ struct abimoRecord {
     //
 
     // ... roof surfaces (Dachflaechen), share of roof area [%] 'PROBAU'
-    float nonRoadFractionBuiltSealed; // old: PROBAU_fraction, vgd
+    float mainFractionBuiltSealed; // old: PROBAU_fraction, vgd
 
     // ... other sealed surfaces (sonst. versiegelte Flaechen)
-    float nonRoadFractionOtherSealed; // old: PROVGU_fraction, vgb
+    float mainFractionOtherSealed; // old: PROVGU_fraction, vgb
 
     // ... roads (Strassen)
     float roadFractionSealed; // old: VGSTRASSE_fraction, vgs
@@ -44,7 +44,7 @@ struct abimoRecord {
     float builtSealedFractionConnected; // old: KAN_BEB_fraction, kd
 
     // ... other sealed surfaces (sonst. versiegelte Flaechen)
-    float otherSealedFractionConnected; // old: KAN_VGU_fraction, kb
+    float unbuiltSealedFractionConnected; // old: KAN_VGU_fraction, kb
 
     // ... sealed roads (Strassen)
     float roadSealedFractionConnected; // old: KAN_STR_fraction, ks
@@ -54,10 +54,10 @@ struct abimoRecord {
     // Anteil der jeweiligen Belagsklasse
     //
 
-    float otherSealedFractionSurface1; // old: BELAG1_fraction, bl1
-    float otherSealedFractionSurface2; // old: BELAG2_fraction, bl2
-    float otherSealedFractionSurface3; // old: BELAG3_fraction, bl3
-    float otherSealedFractionSurface4; // old: BELAG4_fraction, bl4
+    float unbuiltSealedFractionSurface1; // old: BELAG1_fraction, bl1
+    float unbuiltSealedFractionSurface2; // old: BELAG2_fraction, bl2
+    float unbuiltSealedFractionSurface3; // old: BELAG3_fraction, bl3
+    float unbuiltSealedFractionSurface4; // old: BELAG4_fraction, bl4
 
     //
     // share of each road pavement class for roads of block area
@@ -69,12 +69,10 @@ struct abimoRecord {
     float roadSealedFractionSurface3; // old: STR_BELAG3_fraction, bls3
     float roadSealedFractionSurface4; // old: STR_BELAG4_fraction, bls4
 
-    //
-    // total area of building development / road
-    // Gesamtflaeche Bebauung / Strasse
-    //
+    // total area within city block, except roads
+    float mainArea; // old: FLGES, fb;
 
-    float nonRoadArea; // old: FLGES, fb;
+    // area of roads within city block
     float roadArea; // old: STR_FLGES, fs;
 };
 
