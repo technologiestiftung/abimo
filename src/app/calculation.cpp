@@ -156,16 +156,49 @@ bool Calculation::calculate(QString outputFile, bool debug)
             // depth to groundwater table 'FLUR'
             resultRecord.depthToWaterTable = record.depthToWaterTable;
 
-            getUsage(
-                record.usage,
-                // structure type
-                record.type,
-                // field capacity [%] for 0-30cm below ground level
-                record.fieldCapacity_30,
-                // field capacity [%] for 0-150cm below ground level
-                record.fieldCapacity_150,
-                record.code
-            );
+            // Now comes code that was extracted to getUsage() before >>>
+
+            // declaration of yield power (ERT) and irrigation (BER) for agricultural or
+            // gardening purposes
+            setUsageYieldIrrigation(record.usage, record.type, record.code);
+
+            if (resultRecord.usage != Usage::waterbody_G)
+            {
+                // Feldkapazitaet
+                // cls_6b: der Fall der mit NULL belegten FELD_30 und FELD_150 Werte
+                // wird hier im ersten Fall behandelt - ich erwarte dann den Wert 0
+                resultRecord.usableFieldCapacity = PDR::estimateWaterHoldingCapacity(
+                            record.fieldCapacity_30,
+                            record.fieldCapacity_150,
+                            resultRecord.usage == Usage::forested_W
+                            );
+
+                // mittl. Durchwurzelungstiefe TWS
+                float rootingDepth = config->getRootingDepth(
+                            resultRecord.usage,
+                            resultRecord.yieldPower
+                            );
+
+                // pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS
+                potentialCapillaryRise = resultRecord.depthToWaterTable - rootingDepth;
+
+                // mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres
+                resultRecord.meanPotentialCapillaryRiseRate =
+                        PDR::getMeanPotentialCapillaryRiseRate(
+                            potentialCapillaryRise,
+                            resultRecord.usableFieldCapacity,
+                            resultRecord.usage,
+                            resultRecord.yieldPower
+                            );
+            }
+
+            if (initValues.getIrrigationToZero() && resultRecord.irrigation != 0) {
+                //*protokollStream << "Erzwinge BER=0 fuer Code: " << code << ", Wert war:" << ptrDA.BER << " \r\n";
+                counters.irrigationForcedToZero++;
+                resultRecord.irrigation = 0;
+            }
+
+            // <<< end of code that was in getUsage() before
 
             // cls_6a: an dieser Stelle muss garantiert werden, dass f30 und
             // f150 als Parameter von getNUTZ einen definierten Wert erhalten
@@ -436,61 +469,6 @@ bool Calculation::calculate(QString outputFile, bool debug)
     }
 
     return true;
-}
-
-// =============================================================================
-// FIXME:
-// =============================================================================
-void Calculation::getUsage(
-        int usageID,
-        int type,
-        int fieldCapacity_30,
-        int fieldCapacity_150,
-        QString code
-)
-{
-    // Feldlaengen von iTAS und inFK_S, L, T, U
-    // extern int lenTAS, lenS, lenL, lenT, lenU;
-
-    // declaration of yield power (ERT) and irrigation (BER) for agricultural or
-    // gardening purposes
-    setUsageYieldIrrigation(usageID, type, code);
-
-    if (resultRecord.usage != Usage::waterbody_G)
-    {
-        // Feldkapazitaet
-        // cls_6b: der Fall der mit NULL belegten FELD_30 und FELD_150 Werte
-        // wird hier im ersten Fall behandelt - ich erwarte dann den Wert 0
-        resultRecord.usableFieldCapacity = PDR::estimateWaterHoldingCapacity(
-                    fieldCapacity_30,
-                    fieldCapacity_150,
-                    resultRecord.usage == Usage::forested_W
-        );
-
-        // mittl. Durchwurzelungstiefe TWS
-        float rootingDepth = config->getRootingDepth(
-                    resultRecord.usage,
-                    resultRecord.yieldPower
-        );
-
-        // pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS
-        potentialCapillaryRise = resultRecord.depthToWaterTable - rootingDepth;
-
-        // mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres
-        resultRecord.meanPotentialCapillaryRiseRate =
-            PDR::getMeanPotentialCapillaryRiseRate(
-                potentialCapillaryRise,
-                resultRecord.usableFieldCapacity,
-                resultRecord.usage,
-                resultRecord.yieldPower
-            );
-    }
-
-    if (initValues.getIrrigationToZero() && resultRecord.irrigation != 0) {
-        //*protokollStream << "Erzwinge BER=0 fuer Code: " << code << ", Wert war:" << ptrDA.BER << " \r\n";
-        counters.irrigationForcedToZero++;
-        resultRecord.irrigation = 0;
-    }
 }
 
 void Calculation::setUsageYieldIrrigation(int usageID, int type, QString code)
