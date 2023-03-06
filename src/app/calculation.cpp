@@ -75,8 +75,6 @@ Calculation::Calculation(
     infiltrationFlow(0), // old: RIVOL
     totalRunoffFlow(0), // old: RVOL
     potentialCapillaryRise(0), // old: TAS
-    //n_POTENTIAL_RATES_OF_ASCENT(ARRAY_SIZE(POTENTIAL_RATES_OF_ASCENT)), // old: lenTAS
-    //n_USABLE_FIELD_CAPACITIES(ARRAY_SIZE(USABLE_FIELD_CAPACITIES)), // old: lenS
     counters({0, 0, 0, 0L, 0L, 0L}),
     continueProcessing(true) // old: weiter
 {
