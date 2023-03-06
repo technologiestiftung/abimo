@@ -6,8 +6,6 @@
 #ifndef CALCULATION_H
 #define CALCULATION_H
 
-#include <vector>
-
 #include <QObject>
 #include <QString>
 #include <QTextStream>
@@ -76,10 +74,6 @@ signals:
 
 private:
     Config *config;
-
-    const static std::vector<float> POTENTIAL_RATES_OF_ASCENT;
-    const static std::vector<float> USABLE_FIELD_CAPACITIES;
-    const static std::vector<float> MEAN_POTENTIAL_CAPILLARY_RISE_RATES_SUMMER;
 
     InitValues &initValues;
     QTextStream &protocolStream;

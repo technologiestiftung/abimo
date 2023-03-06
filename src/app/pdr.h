@@ -6,6 +6,8 @@
 #ifndef PDR_H
 #define PDR_H
 
+#include <vector>
+
 #include <QString>
 
 // Descriptions from here:
@@ -39,10 +41,21 @@ struct UsageTuple {
 
 class PDR
 {
+private:
+    const static std::vector<float> POTENTIAL_RATES_OF_ASCENT;
+    const static std::vector<float> USABLE_FIELD_CAPACITIES;
+    const static std::vector<float> MEAN_POTENTIAL_CAPILLARY_RISE_RATES_SUMMER;
+
 public:
     PDR();
     void setUsageYieldIrrigation(Usage usage, int yield = 0, int irrigation = 0);
     void setUsageYieldIrrigation(UsageTuple tuple);
+    static int getMeanPotentialCapillaryRiseRate(
+        float potentialCapillaryRise,
+        float usableFieldCapacity,
+        Usage usage,
+        int yieldPower
+    );
     static float estimateWaterHoldingCapacity(int f30, int f150, bool isForest);
     static int estimateDaysOfGrowth(Usage usage, int yield);
 
