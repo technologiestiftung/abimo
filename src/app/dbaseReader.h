@@ -31,7 +31,7 @@ struct abimoRecord {
     float mainFractionBuiltSealed; // old: PROBAU_fraction, vgd
 
     // ... other sealed surfaces (sonst. versiegelte Flaechen)
-    float mainFractionOtherSealed; // old: PROVGU_fraction, vgb
+    float mainFractionUnbuiltSealed; // old: PROVGU_fraction, vgb
 
     // ... roads (Strassen)
     float roadFractionSealed; // old: VGSTRASSE_fraction, vgs
