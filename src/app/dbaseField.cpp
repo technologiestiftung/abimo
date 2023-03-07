@@ -10,57 +10,53 @@
 #include "dbaseField.h"
 
 DbaseField::DbaseField():
-    fieldLength(0),
-    decimalCount(0)
+    m_fieldLength(0),
+    m_numDecimalPlaces(0)
 {
 }
 
-DbaseField::DbaseField(QByteArray array)
+DbaseField::DbaseField(QByteArray bytes)
 {
-    this->name = QString(array.left(10));
-    this->type = QString((QChar) array[11]);
-    this->fieldLength = (quint8) array[16];
-    this->decimalCount = (quint8) array[17];
+    m_name = QString(bytes.left(10));
+    m_type = QString((QChar) bytes.at(11));
+    m_fieldLength = (quint8) bytes.at(16);
+    m_numDecimalPlaces = (quint8) bytes.at(17);
 }
 
-DbaseField::DbaseField(QString name, QString type, int decimalCount)
+DbaseField::DbaseField(QString name, QString type, int numDecimalPlaces)
 {
-    set(name, type, decimalCount);
+    set(name, type, numDecimalPlaces);
 }
 
-DbaseField::~DbaseField()
+void DbaseField::set(QString name, QString type, int numDecimalPlaces)
 {
-}
-
-void DbaseField::set(QString name, QString type, int decimalCount)
-{
-    this->name = QString(name);
-    this->type = QString(type);
-    this->fieldLength = 0;
-    this->decimalCount = decimalCount;
+    m_name = name;
+    m_type = type;
+    m_fieldLength = 0;
+    m_numDecimalPlaces = numDecimalPlaces;
 }
 
 QString DbaseField::getName()
 {
-    return name;
+    return m_name;
 }
 
 QString DbaseField::getType()
 {
-    return type;
+    return m_type;
 }
 
 int DbaseField::getFieldLength()
 {
-    return fieldLength;
+    return m_fieldLength;
 }
 
-void DbaseField::setFieldLength(int length)
+void DbaseField::setFieldLength(int fieldLength)
 {
-    fieldLength = length;
+    m_fieldLength = fieldLength;
 }
 
 int DbaseField::getDecimalCount()
 {
-    return decimalCount;
+    return m_numDecimalPlaces;
 }
