@@ -476,9 +476,6 @@ void Calculation::calculateResultRecord(abimoRecord &record)
 // =============================================================================
 void Calculation::getClimaticConditions(int district, QString code)
 {
-    // Effectivity parameter
-    float effectivityParameter;
-
     // Potential evaporation
     float potentialEvaporation;
 
@@ -487,12 +484,6 @@ void Calculation::getClimaticConditions(int district, QString code)
 
     // ratio of precipitation to potential evaporation
     float xRatio;
-
-    // ratio of real evaporation to potential evaporation
-    float yRatio;
-
-    // real evapotranspiration
-    float realEvapotranspiration;
 
     // Later on two additional parameters, (now and?) here:
     // * ptrDA.P1 = p1;
@@ -529,19 +520,17 @@ void Calculation::getClimaticConditions(int district, QString code)
     // ratio precipitation to potential evaporation
     xRatio = precipitation / potentialEvaporation;
 
-    Bagrov bagrov;
-
     // Berechnung des Abflusses RxV fuer versiegelte Teilflaechen mittels
     // Umrechnung potentieller Verdunstungen potentialEvaporation zu realen
     // ueber Umrechnungsfaktor yRatio und subtrahiert von Niederschlag
     // precipitation
 
-    m_bagrovValueRoof = precipitation - bagrov.nbagro(m_initValues.getBagrovValueRoof(), xRatio) * potentialEvaporation;
+    m_bagrovValueRoof = precipitation - Bagrov::nbagro(m_initValues.getBagrovValueRoof(), xRatio) * potentialEvaporation;
 
-    m_bagrovValueSurface1 = precipitation - bagrov.nbagro(m_initValues.getBagrovValueSuface1(), xRatio) * potentialEvaporation;
-    m_bagrovValueSurface2 = precipitation - bagrov.nbagro(m_initValues.getBagrovValueSuface2(), xRatio) * potentialEvaporation;
-    m_bagrovValueSurface3 = precipitation - bagrov.nbagro(m_initValues.getBagrovValueSuface3(), xRatio) * potentialEvaporation;
-    m_bagrovValueSurface4 = precipitation - bagrov.nbagro(m_initValues.getBagrovValueSuface4(), xRatio) * potentialEvaporation;
+    m_bagrovValueSurface1 = precipitation - Bagrov::nbagro(m_initValues.getBagrovValueSuface1(), xRatio) * potentialEvaporation;
+    m_bagrovValueSurface2 = precipitation - Bagrov::nbagro(m_initValues.getBagrovValueSuface2(), xRatio) * potentialEvaporation;
+    m_bagrovValueSurface3 = precipitation - Bagrov::nbagro(m_initValues.getBagrovValueSuface3(), xRatio) * potentialEvaporation;
+    m_bagrovValueSurface4 = precipitation - Bagrov::nbagro(m_initValues.getBagrovValueSuface4(), xRatio) * potentialEvaporation;
 
     float actualEvaporation;
 
@@ -552,47 +541,68 @@ void Calculation::getClimaticConditions(int district, QString code)
     }
     else
     {
-        // Determine effectiveness parameter bag for unsealed surfaces
-        // Modul Raster abgespeckt
-        effectivityParameter = EffectivenessUnsealed::calculate(m_resultRecord);
-
-        if (m_resultRecord.precipitationSummer > 0 &&
-                m_resultRecord.potentialEvaporationSummer > 0) {
-            effectivityParameter *= getSummerModificationFactor(
-                (float) (
-                    m_resultRecord.precipitationSummer +
-                    m_resultRecord.irrigation +
-                    m_resultRecord.meanPotentialCapillaryRiseRate
-                ) / m_resultRecord.potentialEvaporationSummer
-            );
-        }
-
-        // Calculate the x-factor of bagrov relation: x = (P + KR + BER)/ETP
-        // Then get the y-factor: y = fbag(n, x)
-        yRatio = bagrov.nbagro(
-            effectivityParameter,
-            (
-                precipitation +
-                m_resultRecord.meanPotentialCapillaryRiseRate +
-                m_resultRecord.irrigation
-            ) / potentialEvaporation
+        actualEvaporation = calculateRealEvapotranspiration(
+            precipitation, potentialEvaporation
         );
-
-        // Get the real evapotransporation using estimated y-factor
-        realEvapotranspiration = yRatio * potentialEvaporation;
-
-        if (m_potentialCapillaryRise < 0) {
-            realEvapotranspiration += (
-                potentialEvaporation - yRatio * potentialEvaporation
-            ) * (float) exp(
-                m_resultRecord.depthToWaterTable / m_potentialCapillaryRise
-            );
-        }
-
-        actualEvaporation = realEvapotranspiration;
     }
 
     m_unsealedSurfaceRunoff = precipitation - actualEvaporation;
+}
+
+float Calculation::calculateRealEvapotranspiration(
+    float precipitation,
+    float potentialEvaporation
+)
+{
+    assert(potentialEvaporation > 0.0);
+
+    // Effectivity parameter
+    float effectivityParameter;
+
+    // ratio of real evaporation to potential evaporation
+    float yRatio;
+
+    // result value: real evapotranspiration
+    float realEvapotranspiration;
+
+    // Determine effectiveness parameter bag for unsealed surfaces
+    // Modul Raster abgespeckt
+    effectivityParameter = EffectivenessUnsealed::calculate(m_resultRecord);
+
+    if (m_resultRecord.precipitationSummer > 0 &&
+            m_resultRecord.potentialEvaporationSummer > 0) {
+        effectivityParameter *= getSummerModificationFactor(
+            (float) (
+                m_resultRecord.precipitationSummer +
+                m_resultRecord.irrigation +
+                m_resultRecord.meanPotentialCapillaryRiseRate
+            ) / m_resultRecord.potentialEvaporationSummer
+        );
+    }
+
+    // Calculate the x-factor of bagrov relation: x = (P + KR + BER)/ETP
+    // Then get the y-factor: y = fbag(n, x)
+    yRatio = Bagrov::nbagro(
+        effectivityParameter,
+        (
+            precipitation +
+            m_resultRecord.meanPotentialCapillaryRiseRate +
+            m_resultRecord.irrigation
+        ) / potentialEvaporation
+    );
+
+    // Get the real evapotransporation using estimated y-factor
+    realEvapotranspiration = yRatio * potentialEvaporation;
+
+    if (m_potentialCapillaryRise < 0) {
+        realEvapotranspiration += (
+            potentialEvaporation - yRatio * potentialEvaporation
+        ) * (float) exp(
+            m_resultRecord.depthToWaterTable / m_potentialCapillaryRise
+        );
+    }
+
+    return realEvapotranspiration;
 }
 
 float Calculation::initValueOrReportedDefaultValue(

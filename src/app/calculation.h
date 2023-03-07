@@ -132,6 +132,10 @@ private:
 
     void getClimaticConditions(int bez, QString codestr);
 
+    float calculateRealEvapotranspiration(
+        float precipiation, float potentialEvaporation
+    );
+
     float initValueOrReportedDefaultValue(
         int bez, QString code, QHash<int, int> &hash, int defaultValue,
         QString name
