@@ -44,7 +44,6 @@ Calculation::Calculation(
     m_counters({0, 0, 0, 0L, 0L, 0L}),
     m_continueProcessing(true) // old: weiter
 {
-    m_config_pointer = new Config();
 }
 
 void Calculation::stopProcessing()
@@ -185,7 +184,7 @@ void Calculation::calculateResultRecord(abimoRecord &record)
 
     // declaration of yield power (ERT) and irrigation (BER) for agricultural or
     // gardening purposes
-    UsageResult usageResult = m_config_pointer->getUsageResult(
+    UsageResult usageResult = m_config.getUsageResult(
         record.usage, record.type, record.code
     );
 
@@ -201,7 +200,7 @@ void Calculation::calculateResultRecord(abimoRecord &record)
     }
 
     m_resultRecord.setUsageYieldIrrigation(
-        m_config_pointer->getUsageTuple(usageResult.tupleIndex)
+        m_config.getUsageTuple(usageResult.tupleIndex)
     );
 
     if (m_resultRecord.usage != Usage::waterbody_G)
@@ -216,7 +215,7 @@ void Calculation::calculateResultRecord(abimoRecord &record)
         );
 
         // mittl. Durchwurzelungstiefe TWS
-        float rootingDepth = m_config_pointer->getRootingDepth(
+        float rootingDepth = m_config.getRootingDepth(
             m_resultRecord.usage,
             m_resultRecord.yieldPower
         );

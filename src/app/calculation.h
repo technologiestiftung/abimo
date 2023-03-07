@@ -76,7 +76,7 @@ signals:
 private:
 
     // All private member variables of this class will be prefixed with "m_"
-    Config *m_config_pointer;
+    Config m_config;
 
     InitValues &m_initValues;
     QTextStream &m_protocolStream;
