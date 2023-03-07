@@ -10,29 +10,11 @@
 #include <QString>
 #include <QTextStream>
 
+#include "counters.h"
 #include "dbaseReader.h"
 #include "dbaseWriter.h"
 #include "initvalues.h"
 #include "config.h"
-
-struct Counters {
-
-    // Total records written
-    int recordsWritten;
-
-    // Total records read
-    int recordsRead;
-
-    // Number of records for which irrigation (BER) was set to zero
-    int irrigationForcedToZero;
-
-    // Number of cases in which no calculation was performed
-    long noAreaGiven;
-    long noUsageGiven;
-
-    // Number of records written to the (error) protocol
-    long recordsProtocol;
-};
 
 class Calculation: public QObject
 {

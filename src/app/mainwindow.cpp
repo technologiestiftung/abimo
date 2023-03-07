@@ -249,11 +249,11 @@ void MainWindow::reportSuccess(
 
     Counters counters = calc->getCounters();
 
-    protCount.setNum(counters.recordsProtocol);
-    nutzungIstNull.setNum(counters.noUsageGiven);
-    keineFlaechenAngegeben.setNum(counters.noAreaGiven);
-    readRecCount.setNum(counters.recordsRead);
-    writeRecCount.setNum(counters.recordsWritten);
+    protCount.setNum(counters.getRecordsProtocol());
+    nutzungIstNull.setNum(counters.getNoUsageGiven());
+    keineFlaechenAngegeben.setNum(counters.getNoAreaGiven());
+    readRecCount.setNum(counters.getRecordsRead());
+    writeRecCount.setNum(counters.getRecordsWritten());
 
     setText(
         "Berechnungen mit " + protCount + " Fehlern beendet.\n" +
@@ -266,18 +266,18 @@ void MainWindow::reportSuccess(
     protokollStream << "\r\nBei der Berechnung traten " << protCount <<
         " Fehler auf.\r\n";
 
-    if (counters.noAreaGiven != 0) {
+    if (counters.getNoAreaGiven() != 0) {
         protokollStream << "\r\nBei " + keineFlaechenAngegeben +
             " Flaechen deren Wert 0 war wurde 100 eingesetzt.\r\n";
     }
 
-    if (counters.noUsageGiven != 0) {
+    if (counters.getNoUsageGiven() != 0) {
         protokollStream << "\r\nBei " + nutzungIstNull +
             " Records war die Nutzung 0, diese wurden ignoriert.\r\n";
     }
 
-    if (counters.irrigationForcedToZero != 0) {
-        protokollStream << "\r\nBei " << counters.irrigationForcedToZero <<
+    if (counters.getIrrigationForcedToZero() != 0) {
+        protokollStream << "\r\nBei " << counters.getIrrigationForcedToZero() <<
             " Records wurde BER==0 erzwungen.\r\n";
     }
 

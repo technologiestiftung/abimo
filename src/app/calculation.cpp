@@ -14,6 +14,7 @@
 #include "calculation.h"
 #include "config.h"
 #include "constants.h"
+#include "counters.h"
 #include "dbaseReader.h"
 #include "dbaseWriter.h"
 #include "effectivenessunsealed.h"
@@ -41,7 +42,7 @@ Calculation::Calculation(
     m_infiltrationFlow(0), // old: RIVOL
     m_totalRunoffFlow(0), // old: RVOL
     m_potentialCapillaryRise(0), // old: TAS
-    m_counters({0, 0, 0, 0L, 0L, 0L}),
+    m_counters(),
     m_continueProcessing(true) // old: weiter
 {
 }
@@ -77,18 +78,16 @@ bool Calculation::calculate(QString outputFile, bool debug)
     int index = 0;    
 
     // count protocol entries
-    m_counters.recordsProtocol = 0L;
-    m_counters.noAreaGiven = 0L;
-    m_counters.noUsageGiven = 0L;
+    m_counters.initialise();
 
     // first entry into protocol
     DbaseWriter writer(outputFile, m_initValues);
 
     // get the number of rows in the input data
-    m_counters.recordsRead = m_dbReader.getNumberOfRecords();
+    m_counters.setRecordsRead(m_dbReader.getNumberOfRecords());
 
     // loop over all block partial areas (= records/rows of input data)
-    for (int k = 0; k < m_counters.recordsRead; k++) {
+    for (int k = 0; k < m_counters.getRecordsRead(); k++) {
 
         if (!m_continueProcessing) {
             m_protocolStream << "Berechnungen abgebrochen.\r\n";
@@ -112,19 +111,19 @@ bool Calculation::calculate(QString outputFile, bool debug)
             index++;
         }
         else {
-            m_counters.noUsageGiven++;
+            m_counters.incrementNoUsageGiven();
         }
 
         // cls_2: Hier koennten falls gewuenscht die Flaechen dokumentiert
         // werden, deren NUTZUNG=NULL (siehe auch cls_3)
 
         emit processSignal(
-            (int)((float) k / (float) m_counters.recordsRead * 50.0),
+            (int)((float) k / (float) m_counters.getRecordsRead() * 50.0),
             "Berechne"
         );
     }
 
-    m_counters.recordsWritten = index;
+    m_counters.setRecordsWritten(index);
 
     emit processSignal(50, "Schreibe Ergebnisse.");
 
@@ -196,7 +195,7 @@ void Calculation::calculateResultRecord(abimoRecord &record)
 
     if (!usageResult.message.isEmpty()) {
         m_protocolStream << usageResult.message;
-        m_counters.recordsProtocol++;
+        m_counters.incrementRecordsProtocol();
     }
 
     m_resultRecord.setUsageYieldIrrigation(
@@ -235,7 +234,7 @@ void Calculation::calculateResultRecord(abimoRecord &record)
 
     if (m_initValues.getIrrigationToZero() && m_resultRecord.irrigation != 0) {
         //*protokollStream << "Erzwinge BER=0 fuer Code: " << code << ", Wert war:" << ptrDA.BER << " \r\n";
-        m_counters.irrigationForcedToZero++;
+        m_counters.incrementIrrigationForcedToZero();
         m_resultRecord.irrigation = 0;
     }
 
@@ -263,8 +262,8 @@ void Calculation::calculateResultRecord(abimoRecord &record)
     if (record.mainArea + record.roadArea < 0.0001) {
         // *protokollStream << "\r\nDie Flaeche des Elements " +
         // record.CODE + " ist 0 \r\nund wird automatisch auf 100 gesetzt\r\n";
-        m_counters.recordsProtocol++;
-        m_counters.noAreaGiven++;
+        m_counters.incrementRecordsProtocol();
+        m_counters.incrementNoAreaGiven();
         record.mainArea = 100.0F;
     }
 
@@ -630,7 +629,7 @@ float Calculation::initValueOrReportedDefaultValue(
     m_protocolStream << "\r\n" + name + " unbekannt fuer " + code +
         " von Bezirk " + districtString + "\r\n" + name +
         "=" + string + " angenommen\r\n";
-    m_counters.recordsProtocol++;
+    m_counters.incrementRecordsProtocol();
 
     return result;
 }

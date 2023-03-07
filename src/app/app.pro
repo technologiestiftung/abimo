@@ -22,6 +22,7 @@ HEADERS += \
     calculation.h \
     config.h \
     constants.h \
+    counters.h \
     dbaseField.h \
     dbaseReader.h \
     dbaseWriter.h \
@@ -37,6 +38,7 @@ SOURCES += \
     bagrov.cpp \
     calculation.cpp \
     config.cpp \
+    counters.cpp \
     dbaseField.cpp \
     dbaseReader.cpp \
     dbaseWriter.cpp \

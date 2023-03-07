@@ -28,6 +28,7 @@ HEADERS += \
     $$INCDIR/bagrov.h \
     $$INCDIR/calculation.h\
     $$INCDIR/config.h\
+    $$INCDIR/counters.h\
     $$INCDIR/dbaseField.h \
     $$INCDIR/dbaseReader.h \
     $$INCDIR/dbaseWriter.h \
@@ -41,6 +42,7 @@ SOURCES += \
     $$INCDIR/bagrov.cpp \
     $$INCDIR/calculation.cpp \
     $$INCDIR/config.cpp \
+    $$INCDIR/counters.cpp \
     $$INCDIR/dbaseField.cpp \
     $$INCDIR/dbaseReader.cpp \
     $$INCDIR/dbaseWriter.cpp \
