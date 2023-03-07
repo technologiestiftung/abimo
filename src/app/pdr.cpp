@@ -47,7 +47,7 @@ PDR::PDR():
     usableFieldCapacity(0),
     depthToWaterTable(0),
     usage(Usage::unknown),
-    totalRunoff(0),
+//    totalRunoff(0),
     runoff(0),
     infiltrationRate(0),
     mainPercentageSealed(0),

@@ -73,7 +73,7 @@ public:
     Usage usage; // old: NUT
 
     // Langjaehriger MW des Gesamtabflusses [mm/a] 004 N
-    int totalRunoff; // old: R
+//    float totalRunoff; // old: R
 
     // Langjaehriger MW des Regenwasserabflusses [mm/a] 003 N
     int runoff; // old: ROW

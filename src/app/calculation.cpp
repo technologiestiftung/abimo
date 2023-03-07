@@ -75,46 +75,7 @@ bool Calculation::calculate(QString outputFile, bool debug)
     abimoRecord record;
 
     // Number of processed records
-    int index = 0;
-    
-    // Verhaeltnis Bebauungsflaeche / Strassenflaeche zu Gesamtflaeche
-    // (ant = Anteil)
-    // share of building development area / road area to total area
-    float areaFractionMain; // old: fbant
-    float areaFractionRoad; // old: fsant
-    
-    // Abflussvariablen der versiegelten Flaechen
-    // runoff variables of sealed surfaces
-    float runoffSealedSurface1; // old: row1
-    float runoffSealedSurface2; // old: row2
-    float runoffSealedSurface3; // old: row3
-    float runoffSealedSurface4; // old: row4
-    
-    // Infiltrationsvariablen der versiegelten Flaechen
-    // infiltration variables of sealed surfaces
-    float infiltrationSealedSurface1; // old: ri1
-    float infiltrationSealedSurface2; // old: ri2
-    float infiltrationSealedSurface3; // old: ri3
-    float infiltrationSealedSurface4; // old: ri4
-    
-    // Abfluss- / Infiltrationsvariablen der Dachflaechen
-    // runoff- / infiltration variables of roof surfaces
-    float runoffRoofs; // old: rowd
-    float infiltrationRoofs; // old: rid
-    
-    // Abfluss- / Infiltrationsvariablen unversiegelter Strassenflaechen
-    // runoff- / infiltration variables of unsealed road surfaces
-    float runoffPerviousRoads; // old: rowuvs
-    float infiltrationPerviousRoads; // old: riuvs
-    
-    // Infiltration unversiegelter Flaechen
-    // infiltration of unsealed areas
-    float infiltrationPerviousSurfaces; // old: riuv
-    
-    // intermediate float values
-    float totalRunoff;
-    float infiltration;
-    float surfaceRunoff;
+    int index = 0;    
 
     // count protocol entries
     counters.recordsProtocol = 0L;
@@ -144,314 +105,10 @@ bool Calculation::calculate(QString outputFile, bool debug)
         // partial area
         if (record.usage != 0) {
 
-            // CODE: unique identifier for each block partial area
-
-            // precipitation for entire year and for summer season only
-            precipitationYear = record.precipitationYear;
-            precipitationSummer = record.precipitationSummer;
-
-            // depth to groundwater table 'FLUR'
-            resultRecord.depthToWaterTable = record.depthToWaterTable;
-
-            // declaration of yield power (ERT) and irrigation (BER) for agricultural or
-            // gardening purposes
-            UsageResult usageResult = config->getUsageResult(
-                record.usage, record.type, record.code
-            );
-
-            if (usageResult.tupleIndex < 0) {
-                protocolStream << usageResult.message;
-                qDebug() << usageResult.message;
-                abort();
-            }
-
-            if (!usageResult.message.isEmpty()) {
-                protocolStream << usageResult.message;
-                counters.recordsProtocol++;
-            }
-
-            resultRecord.setUsageYieldIrrigation(
-                config->getUsageTuple(usageResult.tupleIndex)
-            );
-
-            if (resultRecord.usage != Usage::waterbody_G)
-            {
-                // Feldkapazitaet
-                // cls_6b: der Fall der mit NULL belegten FELD_30 und FELD_150 Werte
-                // wird hier im ersten Fall behandelt - ich erwarte dann den Wert 0
-                resultRecord.usableFieldCapacity = PDR::estimateWaterHoldingCapacity(
-                            record.fieldCapacity_30,
-                            record.fieldCapacity_150,
-                            resultRecord.usage == Usage::forested_W
-                            );
-
-                // mittl. Durchwurzelungstiefe TWS
-                float rootingDepth = config->getRootingDepth(
-                            resultRecord.usage,
-                            resultRecord.yieldPower
-                            );
-
-                // pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS
-                potentialCapillaryRise = resultRecord.depthToWaterTable - rootingDepth;
-
-                // mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres
-                resultRecord.meanPotentialCapillaryRiseRate =
-                        PDR::getMeanPotentialCapillaryRiseRate(
-                            potentialCapillaryRise,
-                            resultRecord.usableFieldCapacity,
-                            resultRecord.usage,
-                            resultRecord.yieldPower
-                            );
-            }
-
-            if (initValues.getIrrigationToZero() && resultRecord.irrigation != 0) {
-                //*protokollStream << "Erzwinge BER=0 fuer Code: " << code << ", Wert war:" << ptrDA.BER << " \r\n";
-                counters.irrigationForcedToZero++;
-                resultRecord.irrigation = 0;
-            }
-
-            // cls_6a: an dieser Stelle muss garantiert werden, dass f30 und
-            // f150 als Parameter von getNUTZ einen definierten Wert erhalten
-            // und zwar 0.
-            // FIXED: alle Werte sind definiert... wenn keine 0, sondern nichts
-            // bzw. Leerzeichen angegeben wurden, wird nun eine 0 eingesetzt
-            // aber eigentlich war das auch schon so ... ???
-
-            // Bagrov-calculation for sealed surfaces
-            getClimaticConditions(record.district, record.code);
-
-            // percentage of total sealed area
-            resultRecord.mainPercentageSealed = INT_ROUND(
-                // share of roof area [%] 'PROBAU'
-                record.mainFractionBuiltSealed * 100 +
-                // share of other (unbuilt) sealed areas (e.g. Hofflaechen)
-                record.mainFractionUnbuiltSealed * 100
-            );
-
-            // if sum of total building development area and road area is
-            // inconsiderably small it is assumed, that the area is unknown and
-            // 100 % building development area will be given by default
-            if (record.mainArea + record.roadArea < 0.0001) {
-                // *protokollStream << "\r\nDie Flaeche des Elements " +
-                // record.CODE + " ist 0 \r\nund wird automatisch auf 100 gesetzt\r\n";
-                counters.recordsProtocol++;
-                counters.noAreaGiven++;
-                record.mainArea = 100.0F;
-            }
-
-            float totalArea = record.mainArea + record.roadArea;
-
-            // Verhaeltnis Bebauungsflaeche zu Gesamtflaeche
-            // ratio of building development area to total area
-            areaFractionMain = record.mainArea / totalArea;
-            
-            // Verhaeltnis Strassenflaeche zu Gesamtflaeche
-            // ratio of roads area to total area
-            areaFractionRoad = record.roadArea / totalArea;
-
-            // Runoff for sealed surfaces
-            // cls_1: Fehler a:
-            //   rowd = (1.0F - initValues.getInfdach()) * vgd * kb * fbant * RDV;
-            //   richtige Zeile folgt (kb ----> kd)
-            
-            //  Legende der Abflussberechnung der 4 Belagsklassen bzw. Dachklasse:
-            //    rowd / rowx: Abfluss Dachflaeche / Abfluss Belagsflaeche x
-            //    infdach / infbelx: Infiltrationsparameter Dachfl. / Belagsfl. x
-            //    belx: Anteil Belagsklasse x
-            //    blsx: Anteil Strassenbelagsklasse x
-            //    vgd / vgb: Anteil versiegelte Dachfl. / sonstige versiegelte Flaeche zu Gesamtblockteilflaeche
-            //    kd / kb / ks: Grad der Kanalisierung Dach / sonst. vers. Fl. / Strassenflaechen
-            //    fbant / fsant: ?
-            //    RDV / RxV: Gesamtabfluss versiegelte Flaeche
-
-            runoffRoofs =
-                (1.0F - initValues.getInfiltrationFactorRoof()) *
-                record.mainFractionBuiltSealed *
-                record.builtSealedFractionConnected *
-                areaFractionMain *
-                bagrovValueRoof;
-
-            runoffSealedSurface1 =
-                (1.0F - initValues.getInfiltrationFactorSurface1()) *
-                (
-                    record.unbuiltSealedFractionSurface1 *
-                    record.unbuiltSealedFractionConnected *
-                    record.mainFractionUnbuiltSealed *
-                    areaFractionMain +
-                    record.roadSealedFractionSurface1 *
-                    record.roadSealedFractionConnected *
-                    record.roadFractionSealed *
-                    areaFractionRoad
-                ) * bagrovValueSurface1;
-
-            runoffSealedSurface2 =
-                (1.0F - initValues.getInfiltrationFactorSurface2()) *
-                (
-                    record.unbuiltSealedFractionSurface2 *
-                    record.unbuiltSealedFractionConnected *
-                    record.mainFractionUnbuiltSealed *
-                    areaFractionMain +
-                    record.roadSealedFractionSurface2 *
-                    record.roadSealedFractionConnected *
-                    record.roadFractionSealed *
-                    areaFractionRoad
-                ) * bagrovValueSurface2;
-
-            runoffSealedSurface3 =
-                (1.0F - initValues.getInfiltrationFactorSurface3()) *
-                (
-                    record.unbuiltSealedFractionSurface3 *
-                    record.unbuiltSealedFractionConnected *
-                    record.mainFractionUnbuiltSealed *
-                    areaFractionMain +
-                    record.roadSealedFractionSurface3 *
-                    record.roadSealedFractionConnected *
-                    record.roadFractionSealed *
-                    areaFractionRoad
-                ) * bagrovValueSurface3;
-
-            runoffSealedSurface4 =
-                (1.0F - initValues.getInfiltrationFactorSurface4()) *
-                (
-                    record.unbuiltSealedFractionSurface4 *
-                    record.unbuiltSealedFractionConnected *
-                    record.mainFractionUnbuiltSealed *
-                    areaFractionMain +
-                    record.roadSealedFractionSurface4 *
-                    record.roadSealedFractionConnected *
-                    record.roadFractionSealed *
-                    areaFractionRoad
-                ) * bagrovValueSurface4;
-
-            // Infiltration for sealed surfaces
-            infiltrationRoofs =
-                (1 - record.builtSealedFractionConnected) *
-                record.mainFractionBuiltSealed *
-                areaFractionMain *
-                bagrovValueRoof;
-
-            infiltrationSealedSurface1 = (
-                record.unbuiltSealedFractionSurface1 *
-                record.mainFractionUnbuiltSealed *
-                areaFractionMain +
-                record.roadSealedFractionSurface1 *
-                record.roadFractionSealed *
-                areaFractionRoad
-            ) * bagrovValueSurface1 - runoffSealedSurface1;
-
-            infiltrationSealedSurface2 = (
-                record.unbuiltSealedFractionSurface2 *
-                record.mainFractionUnbuiltSealed *
-                areaFractionMain +
-                record.roadSealedFractionSurface2 *
-                record.roadFractionSealed *
-                areaFractionRoad
-            ) * bagrovValueSurface2 - runoffSealedSurface2;
-
-            infiltrationSealedSurface3 = (
-                record.unbuiltSealedFractionSurface3 *
-                record.mainFractionUnbuiltSealed *
-                areaFractionMain +
-                record.roadSealedFractionSurface3 *
-                record.roadFractionSealed *
-                areaFractionRoad
-            ) * bagrovValueSurface3 - runoffSealedSurface3;
-
-            infiltrationSealedSurface4 = (
-                record.unbuiltSealedFractionSurface4 *
-                record.mainFractionUnbuiltSealed *
-                areaFractionMain +
-                record.roadSealedFractionSurface4 *
-                record.roadFractionSealed *
-                areaFractionRoad
-            ) * bagrovValueSurface4 - runoffSealedSurface4;
-            
-            // consider unsealed road surfaces as pavement class 4
-            // old: 0.11F * (1-vgs) * fsant * R4V;
-            runoffPerviousRoads = 0.0F;
-
-            // old: 0.89F * (1-vgs) * fsant * R4V;
-            infiltrationPerviousRoads =
-                (1 - record.roadFractionSealed) *
-                areaFractionRoad *
-                bagrovValueSurface4;
-
-            // runoff for unsealed surfaces rowuv = 0
-            infiltrationPerviousSurfaces = (
-                100.0F - (float) resultRecord.mainPercentageSealed
-            ) / 100.0F * unsealedSurfaceRunoff;
-
-            // calculate runoff 'row' for entire block patial area (FLGES +
-            // STR_FLGES) (mm/a)
-            surfaceRunoff = (
-                runoffSealedSurface1 +
-                runoffSealedSurface2 +
-                runoffSealedSurface3 +
-                runoffSealedSurface4 +
-                runoffRoofs +
-                runoffPerviousRoads
-            );
-
-            resultRecord.runoff = INT_ROUND(surfaceRunoff);
-            
-            // calculate volume 'rowvol' from runoff (qcm/s)
-            surfaceRunoffFlow = surfaceRunoff * 3.171F * (
-                record.mainArea +
-                record.roadArea
-            ) / 100000.0F;
-            
-            // calculate infiltration rate 'ri' for entire block partial area
-            // (mm/a)
-            infiltration = (
-                infiltrationSealedSurface1 +
-                infiltrationSealedSurface2 +
-                infiltrationSealedSurface3 +
-                infiltrationSealedSurface4 +
-                infiltrationRoofs +
-                infiltrationPerviousRoads +
-                infiltrationPerviousSurfaces
-            );
-
-            resultRecord.infiltrationRate = INT_ROUND(infiltration);
-            
-            // calculate volume 'rivol' from infiltration rate (qcm/s)
-            infiltrationFlow = infiltration * 3.171F * (
-                record.mainArea +
-                record.roadArea
-            ) / 100000.0F;
-
-            // calculate total system losses 'r' due to runoff and infiltration
-            // for entire block partial area
-            totalRunoff = surfaceRunoff + infiltration;
-
-            // set totalRunoff in the result record
-            resultRecord.totalRunoff = INT_ROUND(totalRunoff);
-            
-            // calculate volume of system losses 'rvol' due to runoff and
-            // infiltration
-            totalRunoffFlow = surfaceRunoffFlow + infiltrationFlow;
-
-// cls_5b:
-            // calculate evaporation 'verdunst' by subtracting 'r', the sum of
-            // runoff and infiltration from precipitation of entire year,
-            // multiplied by precipitation correction factor
-            float evaporation = (
-                precipitationYear *
-                initValues.getPrecipitationCorrectionFactor()
-            ) - totalRunoff;
+            calculateResultRecord(record);
 
             // write the calculated variables into respective fields
-            writer.addRecord();
-            writer.setRecordField("CODE", record.code);
-            writer.setRecordField("R", totalRunoff);
-            writer.setRecordField("ROW", surfaceRunoff);
-            writer.setRecordField("RI", infiltration);
-            writer.setRecordField("RVOL", totalRunoffFlow);
-            writer.setRecordField("ROWVOL", surfaceRunoffFlow);
-            writer.setRecordField("RIVOL", infiltrationFlow);
-            writer.setRecordField("FLAECHE", totalArea);
-// cls_5c:
-            writer.setRecordField("VERDUNSTUN", evaporation);
+            writeResultRecord(record, writer);
 
             index++;
         }
@@ -479,6 +136,340 @@ bool Calculation::calculate(QString outputFile, bool debug)
     }
 
     return true;
+}
+
+void Calculation::calculateResultRecord(abimoRecord &record)
+{
+    // Verhaeltnis Bebauungsflaeche / Strassenflaeche zu Gesamtflaeche
+    // (ant = Anteil)
+    // share of building development area / road area to total area
+    float areaFractionMain; // old: fbant
+    float areaFractionRoad; // old: fsant
+
+    // Abflussvariablen der versiegelten Flaechen
+    // runoff variables of sealed surfaces
+    float runoffSealedSurface1; // old: row1
+    float runoffSealedSurface2; // old: row2
+    float runoffSealedSurface3; // old: row3
+    float runoffSealedSurface4; // old: row4
+
+    // Infiltrationsvariablen der versiegelten Flaechen
+    // infiltration variables of sealed surfaces
+    float infiltrationSealedSurface1; // old: ri1
+    float infiltrationSealedSurface2; // old: ri2
+    float infiltrationSealedSurface3; // old: ri3
+    float infiltrationSealedSurface4; // old: ri4
+
+    // Abfluss- / Infiltrationsvariablen der Dachflaechen
+    // runoff- / infiltration variables of roof surfaces
+    float runoffRoofs; // old: rowd
+    float infiltrationRoofs; // old: rid
+
+    // Abfluss- / Infiltrationsvariablen unversiegelter Strassenflaechen
+    // runoff- / infiltration variables of unsealed road surfaces
+    float runoffPerviousRoads; // old: rowuvs
+    float infiltrationPerviousRoads; // old: riuvs
+
+    // Infiltration unversiegelter Flaechen
+    // infiltration of unsealed areas
+    float infiltrationPerviousSurfaces; // old: riuv
+
+    // CODE: unique identifier for each block partial area
+
+    // precipitation for entire year and for summer season only
+    precipitationYear = record.precipitationYear;
+    precipitationSummer = record.precipitationSummer;
+
+    // depth to groundwater table 'FLUR'
+    resultRecord.depthToWaterTable = record.depthToWaterTable;
+
+    // declaration of yield power (ERT) and irrigation (BER) for agricultural or
+    // gardening purposes
+    UsageResult usageResult = config->getUsageResult(
+        record.usage, record.type, record.code
+    );
+
+    if (usageResult.tupleIndex < 0) {
+        protocolStream << usageResult.message;
+        qDebug() << usageResult.message;
+        abort();
+    }
+
+    if (!usageResult.message.isEmpty()) {
+        protocolStream << usageResult.message;
+        counters.recordsProtocol++;
+    }
+
+    resultRecord.setUsageYieldIrrigation(
+        config->getUsageTuple(usageResult.tupleIndex)
+    );
+
+    if (resultRecord.usage != Usage::waterbody_G)
+    {
+        // Feldkapazitaet
+        // cls_6b: der Fall der mit NULL belegten FELD_30 und FELD_150 Werte
+        // wird hier im ersten Fall behandelt - ich erwarte dann den Wert 0
+        resultRecord.usableFieldCapacity = PDR::estimateWaterHoldingCapacity(
+            record.fieldCapacity_30,
+            record.fieldCapacity_150,
+            resultRecord.usage == Usage::forested_W
+        );
+
+        // mittl. Durchwurzelungstiefe TWS
+        float rootingDepth = config->getRootingDepth(
+            resultRecord.usage,
+            resultRecord.yieldPower
+        );
+
+        // pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS
+        potentialCapillaryRise = resultRecord.depthToWaterTable - rootingDepth;
+
+        // mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres
+        resultRecord.meanPotentialCapillaryRiseRate =
+            PDR::getMeanPotentialCapillaryRiseRate(
+                potentialCapillaryRise,
+                resultRecord.usableFieldCapacity,
+                resultRecord.usage,
+                resultRecord.yieldPower
+            );
+    }
+
+    if (initValues.getIrrigationToZero() && resultRecord.irrigation != 0) {
+        //*protokollStream << "Erzwinge BER=0 fuer Code: " << code << ", Wert war:" << ptrDA.BER << " \r\n";
+        counters.irrigationForcedToZero++;
+        resultRecord.irrigation = 0;
+    }
+
+    // cls_6a: an dieser Stelle muss garantiert werden, dass f30 und
+    // f150 als Parameter von getNUTZ einen definierten Wert erhalten
+    // und zwar 0.
+    // FIXED: alle Werte sind definiert... wenn keine 0, sondern nichts
+    // bzw. Leerzeichen angegeben wurden, wird nun eine 0 eingesetzt
+    // aber eigentlich war das auch schon so ... ???
+
+    // Bagrov-calculation for sealed surfaces
+    getClimaticConditions(record.district, record.code);
+
+    // percentage of total sealed area
+    resultRecord.mainPercentageSealed = INT_ROUND(
+        // share of roof area [%] 'PROBAU'
+        record.mainFractionBuiltSealed * 100 +
+        // share of other (unbuilt) sealed areas (e.g. Hofflaechen)
+        record.mainFractionUnbuiltSealed * 100
+    );
+
+    // if sum of total building development area and road area is
+    // inconsiderably small it is assumed, that the area is unknown and
+    // 100 % building development area will be given by default
+    if (record.mainArea + record.roadArea < 0.0001) {
+        // *protokollStream << "\r\nDie Flaeche des Elements " +
+        // record.CODE + " ist 0 \r\nund wird automatisch auf 100 gesetzt\r\n";
+        counters.recordsProtocol++;
+        counters.noAreaGiven++;
+        record.mainArea = 100.0F;
+    }
+
+    m_totalArea = record.mainArea + record.roadArea;
+
+    // Verhaeltnis Bebauungsflaeche zu Gesamtflaeche
+    // ratio of building development area to total area
+    areaFractionMain = record.mainArea / m_totalArea;
+
+    // Verhaeltnis Strassenflaeche zu Gesamtflaeche
+    // ratio of roads area to total area
+    areaFractionRoad = record.roadArea / m_totalArea;
+
+    // Runoff for sealed surfaces
+    // cls_1: Fehler a:
+    //   rowd = (1.0F - initValues.getInfdach()) * vgd * kb * fbant * RDV;
+    //   richtige Zeile folgt (kb ----> kd)
+
+    //  Legende der Abflussberechnung der 4 Belagsklassen bzw. Dachklasse:
+    //    rowd / rowx: Abfluss Dachflaeche / Abfluss Belagsflaeche x
+    //    infdach / infbelx: Infiltrationsparameter Dachfl. / Belagsfl. x
+    //    belx: Anteil Belagsklasse x
+    //    blsx: Anteil Strassenbelagsklasse x
+    //    vgd / vgb: Anteil versiegelte Dachfl. / sonstige versiegelte Flaeche zu Gesamtblockteilflaeche
+    //    kd / kb / ks: Grad der Kanalisierung Dach / sonst. vers. Fl. / Strassenflaechen
+    //    fbant / fsant: ?
+    //    RDV / RxV: Gesamtabfluss versiegelte Flaeche
+
+    runoffRoofs =
+            (1.0F - initValues.getInfiltrationFactorRoof()) *
+            record.mainFractionBuiltSealed *
+            record.builtSealedFractionConnected *
+            areaFractionMain *
+            bagrovValueRoof;
+
+    runoffSealedSurface1 =
+            (1.0F - initValues.getInfiltrationFactorSurface1()) *
+            (
+                record.unbuiltSealedFractionSurface1 *
+                record.unbuiltSealedFractionConnected *
+                record.mainFractionUnbuiltSealed *
+                areaFractionMain +
+                record.roadSealedFractionSurface1 *
+                record.roadSealedFractionConnected *
+                record.roadFractionSealed *
+                areaFractionRoad
+                ) * bagrovValueSurface1;
+
+    runoffSealedSurface2 =
+            (1.0F - initValues.getInfiltrationFactorSurface2()) *
+            (
+                record.unbuiltSealedFractionSurface2 *
+                record.unbuiltSealedFractionConnected *
+                record.mainFractionUnbuiltSealed *
+                areaFractionMain +
+                record.roadSealedFractionSurface2 *
+                record.roadSealedFractionConnected *
+                record.roadFractionSealed *
+                areaFractionRoad
+                ) * bagrovValueSurface2;
+
+    runoffSealedSurface3 =
+            (1.0F - initValues.getInfiltrationFactorSurface3()) *
+            (
+                record.unbuiltSealedFractionSurface3 *
+                record.unbuiltSealedFractionConnected *
+                record.mainFractionUnbuiltSealed *
+                areaFractionMain +
+                record.roadSealedFractionSurface3 *
+                record.roadSealedFractionConnected *
+                record.roadFractionSealed *
+                areaFractionRoad
+                ) * bagrovValueSurface3;
+
+    runoffSealedSurface4 =
+            (1.0F - initValues.getInfiltrationFactorSurface4()) *
+            (
+                record.unbuiltSealedFractionSurface4 *
+                record.unbuiltSealedFractionConnected *
+                record.mainFractionUnbuiltSealed *
+                areaFractionMain +
+                record.roadSealedFractionSurface4 *
+                record.roadSealedFractionConnected *
+                record.roadFractionSealed *
+                areaFractionRoad
+                ) * bagrovValueSurface4;
+
+    // Infiltration for sealed surfaces
+    infiltrationRoofs =
+            (1 - record.builtSealedFractionConnected) *
+            record.mainFractionBuiltSealed *
+            areaFractionMain *
+            bagrovValueRoof;
+
+    infiltrationSealedSurface1 = (
+                record.unbuiltSealedFractionSurface1 *
+                record.mainFractionUnbuiltSealed *
+                areaFractionMain +
+                record.roadSealedFractionSurface1 *
+                record.roadFractionSealed *
+                areaFractionRoad
+                ) * bagrovValueSurface1 - runoffSealedSurface1;
+
+    infiltrationSealedSurface2 = (
+                record.unbuiltSealedFractionSurface2 *
+                record.mainFractionUnbuiltSealed *
+                areaFractionMain +
+                record.roadSealedFractionSurface2 *
+                record.roadFractionSealed *
+                areaFractionRoad
+                ) * bagrovValueSurface2 - runoffSealedSurface2;
+
+    infiltrationSealedSurface3 = (
+                record.unbuiltSealedFractionSurface3 *
+                record.mainFractionUnbuiltSealed *
+                areaFractionMain +
+                record.roadSealedFractionSurface3 *
+                record.roadFractionSealed *
+                areaFractionRoad
+                ) * bagrovValueSurface3 - runoffSealedSurface3;
+
+    infiltrationSealedSurface4 = (
+                record.unbuiltSealedFractionSurface4 *
+                record.mainFractionUnbuiltSealed *
+                areaFractionMain +
+                record.roadSealedFractionSurface4 *
+                record.roadFractionSealed *
+                areaFractionRoad
+                ) * bagrovValueSurface4 - runoffSealedSurface4;
+
+    // consider unsealed road surfaces as pavement class 4
+    // old: 0.11F * (1-vgs) * fsant * R4V;
+    runoffPerviousRoads = 0.0F;
+
+    // old: 0.89F * (1-vgs) * fsant * R4V;
+    infiltrationPerviousRoads =
+            (1 - record.roadFractionSealed) *
+            areaFractionRoad *
+            bagrovValueSurface4;
+
+    // runoff for unsealed surfaces rowuv = 0
+    infiltrationPerviousSurfaces = (
+                100.0F - (float) resultRecord.mainPercentageSealed
+                ) / 100.0F * unsealedSurfaceRunoff;
+
+    // calculate runoff 'row' for entire block patial area (FLGES +
+    // STR_FLGES) (mm/a)
+    m_surfaceRunoff = (
+                runoffSealedSurface1 +
+                runoffSealedSurface2 +
+                runoffSealedSurface3 +
+                runoffSealedSurface4 +
+                runoffRoofs +
+                runoffPerviousRoads
+                );
+
+    resultRecord.runoff = INT_ROUND(m_surfaceRunoff);
+
+    // calculate volume 'rowvol' from runoff (qcm/s)
+    surfaceRunoffFlow = m_surfaceRunoff * 3.171F * (
+                record.mainArea +
+                record.roadArea
+                ) / 100000.0F;
+
+    // calculate infiltration rate 'ri' for entire block partial area
+    // (mm/a)
+    m_infiltration = (
+                infiltrationSealedSurface1 +
+                infiltrationSealedSurface2 +
+                infiltrationSealedSurface3 +
+                infiltrationSealedSurface4 +
+                infiltrationRoofs +
+                infiltrationPerviousRoads +
+                infiltrationPerviousSurfaces
+                );
+
+    resultRecord.infiltrationRate = INT_ROUND(m_infiltration);
+
+    // calculate volume 'rivol' from infiltration rate (qcm/s)
+    infiltrationFlow = m_infiltration * 3.171F * (
+                record.mainArea +
+                record.roadArea
+                ) / 100000.0F;
+
+    // calculate total system losses 'r' due to runoff and infiltration
+    // for entire block partial area
+    m_totalRunoff = m_surfaceRunoff + m_infiltration;
+
+    // set totalRunoff in the result record
+    //resultRecord.totalRunoff = INT_ROUND(totalRunoff);
+
+    // calculate volume of system losses 'rvol' due to runoff and
+    // infiltration
+    totalRunoffFlow = surfaceRunoffFlow + infiltrationFlow;
+
+    // cls_5b:
+    // calculate evaporation 'verdunst' by subtracting 'r', the sum of
+    // runoff and infiltration from precipitation of entire year,
+    // multiplied by precipitation correction factor
+    m_evaporation = (
+                precipitationYear *
+                initValues.getPrecipitationCorrectionFactor()
+                ) - m_totalRunoff;
+
 }
 
 // =============================================================================
@@ -649,6 +640,20 @@ float Calculation::getSummerModificationFactor(float wa)
     };
 
     return Helpers::interpolate(wa, VALUES_WA, VALUES_F, 14);
+}
+
+void Calculation::writeResultRecord(abimoRecord &record, DbaseWriter &writer)
+{
+    writer.addRecord();
+    writer.setRecordField("CODE", record.code);
+    writer.setRecordField("R", m_totalRunoff); // local
+    writer.setRecordField("ROW", m_surfaceRunoff); // local
+    writer.setRecordField("RI", m_infiltration); // local
+    writer.setRecordField("RVOL", totalRunoffFlow); // member of Calculate
+    writer.setRecordField("ROWVOL", surfaceRunoffFlow); // member of Calculate
+    writer.setRecordField("RIVOL", infiltrationFlow); // member of Calculate
+    writer.setRecordField("FLAECHE", m_totalArea); // local
+    writer.setRecordField("VERDUNSTUN", m_evaporation); // local
 }
 
 void Calculation::runCalculation(

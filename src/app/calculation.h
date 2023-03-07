@@ -11,6 +11,7 @@
 #include <QTextStream>
 
 #include "dbaseReader.h"
+#include "dbaseWriter.h"
 #include "initvalues.h"
 #include "config.h"
 
@@ -107,6 +108,16 @@ private:
     // potentielle Aufstiegshoehe
     float potentialCapillaryRise; // old: TAS
 
+
+    // Additional member variables (m_ indicates member)
+
+    // Langjaehriger MW des Gesamtabflusses [mm/a] 004 N
+    float m_totalRunoff; // old: R
+    float m_surfaceRunoff;
+    float m_infiltration;
+    float m_totalArea;
+    float m_evaporation;
+
     Counters counters;
 
     // Variable to control whether to stop processing
@@ -124,6 +135,9 @@ private:
         int bez, QString code, QHash<int, int> &hash, int defaultValue,
         QString name
     );
+
+    void calculateResultRecord(abimoRecord &record);
+    void writeResultRecord(abimoRecord &record, DbaseWriter &writer);
 };
 
 #endif
