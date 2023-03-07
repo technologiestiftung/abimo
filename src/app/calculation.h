@@ -59,11 +59,6 @@ public:
     // Calculation class
     bool calculate(QString outputFile, bool debug = false);
 
-    // Accessor functions to specific counters (never used!)
-    long getNumberOfProtocolRecords();
-    long getNumberOfNoAreaGiven();
-    long getNumberOfNoUsageGiven();
-
     Counters getCounters();
 
     QString getError();
