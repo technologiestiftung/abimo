@@ -638,7 +638,7 @@ float Calculation::getSummerModificationFactor(float wa)
         1.22F, 1.30F, 1.38F, 1.47F, 1.55F, 1.63F, 1.70F  // 7 .. 13
     };
 
-    return Helpers::interpolate(wa, VALUES_WA, VALUES_F, 14);
+    return helpers::interpolate(wa, VALUES_WA, VALUES_F, 14);
 }
 
 void Calculation::writeResultRecord(abimoRecord &record, DbaseWriter &writer)
@@ -685,9 +685,9 @@ void Calculation::runCalculation(
         }
     }
 
-    QFile logHandle(Helpers::defaultLogFileName(outputFile));
+    QFile logHandle(helpers::defaultLogFileName(outputFile));
 
-    Helpers::openFileOrAbort(logHandle, QFile::WriteOnly);
+    helpers::openFileOrAbort(logHandle, QFile::WriteOnly);
 
     QTextStream logStream(&logHandle);
 

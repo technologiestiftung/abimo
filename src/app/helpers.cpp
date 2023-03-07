@@ -10,11 +10,12 @@
 
 #include "helpers.h"
 
-Helpers::Helpers()
+/*Helpers::Helpers()
 {
 }
+*/
 
-QString Helpers::nowString()
+QString helpers::nowString()
 {
     QDateTime now = QDateTime::currentDateTime();
 
@@ -23,46 +24,46 @@ QString Helpers::nowString()
         " um: " + now.toString("hh:mm:ss");
 }
 
-QString Helpers::positionalArgOrNULL(QCommandLineParser* arguments, int index)
+QString helpers::positionalArgOrNULL(QCommandLineParser* arguments, int index)
 {
     const QStringList posArgs = arguments->positionalArguments();
     return (posArgs.length() > index) ? posArgs.at(index) : NULL;
 }
 
-QString Helpers::removeFileExtension(QString fileName)
+QString helpers::removeFileExtension(QString fileName)
 {
     QFileInfo fileInfo(fileName);
 
     return fileInfo.absolutePath() + "/" + fileInfo.baseName();
 }
 
-QString Helpers::singleQuote(QString string)
+QString helpers::singleQuote(QString string)
 {
     return "'" + string + "'";
 }
 
-QString Helpers::patternDbfFile()
+QString helpers::patternDbfFile()
 {
     return QString("dBase (*.dbf)");
 }
 
-QString Helpers::patternXmlFile()
+QString helpers::patternXmlFile()
 {
     return QString("Extensible Markup Language (*.xml)");
 }
 
-QString Helpers::defaultOutputFileName(QString inputFileName)
+QString helpers::defaultOutputFileName(QString inputFileName)
 {
-    return Helpers::removeFileExtension(inputFileName)  + "_out.dbf";
+    return helpers::removeFileExtension(inputFileName)  + "_out.dbf";
 }
 
-QString Helpers::defaultLogFileName(QString outputFileName)
+QString helpers::defaultLogFileName(QString outputFileName)
 {
-    return Helpers::removeFileExtension(outputFileName)  + ".log";
+    return helpers::removeFileExtension(outputFileName)  + ".log";
 }
 
 // Return true if all keys are contained in the hash, else false
-bool Helpers::containsAll(QHash<QString, int> hash, QStringList keys)
+bool helpers::containsAll(QHash<QString, int> hash, QStringList keys)
 {
     for (int i = 0; i < keys.length(); i++) {
         if (! hash.contains(keys.at(i))) {
@@ -73,7 +74,7 @@ bool Helpers::containsAll(QHash<QString, int> hash, QStringList keys)
     return true;
 }
 
-void Helpers::openFileOrAbort(QFile& file, QIODevice::OpenModeFlag mode)
+void helpers::openFileOrAbort(QFile& file, QIODevice::OpenModeFlag mode)
 {
     if (!file.open(mode)) {
         qDebug() << "Cannot open file: " << file.fileName() << ": " << file.errorString();
@@ -81,7 +82,7 @@ void Helpers::openFileOrAbort(QFile& file, QIODevice::OpenModeFlag mode)
     }
 }
 
-bool Helpers::filesAreIdentical(QString fileName_1, QString fileName_2, bool debug, int maxDiffs)
+bool helpers::filesAreIdentical(QString fileName_1, QString fileName_2, bool debug, int maxDiffs)
 {
     if (debug) {
         qDebug() << "Comparing two files: ";
@@ -130,7 +131,7 @@ bool Helpers::filesAreIdentical(QString fileName_1, QString fileName_2, bool deb
     return result;
 }
 
-void Helpers::abortIfNoSuchFile(QString filePath, QString context)
+void helpers::abortIfNoSuchFile(QString filePath, QString context)
 {
     if (!QFile::exists(filePath)) {
         qDebug() << "File does not exist: " << filePath;
@@ -144,7 +145,7 @@ void Helpers::abortIfNoSuchFile(QString filePath, QString context)
     }
 }
 
-bool Helpers::stringsAreEqual(QString* strings_1, QString* strings_2, int n, int maxDiffs, bool debug)
+bool helpers::stringsAreEqual(QString* strings_1, QString* strings_2, int n, int maxDiffs, bool debug)
 {
     int n_diffs = 0;
     int i = 0;
@@ -170,7 +171,7 @@ bool Helpers::stringsAreEqual(QString* strings_1, QString* strings_2, int n, int
     return (n_diffs == 0);
 }
 
-int Helpers::stringToInt(QString string, QString context, bool debug)
+int helpers::stringToInt(QString string, QString context, bool debug)
 {
     int result = string.toInt();
 
@@ -181,7 +182,7 @@ int Helpers::stringToInt(QString string, QString context, bool debug)
     return result;
 }
 
-float Helpers::stringToFloat(QString string, QString context, bool debug)
+float helpers::stringToFloat(QString string, QString context, bool debug)
 {
     float result = string.toFloat();
 
@@ -195,7 +196,7 @@ float Helpers::stringToFloat(QString string, QString context, bool debug)
 //
 // Find the index of a value in a sorted array
 //
-int Helpers::index(float xi, const std::vector<float> &x, float epsilon)
+int helpers::index(float xi, const std::vector<float> &x, float epsilon)
 {
     int n = x.size();
 
@@ -208,7 +209,7 @@ int Helpers::index(float xi, const std::vector<float> &x, float epsilon)
     return n - 1;
 }
 
-float Helpers::interpolate(float xi, const float *x, const float *y, int n)
+float helpers::interpolate(float xi, const float *x, const float *y, int n)
 {
     int i;
 

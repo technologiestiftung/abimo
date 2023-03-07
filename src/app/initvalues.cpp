@@ -53,7 +53,7 @@ InitValues::~InitValues()
 // Update initial values with values read from config.xml. Returns error message
 QString InitValues::updateFromConfig(InitValues &initValues, QString configFileName)
 {
-    QString prefix = Helpers::singleQuote(configFileName) + ": ";
+    QString prefix = helpers::singleQuote(configFileName) + ": ";
 
     QFile initFile(configFileName);
 

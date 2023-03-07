@@ -56,7 +56,7 @@ QString TestAbimo::dataFilePath(QString fileName, bool mustExist)
 
     if (mustExist) {
         QString context = "Data directory: " + testDataDir();
-        Helpers::abortIfNoSuchFile(filePath, context);
+        helpers::abortIfNoSuchFile(filePath, context);
     }
 
     return filePath;
@@ -68,8 +68,8 @@ void TestAbimo::test_helpers_containsAll()
     hash["one"] = 1;
     hash["two"] = 2;
 
-    QCOMPARE(Helpers::containsAll(hash, {"one", "two"}), true);
-    QCOMPARE(Helpers::containsAll(hash, {"one", "two", "three"}), false);    
+    QCOMPARE(helpers::containsAll(hash, {"one", "two"}), true);
+    QCOMPARE(helpers::containsAll(hash, {"one", "two", "three"}), false);    
 }
 
 void TestAbimo::test_helpers_filesAreIdentical()
@@ -79,8 +79,8 @@ void TestAbimo::test_helpers_filesAreIdentical()
 
     bool debug = false;
 
-    QCOMPARE(Helpers::filesAreIdentical(file_1, file_1, debug), true);
-    QCOMPARE(Helpers::filesAreIdentical(file_1, file_2, debug), false);
+    QCOMPARE(helpers::filesAreIdentical(file_1, file_1, debug), true);
+    QCOMPARE(helpers::filesAreIdentical(file_1, file_2, debug), false);
 }
 
 void TestAbimo::test_helpers_stringsAreEqual()
@@ -88,8 +88,8 @@ void TestAbimo::test_helpers_stringsAreEqual()
     QString strings_1[] = {"a", "b", "c", "d", "e", "f"};
     QString strings_2[] = {"a", "b", "d", "e", "f", "g"};
 
-    QCOMPARE(Helpers::stringsAreEqual(strings_1, strings_1, 6), true);
-    QCOMPARE(Helpers::stringsAreEqual(strings_1, strings_2, 6), false);
+    QCOMPARE(helpers::stringsAreEqual(strings_1, strings_1, 6), true);
+    QCOMPARE(helpers::stringsAreEqual(strings_1, strings_2, 6), false);
 }
 
 void TestAbimo::test_requiredFields()
@@ -239,7 +239,7 @@ bool TestAbimo::dbfStringsAreIdentical(QString file_1, QString file_2)
         return false;
     };
 
-    return Helpers::stringsAreEqual(
+    return helpers::stringsAreEqual(
         reader_1.getValues(), reader_2.getValues(), nrows_1 * ncols_1, 5, true
     );
 }

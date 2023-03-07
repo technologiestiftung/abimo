@@ -82,7 +82,7 @@ QStringList DbaseReader::requiredFields()
 
 bool DbaseReader::isAbimoFile()
 {
-    return Helpers::containsAll(hash, requiredFields());
+    return helpers::containsAll(hash, requiredFields());
 }
 
 bool DbaseReader::checkAndRead()
@@ -360,12 +360,12 @@ void DbaseReader::fillRecord(int k, abimoRecord& record, bool debug)
     record.builtSealedFractionConnected = floatFraction(getRecord(k, "KAN_BEB"));
     record.roadSealedFractionConnected = floatFraction(getRecord(k, "KAN_STR"));
     record.unbuiltSealedFractionConnected = floatFraction(getRecord(k, "KAN_VGU"));
-    record.usage = Helpers::stringToInt(
+    record.usage = helpers::stringToInt(
         getRecord(k, "NUTZUNG"),
         QString("k: %1, NUTZUNG = ").arg(QString::number(k)),
         debug
     );
-    record.mainFractionBuiltSealed = Helpers::stringToFloat(
+    record.mainFractionBuiltSealed = helpers::stringToFloat(
         getRecord(k, "PROBAU"),
         QString("k: %1, PROBAU = ").arg(QString::number(k)),
         debug

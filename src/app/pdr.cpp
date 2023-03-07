@@ -90,8 +90,8 @@ int PDR::getMeanPotentialCapillaryRiseRate(
     float kr = (potentialCapillaryRise <= 0.0) ?
         7.0F :
         MEAN_POTENTIAL_CAPILLARY_RISE_RATES_SUMMER[
-            Helpers::index(potentialCapillaryRise, POTENTIAL_RATES_OF_ASCENT) +
-            Helpers::index(usableFieldCapacity, USABLE_FIELD_CAPACITIES) *
+            helpers::index(potentialCapillaryRise, POTENTIAL_RATES_OF_ASCENT) +
+            helpers::index(usableFieldCapacity, USABLE_FIELD_CAPACITIES) *
             POTENTIAL_RATES_OF_ASCENT.size()
         ];
 

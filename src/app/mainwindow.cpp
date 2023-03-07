@@ -123,8 +123,8 @@ void MainWindow::warning(QString string)
 
 void MainWindow::computeFile()
 {
-    QString inputFileName = Helpers::positionalArgOrNULL(arguments, 0);
-    QString outputFileName = Helpers::positionalArgOrNULL(arguments, 1);
+    QString inputFileName = helpers::positionalArgOrNULL(arguments, 0);
+    QString outputFileName = helpers::positionalArgOrNULL(arguments, 1);
     QString configFileName = arguments->value("config");
     QString protokollFileName;
 
@@ -135,7 +135,7 @@ void MainWindow::computeFile()
         this,
         "Daten einlesen von...",
         folder,
-        Helpers::patternDbfFile()
+        helpers::patternDbfFile()
     );
 
     // Return if no file was selected
@@ -171,8 +171,8 @@ void MainWindow::computeFile()
     outputFileName = QFileDialog::getSaveFileName(
         this,
         "Ergebnisse schreiben nach...",
-        Helpers::defaultOutputFileName(inputFileName),
-        Helpers::patternDbfFile()
+        helpers::defaultOutputFileName(inputFileName),
+        helpers::patternDbfFile()
     );
 
     // Return if no output file was selected
@@ -185,13 +185,13 @@ void MainWindow::computeFile()
     processEvent(0, "Lese Datei.");
 
     // Protokoll
-    protokollFileName = Helpers::defaultLogFileName(outputFileName);
+    protokollFileName = helpers::defaultLogFileName(outputFileName);
 
     QFile protokollFile(protokollFileName);
 
     if (! protokollFile.open(QFile::WriteOnly)) {
         critical(
-            "Konnte Datei: " + Helpers::singleQuote(protokollFileName) +
+            "Konnte Datei: " + helpers::singleQuote(protokollFileName) +
             " nicht oeffnen.\n" + protokollFile.error()
         );
         return;
@@ -200,7 +200,7 @@ void MainWindow::computeFile()
     QTextStream protokollStream(&protokollFile);
 
     // Start the Calculation
-    protokollStream << "Start der Berechnung " + Helpers::nowString() + "\r\n";
+    protokollStream << "Start der Berechnung " + helpers::nowString() + "\r\n";
 
     // Create calculator object
     calc = new Calculation(dbReader, initValues, protokollStream);
@@ -283,7 +283,7 @@ void MainWindow::reportSuccess(
 
     protokollStream << "\r\nEingelesene Records: " + readRecCount + "\r\n";
     protokollStream << "\r\nGeschriebene Records: " + writeRecCount + "\r\n";
-    protokollStream << "\r\nEnde der Berechnung " + Helpers::nowString() + "\r\n";
+    protokollStream << "\r\nEnde der Berechnung " + helpers::nowString() + "\r\n";
 }
 
 void MainWindow::reportCancelled(QTextStream & /*protokollStream*/)
