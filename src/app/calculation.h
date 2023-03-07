@@ -132,8 +132,8 @@ private:
 
     void getClimaticConditions(int bez, QString codestr);
 
-    float calculateRealEvapotranspiration(
-        float precipiation, float potentialEvaporation
+    float realEvapotranspiration(
+        float potentialEvaporation, float precipiation
     );
 
     float initValueOrReportedDefaultValue(

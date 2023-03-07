@@ -472,7 +472,8 @@ void Calculation::calculateResultRecord(abimoRecord &record)
 }
 
 // =============================================================================
-// FIXME:
+// This function uses...
+// This function modifies...
 // =============================================================================
 void Calculation::getClimaticConditions(int district, QString code)
 {
@@ -512,7 +513,6 @@ void Calculation::getClimaticConditions(int district, QString code)
     // Declaration of potential evaporation and precipitation
     potentialEvaporation = (float) m_resultRecord.longtimeMeanPotentialEvaporation; // no more correction with 1.1
     precipitation = (float) m_resultRecord.precipitationYear * m_initValues.getPrecipitationCorrectionFactor();
-      // ptrDA.KF
 
     // Berechnung der Abfluesse RDV und R1V bis R4V fuer versiegelte
     // Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4
@@ -535,23 +535,23 @@ void Calculation::getClimaticConditions(int district, QString code)
     float actualEvaporation;
 
     // Calculate runoff RUV for unsealed partial surfaces
-    if (m_resultRecord.usage == Usage::waterbody_G)
-    {
+    if (m_resultRecord.usage == Usage::waterbody_G) {
+
         actualEvaporation = potentialEvaporation;
-    }
-    else
-    {
-        actualEvaporation = calculateRealEvapotranspiration(
-            precipitation, potentialEvaporation
+
+    } else {
+
+        actualEvaporation = realEvapotranspiration(
+            potentialEvaporation, precipitation
         );
     }
 
     m_unsealedSurfaceRunoff = precipitation - actualEvaporation;
 }
 
-float Calculation::calculateRealEvapotranspiration(
-    float precipitation,
-    float potentialEvaporation
+float Calculation::realEvapotranspiration(
+    float potentialEvaporation,
+    float precipitation
 )
 {
     assert(potentialEvaporation > 0.0);
