@@ -543,10 +543,12 @@ void Calculation::getClimaticConditions(int district, QString code)
     m_bagrovValueSurface3 = precipitation - bagrov.nbagro(m_initValues.getBagrovValueSuface3(), xRatio) * potentialEvaporation;
     m_bagrovValueSurface4 = precipitation - bagrov.nbagro(m_initValues.getBagrovValueSuface4(), xRatio) * potentialEvaporation;
 
+    float actualEvaporation;
+
     // Calculate runoff RUV for unsealed partial surfaces
     if (m_resultRecord.usage == Usage::waterbody_G)
     {
-        m_unsealedSurfaceRunoff = precipitation - potentialEvaporation;
+        actualEvaporation = potentialEvaporation;
     }
     else
     {
@@ -587,8 +589,10 @@ void Calculation::getClimaticConditions(int district, QString code)
             );
         }
 
-        m_unsealedSurfaceRunoff = precipitation - realEvapotranspiration;
+        actualEvaporation = realEvapotranspiration;
     }
+
+    m_unsealedSurfaceRunoff = precipitation - actualEvaporation;
 }
 
 float Calculation::initValueOrReportedDefaultValue(
