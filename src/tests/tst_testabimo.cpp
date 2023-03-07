@@ -153,14 +153,17 @@ void TestAbimo::test_calc()
     QString outFile_noConfig = dataFilePath("abimo_2019_mitstrassenout_3.2.1_default-config.dbf");
     QString outFile_xmlConfig = dataFilePath("abimo_2019_mitstrassenout_3.2.1_xml-config.dbf");
 
+    // Run the simulation without config file
     Calculation::runCalculation(inputFile, "", outputFile, false);
-
-    //QVERIFY(Helpers::filesAreIdentical(outputFile, referenceFile));
     QVERIFY(dbfHeadersAreIdentical(outputFile, outFile_noConfig));
     QVERIFY(dbfStringsAreIdentical(outputFile, outFile_noConfig));
 
+    // Files are not identical due to differing dates in the header
+    //QVERIFY(Helpers::filesAreIdentical(outputFile, referenceFile));
+
     // Run the simulation with initial values from config file
     Calculation::runCalculation(inputFile, configFile, outputFile);
+    QVERIFY(dbfHeadersAreIdentical(outputFile, outFile_xmlConfig));
     QVERIFY(dbfStringsAreIdentical(outputFile, outFile_xmlConfig));
 }
 
@@ -240,7 +243,7 @@ bool TestAbimo::dbfStringsAreIdentical(QString file_1, QString file_2)
     };
 
     return helpers::stringsAreEqual(
-        reader_1.getValues(), reader_2.getValues(), nrows_1 * ncols_1, 5, true
+        reader_1.getValues(), reader_2.getValues(), nrows_1 * ncols_1, 50, true
     );
 }
 
