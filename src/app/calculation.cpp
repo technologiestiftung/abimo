@@ -26,40 +26,40 @@ Calculation::Calculation(
         InitValues &initValues,
         QTextStream &protocolStream
 ):
-    initValues(initValues),
-    protocolStream(protocolStream),
-    dbReader(dbaseReader),
-    precipitationYear(0), // old: regenja
-    precipitationSummer(0), // old: regenso
-    bagrovValueRoof(0), // old: RDV
-    bagrovValueSurface1(0), // old: R1V
-    bagrovValueSurface2(0), // old: R2V
-    bagrovValueSurface3(0), // old: R3V
-    bagrovValueSurface4(0), // old: R4V
-    unsealedSurfaceRunoff(0), // old: RUV
-    surfaceRunoffFlow(0), // old: ROWVOL
-    infiltrationFlow(0), // old: RIVOL
-    totalRunoffFlow(0), // old: RVOL
-    potentialCapillaryRise(0), // old: TAS
-    counters({0, 0, 0, 0L, 0L, 0L}),
-    continueProcessing(true) // old: weiter
+    m_initValues(initValues),
+    m_protocolStream(protocolStream),
+    m_dbReader(dbaseReader),
+    m_precipitationYear(0), // old: regenja
+    m_precipitationSummer(0), // old: regenso
+    m_bagrovValueRoof(0), // old: RDV
+    m_bagrovValueSurface1(0), // old: R1V
+    m_bagrovValueSurface2(0), // old: R2V
+    m_bagrovValueSurface3(0), // old: R3V
+    m_bagrovValueSurface4(0), // old: R4V
+    m_unsealedSurfaceRunoff(0), // old: RUV
+    m_surfaceRunoffFlow(0), // old: ROWVOL
+    m_infiltrationFlow(0), // old: RIVOL
+    m_totalRunoffFlow(0), // old: RVOL
+    m_potentialCapillaryRise(0), // old: TAS
+    m_counters({0, 0, 0, 0L, 0L, 0L}),
+    m_continueProcessing(true) // old: weiter
 {
-    config = new Config();
+    m_config_pointer = new Config();
 }
 
 void Calculation::stopProcessing()
 {
-    continueProcessing = false;
+    m_continueProcessing = false;
 }
 
 Counters Calculation::getCounters()
 {
-    return counters;
+    return m_counters;
 }
 
 QString Calculation::getError()
 {
-    return error;
+    return m_error;
 }
 
 // =============================================================================
@@ -78,28 +78,28 @@ bool Calculation::calculate(QString outputFile, bool debug)
     int index = 0;    
 
     // count protocol entries
-    counters.recordsProtocol = 0L;
-    counters.noAreaGiven = 0L;
-    counters.noUsageGiven = 0L;
+    m_counters.recordsProtocol = 0L;
+    m_counters.noAreaGiven = 0L;
+    m_counters.noUsageGiven = 0L;
 
     // first entry into protocol
-    DbaseWriter writer(outputFile, initValues);
+    DbaseWriter writer(outputFile, m_initValues);
 
     // get the number of rows in the input data
-    counters.recordsRead = dbReader.getNumberOfRecords();
+    m_counters.recordsRead = m_dbReader.getNumberOfRecords();
 
     // loop over all block partial areas (= records/rows of input data)
-    for (int k = 0; k < counters.recordsRead; k++) {
+    for (int k = 0; k < m_counters.recordsRead; k++) {
 
-        if (!continueProcessing) {
-            protocolStream << "Berechnungen abgebrochen.\r\n";
+        if (!m_continueProcessing) {
+            m_protocolStream << "Berechnungen abgebrochen.\r\n";
             return true;
         }
 
-        resultRecord.wIndex = index;
+        m_resultRecord.wIndex = index;
 
         // Fill record with data from row k
-        dbReader.fillRecord(k, record, debug);
+        m_dbReader.fillRecord(k, record, debug);
 
         // NUTZUNG = integer representing the type of area usage for each block
         // partial area
@@ -113,25 +113,25 @@ bool Calculation::calculate(QString outputFile, bool debug)
             index++;
         }
         else {
-            counters.noUsageGiven++;
+            m_counters.noUsageGiven++;
         }
 
         // cls_2: Hier koennten falls gewuenscht die Flaechen dokumentiert
         // werden, deren NUTZUNG=NULL (siehe auch cls_3)
 
         emit processSignal(
-            (int)((float) k / (float) counters.recordsRead * 50.0),
+            (int)((float) k / (float) m_counters.recordsRead * 50.0),
             "Berechne"
         );
     }
 
-    counters.recordsWritten = index;
+    m_counters.recordsWritten = index;
 
     emit processSignal(50, "Schreibe Ergebnisse.");
 
     if (!writer.write()) {
-        protocolStream << "Error: "+ writer.getError() +"\r\n";
-        error = "Fehler beim Schreiben der Ergebnisse.\n" + writer.getError();
+        m_protocolStream << "Error: "+ writer.getError() +"\r\n";
+        m_error = "Fehler beim Schreiben der Ergebnisse.\n" + writer.getError();
         return false;
     }
 
@@ -177,67 +177,67 @@ void Calculation::calculateResultRecord(abimoRecord &record)
     // CODE: unique identifier for each block partial area
 
     // precipitation for entire year and for summer season only
-    precipitationYear = record.precipitationYear;
-    precipitationSummer = record.precipitationSummer;
+    m_precipitationYear = record.precipitationYear;
+    m_precipitationSummer = record.precipitationSummer;
 
     // depth to groundwater table 'FLUR'
-    resultRecord.depthToWaterTable = record.depthToWaterTable;
+    m_resultRecord.depthToWaterTable = record.depthToWaterTable;
 
     // declaration of yield power (ERT) and irrigation (BER) for agricultural or
     // gardening purposes
-    UsageResult usageResult = config->getUsageResult(
+    UsageResult usageResult = m_config_pointer->getUsageResult(
         record.usage, record.type, record.code
     );
 
     if (usageResult.tupleIndex < 0) {
-        protocolStream << usageResult.message;
+        m_protocolStream << usageResult.message;
         qDebug() << usageResult.message;
         abort();
     }
 
     if (!usageResult.message.isEmpty()) {
-        protocolStream << usageResult.message;
-        counters.recordsProtocol++;
+        m_protocolStream << usageResult.message;
+        m_counters.recordsProtocol++;
     }
 
-    resultRecord.setUsageYieldIrrigation(
-        config->getUsageTuple(usageResult.tupleIndex)
+    m_resultRecord.setUsageYieldIrrigation(
+        m_config_pointer->getUsageTuple(usageResult.tupleIndex)
     );
 
-    if (resultRecord.usage != Usage::waterbody_G)
+    if (m_resultRecord.usage != Usage::waterbody_G)
     {
         // Feldkapazitaet
         // cls_6b: der Fall der mit NULL belegten FELD_30 und FELD_150 Werte
         // wird hier im ersten Fall behandelt - ich erwarte dann den Wert 0
-        resultRecord.usableFieldCapacity = PDR::estimateWaterHoldingCapacity(
+        m_resultRecord.usableFieldCapacity = PDR::estimateWaterHoldingCapacity(
             record.fieldCapacity_30,
             record.fieldCapacity_150,
-            resultRecord.usage == Usage::forested_W
+            m_resultRecord.usage == Usage::forested_W
         );
 
         // mittl. Durchwurzelungstiefe TWS
-        float rootingDepth = config->getRootingDepth(
-            resultRecord.usage,
-            resultRecord.yieldPower
+        float rootingDepth = m_config_pointer->getRootingDepth(
+            m_resultRecord.usage,
+            m_resultRecord.yieldPower
         );
 
         // pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS
-        potentialCapillaryRise = resultRecord.depthToWaterTable - rootingDepth;
+        m_potentialCapillaryRise = m_resultRecord.depthToWaterTable - rootingDepth;
 
         // mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres
-        resultRecord.meanPotentialCapillaryRiseRate =
+        m_resultRecord.meanPotentialCapillaryRiseRate =
             PDR::getMeanPotentialCapillaryRiseRate(
-                potentialCapillaryRise,
-                resultRecord.usableFieldCapacity,
-                resultRecord.usage,
-                resultRecord.yieldPower
+                m_potentialCapillaryRise,
+                m_resultRecord.usableFieldCapacity,
+                m_resultRecord.usage,
+                m_resultRecord.yieldPower
             );
     }
 
-    if (initValues.getIrrigationToZero() && resultRecord.irrigation != 0) {
+    if (m_initValues.getIrrigationToZero() && m_resultRecord.irrigation != 0) {
         //*protokollStream << "Erzwinge BER=0 fuer Code: " << code << ", Wert war:" << ptrDA.BER << " \r\n";
-        counters.irrigationForcedToZero++;
-        resultRecord.irrigation = 0;
+        m_counters.irrigationForcedToZero++;
+        m_resultRecord.irrigation = 0;
     }
 
     // cls_6a: an dieser Stelle muss garantiert werden, dass f30 und
@@ -251,7 +251,7 @@ void Calculation::calculateResultRecord(abimoRecord &record)
     getClimaticConditions(record.district, record.code);
 
     // percentage of total sealed area
-    resultRecord.mainPercentageSealed = INT_ROUND(
+    m_resultRecord.mainPercentageSealed = INT_ROUND(
         // share of roof area [%] 'PROBAU'
         record.mainFractionBuiltSealed * 100 +
         // share of other (unbuilt) sealed areas (e.g. Hofflaechen)
@@ -264,8 +264,8 @@ void Calculation::calculateResultRecord(abimoRecord &record)
     if (record.mainArea + record.roadArea < 0.0001) {
         // *protokollStream << "\r\nDie Flaeche des Elements " +
         // record.CODE + " ist 0 \r\nund wird automatisch auf 100 gesetzt\r\n";
-        counters.recordsProtocol++;
-        counters.noAreaGiven++;
+        m_counters.recordsProtocol++;
+        m_counters.noAreaGiven++;
         record.mainArea = 100.0F;
     }
 
@@ -295,14 +295,14 @@ void Calculation::calculateResultRecord(abimoRecord &record)
     //    RDV / RxV: Gesamtabfluss versiegelte Flaeche
 
     runoffRoofs =
-            (1.0F - initValues.getInfiltrationFactorRoof()) *
+            (1.0F - m_initValues.getInfiltrationFactorRoof()) *
             record.mainFractionBuiltSealed *
             record.builtSealedFractionConnected *
             areaFractionMain *
-            bagrovValueRoof;
+            m_bagrovValueRoof;
 
     runoffSealedSurface1 =
-            (1.0F - initValues.getInfiltrationFactorSurface1()) *
+            (1.0F - m_initValues.getInfiltrationFactorSurface1()) *
             (
                 record.unbuiltSealedFractionSurface1 *
                 record.unbuiltSealedFractionConnected *
@@ -312,10 +312,10 @@ void Calculation::calculateResultRecord(abimoRecord &record)
                 record.roadSealedFractionConnected *
                 record.roadFractionSealed *
                 areaFractionRoad
-                ) * bagrovValueSurface1;
+                ) * m_bagrovValueSurface1;
 
     runoffSealedSurface2 =
-            (1.0F - initValues.getInfiltrationFactorSurface2()) *
+            (1.0F - m_initValues.getInfiltrationFactorSurface2()) *
             (
                 record.unbuiltSealedFractionSurface2 *
                 record.unbuiltSealedFractionConnected *
@@ -325,10 +325,10 @@ void Calculation::calculateResultRecord(abimoRecord &record)
                 record.roadSealedFractionConnected *
                 record.roadFractionSealed *
                 areaFractionRoad
-                ) * bagrovValueSurface2;
+                ) * m_bagrovValueSurface2;
 
     runoffSealedSurface3 =
-            (1.0F - initValues.getInfiltrationFactorSurface3()) *
+            (1.0F - m_initValues.getInfiltrationFactorSurface3()) *
             (
                 record.unbuiltSealedFractionSurface3 *
                 record.unbuiltSealedFractionConnected *
@@ -338,10 +338,10 @@ void Calculation::calculateResultRecord(abimoRecord &record)
                 record.roadSealedFractionConnected *
                 record.roadFractionSealed *
                 areaFractionRoad
-                ) * bagrovValueSurface3;
+                ) * m_bagrovValueSurface3;
 
     runoffSealedSurface4 =
-            (1.0F - initValues.getInfiltrationFactorSurface4()) *
+            (1.0F - m_initValues.getInfiltrationFactorSurface4()) *
             (
                 record.unbuiltSealedFractionSurface4 *
                 record.unbuiltSealedFractionConnected *
@@ -351,14 +351,14 @@ void Calculation::calculateResultRecord(abimoRecord &record)
                 record.roadSealedFractionConnected *
                 record.roadFractionSealed *
                 areaFractionRoad
-                ) * bagrovValueSurface4;
+                ) * m_bagrovValueSurface4;
 
     // Infiltration for sealed surfaces
     infiltrationRoofs =
             (1 - record.builtSealedFractionConnected) *
             record.mainFractionBuiltSealed *
             areaFractionMain *
-            bagrovValueRoof;
+            m_bagrovValueRoof;
 
     infiltrationSealedSurface1 = (
                 record.unbuiltSealedFractionSurface1 *
@@ -367,7 +367,7 @@ void Calculation::calculateResultRecord(abimoRecord &record)
                 record.roadSealedFractionSurface1 *
                 record.roadFractionSealed *
                 areaFractionRoad
-                ) * bagrovValueSurface1 - runoffSealedSurface1;
+                ) * m_bagrovValueSurface1 - runoffSealedSurface1;
 
     infiltrationSealedSurface2 = (
                 record.unbuiltSealedFractionSurface2 *
@@ -376,7 +376,7 @@ void Calculation::calculateResultRecord(abimoRecord &record)
                 record.roadSealedFractionSurface2 *
                 record.roadFractionSealed *
                 areaFractionRoad
-                ) * bagrovValueSurface2 - runoffSealedSurface2;
+                ) * m_bagrovValueSurface2 - runoffSealedSurface2;
 
     infiltrationSealedSurface3 = (
                 record.unbuiltSealedFractionSurface3 *
@@ -385,7 +385,7 @@ void Calculation::calculateResultRecord(abimoRecord &record)
                 record.roadSealedFractionSurface3 *
                 record.roadFractionSealed *
                 areaFractionRoad
-                ) * bagrovValueSurface3 - runoffSealedSurface3;
+                ) * m_bagrovValueSurface3 - runoffSealedSurface3;
 
     infiltrationSealedSurface4 = (
                 record.unbuiltSealedFractionSurface4 *
@@ -394,7 +394,7 @@ void Calculation::calculateResultRecord(abimoRecord &record)
                 record.roadSealedFractionSurface4 *
                 record.roadFractionSealed *
                 areaFractionRoad
-                ) * bagrovValueSurface4 - runoffSealedSurface4;
+                ) * m_bagrovValueSurface4 - runoffSealedSurface4;
 
     // consider unsealed road surfaces as pavement class 4
     // old: 0.11F * (1-vgs) * fsant * R4V;
@@ -404,12 +404,12 @@ void Calculation::calculateResultRecord(abimoRecord &record)
     infiltrationPerviousRoads =
             (1 - record.roadFractionSealed) *
             areaFractionRoad *
-            bagrovValueSurface4;
+            m_bagrovValueSurface4;
 
     // runoff for unsealed surfaces rowuv = 0
     infiltrationPerviousSurfaces = (
-                100.0F - (float) resultRecord.mainPercentageSealed
-                ) / 100.0F * unsealedSurfaceRunoff;
+                100.0F - (float) m_resultRecord.mainPercentageSealed
+                ) / 100.0F * m_unsealedSurfaceRunoff;
 
     // calculate runoff 'row' for entire block patial area (FLGES +
     // STR_FLGES) (mm/a)
@@ -422,10 +422,10 @@ void Calculation::calculateResultRecord(abimoRecord &record)
                 runoffPerviousRoads
                 );
 
-    resultRecord.runoff = INT_ROUND(m_surfaceRunoff);
+    m_resultRecord.runoff = INT_ROUND(m_surfaceRunoff);
 
     // calculate volume 'rowvol' from runoff (qcm/s)
-    surfaceRunoffFlow = m_surfaceRunoff * 3.171F * (
+    m_surfaceRunoffFlow = m_surfaceRunoff * 3.171F * (
                 record.mainArea +
                 record.roadArea
                 ) / 100000.0F;
@@ -442,10 +442,10 @@ void Calculation::calculateResultRecord(abimoRecord &record)
                 infiltrationPerviousSurfaces
                 );
 
-    resultRecord.infiltrationRate = INT_ROUND(m_infiltration);
+    m_resultRecord.infiltrationRate = INT_ROUND(m_infiltration);
 
     // calculate volume 'rivol' from infiltration rate (qcm/s)
-    infiltrationFlow = m_infiltration * 3.171F * (
+    m_infiltrationFlow = m_infiltration * 3.171F * (
                 record.mainArea +
                 record.roadArea
                 ) / 100000.0F;
@@ -459,15 +459,15 @@ void Calculation::calculateResultRecord(abimoRecord &record)
 
     // calculate volume of system losses 'rvol' due to runoff and
     // infiltration
-    totalRunoffFlow = surfaceRunoffFlow + infiltrationFlow;
+    m_totalRunoffFlow = m_surfaceRunoffFlow + m_infiltrationFlow;
 
     // cls_5b:
     // calculate evaporation 'verdunst' by subtracting 'r', the sum of
     // runoff and infiltration from precipitation of entire year,
     // multiplied by precipitation correction factor
     m_evaporation = (
-                precipitationYear *
-                initValues.getPrecipitationCorrectionFactor()
+                m_precipitationYear *
+                m_initValues.getPrecipitationCorrectionFactor()
                 ) - m_totalRunoff;
 
 }
@@ -498,30 +498,30 @@ void Calculation::getClimaticConditions(int district, QString code)
     // Later on two additional parameters, (now and?) here:
     // * ptrDA.P1 = p1;
     // * ptrDA.PS = ps;
-    resultRecord.precipitationYear = precipitationYear;
-    resultRecord.precipitationSummer = precipitationSummer;
+    m_resultRecord.precipitationYear = m_precipitationYear;
+    m_resultRecord.precipitationSummer = m_precipitationSummer;
 
     // Parameter for the city districts
-    if (resultRecord.usage == Usage::waterbody_G)
+    if (m_resultRecord.usage == Usage::waterbody_G)
     {
-        resultRecord.longtimeMeanPotentialEvaporation = initValueOrReportedDefaultValue(
-            district, code, initValues.hashEG, 775, "EG"
+        m_resultRecord.longtimeMeanPotentialEvaporation = initValueOrReportedDefaultValue(
+            district, code, m_initValues.hashEG, 775, "EG"
         );
     }
     else
     {
-        resultRecord.longtimeMeanPotentialEvaporation = initValueOrReportedDefaultValue(
-            district, code, initValues.hashETP, 660, "ETP"
+        m_resultRecord.longtimeMeanPotentialEvaporation = initValueOrReportedDefaultValue(
+            district, code, m_initValues.hashETP, 660, "ETP"
         );
 
-        resultRecord.potentialEvaporationSummer = initValueOrReportedDefaultValue(
-            district, code, initValues.hashETPS, 530, "ETPS"
+        m_resultRecord.potentialEvaporationSummer = initValueOrReportedDefaultValue(
+            district, code, m_initValues.hashETPS, 530, "ETPS"
         );
     }
 
     // Declaration of potential evaporation and precipitation
-    potentialEvaporation = (float) resultRecord.longtimeMeanPotentialEvaporation; // no more correction with 1.1
-    precipitation = (float) resultRecord.precipitationYear * initValues.getPrecipitationCorrectionFactor();
+    potentialEvaporation = (float) m_resultRecord.longtimeMeanPotentialEvaporation; // no more correction with 1.1
+    precipitation = (float) m_resultRecord.precipitationYear * m_initValues.getPrecipitationCorrectionFactor();
       // ptrDA.KF
 
     // Berechnung der Abfluesse RDV und R1V bis R4V fuer versiegelte
@@ -537,32 +537,32 @@ void Calculation::getClimaticConditions(int district, QString code)
     // ueber Umrechnungsfaktor yRatio und subtrahiert von Niederschlag
     // precipitation
 
-    bagrovValueRoof = precipitation - bagrov.nbagro(initValues.getBagrovValueRoof(), xRatio) * potentialEvaporation;
+    m_bagrovValueRoof = precipitation - bagrov.nbagro(m_initValues.getBagrovValueRoof(), xRatio) * potentialEvaporation;
 
-    bagrovValueSurface1 = precipitation - bagrov.nbagro(initValues.getBagrovValueSuface1(), xRatio) * potentialEvaporation;
-    bagrovValueSurface2 = precipitation - bagrov.nbagro(initValues.getBagrovValueSuface2(), xRatio) * potentialEvaporation;
-    bagrovValueSurface3 = precipitation - bagrov.nbagro(initValues.getBagrovValueSuface3(), xRatio) * potentialEvaporation;
-    bagrovValueSurface4 = precipitation - bagrov.nbagro(initValues.getBagrovValueSuface4(), xRatio) * potentialEvaporation;
+    m_bagrovValueSurface1 = precipitation - bagrov.nbagro(m_initValues.getBagrovValueSuface1(), xRatio) * potentialEvaporation;
+    m_bagrovValueSurface2 = precipitation - bagrov.nbagro(m_initValues.getBagrovValueSuface2(), xRatio) * potentialEvaporation;
+    m_bagrovValueSurface3 = precipitation - bagrov.nbagro(m_initValues.getBagrovValueSuface3(), xRatio) * potentialEvaporation;
+    m_bagrovValueSurface4 = precipitation - bagrov.nbagro(m_initValues.getBagrovValueSuface4(), xRatio) * potentialEvaporation;
 
     // Calculate runoff RUV for unsealed partial surfaces
-    if (resultRecord.usage == Usage::waterbody_G)
+    if (m_resultRecord.usage == Usage::waterbody_G)
     {
-        unsealedSurfaceRunoff = precipitation - potentialEvaporation;
+        m_unsealedSurfaceRunoff = precipitation - potentialEvaporation;
     }
     else
     {
         // Determine effectiveness parameter bag for unsealed surfaces
         // Modul Raster abgespeckt
-        effectivityParameter = EffectivenessUnsealed::calculate(resultRecord);
+        effectivityParameter = EffectivenessUnsealed::calculate(m_resultRecord);
 
-        if (resultRecord.precipitationSummer > 0 &&
-                resultRecord.potentialEvaporationSummer > 0) {
+        if (m_resultRecord.precipitationSummer > 0 &&
+                m_resultRecord.potentialEvaporationSummer > 0) {
             effectivityParameter *= getSummerModificationFactor(
                 (float) (
-                    resultRecord.precipitationSummer +
-                    resultRecord.irrigation +
-                    resultRecord.meanPotentialCapillaryRiseRate
-                ) / resultRecord.potentialEvaporationSummer
+                    m_resultRecord.precipitationSummer +
+                    m_resultRecord.irrigation +
+                    m_resultRecord.meanPotentialCapillaryRiseRate
+                ) / m_resultRecord.potentialEvaporationSummer
             );
         }
 
@@ -572,23 +572,23 @@ void Calculation::getClimaticConditions(int district, QString code)
             effectivityParameter,
             (
                 precipitation +
-                resultRecord.meanPotentialCapillaryRiseRate +
-                resultRecord.irrigation
+                m_resultRecord.meanPotentialCapillaryRiseRate +
+                m_resultRecord.irrigation
             ) / potentialEvaporation
         );
 
         // Get the real evapotransporation using estimated y-factor
         realEvapotranspiration = yRatio * potentialEvaporation;
 
-        if (potentialCapillaryRise < 0) {
+        if (m_potentialCapillaryRise < 0) {
             realEvapotranspiration += (
                 potentialEvaporation - yRatio * potentialEvaporation
             ) * (float) exp(
-                resultRecord.depthToWaterTable / potentialCapillaryRise
+                m_resultRecord.depthToWaterTable / m_potentialCapillaryRise
             );
         }
 
-        unsealedSurfaceRunoff = precipitation - realEvapotranspiration;
+        m_unsealedSurfaceRunoff = precipitation - realEvapotranspiration;
     }
 }
 
@@ -614,10 +614,10 @@ float Calculation::initValueOrReportedDefaultValue(
     QString string;
     string.setNum(result);
 
-    protocolStream << "\r\n" + name + " unbekannt fuer " + code +
+    m_protocolStream << "\r\n" + name + " unbekannt fuer " + code +
         " von Bezirk " + districtString + "\r\n" + name +
         "=" + string + " angenommen\r\n";
-    counters.recordsProtocol++;
+    m_counters.recordsProtocol++;
 
     return result;
 }
@@ -649,9 +649,9 @@ void Calculation::writeResultRecord(abimoRecord &record, DbaseWriter &writer)
     writer.setRecordField("R", m_totalRunoff); // local
     writer.setRecordField("ROW", m_surfaceRunoff); // local
     writer.setRecordField("RI", m_infiltration); // local
-    writer.setRecordField("RVOL", totalRunoffFlow); // member of Calculate
-    writer.setRecordField("ROWVOL", surfaceRunoffFlow); // member of Calculate
-    writer.setRecordField("RIVOL", infiltrationFlow); // member of Calculate
+    writer.setRecordField("RVOL", m_totalRunoffFlow); // member of Calculate
+    writer.setRecordField("ROWVOL", m_surfaceRunoffFlow); // member of Calculate
+    writer.setRecordField("RIVOL", m_infiltrationFlow); // member of Calculate
     writer.setRecordField("FLAECHE", m_totalArea); // local
     writer.setRecordField("VERDUNSTUN", m_evaporation); // local
 }

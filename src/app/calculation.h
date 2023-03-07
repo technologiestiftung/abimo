@@ -74,40 +74,41 @@ signals:
     void processSignal(int, QString);
 
 private:
-    Config *config;
 
-    InitValues &initValues;
-    QTextStream &protocolStream;
-    DbaseReader &dbReader;
-    PDR resultRecord; // old: ptrDA
-    QString error;
+    // All private member variables of this class will be prefixed with "m_"
+    Config *m_config_pointer;
+
+    InitValues &m_initValues;
+    QTextStream &m_protocolStream;
+    DbaseReader &m_dbReader;
+    PDR m_resultRecord; // old: ptrDA
+    QString m_error;
 
     // *** vorlaeufig aus Teilblock 0 wird fuer die Folgeblocks genommen
-    float precipitationYear; // old: regenja
-    float precipitationSummer; // old: regenso
+    float m_precipitationYear; // old: regenja
+    float m_precipitationSummer; // old: regenso
 
     // Abfluesse nach Bagrov fuer N1 bis N4
-    float bagrovValueRoof; // old: RDV
-    float bagrovValueSurface1; // old: R1V
-    float bagrovValueSurface2; // old: R2V
-    float bagrovValueSurface3; // old: R3V
-    float bagrovValueSurface4; // old: R4V
+    float m_bagrovValueRoof; // old: RDV
+    float m_bagrovValueSurface1; // old: R1V
+    float m_bagrovValueSurface2; // old: R2V
+    float m_bagrovValueSurface3; // old: R3V
+    float m_bagrovValueSurface4; // old: R4V
 
     // runoff for unsealed partial surfaces
-    float unsealedSurfaceRunoff; // old: RUV
+    float m_unsealedSurfaceRunoff; // old: RUV
 
     // Regenwasserabfluss in Qubikzentimeter pro Sekunde
-    float surfaceRunoffFlow; // old: ROWVOL
+    float m_surfaceRunoffFlow; // old: ROWVOL
 
     // unterirdischer Gesamtabfluss in qcm/s
-    float infiltrationFlow; // old: RIVOL
+    float m_infiltrationFlow; // old: RIVOL
 
     // Gesamtabfluss in qcm/s
-    float totalRunoffFlow; // old: RVOL
+    float m_totalRunoffFlow; // old: RVOL
 
     // potentielle Aufstiegshoehe
-    float potentialCapillaryRise; // old: TAS
-
+    float m_potentialCapillaryRise; // old: TAS
 
     // Additional member variables (m_ indicates member)
 
@@ -118,10 +119,10 @@ private:
     float m_totalArea;
     float m_evaporation;
 
-    Counters counters;
+    Counters m_counters;
 
     // Variable to control whether to stop processing
-    bool continueProcessing;
+    bool m_continueProcessing;
 
     // Methods
 
