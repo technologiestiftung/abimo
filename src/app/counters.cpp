@@ -6,12 +6,12 @@ Counters::Counters()
 }
 
 void Counters::initialise() {
-    recordsWritten = 0;
     recordsRead = 0;
+    recordsWritten = 0;
+    recordsProtocol = 0;
     irrigationForcedToZero = 0;
-    noAreaGiven = 0L;
-    noUsageGiven = 0L;
-    recordsProtocol = 0L;
+    noAreaGiven = 0;
+    noUsageGiven = 0;
 }
 
 void Counters::setRecordsRead(int n) {
@@ -20,6 +20,10 @@ void Counters::setRecordsRead(int n) {
 
 void Counters::setRecordsWritten(int n) {
     recordsWritten = n;
+}
+
+void Counters::incrementRecordsProtocol() {
+    recordsProtocol++;
 }
 
 void Counters::incrementIrrigationForcedToZero() {
@@ -34,30 +38,26 @@ void Counters::incrementNoUsageGiven() {
     noUsageGiven++;
 }
 
-void Counters::incrementRecordsProtocol() {
-    recordsProtocol++;
-}
-
-int Counters::getIrrigationForcedToZero() {
-    return irrigationForcedToZero;
-}
-
-long Counters::getNoAreaGiven() {
-    return noAreaGiven;
-}
-
-long Counters::getNoUsageGiven() {
-    return noUsageGiven;
-}
-
-long Counters::getRecordsProtocol() {
-    return recordsProtocol;
-}
-
 int Counters::getRecordsRead() {
     return recordsRead;
 }
 
 int Counters::getRecordsWritten() {
     return recordsWritten;
+}
+
+int Counters::getRecordsProtocol() {
+    return recordsProtocol;
+}
+
+int Counters::getIrrigationForcedToZero() {
+    return irrigationForcedToZero;
+}
+
+int Counters::getNoAreaGiven() {
+    return noAreaGiven;
+}
+
+int Counters::getNoUsageGiven() {
+    return noUsageGiven;
 }
