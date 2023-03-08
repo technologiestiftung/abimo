@@ -1,6 +1,7 @@
 #ifndef HELPERS_H
 #define HELPERS_H
 
+#include <cmath> // for round
 #include <vector>
 
 #include <QCommandLineParser>
@@ -35,6 +36,10 @@ namespace helpers
 
     inline float max(float a, float b) {
         return (a > b) ? a : b;
+    }
+
+    inline int roundToInteger(float x) {
+        return (int) round(x);
     }
 };
 

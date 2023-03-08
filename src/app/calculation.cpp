@@ -249,7 +249,7 @@ void Calculation::calculateResultRecord(abimoRecord &record)
     getClimaticConditions(record.district, record.code);
 
     // percentage of total sealed area
-    m_resultRecord.mainPercentageSealed = INT_ROUND(
+    m_resultRecord.mainPercentageSealed = helpers::roundToInteger(
         // share of roof area [%] 'PROBAU'
         record.mainFractionBuiltSealed * 100 +
         // share of other (unbuilt) sealed areas (e.g. Hofflaechen)
@@ -420,7 +420,7 @@ void Calculation::calculateResultRecord(abimoRecord &record)
                 runoffPerviousRoads
                 );
 
-    m_resultRecord.runoff = INT_ROUND(m_surfaceRunoff);
+    m_resultRecord.runoff = helpers::roundToInteger(m_surfaceRunoff);
 
     // calculate volume 'rowvol' from runoff (qcm/s)
     m_surfaceRunoffFlow = m_surfaceRunoff * 3.171F * (
@@ -440,7 +440,7 @@ void Calculation::calculateResultRecord(abimoRecord &record)
                 infiltrationPerviousSurfaces
                 );
 
-    m_resultRecord.infiltrationRate = INT_ROUND(m_infiltration);
+    m_resultRecord.infiltrationRate = helpers::roundToInteger(m_infiltration);
 
     // calculate volume 'rivol' from infiltration rate (qcm/s)
     m_infiltrationFlow = m_infiltration * 3.171F * (
