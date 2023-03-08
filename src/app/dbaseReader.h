@@ -11,7 +11,7 @@
 #include <QHash>
 #include <QString>
 
-// _fraction indicates numbers between 0 and 1 (instead of percentages)
+// Fraction indicates numbers between 0 and 1 (instead of percentages)
 struct abimoRecord {
     int usage; // old: NUTZUNG
     QString code; // old: CODE
@@ -130,22 +130,22 @@ private:
     int expectedFileSize();
 
     // 1 byte unsigned give the version
-    QString byteToVersion(quint8, bool debug = true);
+    QString byteToVersion(quint8 byte, bool debug = true);
 
     // 1 byte unsigned give the Language Driver (code page)
-    QString byteToLanguageDriver(quint8 i_byte, bool debug = true);
+    QString byteToLanguageDriver(quint8 byte, bool debug = true);
 
     // 3 byte unsigned char give the date of last edit
-    QDate bytesToDate(quint8 i_year, quint8 i_month, quint8 i_day);
+    QDate bytesToDate(quint8 byteYear, quint8 byteMonth, quint8 byteDay);
 
     // 32 bit unsigned char to int
-    int bytesToInteger(quint8 i1, quint8 i2, quint8 i3, quint8 i4);
+    int bytesToInteger(quint8 byte1, quint8 byte2, quint8 byte3, quint8 byte4);
 
     // 16 bit unsigned char to int
-    int bytesToInteger(quint8 i1, quint8 i2);
+    int bytesToInteger(quint8 byte1, quint8 byte2);
 
     // compute the count of fields
-    int computeCountFields(int);
+    int computeCountFields(int numBytesHeader);
 
     // convert string to float and divide by 100
     float floatFraction(QString string);
