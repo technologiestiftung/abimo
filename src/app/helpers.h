@@ -41,6 +41,15 @@ namespace helpers
     inline int roundToInteger(float x) {
         return (int) round(x);
     }
+
+    inline float vectorSum(const std::vector<float> x) {
+        float sum = 0.0;
+        for (int i = 0; i < static_cast<int>(x.size()); i++) {
+            sum += x[i];
+        }
+        return sum;
+    }
+
 };
 
 #endif // HELPERS_H

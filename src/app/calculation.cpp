@@ -150,13 +150,13 @@ void Calculation::calculateResultRecord(abimoRecord &record)
     // runoff variables of sealed surfaces
     // Take care: for consistency use indices 1 to 4 only, do not use 0 (roofs)!
     // old: row1 - row4
-    std::array<float,5> runoffSealedSurfaces = {0, 0, 0, 0, 0};
+    std::vector<float> runoffSealedSurfaces = {0, 0, 0, 0, 0};
 
     // Infiltrationsvariablen der versiegelten Flaechen
     // infiltration variables of sealed surfaces
     // Take care: for consistency use indices 1 to 4 only, do not use 0 (roofs)!
     // old: ri1 - ri4
-    std::array<float,5> infiltrationSealedSurfaces = {0, 0, 0, 0, 0};
+    std::vector<float> infiltrationSealedSurfaces = {0, 0, 0, 0, 0};
 
     // Abfluss- / Infiltrationsvariablen der Dachflaechen
     // runoff- / infiltration variables of roof surfaces
@@ -290,100 +290,40 @@ void Calculation::calculateResultRecord(abimoRecord &record)
             areaFractionMain *
             m_bagrovValues[0]; // 0 = roof!
 
-    runoffSealedSurfaces[1] =
-            (1.0F - m_initValues.getInfiltrationFactor(1)) *
-            (
-                record.unbuiltSealedFractionSurface.at(1) *
-                record.unbuiltSealedFractionConnected *
-                record.mainFractionUnbuiltSealed *
-                areaFractionMain +
-                record.roadSealedFractionSurface.at(1) *
-                record.roadSealedFractionConnected *
-                record.roadFractionSealed *
-                areaFractionRoad
-                ) * m_bagrovValues[1];
+    for (int i = 1; i < static_cast<int>(runoffSealedSurfaces.size()); i++) {
 
-    runoffSealedSurfaces[2] =
-            (1.0F - m_initValues.getInfiltrationFactor(2)) *
+        runoffSealedSurfaces[i] =
+            (1.0F - m_initValues.getInfiltrationFactor(i)) *
             (
-                record.unbuiltSealedFractionSurface.at(2) *
+                record.unbuiltSealedFractionSurface.at(i) *
                 record.unbuiltSealedFractionConnected *
                 record.mainFractionUnbuiltSealed *
                 areaFractionMain +
-                record.roadSealedFractionSurface.at(2) *
+                record.roadSealedFractionSurface.at(i) *
                 record.roadSealedFractionConnected *
                 record.roadFractionSealed *
                 areaFractionRoad
-                ) * m_bagrovValues[2];
-
-    runoffSealedSurfaces[3] =
-            (1.0F - m_initValues.getInfiltrationFactor(3)) *
-            (
-                record.unbuiltSealedFractionSurface.at(3) *
-                record.unbuiltSealedFractionConnected *
-                record.mainFractionUnbuiltSealed *
-                areaFractionMain +
-                record.roadSealedFractionSurface.at(3) *
-                record.roadSealedFractionConnected *
-                record.roadFractionSealed *
-                areaFractionRoad
-                ) * m_bagrovValues[3];
-
-    runoffSealedSurfaces[4] =
-            (1.0F - m_initValues.getInfiltrationFactor(4)) *
-            (
-                record.unbuiltSealedFractionSurface.at(4) *
-                record.unbuiltSealedFractionConnected *
-                record.mainFractionUnbuiltSealed *
-                areaFractionMain +
-                record.roadSealedFractionSurface.at(4) *
-                record.roadSealedFractionConnected *
-                record.roadFractionSealed *
-                areaFractionRoad
-                ) * m_bagrovValues[4];
+            ) * m_bagrovValues[i];
+    }
 
     // Infiltration for sealed surfaces
     infiltrationRoofs =
-            (1 - record.builtSealedFractionConnected) *
-            record.mainFractionBuiltSealed *
-            areaFractionMain *
-            m_bagrovValues[0]; // 0 = roof
+        (1 - record.builtSealedFractionConnected) *
+        record.mainFractionBuiltSealed *
+        areaFractionMain *
+        m_bagrovValues[0]; // 0 = roof
 
-    infiltrationSealedSurfaces[1] = (
-                record.unbuiltSealedFractionSurface.at(1) *
-                record.mainFractionUnbuiltSealed *
-                areaFractionMain +
-                record.roadSealedFractionSurface.at(1) *
-                record.roadFractionSealed *
-                areaFractionRoad
-                ) * m_bagrovValues[1] - runoffSealedSurfaces[1];
+    for (int i = 1; i < static_cast<int>(infiltrationSealedSurfaces.size()); i++) {
 
-    infiltrationSealedSurfaces[2] = (
-                record.unbuiltSealedFractionSurface.at(2) *
-                record.mainFractionUnbuiltSealed *
-                areaFractionMain +
-                record.roadSealedFractionSurface.at(2) *
-                record.roadFractionSealed *
-                areaFractionRoad
-                ) * m_bagrovValues[2] - runoffSealedSurfaces[2];
-
-    infiltrationSealedSurfaces[3] = (
-                record.unbuiltSealedFractionSurface.at(3) *
-                record.mainFractionUnbuiltSealed *
-                areaFractionMain +
-                record.roadSealedFractionSurface.at(3) *
-                record.roadFractionSealed *
-                areaFractionRoad
-                ) * m_bagrovValues[3] - runoffSealedSurfaces[3];
-
-    infiltrationSealedSurfaces[4] = (
-                record.unbuiltSealedFractionSurface.at(4) *
-                record.mainFractionUnbuiltSealed *
-                areaFractionMain +
-                record.roadSealedFractionSurface.at(4) *
-                record.roadFractionSealed *
-                areaFractionRoad
-                ) * m_bagrovValues[4] - runoffSealedSurfaces[4];
+        infiltrationSealedSurfaces[i] = (
+            record.unbuiltSealedFractionSurface.at(i) *
+            record.mainFractionUnbuiltSealed *
+            areaFractionMain +
+            record.roadSealedFractionSurface.at(i) *
+            record.roadFractionSealed *
+            areaFractionRoad
+        ) * m_bagrovValues[i] - runoffSealedSurfaces[i];
+    }
 
     // consider unsealed road surfaces as pavement class 4
     // old: 0.11F * (1-vgs) * fsant * R4V;
@@ -403,41 +343,35 @@ void Calculation::calculateResultRecord(abimoRecord &record)
     // calculate runoff 'row' for entire block patial area (FLGES +
     // STR_FLGES) (mm/a)
     m_surfaceRunoff = (
-                runoffSealedSurfaces[1] +
-                runoffSealedSurfaces[2] +
-                runoffSealedSurfaces[3] +
-                runoffSealedSurfaces[4] +
-                runoffRoofs +
-                runoffPerviousRoads
-                );
+        helpers::vectorSum(runoffSealedSurfaces) +
+        runoffRoofs +
+        runoffPerviousRoads
+    );
 
     m_resultRecord.runoff = helpers::roundToInteger(m_surfaceRunoff);
 
     // calculate volume 'rowvol' from runoff (qcm/s)
     m_surfaceRunoffFlow = m_surfaceRunoff * 3.171F * (
-                record.mainArea +
-                record.roadArea
-                ) / 100000.0F;
+        record.mainArea +
+        record.roadArea
+    ) / 100000.0F;
 
     // calculate infiltration rate 'ri' for entire block partial area
     // (mm/a)
     m_infiltration = (
-                infiltrationSealedSurfaces[1] +
-                infiltrationSealedSurfaces[2] +
-                infiltrationSealedSurfaces[3] +
-                infiltrationSealedSurfaces[4] +
-                infiltrationRoofs +
-                infiltrationPerviousRoads +
-                infiltrationPerviousSurfaces
-                );
+        helpers::vectorSum(infiltrationSealedSurfaces) +
+        infiltrationRoofs +
+        infiltrationPerviousRoads +
+        infiltrationPerviousSurfaces
+    );
 
     m_resultRecord.infiltrationRate = helpers::roundToInteger(m_infiltration);
 
     // calculate volume 'rivol' from infiltration rate (qcm/s)
     m_infiltrationFlow = m_infiltration * 3.171F * (
-                record.mainArea +
-                record.roadArea
-                ) / 100000.0F;
+        record.mainArea +
+        record.roadArea
+    ) / 100000.0F;
 
     // calculate total system losses 'r' due to runoff and infiltration
     // for entire block partial area
@@ -455,9 +389,9 @@ void Calculation::calculateResultRecord(abimoRecord &record)
     // runoff and infiltration from precipitation of entire year,
     // multiplied by precipitation correction factor
     m_evaporation = (
-                m_precipitationYear *
-                m_initValues.getPrecipitationCorrectionFactor()
-                ) - m_totalRunoff;
+        m_precipitationYear *
+        m_initValues.getPrecipitationCorrectionFactor()
+    ) - m_totalRunoff;
 
 }
 
