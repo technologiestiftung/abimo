@@ -68,6 +68,10 @@ public:
 
     // area of roads within city block
     float roadArea; // old: STR_FLGES, fs;
+
+    inline float totalArea() {
+        return mainArea + roadArea;
+    }
 };
 
 #endif // ABIMORECORD_H

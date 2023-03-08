@@ -247,7 +247,7 @@ void Calculation::calculateResultRecord(AbimoRecord &record)
     // if sum of total building development area and road area is
     // inconsiderably small it is assumed, that the area is unknown and
     // 100 % building development area will be given by default
-    if (record.mainArea + record.roadArea < 0.0001) {
+    if (record.totalArea() < 0.0001) {
         // *protokollStream << "\r\nDie Flaeche des Elements " +
         // record.CODE + " ist 0 \r\nund wird automatisch auf 100 gesetzt\r\n";
         m_counters.incrementRecordsProtocol();
@@ -255,7 +255,7 @@ void Calculation::calculateResultRecord(AbimoRecord &record)
         record.mainArea = 100.0F;
     }
 
-    m_totalArea = record.mainArea + record.roadArea;
+    m_totalArea = record.totalArea();
 
     // Verhaeltnis Bebauungsflaeche zu Gesamtflaeche
     // ratio of building development area to total area
@@ -346,8 +346,7 @@ void Calculation::calculateResultRecord(AbimoRecord &record)
 
     // calculate volume 'rowvol' from runoff (qcm/s)
     m_surfaceRunoffFlow = m_surfaceRunoff * 3.171F * (
-        record.mainArea +
-        record.roadArea
+        record.totalArea()
     ) / 100000.0F;
 
     // calculate infiltration rate 'ri' for entire block partial area
@@ -363,8 +362,7 @@ void Calculation::calculateResultRecord(AbimoRecord &record)
 
     // calculate volume 'rivol' from infiltration rate (qcm/s)
     m_infiltrationFlow = m_infiltration * 3.171F * (
-        record.mainArea +
-        record.roadArea
+        record.totalArea()
     ) / 100000.0F;
 
     // calculate total system losses 'r' due to runoff and infiltration
