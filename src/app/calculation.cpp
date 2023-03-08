@@ -100,7 +100,7 @@ bool Calculation::calculate(QString outputFile, bool debug)
 
             // calculate and set result record fields to calculated values
             calculateResultRecord(record);
-            writeResultRecord(record, writer);
+            writeResultRecord(record.code, writer);
 
             index++;
         }
@@ -543,18 +543,18 @@ float Calculation::initValueOrReportedDefaultValue(
     return result;
 }
 
-void Calculation::writeResultRecord(abimoRecord &record, DbaseWriter &writer)
+void Calculation::writeResultRecord(QString& code, DbaseWriter& writer)
 {
     writer.addRecord();
-    writer.setRecordField("CODE", record.code);
-    writer.setRecordField("R", m_totalRunoff); // local
-    writer.setRecordField("ROW", m_surfaceRunoff); // local
-    writer.setRecordField("RI", m_infiltration); // local
-    writer.setRecordField("RVOL", m_totalRunoffFlow); // member of Calculate
-    writer.setRecordField("ROWVOL", m_surfaceRunoffFlow); // member of Calculate
-    writer.setRecordField("RIVOL", m_infiltrationFlow); // member of Calculate
-    writer.setRecordField("FLAECHE", m_totalArea); // local
-    writer.setRecordField("VERDUNSTUN", m_evaporation); // local
+    writer.setRecordField("CODE", code);
+    writer.setRecordField("R", m_totalRunoff);
+    writer.setRecordField("ROW", m_surfaceRunoff);
+    writer.setRecordField("RI", m_infiltration);
+    writer.setRecordField("RVOL", m_totalRunoffFlow);
+    writer.setRecordField("ROWVOL", m_surfaceRunoffFlow);
+    writer.setRecordField("RIVOL", m_infiltrationFlow);
+    writer.setRecordField("FLAECHE", m_totalArea);
+    writer.setRecordField("VERDUNSTUN", m_evaporation);
 }
 
 void Calculation::runCalculation(
