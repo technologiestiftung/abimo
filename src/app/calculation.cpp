@@ -139,7 +139,7 @@ bool Calculation::calculate(QString outputFile, bool debug)
 
 int Calculation::progressNumber(int i, int n, int max)
 {
-    return (int) ((float) i / (float) n * max);
+    return (int) (static_cast<float>(i) / static_cast<float>(n * max));
 }
 
 void Calculation::calculateResultRecord(abimoRecord &record)
@@ -412,8 +412,8 @@ void Calculation::calculateResultRecord(abimoRecord &record)
 
     // runoff for unsealed surfaces rowuv = 0
     infiltrationPerviousSurfaces = (
-                100.0F - (float) m_resultRecord.mainPercentageSealed
-                ) / 100.0F * m_unsealedSurfaceRunoff;
+        100.0F - static_cast<float>(m_resultRecord.mainPercentageSealed)
+    ) / 100.0F * m_unsealedSurfaceRunoff;
 
     // calculate runoff 'row' for entire block patial area (FLGES +
     // STR_FLGES) (mm/a)
@@ -516,8 +516,8 @@ void Calculation::getClimaticConditions(int district, QString code)
     }
 
     // Declaration of potential evaporation and precipitation
-    potentialEvaporation = (float) m_resultRecord.longtimeMeanPotentialEvaporation; // no more correction with 1.1
-    precipitation = (float) m_resultRecord.precipitationYear * m_initValues.getPrecipitationCorrectionFactor();
+    potentialEvaporation = static_cast<float>(m_resultRecord.longtimeMeanPotentialEvaporation); // no more correction with 1.1
+    precipitation = static_cast<float>(m_resultRecord.precipitationYear * m_initValues.getPrecipitationCorrectionFactor());
 
     // Berechnung der Abfluesse RDV und R1V bis R4V fuer versiegelte
     // Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4
@@ -599,8 +599,8 @@ float Calculation::realEvapotranspiration(
     if (m_potentialCapillaryRise < 0) {
         realEvapotranspiration += (
             potentialEvaporation - yRatio * potentialEvaporation
-        ) * (float) exp(
-            m_resultRecord.depthToWaterTable / m_potentialCapillaryRise
+        ) * static_cast<float>(
+            exp(m_resultRecord.depthToWaterTable / m_potentialCapillaryRise)
         );
     }
 

@@ -31,7 +31,7 @@ float EffectivenessUnsealed::getEffectivityParameter(
 
     if (isSummer) {
 
-        float height = (float) (
+        float height = static_cast<float>(
             precipitationSummer +
             irrigation +
             meanPotentialCapillaryRiseRate

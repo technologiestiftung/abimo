@@ -117,10 +117,10 @@ float PDR::estimateWaterHoldingCapacity(int f30, int f150, bool isForest)
     }
 
     if (abs(f30 - f150) < helpers::min(f30, f150)) { // unwesentliche Abweichung
-        return (float) (isForest ? f150 : f30);
+        return static_cast<float>(isForest ? f150 : f30);
     }
 
     return
-        0.75F * (float) (isForest ? f150 : f30) +
-        0.25F * (float) (isForest ? f30 : f150);
+        0.75F * static_cast<float>(isForest ? f150 : f30) +
+        0.25F * static_cast<float>(isForest ? f30 : f150);
 }
