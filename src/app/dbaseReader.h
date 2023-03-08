@@ -80,7 +80,7 @@ class DbaseReader
 {
 
 public:
-    DbaseReader(const QString&);
+    DbaseReader(const QString& file);
     ~DbaseReader();
     bool read();
     QString getVersion();
@@ -104,45 +104,45 @@ private:
 
     // VARIABLES
 
-    QFile file;
-    QString version;
-    QString languageDriver;
-    QDate date;
-    QHash<QString, int> hash;
-    QString error;
-    QString fullError;
-    QString* values;
+    QFile m_file;
+    QString m_version;
+    QString m_languageDriver;
+    QDate m_date;
+    QHash<QString,int> m_hash;
+    QString m_error;
+    QString m_fullError;
+    QString* m_values;
 
     // count of records in file
-    int numberOfRecords;
+    int m_numberOfRecords;
 
     // length of the header in byte
-    int lengthOfHeader;
+    int m_lengthOfHeader;
 
     // length of a record in byte
-    int lengthOfEachRecord;
+    int m_lengthOfEachRecord;
 
     // count of fields
-    int countFields;
+    int m_numberOfFields;
 
     // FUNCTIONS
 
     int expectedFileSize();
 
     // 1 byte unsigned give the version
-    QString checkVersion(quint8, bool debug = true);
+    QString byteToVersion(quint8, bool debug = true);
 
     // 1 byte unsigned give the Language Driver (code page)
-    QString checkLanguageDriver(quint8 i_byte, bool debug = true);
+    QString byteToLanguageDriver(quint8 i_byte, bool debug = true);
 
     // 3 byte unsigned char give the date of last edit
-    QDate checkDate(quint8 i_year, quint8 i_month, quint8 i_day);
+    QDate bytesToDate(quint8 i_year, quint8 i_month, quint8 i_day);
 
     // 32 bit unsigned char to int
-    int check32(quint8 i1, quint8 i2, quint8 i3, quint8 i4);
+    int bytesToInteger(quint8 i1, quint8 i2, quint8 i3, quint8 i4);
 
     // 16 bit unsigned char to int
-    int check16(quint8 i1, quint8 i2);
+    int bytesToInteger(quint8 i1, quint8 i2);
 
     // compute the count of fields
     int computeCountFields(int);
