@@ -23,12 +23,8 @@ InitValues::InitValues():
     infiltrationFactorSurface3(0.60F),
     infiltrationFactorSurface4(0.90F),
 
-    // Bagrovwerte
-    bagrovValueRoof(0.05F),
-    bagrovValueSuface1(0.11F),
-    bagrovValueSuface2(0.11F),
-    bagrovValueSuface3(0.25F),
-    bagrovValueSuface4(0.40F),
+    // Bagrovwerte (0 = roof, 1-4 = surface classes 1-4)
+    bagrovValues({0.05F, 0.11F, 0.11F, 0.25F, 0.40F}),
 
     // Nachkomma der Ergebnisse
     digitsTotalRunoff(3),
@@ -43,10 +39,6 @@ InitValues::InitValues():
     irrigationToZero(false),
     precipitationCorrectionFactor(1.09f),
     countSets(0)
-{
-}
-
-InitValues::~InitValues()
 {
 }
 
@@ -91,97 +83,77 @@ void InitValues::setInfiltrationFactorRoof(float v) {
 
 void InitValues::setInfiltrationFactorSurface1(float v) {
     infiltrationFactorSurface1 = v;
-    countSets |= 2;
+    countSets |= 1 << 1;
 }
 
 void InitValues::setInfiltrationFactorSurface2(float v) {
     infiltrationFactorSurface2 = v;
-    countSets |= 4;
+    countSets |= 1 << 2;
 }
 
 void InitValues::setInfiltrationFactorSurface3(float v) {
     infiltrationFactorSurface3 = v;
-    countSets |= 8;
+    countSets |= 1 << 3;
 }
 
 void InitValues::setInfiltrationFactorSurface4(float v) {
     infiltrationFactorSurface4 = v;
-    countSets |= 16;
+    countSets |= 1 << 4;
 }
 
-void InitValues::setBagrovValueRoof(float v) {
-    bagrovValueRoof = v;
-    countSets |= 32;
-}
-
-void InitValues::setBagrovValueSuface1(float v) {
-    bagrovValueSuface1 = v;
-    countSets |= 64;
-}
-
-void InitValues::setBagrovValueSuface2(float v) {
-    bagrovValueSuface2 = v;
-    countSets |= 128;
-}
-
-void InitValues::setBagrovValueSuface3(float v) {
-    bagrovValueSuface3 = v;
-    countSets |= 256;
-}
-
-void InitValues::setBagrovSufaceClass4(float v) {
-    bagrovValueSuface4 = v;
-    countSets |= 512;
+void InitValues::setBagrovValue(int index, float value) {
+    bagrovValues[index] = value;
+    countSets |= 1 << (5 + index);
 }
 
 void InitValues::setDigitsTotalRunoff(int v) {
     digitsTotalRunoff = v;
-    countSets |= 1024;
+    countSets |= 1 << 10;
 }
 
 void InitValues::setDigitsRunoff(int v) {
     digitsRunoff = v;
-    countSets |= 2048;
+    countSets |= 1 << 11;
 }
 
 void InitValues::setDigitsInfiltrationRate(int v) {
     digitsInfiltrationRate = v;
-    countSets |= 4096;
+    countSets |= 1 << 12;
 }
 
 void InitValues::setDigitsTotalRunoffFlow(int v) {
     digitsTotalRunoffFlow = v;
-    countSets |= 8192;
+    countSets |= 1 << 13;
 }
 
 void InitValues::setDigitsRainwaterRunoff(int v) {
     digitsRainwaterRunoff = v;
-    countSets |= 16384;
+    countSets |= 1 << 14;
 }
 
 void InitValues::setDigitsTotalSubsurfaceFlow(int v) {
     digitsTotalSubsurfaceFlow = v;
-    countSets |= 32768;
+    countSets |= 1 << 15;
 }
 
 void InitValues::setDigitsTotalArea(int v) {
     digitsTotalArea = v;
-    countSets |= 65536;
+    countSets |= 1 << 16;
 }
 
 void InitValues::setDigitsEvaporation(int v) {
     digitsEvaporation = v;
-    countSets |= 131072;
+    countSets |= 1 << 17;
 }
 
 void InitValues::setIrrigationToZero(bool v) {
     irrigationToZero = v;
-    countSets |= 262144;
+    countSets |= 1 << 18;
 }
 
 void InitValues::setPrecipitationCorrectionFactor(float v) {
     precipitationCorrectionFactor = v;
-    countSets |= 524288;
+    countSets |= 1 << 19;
 }
 
 float InitValues::getInfiltrationFactorRoof()
@@ -205,24 +177,8 @@ float InitValues::getInfiltrationFactorSurface4() {
     return infiltrationFactorSurface4;
 }
 
-float InitValues::getBagrovValueRoof() {
-    return bagrovValueRoof;
-}
-
-float InitValues::getBagrovValueSuface1() {
-    return bagrovValueSuface1;
-}
-
-float InitValues::getBagrovValueSuface2() {
-    return bagrovValueSuface2;
-}
-
-float InitValues::getBagrovValueSuface3() {
-    return bagrovValueSuface3;
-}
-
-float InitValues::getBagrovValueSuface4() {
-    return bagrovValueSuface4;
+float InitValues::getBagrovValue(int index) {
+    return bagrovValues.at(index);
 }
 
 int InitValues::getDigitsTotalRunoff() {

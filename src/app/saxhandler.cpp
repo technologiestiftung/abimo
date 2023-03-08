@@ -118,15 +118,15 @@ void SaxHandler::setInfiltrationFactor(QString key, float value)
 void SaxHandler::setBagrovValue(QString key, float value)
 {
     if (key == "Dachflaechen")
-        initValues.setBagrovValueRoof(value);
+        initValues.setBagrovValue(0, value); // 0 = roof
     else if (key == "Belaglsklasse1")
-        initValues.setBagrovValueSuface1(value);
+        initValues.setBagrovValue(1, value);
     else if (key == "Belaglsklasse2")
-        initValues.setBagrovValueSuface2(value);
+        initValues.setBagrovValue(2, value);
     else if (key == "Belaglsklasse3")
-        initValues.setBagrovValueSuface3(value);
+        initValues.setBagrovValue(3, value);
     else if (key == "Belaglsklasse4")
-        initValues.setBagrovSufaceClass4(value);
+        initValues.setBagrovValue(4, value);
 }
 
 void SaxHandler::setDigits(QString key, int value)

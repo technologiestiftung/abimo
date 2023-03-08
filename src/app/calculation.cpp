@@ -527,11 +527,12 @@ void Calculation::getClimaticConditions(int district, QString code)
     // precipitation
     // index 0 = roof, indices 1 - 4 = surface classes 1 - 4
 
-    m_bagrovValues[0] = precipitation - Bagrov::nbagro(m_initValues.getBagrovValueRoof(), xRatio) * potentialEvaporation;
-    m_bagrovValues[1] = precipitation - Bagrov::nbagro(m_initValues.getBagrovValueSuface1(), xRatio) * potentialEvaporation;
-    m_bagrovValues[2] = precipitation - Bagrov::nbagro(m_initValues.getBagrovValueSuface2(), xRatio) * potentialEvaporation;
-    m_bagrovValues[3] = precipitation - Bagrov::nbagro(m_initValues.getBagrovValueSuface3(), xRatio) * potentialEvaporation;
-    m_bagrovValues[4] = precipitation - Bagrov::nbagro(m_initValues.getBagrovValueSuface4(), xRatio) * potentialEvaporation;
+    for (int i = 0; i < static_cast<int>(m_bagrovValues.size()); i++) {
+
+        m_bagrovValues[i] = precipitation -
+            Bagrov::nbagro(m_initValues.getBagrovValue(i), xRatio) *
+            potentialEvaporation;
+    }
 
     // Calculate runoff RUV for unsealed surfaces
     float actualEvaporation = (m_resultRecord.usage == Usage::waterbody_G) ?

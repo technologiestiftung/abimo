@@ -6,6 +6,8 @@
 #ifndef INITVALUES_H
 #define INITVALUES_H
 
+#include <array>
+
 #include <QHash>
 #include <QString>
 
@@ -14,18 +16,13 @@ class InitValues
 
 public:
     InitValues();
-    ~InitValues();
     static QString updateFromConfig(InitValues &initValues, QString configFileName);
     void setInfiltrationFactorRoof(float v);
     void setInfiltrationFactorSurface1(float v);
     void setInfiltrationFactorSurface2(float v);
     void setInfiltrationFactorSurface3(float v);
     void setInfiltrationFactorSurface4(float v);
-    void setBagrovValueRoof(float v);
-    void setBagrovValueSuface1(float v);
-    void setBagrovValueSuface2(float v);
-    void setBagrovValueSuface3(float v);
-    void setBagrovSufaceClass4(float v);
+    void setBagrovValue(int index, float value);
     void setDigitsTotalRunoff(int v);
     void setDigitsRunoff(int v);
     void setDigitsInfiltrationRate(int v);
@@ -41,6 +38,7 @@ public:
     float getInfiltrationFactorSurface2();
     float getInfiltrationFactorSurface3();
     float getInfiltrationFactorSurface4();
+    float getBagrovValue(int index);
     float getBagrovValueRoof();
     float getBagrovValueSuface1();
     float getBagrovValueSuface2();
@@ -72,11 +70,8 @@ private:
     float infiltrationFactorSurface4; // old: infbel4
 
     // Bagrovwerte
-    float bagrovValueRoof; // old: bagdach
-    float bagrovValueSuface1; // old: bagbel1
-    float bagrovValueSuface2; // old: bagbel2
-    float bagrovValueSuface3; // old: bagbel3
-    float bagrovValueSuface4; // old: bagbel4
+    // index 0: roof, indices 1-4: surface classes 1-4
+    std::array<float,5> bagrovValues;
 
     // Nachkomma
     int digitsTotalRunoff; // old: decR
