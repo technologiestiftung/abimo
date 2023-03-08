@@ -75,7 +75,7 @@ bool Calculation::calculate(QString outputFile, bool debug)
     abimoRecord record;
 
     // Number of processed records
-    int index = 0;    
+    int index = 0;
 
     // count protocol entries
     m_counters.initialise();
@@ -572,18 +572,15 @@ float Calculation::realEvapotranspiration(
 
     // Determine effectiveness parameter bag for unsealed surfaces
     // Modul Raster abgespeckt
-    effectivityParameter = EffectivenessUnsealed::calculate(m_resultRecord);
-
-    if (m_resultRecord.precipitationSummer > 0 &&
-            m_resultRecord.potentialEvaporationSummer > 0) {
-        effectivityParameter *= getSummerModificationFactor(
-            (float) (
-                m_resultRecord.precipitationSummer +
-                m_resultRecord.irrigation +
+    effectivityParameter = EffectivenessUnsealed::getEffectivityParameter(
+                m_resultRecord.usableFieldCapacity,
+                m_resultRecord.usage == Usage::forested_W,
+                m_resultRecord.yieldPower,
+                m_resultRecord.irrigation,
+                m_resultRecord.precipitationSummer,
+                m_resultRecord.potentialEvaporationSummer,
                 m_resultRecord.meanPotentialCapillaryRiseRate
-            ) / m_resultRecord.potentialEvaporationSummer
-        );
-    }
+    );
 
     // Calculate the x-factor of bagrov relation: x = (P + KR + BER)/ETP
     // Then get the y-factor: y = fbag(n, x)
@@ -635,29 +632,10 @@ float Calculation::initValueOrReportedDefaultValue(
     m_protocolStream << "\r\n" + name + " unbekannt fuer " + code +
         " von Bezirk " + districtString + "\r\n" + name +
         "=" + string + " angenommen\r\n";
+
     m_counters.incrementRecordsProtocol();
 
     return result;
-}
-
-// =============================================================================
-// Get factor to be applied for "summer"
-// =============================================================================
-float Calculation::getSummerModificationFactor(float wa)
-{
-    const float VALUES_WA[] =
-    {
-        0.45F, 0.50F, 0.55F, 0.60F, 0.65F, 0.70F, 0.75F, // 0 ..  6
-        0.80F, 0.85F, 0.90F, 0.95F, 1.00F, 1.05F, 1.10F  // 7 .. 13
-    };
-
-    const float VALUES_F[] =
-    {
-        0.65F, 0.75F, 0.82F, 0.90F, 1.00F, 1.06F, 1.15F, // 0 ..  6
-        1.22F, 1.30F, 1.38F, 1.47F, 1.55F, 1.63F, 1.70F  // 7 .. 13
-    };
-
-    return helpers::interpolate(wa, VALUES_WA, VALUES_F, 14);
 }
 
 void Calculation::writeResultRecord(abimoRecord &record, DbaseWriter &writer)

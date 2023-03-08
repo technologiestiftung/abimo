@@ -204,21 +204,26 @@ int helpers::index(float xi, const std::vector<float> &x, float epsilon)
     return n - 1;
 }
 
-float helpers::interpolate(float xi, const float *x, const float *y, int n)
+float helpers::interpolate(
+    float xi, const std::vector<float> &x, const std::vector<float> &y
+)
 {
     int i;
+    int n = static_cast<int>(x.size());
 
-    if (xi <= x[0]) {
-        return y[0];
+    assert(n == static_cast<int>(y.size()));
+
+    if (xi <= x.at(0)) {
+        return y.at(0);
     }
 
-    if (xi >= x[n - 1]) {
-        return y[n - 1];
+    if (xi >= x.at(n - 1)) {
+        return y.at(n - 1);
     }
 
     for (i = 1; i < n; i++) {
-        if (xi <= x[i]) {
-            return (y[i - 1] + y[i]) / 2;
+        if (xi <= x.at(i)) {
+            return (y.at(i - 1) + y.at(i)) / 2.0;
         }
     }
 
