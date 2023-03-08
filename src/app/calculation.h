@@ -88,7 +88,6 @@ private:
     float m_totalRunoff; // old: R
     float m_surfaceRunoff;
     float m_infiltration;
-    float m_totalArea;
     float m_evaporation;
 
     Counters m_counters;

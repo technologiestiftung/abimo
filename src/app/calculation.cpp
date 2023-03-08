@@ -255,8 +255,6 @@ void Calculation::calculateResultRecord(AbimoRecord &record)
         record.mainArea = 100.0F;
     }
 
-    m_totalArea = record.totalArea();
-
     // Verhaeltnis Bebauungsflaeche zu Gesamtflaeche
     // ratio of building development area to total area
     areaFractionMain = record.fractionOfTotalArea(record.mainArea);
@@ -544,7 +542,7 @@ void Calculation::writeResultRecord(AbimoRecord& record, DbaseWriter& writer)
     writer.setRecordField("RVOL", m_totalRunoffFlow);
     writer.setRecordField("ROWVOL", m_surfaceRunoffFlow);
     writer.setRecordField("RIVOL", m_infiltrationFlow);
-    writer.setRecordField("FLAECHE", m_totalArea);
+    writer.setRecordField("FLAECHE", record.totalArea());
     writer.setRecordField("VERDUNSTUN", m_evaporation);
 }
 
