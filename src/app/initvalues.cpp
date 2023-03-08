@@ -16,12 +16,8 @@
 
 InitValues::InitValues():
 
-    // Infiltrationsfaktoren
-    infiltrationFactorRoof(0.00F),
-    infiltrationFactorSurface1(0.10F),
-    infiltrationFactorSurface2(0.30F),
-    infiltrationFactorSurface3(0.60F),
-    infiltrationFactorSurface4(0.90F),
+    // Infiltrationsfaktoren (0 = roof, 1-4 = surface classes 1-4)
+    infiltrationFactors({0.00F, 0.10F, 0.30F, 0.60F, 0.90F}),
 
     // Bagrovwerte (0 = roof, 1-4 = surface classes 1-4)
     bagrovValues({0.05F, 0.11F, 0.11F, 0.25F, 0.40F}),
@@ -76,29 +72,9 @@ QString InitValues::updateFromConfig(InitValues &initValues, QString configFileN
     return errorMessage;
 }
 
-void InitValues::setInfiltrationFactorRoof(float v) {
-    infiltrationFactorRoof = v;
-    countSets |= 1;
-}
-
-void InitValues::setInfiltrationFactorSurface1(float v) {
-    infiltrationFactorSurface1 = v;
-    countSets |= 1 << 1;
-}
-
-void InitValues::setInfiltrationFactorSurface2(float v) {
-    infiltrationFactorSurface2 = v;
-    countSets |= 1 << 2;
-}
-
-void InitValues::setInfiltrationFactorSurface3(float v) {
-    infiltrationFactorSurface3 = v;
-    countSets |= 1 << 3;
-}
-
-void InitValues::setInfiltrationFactorSurface4(float v) {
-    infiltrationFactorSurface4 = v;
-    countSets |= 1 << 4;
+void InitValues::setInfiltrationFactor(int index, float value) {
+    infiltrationFactors[index] = value;
+    countSets |= 1 << (0 + index);
 }
 
 void InitValues::setBagrovValue(int index, float value) {
@@ -156,25 +132,9 @@ void InitValues::setPrecipitationCorrectionFactor(float v) {
     countSets |= 1 << 19;
 }
 
-float InitValues::getInfiltrationFactorRoof()
+float InitValues::getInfiltrationFactor(int index)
 {
-    return infiltrationFactorRoof;
-}
-
-float InitValues::getInfiltrationFactorSurface1() {
-    return infiltrationFactorSurface1;
-}
-
-float InitValues::getInfiltrationFactorSurface2() {
-    return infiltrationFactorSurface2;
-}
-
-float InitValues::getInfiltrationFactorSurface3() {
-    return infiltrationFactorSurface3;
-}
-
-float InitValues::getInfiltrationFactorSurface4() {
-    return infiltrationFactorSurface4;
+    return infiltrationFactors.at(index);
 }
 
 float InitValues::getBagrovValue(int index) {

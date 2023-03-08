@@ -17,11 +17,7 @@ class InitValues
 public:
     InitValues();
     static QString updateFromConfig(InitValues &initValues, QString configFileName);
-    void setInfiltrationFactorRoof(float v);
-    void setInfiltrationFactorSurface1(float v);
-    void setInfiltrationFactorSurface2(float v);
-    void setInfiltrationFactorSurface3(float v);
-    void setInfiltrationFactorSurface4(float v);
+    void setInfiltrationFactor(int index, float v);
     void setBagrovValue(int index, float value);
     void setDigitsTotalRunoff(int v);
     void setDigitsRunoff(int v);
@@ -33,17 +29,8 @@ public:
     void setDigitsEvaporation(int v);
     void setIrrigationToZero(bool v);
     void setPrecipitationCorrectionFactor(float v);
-    float getInfiltrationFactorRoof();
-    float getInfiltrationFactorSurface1();
-    float getInfiltrationFactorSurface2();
-    float getInfiltrationFactorSurface3();
-    float getInfiltrationFactorSurface4();
+    float getInfiltrationFactor(int index);
     float getBagrovValue(int index);
-    float getBagrovValueRoof();
-    float getBagrovValueSuface1();
-    float getBagrovValueSuface2();
-    float getBagrovValueSuface3();
-    float getBagrovValueSuface4();
     int getDigitsTotalRunoff();
     int getDigitsRunoff();
     int getDigitsInfiltrationRate();
@@ -63,11 +50,8 @@ public:
 
 private:
     // Infiltrationsfaktoren
-    float infiltrationFactorRoof; // old: infdach
-    float infiltrationFactorSurface1; // old: infbel1
-    float infiltrationFactorSurface2; // old: infbel2
-    float infiltrationFactorSurface3; // old: infbel3
-    float infiltrationFactorSurface4; // old: infbel4
+    // index 0: roof, indices 1-4: surface classes 1-4
+    std::array<float,5> infiltrationFactors; // old: infdach, infbel1 - infbel4
 
     // Bagrovwerte
     // index 0: roof, indices 1-4: surface classes 1-4

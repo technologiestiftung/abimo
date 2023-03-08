@@ -295,14 +295,14 @@ void Calculation::calculateResultRecord(abimoRecord &record)
     //    RDV / RxV: Gesamtabfluss versiegelte Flaeche
 
     runoffRoofs =
-            (1.0F - m_initValues.getInfiltrationFactorRoof()) *
+            (1.0F - m_initValues.getInfiltrationFactor(0)) * // 0 = roof!
             record.mainFractionBuiltSealed *
             record.builtSealedFractionConnected *
             areaFractionMain *
             m_bagrovValues[0]; // 0 = roof!
 
     runoffSealedSurface1 =
-            (1.0F - m_initValues.getInfiltrationFactorSurface1()) *
+            (1.0F - m_initValues.getInfiltrationFactor(1)) *
             (
                 record.unbuiltSealedFractionSurface1 *
                 record.unbuiltSealedFractionConnected *
@@ -315,7 +315,7 @@ void Calculation::calculateResultRecord(abimoRecord &record)
                 ) * m_bagrovValues[1];
 
     runoffSealedSurface2 =
-            (1.0F - m_initValues.getInfiltrationFactorSurface2()) *
+            (1.0F - m_initValues.getInfiltrationFactor(2)) *
             (
                 record.unbuiltSealedFractionSurface2 *
                 record.unbuiltSealedFractionConnected *
@@ -328,7 +328,7 @@ void Calculation::calculateResultRecord(abimoRecord &record)
                 ) * m_bagrovValues[2];
 
     runoffSealedSurface3 =
-            (1.0F - m_initValues.getInfiltrationFactorSurface3()) *
+            (1.0F - m_initValues.getInfiltrationFactor(3)) *
             (
                 record.unbuiltSealedFractionSurface3 *
                 record.unbuiltSealedFractionConnected *
@@ -341,7 +341,7 @@ void Calculation::calculateResultRecord(abimoRecord &record)
                 ) * m_bagrovValues[3];
 
     runoffSealedSurface4 =
-            (1.0F - m_initValues.getInfiltrationFactorSurface4()) *
+            (1.0F - m_initValues.getInfiltrationFactor(4)) *
             (
                 record.unbuiltSealedFractionSurface4 *
                 record.unbuiltSealedFractionConnected *

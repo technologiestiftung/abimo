@@ -126,11 +126,11 @@ void TestAbimo::test_xmlReader()
         <item key="Belaglsklasse3" value="0.60" />
         <item key="Belaglsklasse4" value="0.90" />*/
 
-    QVERIFY(qFuzzyCompare(iv.getInfiltrationFactorRoof(), 0.0F));
-    QVERIFY(qFuzzyCompare(iv.getInfiltrationFactorSurface1(), 0.1F));
-    QVERIFY(qFuzzyCompare(iv.getInfiltrationFactorSurface2(), 0.3F));
-    QVERIFY(qFuzzyCompare(iv.getInfiltrationFactorSurface3(), 0.6F));
-    QVERIFY(qFuzzyCompare(iv.getInfiltrationFactorSurface4(), 0.9F));
+    QVERIFY(qFuzzyCompare(iv.getInfiltrationFactor(0), 0.0F));
+    QVERIFY(qFuzzyCompare(iv.getInfiltrationFactor(1), 0.1F));
+    QVERIFY(qFuzzyCompare(iv.getInfiltrationFactor(2), 0.3F));
+    QVERIFY(qFuzzyCompare(iv.getInfiltrationFactor(3), 0.6F));
+    QVERIFY(qFuzzyCompare(iv.getInfiltrationFactor(4), 0.9F));
 }
 
 void TestAbimo::test_config_getTWS()

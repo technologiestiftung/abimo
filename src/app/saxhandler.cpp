@@ -104,15 +104,15 @@ ParameterGroup SaxHandler::nameToState(QString name)
 void SaxHandler::setInfiltrationFactor(QString key, float value)
 {
     if (key == "Dachflaechen")
-        initValues.setInfiltrationFactorRoof(value);
+        initValues.setInfiltrationFactor(0, value);
     else if (key == "Belaglsklasse1")
-        initValues.setInfiltrationFactorSurface1(value);
+        initValues.setInfiltrationFactor(1, value);
     else if (key == "Belaglsklasse2")
-        initValues.setInfiltrationFactorSurface2(value);
+        initValues.setInfiltrationFactor(2, value);
     else if (key == "Belaglsklasse3")
-        initValues.setInfiltrationFactorSurface3(value);
+        initValues.setInfiltrationFactor(3, value);
     else if (key == "Belaglsklasse4")
-        initValues.setInfiltrationFactorSurface4(value);
+        initValues.setInfiltrationFactor(4, value);
 }
 
 void SaxHandler::setBagrovValue(QString key, float value)
