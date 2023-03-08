@@ -259,11 +259,11 @@ void Calculation::calculateResultRecord(AbimoRecord &record)
 
     // Verhaeltnis Bebauungsflaeche zu Gesamtflaeche
     // ratio of building development area to total area
-    areaFractionMain = record.mainArea / m_totalArea;
+    areaFractionMain = record.fractionOfTotalArea(record.mainArea);
 
     // Verhaeltnis Strassenflaeche zu Gesamtflaeche
     // ratio of roads area to total area
-    areaFractionRoad = record.roadArea / m_totalArea;
+    areaFractionRoad = record.fractionOfTotalArea(record.roadArea);
 
     // Runoff for sealed surfaces
 

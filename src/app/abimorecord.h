@@ -72,6 +72,13 @@ public:
     inline float totalArea() {
         return mainArea + roadArea;
     }
+
+    inline float fractionOfTotalArea(float area) {
+        float total = totalArea();
+        assert(total > 0);
+        assert(area <= total);
+        return area / total;
+    }
 };
 
 #endif // ABIMORECORD_H
