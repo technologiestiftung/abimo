@@ -42,7 +42,6 @@ const std::vector<float> PDR::MEAN_POTENTIAL_CAPILLARY_RISE_RATES_SUMMER = {
 };
 
 PDR::PDR():
-    wIndex(0),
     usableFieldCapacity(0),
     depthToWaterTable(0),
     usage(Usage::unknown),

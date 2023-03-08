@@ -59,9 +59,6 @@ public:
     static float estimateWaterHoldingCapacity(int f30, int f150, bool isForest);
     static int estimateDaysOfGrowth(Usage usage, int yield);
 
-    // Elementnummer EB_INDEX neu
-    unsigned wIndex;
-
     // nFK-Wert (ergibt sich aus Bodenart) ID_NFK neu
     // water holding capacity (= nutzbare Feldkapazitaet)
     float usableFieldCapacity; // old: nFK

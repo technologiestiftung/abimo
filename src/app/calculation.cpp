@@ -88,8 +88,6 @@ bool Calculation::calculate(QString outputFile, bool debug)
             break;
         }
 
-        m_resultRecord.wIndex = index;
-
         // Fill record with data from row k
         m_dbReader.fillRecord(k, record, debug);
 
