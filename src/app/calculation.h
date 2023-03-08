@@ -115,7 +115,7 @@ private:
 
     int progressNumber(int i, int n, int max);
     void calculateResultRecord(AbimoRecord &record);
-    void writeResultRecord(QString& code, DbaseWriter& writer);
+    void writeResultRecord(AbimoRecord &record, DbaseWriter& writer);
 };
 
 #endif

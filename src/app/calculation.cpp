@@ -99,7 +99,7 @@ bool Calculation::calculate(QString outputFile, bool debug)
 
             // calculate and set result record fields to calculated values
             calculateResultRecord(record);
-            writeResultRecord(record.code, writer);
+            writeResultRecord(record, writer);
 
             index++;
         }
@@ -534,10 +534,10 @@ float Calculation::initValueOrReportedDefaultValue(
     return result;
 }
 
-void Calculation::writeResultRecord(QString& code, DbaseWriter& writer)
+void Calculation::writeResultRecord(AbimoRecord& record, DbaseWriter& writer)
 {
     writer.addRecord();
-    writer.setRecordField("CODE", code);
+    writer.setRecordField("CODE", record.code);
     writer.setRecordField("R", m_totalRunoff);
     writer.setRecordField("ROW", m_surfaceRunoff);
     writer.setRecordField("RI", m_infiltration);
