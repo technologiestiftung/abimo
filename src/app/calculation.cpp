@@ -32,11 +32,7 @@ Calculation::Calculation(
     m_dbReader(dbaseReader),
     m_precipitationYear(0), // old: regenja
     m_precipitationSummer(0), // old: regenso
-    m_bagrovValueRoof(0), // old: RDV
-    m_bagrovValueSurface1(0), // old: R1V
-    m_bagrovValueSurface2(0), // old: R2V
-    m_bagrovValueSurface3(0), // old: R3V
-    m_bagrovValueSurface4(0), // old: R4V
+    m_bagrovValues({0, 0, 0, 0, 0}),
     m_unsealedSurfaceRunoff(0), // old: RUV
     m_surfaceRunoffFlow(0), // old: ROWVOL
     m_infiltrationFlow(0), // old: RIVOL
@@ -303,7 +299,7 @@ void Calculation::calculateResultRecord(abimoRecord &record)
             record.mainFractionBuiltSealed *
             record.builtSealedFractionConnected *
             areaFractionMain *
-            m_bagrovValueRoof;
+            m_bagrovValues[0]; // 0 = roof!
 
     runoffSealedSurface1 =
             (1.0F - m_initValues.getInfiltrationFactorSurface1()) *
@@ -316,7 +312,7 @@ void Calculation::calculateResultRecord(abimoRecord &record)
                 record.roadSealedFractionConnected *
                 record.roadFractionSealed *
                 areaFractionRoad
-                ) * m_bagrovValueSurface1;
+                ) * m_bagrovValues[1];
 
     runoffSealedSurface2 =
             (1.0F - m_initValues.getInfiltrationFactorSurface2()) *
@@ -329,7 +325,7 @@ void Calculation::calculateResultRecord(abimoRecord &record)
                 record.roadSealedFractionConnected *
                 record.roadFractionSealed *
                 areaFractionRoad
-                ) * m_bagrovValueSurface2;
+                ) * m_bagrovValues[2];
 
     runoffSealedSurface3 =
             (1.0F - m_initValues.getInfiltrationFactorSurface3()) *
@@ -342,7 +338,7 @@ void Calculation::calculateResultRecord(abimoRecord &record)
                 record.roadSealedFractionConnected *
                 record.roadFractionSealed *
                 areaFractionRoad
-                ) * m_bagrovValueSurface3;
+                ) * m_bagrovValues[3];
 
     runoffSealedSurface4 =
             (1.0F - m_initValues.getInfiltrationFactorSurface4()) *
@@ -355,14 +351,14 @@ void Calculation::calculateResultRecord(abimoRecord &record)
                 record.roadSealedFractionConnected *
                 record.roadFractionSealed *
                 areaFractionRoad
-                ) * m_bagrovValueSurface4;
+                ) * m_bagrovValues[4];
 
     // Infiltration for sealed surfaces
     infiltrationRoofs =
             (1 - record.builtSealedFractionConnected) *
             record.mainFractionBuiltSealed *
             areaFractionMain *
-            m_bagrovValueRoof;
+            m_bagrovValues[0]; // 0 = roof
 
     infiltrationSealedSurface1 = (
                 record.unbuiltSealedFractionSurface1 *
@@ -371,7 +367,7 @@ void Calculation::calculateResultRecord(abimoRecord &record)
                 record.roadSealedFractionSurface1 *
                 record.roadFractionSealed *
                 areaFractionRoad
-                ) * m_bagrovValueSurface1 - runoffSealedSurface1;
+                ) * m_bagrovValues[1] - runoffSealedSurface1;
 
     infiltrationSealedSurface2 = (
                 record.unbuiltSealedFractionSurface2 *
@@ -380,7 +376,7 @@ void Calculation::calculateResultRecord(abimoRecord &record)
                 record.roadSealedFractionSurface2 *
                 record.roadFractionSealed *
                 areaFractionRoad
-                ) * m_bagrovValueSurface2 - runoffSealedSurface2;
+                ) * m_bagrovValues[2] - runoffSealedSurface2;
 
     infiltrationSealedSurface3 = (
                 record.unbuiltSealedFractionSurface3 *
@@ -389,7 +385,7 @@ void Calculation::calculateResultRecord(abimoRecord &record)
                 record.roadSealedFractionSurface3 *
                 record.roadFractionSealed *
                 areaFractionRoad
-                ) * m_bagrovValueSurface3 - runoffSealedSurface3;
+                ) * m_bagrovValues[3] - runoffSealedSurface3;
 
     infiltrationSealedSurface4 = (
                 record.unbuiltSealedFractionSurface4 *
@@ -398,7 +394,7 @@ void Calculation::calculateResultRecord(abimoRecord &record)
                 record.roadSealedFractionSurface4 *
                 record.roadFractionSealed *
                 areaFractionRoad
-                ) * m_bagrovValueSurface4 - runoffSealedSurface4;
+                ) * m_bagrovValues[4] - runoffSealedSurface4;
 
     // consider unsealed road surfaces as pavement class 4
     // old: 0.11F * (1-vgs) * fsant * R4V;
@@ -408,7 +404,7 @@ void Calculation::calculateResultRecord(abimoRecord &record)
     infiltrationPerviousRoads =
             (1 - record.roadFractionSealed) *
             areaFractionRoad *
-            m_bagrovValueSurface4;
+            m_bagrovValues[4];
 
     // runoff for unsealed surfaces rowuv = 0
     infiltrationPerviousSurfaces = (
@@ -529,27 +525,18 @@ void Calculation::getClimaticConditions(int district, QString code)
     // Umrechnung potentieller Verdunstungen potentialEvaporation zu realen
     // ueber Umrechnungsfaktor yRatio und subtrahiert von Niederschlag
     // precipitation
+    // index 0 = roof, indices 1 - 4 = surface classes 1 - 4
 
-    m_bagrovValueRoof = precipitation - Bagrov::nbagro(m_initValues.getBagrovValueRoof(), xRatio) * potentialEvaporation;
+    m_bagrovValues[0] = precipitation - Bagrov::nbagro(m_initValues.getBagrovValueRoof(), xRatio) * potentialEvaporation;
+    m_bagrovValues[1] = precipitation - Bagrov::nbagro(m_initValues.getBagrovValueSuface1(), xRatio) * potentialEvaporation;
+    m_bagrovValues[2] = precipitation - Bagrov::nbagro(m_initValues.getBagrovValueSuface2(), xRatio) * potentialEvaporation;
+    m_bagrovValues[3] = precipitation - Bagrov::nbagro(m_initValues.getBagrovValueSuface3(), xRatio) * potentialEvaporation;
+    m_bagrovValues[4] = precipitation - Bagrov::nbagro(m_initValues.getBagrovValueSuface4(), xRatio) * potentialEvaporation;
 
-    m_bagrovValueSurface1 = precipitation - Bagrov::nbagro(m_initValues.getBagrovValueSuface1(), xRatio) * potentialEvaporation;
-    m_bagrovValueSurface2 = precipitation - Bagrov::nbagro(m_initValues.getBagrovValueSuface2(), xRatio) * potentialEvaporation;
-    m_bagrovValueSurface3 = precipitation - Bagrov::nbagro(m_initValues.getBagrovValueSuface3(), xRatio) * potentialEvaporation;
-    m_bagrovValueSurface4 = precipitation - Bagrov::nbagro(m_initValues.getBagrovValueSuface4(), xRatio) * potentialEvaporation;
-
-    float actualEvaporation;
-
-    // Calculate runoff RUV for unsealed partial surfaces
-    if (m_resultRecord.usage == Usage::waterbody_G) {
-
-        actualEvaporation = potentialEvaporation;
-
-    } else {
-
-        actualEvaporation = realEvapotranspiration(
-            potentialEvaporation, precipitation
-        );
-    }
+    // Calculate runoff RUV for unsealed surfaces
+    float actualEvaporation = (m_resultRecord.usage == Usage::waterbody_G) ?
+        potentialEvaporation :
+        realEvapotranspiration(potentialEvaporation, precipitation);
 
     m_unsealedSurfaceRunoff = precipitation - actualEvaporation;
 }

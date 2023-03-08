@@ -6,6 +6,7 @@
 #ifndef CALCULATION_H
 #define CALCULATION_H
 
+#include <array>
 #include <QObject>
 #include <QString>
 #include <QTextStream>
@@ -65,12 +66,9 @@ private:
     float m_precipitationYear; // old: regenja
     float m_precipitationSummer; // old: regenso
 
-    // Abfluesse nach Bagrov fuer N1 bis N4
-    float m_bagrovValueRoof; // old: RDV
-    float m_bagrovValueSurface1; // old: R1V
-    float m_bagrovValueSurface2; // old: R2V
-    float m_bagrovValueSurface3; // old: R3V
-    float m_bagrovValueSurface4; // old: R4V
+    // Abfluesse nach Bagrov fuer Daecher (index 0) und Oberflaechenklassen
+    // 1 bis 4 (index 1 bis 4)
+    std::array<float,5> m_bagrovValues;
 
     // runoff for unsealed partial surfaces
     float m_unsealedSurfaceRunoff; // old: RUV
