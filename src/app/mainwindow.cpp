@@ -235,55 +235,70 @@ void MainWindow::computeFile()
 }
 
 void MainWindow::reportSuccess(
-    Calculation* calc,
-    QTextStream &protokollStream,
-    QString outFile,
-    QString protokollFileName
+    Calculation* calculator,
+    QTextStream& protocolStream,
+    QString outputFile,
+    QString protocolFile
 )
 {
-    QString protCount;
-    QString nutzungIstNull;
-    QString keineFlaechenAngegeben;
-    QString readRecCount;
-    QString writeRecCount;
+    Counters counters = calculator->getCounters();
 
-    Counters counters = calc->getCounters();
-
-    protCount.setNum(counters.getRecordsProtocol());
-    nutzungIstNull.setNum(counters.getNoUsageGiven());
-    keineFlaechenAngegeben.setNum(counters.getNoAreaGiven());
-    readRecCount.setNum(counters.getRecordsRead());
-    writeRecCount.setNum(counters.getRecordsWritten());
+    int np = counters.getRecordsProtocol();
+    int nr = counters.getRecordsRead();
+    int nw = counters.getRecordsWritten();
 
     setText(
-        "Berechnungen mit " + protCount + " Fehlern beendet.\n" +
-        "Eingelesene Records: " + readRecCount +"\n" +
-        "Geschriebene Records: " + writeRecCount +"\n" +
-        "Ergebnisse in Datei: '" + outFile + "' geschrieben.\n" +
-        "Protokoll in Datei: '" + protokollFileName + "' geschrieben."
+        QString("Berechnungen mit %1 Fehlern beendet.\n").arg(np) +
+        QString("Eingelesene Records: %1\n").arg(nr) +
+        QString("Geschriebene Records: %1\n").arg(nw) +
+        QString("Ergebnisse in Datei: '%1' geschrieben.\n").arg(outputFile) +
+        QString("Protokoll in Datei: '%1' geschrieben.").arg(protocolFile)
     );
 
-    protokollStream << "\r\nBei der Berechnung traten " << protCount <<
-        " Fehler auf.\r\n";
+    reportLine(
+        protocolStream,
+        QString("Bei der Berechnung traten %1 Fehler auf.").arg(np)
+    );
 
-    if (counters.getNoAreaGiven() != 0) {
-        protokollStream << "\r\nBei " + keineFlaechenAngegeben +
-            " Flaechen deren Wert 0 war wurde 100 eingesetzt.\r\n";
+    reportNumberCasesIfAny(
+        protocolStream, counters.getNoAreaGiven(),
+        QString("Flaechen, deren Wert 0 war, wurde 100 eingesetzt")
+    );
+
+    reportNumberCasesIfAny(
+        protocolStream, counters.getNoUsageGiven(),
+        QString("war die Nutzung 0, diese wurden ignoriert")
+    );
+
+    reportNumberCasesIfAny(
+        protocolStream, counters.getIrrigationForcedToZero(),
+        QString("wurde BER==0 erzwungen")
+    );
+
+    reportLine(protocolStream, QString("Eingelesene Records: %1").arg(nr));
+    reportLine(protocolStream, QString("Geschriebene Records: %1").arg(nw));
+
+    reportLine(
+        protocolStream,
+        QString("Ende der Berechnung %1").arg(helpers::nowString())
+    );
+}
+
+void MainWindow::reportLine(QTextStream &protocolStream, QString message)
+{
+    protocolStream << "\r\n" << message << "\r\n";
+}
+
+void MainWindow::reportNumberCasesIfAny(
+    QTextStream &protocolStream, int n, QString whatCase
+)
+{
+    if (n != 0) {
+        reportLine(
+            protocolStream,
+            QString("Bei %1 Records %2.").arg(n).arg(whatCase)
+        );
     }
-
-    if (counters.getNoUsageGiven() != 0) {
-        protokollStream << "\r\nBei " + nutzungIstNull +
-            " Records war die Nutzung 0, diese wurden ignoriert.\r\n";
-    }
-
-    if (counters.getIrrigationForcedToZero() != 0) {
-        protokollStream << "\r\nBei " << counters.getIrrigationForcedToZero() <<
-            " Records wurde BER==0 erzwungen.\r\n";
-    }
-
-    protokollStream << "\r\nEingelesene Records: " + readRecCount + "\r\n";
-    protokollStream << "\r\nGeschriebene Records: " + writeRecCount + "\r\n";
-    protokollStream << "\r\nEnde der Berechnung " + helpers::nowString() + "\r\n";
 }
 
 void MainWindow::reportCancelled(QTextStream & /*protokollStream*/)

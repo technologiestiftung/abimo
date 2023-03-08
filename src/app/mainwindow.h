@@ -42,6 +42,8 @@ private:
     void warning(QString);
     void reportSuccess(Calculation*, QTextStream&, QString, QString);
     void reportCancelled(QTextStream&);
+    void reportLine(QTextStream&, QString);
+    void reportNumberCasesIfAny(QTextStream&, int, QString);
     QAction *openAct;
     QAction *aboutAct;
     QLabel *textfield;
