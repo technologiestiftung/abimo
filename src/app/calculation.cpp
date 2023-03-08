@@ -10,6 +10,7 @@
 #include <QString>
 #include <QTextStream>
 
+#include "abimorecord.h"
 #include "bagrov.h"
 #include "calculation.h"
 #include "config.h"
@@ -66,7 +67,7 @@ QString Calculation::getError()
 bool Calculation::calculate(QString outputFile, bool debug)
 {
     // Current Abimo record (represents one row of the input dbf file)
-    abimoRecord record;
+    AbimoRecord record;
 
     // Number of processed records
     int index = 0;
@@ -136,7 +137,7 @@ int Calculation::progressNumber(int i, int n, int max)
     return (int) (static_cast<float>(i) / static_cast<float>(n * max));
 }
 
-void Calculation::calculateResultRecord(abimoRecord &record)
+void Calculation::calculateResultRecord(AbimoRecord &record)
 {
     // Verhaeltnis Bebauungsflaeche / Strassenflaeche zu Gesamtflaeche
     // (ant = Anteil)

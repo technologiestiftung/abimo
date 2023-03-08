@@ -25,6 +25,7 @@ INCDIR = ../app
 #INCLUDEPATH += $$INCDIR
 
 HEADERS += \
+    $$INCDIR/abimorecord.h \
     $$INCDIR/bagrov.h \
     $$INCDIR/calculation.h\
     $$INCDIR/config.h\
@@ -39,6 +40,7 @@ HEADERS += \
     $$INCDIR/saxhandler.h
 
 SOURCES += \
+    $$INCDIR/abimorecord.cpp \
     $$INCDIR/bagrov.cpp \
     $$INCDIR/calculation.cpp \
     $$INCDIR/config.cpp \

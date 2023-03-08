@@ -353,7 +353,7 @@ int DbaseReader::computeCountFields(int numBytesHeader)
     return (numBytesHeader - numBytesFileInfo - 1) / numBytesPerField;
 }
 
-void DbaseReader::fillRecord(int k, abimoRecord& record, bool debug)
+void DbaseReader::fillRecord(int k, AbimoRecord& record, bool debug)
 {
     record.unbuiltSealedFractionSurface[1] = floatFraction(getRecord(k, "BELAG1"));
     record.unbuiltSealedFractionSurface[2] = floatFraction(getRecord(k, "BELAG2"));

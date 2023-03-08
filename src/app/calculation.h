@@ -11,6 +11,7 @@
 #include <QString>
 #include <QTextStream>
 
+#include "abimorecord.h"
 #include "counters.h"
 #include "dbaseReader.h"
 #include "dbaseWriter.h"
@@ -113,7 +114,7 @@ private:
     );
 
     int progressNumber(int i, int n, int max);
-    void calculateResultRecord(abimoRecord &record);
+    void calculateResultRecord(AbimoRecord &record);
     void writeResultRecord(QString& code, DbaseWriter& writer);
 };
 
