@@ -172,8 +172,6 @@ void Calculation::calculateResultRecord(abimoRecord &record)
     // infiltration of unsealed areas
     float infiltrationPerviousSurfaces; // old: riuv
 
-    // CODE: unique identifier for each block partial area
-
     // precipitation for entire year and for summer season only
     m_precipitationYear = record.precipitationYear;
     m_precipitationSummer = record.precipitationSummer;
@@ -240,10 +238,10 @@ void Calculation::calculateResultRecord(abimoRecord &record)
     getClimaticConditions(record.district, record.code);
 
     // percentage of total sealed area
+    // share of roof area [%] 'PROBAU' +
+    // share of other (unbuilt) sealed areas (e.g. Hofflaechen)
     m_resultRecord.mainPercentageSealed = helpers::roundToInteger(
-        // share of roof area [%] 'PROBAU'
         record.mainFractionBuiltSealed * 100 +
-        // share of other (unbuilt) sealed areas (e.g. Hofflaechen)
         record.mainFractionUnbuiltSealed * 100
     );
 
@@ -269,9 +267,6 @@ void Calculation::calculateResultRecord(abimoRecord &record)
     areaFractionRoad = record.roadArea / m_totalArea;
 
     // Runoff for sealed surfaces
-    // cls_1: Fehler a:
-    //   rowd = (1.0F - initValues.getInfdach()) * vgd * kb * fbant * RDV;
-    //   richtige Zeile folgt (kb ----> kd)
 
     //  Legende der Abflussberechnung der 4 Belagsklassen bzw. Dachklasse:
     //    rowd / rowx: Abfluss Dachflaeche / Abfluss Belagsflaeche x
@@ -384,7 +379,6 @@ void Calculation::calculateResultRecord(abimoRecord &record)
     // infiltration
     m_totalRunoffFlow = m_surfaceRunoffFlow + m_infiltrationFlow;
 
-    // cls_5b:
     // calculate evaporation 'verdunst' by subtracting 'r', the sum of
     // runoff and infiltration from precipitation of entire year,
     // multiplied by precipitation correction factor
