@@ -62,10 +62,6 @@ private:
     PDR m_resultRecord; // old: ptrDA
     QString m_error;
 
-    // *** vorlaeufig aus Teilblock 0 wird fuer die Folgeblocks genommen
-    float m_precipitationYear; // old: regenja
-    float m_precipitationSummer; // old: regenso
-
     // Abfluesse nach Bagrov fuer Daecher (index 0) und Oberflaechenklassen
     // 1 bis 4 (index 1 bis 4)
     std::array<float,5> m_bagrovValues;

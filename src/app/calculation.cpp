@@ -30,8 +30,6 @@ Calculation::Calculation(
     m_initValues(initValues),
     m_protocolStream(protocolStream),
     m_dbReader(dbaseReader),
-    m_precipitationYear(0), // old: regenja
-    m_precipitationSummer(0), // old: regenso
     m_bagrovValues({0, 0, 0, 0, 0}),
     m_unsealedSurfaceRunoff(0), // old: RUV
     m_surfaceRunoffFlow(0), // old: ROWVOL
@@ -173,8 +171,8 @@ void Calculation::calculateResultRecord(abimoRecord &record)
     float infiltrationPerviousSurfaces; // old: riuv
 
     // precipitation for entire year and for summer season only
-    m_precipitationYear = record.precipitationYear;
-    m_precipitationSummer = record.precipitationSummer;
+    m_resultRecord.precipitationYear = record.precipitationYear;
+    m_resultRecord.precipitationSummer = record.precipitationSummer;
 
     // depth to groundwater table 'FLUR'
     m_resultRecord.depthToWaterTable = record.depthToWaterTable;
@@ -383,7 +381,7 @@ void Calculation::calculateResultRecord(abimoRecord &record)
     // runoff and infiltration from precipitation of entire year,
     // multiplied by precipitation correction factor
     m_evaporation = (
-        m_precipitationYear *
+        m_resultRecord.precipitationYear *
         m_initValues.getPrecipitationCorrectionFactor()
     ) - m_totalRunoff;
 
@@ -404,21 +402,15 @@ void Calculation::getClimaticConditions(int district, QString code)
     // ratio of precipitation to potential evaporation
     float xRatio;
 
-    // Later on two additional parameters, (now and?) here:
-    // * ptrDA.P1 = p1;
-    // * ptrDA.PS = ps;
-    m_resultRecord.precipitationYear = m_precipitationYear;
-    m_resultRecord.precipitationSummer = m_precipitationSummer;
-
     // Parameter for the city districts
-    if (m_resultRecord.usage == Usage::waterbody_G)
-    {
+    if (m_resultRecord.usage == Usage::waterbody_G) {
+
         m_resultRecord.longtimeMeanPotentialEvaporation = initValueOrReportedDefaultValue(
             district, code, m_initValues.hashEG, 775, "EG"
         );
     }
-    else
-    {
+    else {
+
         m_resultRecord.longtimeMeanPotentialEvaporation = initValueOrReportedDefaultValue(
             district, code, m_initValues.hashETP, 660, "ETP"
         );
@@ -478,13 +470,13 @@ float Calculation::realEvapotranspiration(
     // Determine effectiveness parameter bag for unsealed surfaces
     // Modul Raster abgespeckt
     effectivityParameter = EffectivenessUnsealed::getEffectivityParameter(
-                m_resultRecord.usableFieldCapacity,
-                m_resultRecord.usage == Usage::forested_W,
-                m_resultRecord.yieldPower,
-                m_resultRecord.irrigation,
-                m_resultRecord.precipitationSummer,
-                m_resultRecord.potentialEvaporationSummer,
-                m_resultRecord.meanPotentialCapillaryRiseRate
+        m_resultRecord.usableFieldCapacity,
+        m_resultRecord.usage == Usage::forested_W,
+        m_resultRecord.yieldPower,
+        m_resultRecord.irrigation,
+        m_resultRecord.precipitationSummer,
+        m_resultRecord.potentialEvaporationSummer,
+        m_resultRecord.meanPotentialCapillaryRiseRate
     );
 
     // Calculate the x-factor of bagrov relation: x = (P + KR + BER)/ETP
