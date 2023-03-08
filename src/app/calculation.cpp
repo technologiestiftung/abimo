@@ -337,9 +337,7 @@ void Calculation::calculateResultRecord(AbimoRecord &record)
     m_resultRecord.runoff = helpers::roundToInteger(m_surfaceRunoff);
 
     // calculate volume 'rowvol' from runoff (qcm/s)
-    m_surfaceRunoffFlow = m_surfaceRunoff * 3.171F * (
-        record.totalArea()
-    ) / 100000.0F;
+    m_surfaceRunoffFlow = record.yearlyHeightToVolumeFlow(m_surfaceRunoff);
 
     // calculate infiltration rate 'ri' for entire block partial area
     // (mm/a)
@@ -353,9 +351,7 @@ void Calculation::calculateResultRecord(AbimoRecord &record)
     m_resultRecord.infiltrationRate = helpers::roundToInteger(m_infiltration);
 
     // calculate volume 'rivol' from infiltration rate (qcm/s)
-    m_infiltrationFlow = m_infiltration * 3.171F * (
-        record.totalArea()
-    ) / 100000.0F;
+    m_infiltrationFlow = record.yearlyHeightToVolumeFlow(m_infiltration);
 
     // calculate total system losses 'r' due to runoff and infiltration
     // for entire block partial area

@@ -79,6 +79,11 @@ public:
         assert(area <= total);
         return area / total;
     }
+
+    inline float yearlyHeightToVolumeFlow(float height) {
+        return height * 3.171F * totalArea() / 100000.0F;
+    }
+
 };
 
 #endif // ABIMORECORD_H
