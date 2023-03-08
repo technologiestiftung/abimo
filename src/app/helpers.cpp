@@ -10,11 +10,6 @@
 
 #include "helpers.h"
 
-/*Helpers::Helpers()
-{
-}
-*/
-
 QString helpers::nowString()
 {
     QDateTime now = QDateTime::currentDateTime();

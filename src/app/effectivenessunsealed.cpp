@@ -1,6 +1,7 @@
 #include "effectivenessunsealed.h"
 
 #include "constants.h"
+#include "helpers.h"
 #include "pdr.h"
 
 // parameter values x1, x2, x3, x4 and x5 (one column each)
@@ -84,7 +85,7 @@ float EffectivenessUnsealed::bag0_default(
         k--;
     }
 
-    k = 5 * MIN(k, 13) - 2;
+    k = 5 * helpers::min(k, 13) - 2;
 
     float result =
         EFFECTIVENESS_PARAMETER_VALUES[k - 1] +

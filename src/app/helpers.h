@@ -28,6 +28,14 @@ namespace helpers
     int index(float xi, const std::vector<float> &x, float epsilon = 0.0001F);
     float interpolate(float xi, const float *x, const float *y, int n);
     QString removeFileExtension(QString);
+
+    inline float min(float a, float b) {
+        return (a < b) ? a : b;
+    }
+
+    inline float max(float a, float b) {
+        return (a > b) ? a : b;
+    }
 };
 
 #endif // HELPERS_H

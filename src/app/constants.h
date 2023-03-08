@@ -6,10 +6,6 @@
 
 // Define macros
 
-// minimum or maximum of two values
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-
 // round to integer
 #define INT_ROUND(x) ((int) round(x))
 

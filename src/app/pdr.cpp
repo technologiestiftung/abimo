@@ -7,7 +7,6 @@
 #include <vector>
 
 #include "config.h"
-#include "constants.h" // for MIN() macro
 #include "helpers.h"
 #include "pdr.h"
 
@@ -113,11 +112,11 @@ int PDR::estimateDaysOfGrowth(Usage usage, int yield)
 
 float PDR::estimateWaterHoldingCapacity(int f30, int f150, bool isForest)
 {
-    if (MIN(f30, f150) < 1) {
+    if (helpers::min(f30, f150) < 1) {
         return 13.0F;
     }
 
-    if (abs(f30 - f150) < MIN(f30, f150)) { // unwesentliche Abweichung
+    if (abs(f30 - f150) < helpers::min(f30, f150)) { // unwesentliche Abweichung
         return (float) (isForest ? f150 : f30);
     }
 
