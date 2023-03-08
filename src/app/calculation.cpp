@@ -107,7 +107,7 @@ bool Calculation::calculate(QString outputFile, bool debug)
             m_counters.incrementNoUsageGiven();
         }
 
-        emit processSignal(progressNumber(k, recordCount, 50), "Berechne");
+        emit processSignal(progressNumber(k, recordCount, 50.0), "Berechne");
     }
 
     // set counters
@@ -130,9 +130,9 @@ bool Calculation::calculate(QString outputFile, bool debug)
     return true;
 }
 
-int Calculation::progressNumber(int i, int n, int max)
+int Calculation::progressNumber(int i, int n, float max)
 {
-    return (int) (static_cast<float>(i) / static_cast<float>(n * max));
+    return (int) (static_cast<float>(i) / static_cast<float>(n) * max);
 }
 
 void Calculation::calculateResultRecord(AbimoRecord &record)

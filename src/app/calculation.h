@@ -112,7 +112,7 @@ private:
         QString name
     );
 
-    int progressNumber(int i, int n, int max);
+    int progressNumber(int i, int n, float max);
     void calculateResultRecord(AbimoRecord &record);
     void writeResultRecord(AbimoRecord &record, DbaseWriter& writer);
 };

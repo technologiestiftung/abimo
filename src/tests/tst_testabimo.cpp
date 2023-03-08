@@ -165,6 +165,10 @@ void TestAbimo::test_calc()
     Calculation::runCalculation(inputFile, configFile, outputFile);
     QVERIFY(dbfHeadersAreIdentical(outputFile, outFile_xmlConfig));
     QVERIFY(dbfStringsAreIdentical(outputFile, outFile_xmlConfig));
+
+    // file created using the GUI
+    //QString file_tmp = dataFilePath("abimo_2019_mitstrassen_out2.dbf", true);
+    //QVERIFY(dbfStringsAreIdentical(file_tmp, outFile_noConfig));
 }
 
 void TestAbimo::test_bagrov()
