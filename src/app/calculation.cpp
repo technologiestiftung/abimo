@@ -84,14 +84,13 @@ bool Calculation::calculate(QString outputFile, bool debug)
     DbaseWriter writer(outputFile, m_initValues);
 
     // get the number of rows in the input data
-    m_counters.setRecordsRead(m_dbReader.getNumberOfRecords());
+    int recordCount = m_dbReader.getNumberOfRecords();
 
     // loop over all block partial areas (= records/rows of input data)
-    for (int k = 0; k < m_counters.getRecordsRead(); k++) {
+    for (int k = 0; k < recordCount; k++) {
 
         if (!m_continueProcessing) {
-            m_protocolStream << "Berechnungen abgebrochen.\r\n";
-            return true;
+            break;
         }
 
         m_resultRecord.wIndex = index;
@@ -103,37 +102,44 @@ bool Calculation::calculate(QString outputFile, bool debug)
         // partial area
         if (record.usage != 0) {
 
+            // calculate and set result record fields to calculated values
             calculateResultRecord(record);
-
-            // write the calculated variables into respective fields
             writeResultRecord(record, writer);
 
             index++;
         }
         else {
+            // Hier koennten falls gewuenscht die Flaechen dokumentiert
+            // werden, deren NUTZUNG=NULL
             m_counters.incrementNoUsageGiven();
         }
 
-        // cls_2: Hier koennten falls gewuenscht die Flaechen dokumentiert
-        // werden, deren NUTZUNG=NULL (siehe auch cls_3)
-
-        emit processSignal(
-            (int)((float) k / (float) m_counters.getRecordsRead() * 50.0),
-            "Berechne"
-        );
+        emit processSignal(progressNumber(k, recordCount, 50), "Berechne");
     }
 
+    // set counters
+    m_counters.setRecordsRead(recordCount);
     m_counters.setRecordsWritten(index);
+
+    if (!m_continueProcessing) {
+        m_protocolStream << "Berechnungen abgebrochen.\r\n";
+        return true;
+    }
 
     emit processSignal(50, "Schreibe Ergebnisse.");
 
     if (!writer.write()) {
-        m_protocolStream << "Error: "+ writer.getError() +"\r\n";
+        m_protocolStream << "Error: " + writer.getError() +"\r\n";
         m_error = "Fehler beim Schreiben der Ergebnisse.\n" + writer.getError();
         return false;
     }
 
     return true;
+}
+
+int Calculation::progressNumber(int i, int n, int max)
+{
+    return (int) ((float) i / (float) n * max);
 }
 
 void Calculation::calculateResultRecord(abimoRecord &record)
