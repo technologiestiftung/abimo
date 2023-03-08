@@ -137,12 +137,6 @@ int Calculation::progressNumber(int i, int n, float max)
 
 void Calculation::calculateResultRecord(AbimoRecord &record)
 {
-    // Verhaeltnis Bebauungsflaeche / Strassenflaeche zu Gesamtflaeche
-    // (ant = Anteil)
-    // share of building development area / road area to total area
-    float areaFractionMain; // old: fbant
-    float areaFractionRoad; // old: fsant
-
     // Abflussvariablen der versiegelten Flaechen
     // runoff variables of sealed surfaces
     // Take care: for consistency use indices 1 to 4 only, do not use 0 (roofs)!
@@ -154,20 +148,6 @@ void Calculation::calculateResultRecord(AbimoRecord &record)
     // Take care: for consistency use indices 1 to 4 only, do not use 0 (roofs)!
     // old: ri1 - ri4
     std::vector<float> infiltrationSealedSurfaces = {0, 0, 0, 0, 0};
-
-    // Abfluss- / Infiltrationsvariablen der Dachflaechen
-    // runoff- / infiltration variables of roof surfaces
-    float runoffRoofs; // old: rowd
-    float infiltrationRoofs; // old: rid
-
-    // Abfluss- / Infiltrationsvariablen unversiegelter Strassenflaechen
-    // runoff- / infiltration variables of unsealed road surfaces
-    float runoffPerviousRoads; // old: rowuvs
-    float infiltrationPerviousRoads; // old: riuvs
-
-    // Infiltration unversiegelter Flaechen
-    // infiltration of unsealed areas
-    float infiltrationPerviousSurfaces; // old: riuv
 
     // precipitation for entire year and for summer season only
     m_resultRecord.precipitationYear = record.precipitationYear;
@@ -253,32 +233,38 @@ void Calculation::calculateResultRecord(AbimoRecord &record)
         record.mainArea = 100.0F;
     }
 
+    // share of building development area / road area to total area
+
     // Verhaeltnis Bebauungsflaeche zu Gesamtflaeche
-    // ratio of building development area to total area
-    areaFractionMain = record.fractionOfTotalArea(record.mainArea);
+    // Fraction of total area that is not allocated to roads
+    // old: fbant (ant = Anteil)
+    float areaFractionMain = record.fractionOfTotalArea(record.mainArea);
 
     // Verhaeltnis Strassenflaeche zu Gesamtflaeche
-    // ratio of roads area to total area
-    areaFractionRoad = record.fractionOfTotalArea(record.roadArea);
+    // Fraction of total area that is allocated to roads
+    // old: fsant (ant = Anteil)
+    float areaFractionRoad = record.fractionOfTotalArea(record.roadArea);
 
     // Runoff for sealed surfaces
 
-    //  Legende der Abflussberechnung der 4 Belagsklassen bzw. Dachklasse:
-    //    rowd / rowx: Abfluss Dachflaeche / Abfluss Belagsflaeche x
-    //    infdach / infbelx: Infiltrationsparameter Dachfl. / Belagsfl. x
-    //    belx: Anteil Belagsklasse x
-    //    blsx: Anteil Strassenbelagsklasse x
-    //    vgd / vgb: Anteil versiegelte Dachfl. / sonstige versiegelte Flaeche zu Gesamtblockteilflaeche
-    //    kd / kb / ks: Grad der Kanalisierung Dach / sonst. vers. Fl. / Strassenflaechen
-    //    fbant / fsant: ?
-    //    RDV / RxV: Gesamtabfluss versiegelte Flaeche
+    // Legende der Abflussberechnung der 4 Belagsklassen bzw. Dachklasse:
+    // - rowd / rowx: Abfluss Dachflaeche / Abfluss Belagsflaeche x
+    // - infdach / infbelx: Infiltrationsparameter Dachfl. / Belagsfl. x
+    // - belx: Anteil Belagsklasse x
+    // - blsx: Anteil Strassenbelagsklasse x
+    // - vgd / vgb: Anteil versiegelte Dachfl. / sonstige versiegelte Flaeche zu Gesamtblockteilflaeche
+    // - kd / kb / ks: Grad der Kanalisierung Dach / sonst. vers. Fl. / Strassenflaechen
+    // - fbant / fsant: ?
+    // - RDV / RxV: Gesamtabfluss versiegelte Flaeche
 
-    runoffRoofs =
-            (1.0F - m_initValues.getInfiltrationFactor(0)) * // 0 = roof!
-            record.mainFractionBuiltSealed *
-            record.builtSealedFractionConnected *
-            areaFractionMain *
-            m_bagrovValues[0]; // 0 = roof!
+    // runoff from roof surfaces (Abfluss der Dachflaechen)
+    // old: rowd
+    float runoffRoofs =
+        (1.0F - m_initValues.getInfiltrationFactor(0)) * // 0 = roof!
+        record.mainFractionBuiltSealed *
+        record.builtSealedFractionConnected *
+        areaFractionMain *
+        m_bagrovValues[0]; // 0 = roof!
 
     for (int i = 1; i < static_cast<int>(runoffSealedSurfaces.size()); i++) {
 
@@ -296,8 +282,9 @@ void Calculation::calculateResultRecord(AbimoRecord &record)
             ) * m_bagrovValues[i];
     }
 
-    // Infiltration for sealed surfaces
-    infiltrationRoofs =
+    // infiltration of/for/from? roof surfaces (Infiltration der Dachflaechen)
+    // old: rid
+    float infiltrationRoofs =
         (1 - record.builtSealedFractionConnected) *
         record.mainFractionBuiltSealed *
         areaFractionMain *
@@ -315,18 +302,27 @@ void Calculation::calculateResultRecord(AbimoRecord &record)
         ) * m_bagrovValues[i] - runoffSealedSurfaces[i];
     }
 
-    // consider unsealed road surfaces as pavement class 4
+    // Abfluss von unversiegelten Strassenflaechen
+    // runoff from unsealed road surfaces
+    // old: rowuvs
+    // consider unsealed road surfaces as pavement class 4 (???)
     // old: 0.11F * (1-vgs) * fsant * R4V;
-    runoffPerviousRoads = 0.0F;
+    float runoffPerviousRoads = 0.0F;
 
+    // Infiltration von unversiegelten Strassenflaechen
+    // infiltration for/from unsealed road surfaces
+    // old: riuvs
     // old: 0.89F * (1-vgs) * fsant * R4V;
-    infiltrationPerviousRoads =
+    float infiltrationPerviousRoads =
             (1 - record.roadFractionSealed) *
             areaFractionRoad *
             m_bagrovValues[4];
 
-    // runoff for unsealed surfaces rowuv = 0
-    infiltrationPerviousSurfaces = (
+    // Infiltration unversiegelter Flaechen
+    // infiltration of unsealed areas
+    // old: riuv
+    // runoff for unsealed surfaces rowuv = 0 (???)
+    float infiltrationPerviousSurfaces = (
         100.0F - static_cast<float>(m_resultRecord.mainPercentageSealed)
     ) / 100.0F * m_unsealedSurfaceRunoff;
 
