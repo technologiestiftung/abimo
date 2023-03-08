@@ -75,9 +75,6 @@ public:
     // Langjaehriger MW des Regenwasserabflusses [mm/a] 003 N
     int runoff; // old: ROW
 
-    // Langjaehriger MW des unterird. Abflusses [mm/a] 004 N
-    int infiltrationRate; // old: RI
-
     // Versiegelungsgrad bebauter Flaechen [%] ID_VER 002 N
     int mainPercentageSealed; // old: VER
 

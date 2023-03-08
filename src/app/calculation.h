@@ -87,6 +87,9 @@ private:
     // Langjaehriger MW des Gesamtabflusses [mm/a] 004 N
     float m_totalRunoff; // old: R
     float m_surfaceRunoff;
+
+    // Langjaehriger MW des unterird. Abflusses [mm/a] 004 N
+    // old: RI
     float m_infiltration;
     float m_evaporation;
 

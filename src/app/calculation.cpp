@@ -348,8 +348,6 @@ void Calculation::calculateResultRecord(AbimoRecord &record)
         infiltrationPerviousSurfaces
     );
 
-    m_resultRecord.infiltrationRate = helpers::roundToInteger(m_infiltration);
-
     // calculate volume 'rivol' from infiltration rate (qcm/s)
     m_infiltrationFlow = record.yearlyHeightToVolumeFlow(m_infiltration);
 
