@@ -355,10 +355,10 @@ int DbaseReader::computeCountFields(int numBytesHeader)
 
 void DbaseReader::fillRecord(int k, abimoRecord& record, bool debug)
 {
-    record.unbuiltSealedFractionSurface1 = floatFraction(getRecord(k, "BELAG1"));
-    record.unbuiltSealedFractionSurface2 = floatFraction(getRecord(k, "BELAG2"));
-    record.unbuiltSealedFractionSurface3 = floatFraction(getRecord(k, "BELAG3"));
-    record.unbuiltSealedFractionSurface4 = floatFraction(getRecord(k, "BELAG4"));
+    record.unbuiltSealedFractionSurface[1] = floatFraction(getRecord(k, "BELAG1"));
+    record.unbuiltSealedFractionSurface[2] = floatFraction(getRecord(k, "BELAG2"));
+    record.unbuiltSealedFractionSurface[3] = floatFraction(getRecord(k, "BELAG3"));
+    record.unbuiltSealedFractionSurface[4] = floatFraction(getRecord(k, "BELAG4"));
     record.district = getRecord(k, "BEZIRK").toInt();
     record.code = getRecord(k, "CODE");
     record.fieldCapacity_150 = getRecord(k, "FELD_150").toInt();
@@ -381,10 +381,10 @@ void DbaseReader::fillRecord(int k, abimoRecord& record, bool debug)
     record.mainFractionUnbuiltSealed = floatFraction(getRecord(k, "PROVGU"));
     record.precipitationYear = getRecord(k, "REGENJA").toInt();
     record.precipitationSummer = getRecord(k, "REGENSO").toInt();
-    record.roadSealedFractionSurface1 = floatFraction(getRecord(k, "STR_BELAG1"));
-    record.roadSealedFractionSurface2 = floatFraction(getRecord(k, "STR_BELAG2"));
-    record.roadSealedFractionSurface3 = floatFraction(getRecord(k, "STR_BELAG3"));
-    record.roadSealedFractionSurface4 = floatFraction(getRecord(k, "STR_BELAG4"));
+    record.roadSealedFractionSurface[1] = floatFraction(getRecord(k, "STR_BELAG1"));
+    record.roadSealedFractionSurface[2] = floatFraction(getRecord(k, "STR_BELAG2"));
+    record.roadSealedFractionSurface[3] = floatFraction(getRecord(k, "STR_BELAG3"));
+    record.roadSealedFractionSurface[4] = floatFraction(getRecord(k, "STR_BELAG4"));
     record.type = getRecord(k, "TYP").toInt();
     record.roadFractionSealed = floatFraction(getRecord(k, "VGSTRASSE"));
     record.roadArea = getRecord(k, "STR_FLGES").toFloat();

@@ -6,6 +6,8 @@
 #ifndef DBASEREADER_H
 #define DBASEREADER_H
 
+#include <array>
+
 #include <QDate>
 #include <QFile>
 #include <QHash>
@@ -54,20 +56,18 @@ struct abimoRecord {
     // Anteil der jeweiligen Belagsklasse
     //
 
-    float unbuiltSealedFractionSurface1; // old: BELAG1_fraction, bl1
-    float unbuiltSealedFractionSurface2; // old: BELAG2_fraction, bl2
-    float unbuiltSealedFractionSurface3; // old: BELAG3_fraction, bl3
-    float unbuiltSealedFractionSurface4; // old: BELAG4_fraction, bl4
+    // old: BELAG1_fraction - BELAG4_fraction, bl1 - bl4
+    // take care: index 0 not used (would represent roofs)
+    // indices 1-4 represent surface classes 1-4
+    std::array<float,5> unbuiltSealedFractionSurface;
 
     //
     // share of each road pavement class for roads of block area
     // Anteil der jeweiligen Strassenbelagsklasse
     //
 
-    float roadSealedFractionSurface1; // old: STR_BELAG1_fraction, bls1
-    float roadSealedFractionSurface2; // old: STR_BELAG2_fraction, bls2
-    float roadSealedFractionSurface3; // old: STR_BELAG3_fraction, bls3
-    float roadSealedFractionSurface4; // old: STR_BELAG4_fraction, bls4
+    // old: STR_BELAG1_fraction - STR_BELAG4_fraction , bls1 - bls4
+    std::array<float,5> roadSealedFractionSurface;
 
     // total area within city block, except roads
     float mainArea; // old: FLGES, fb;

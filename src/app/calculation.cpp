@@ -148,17 +148,15 @@ void Calculation::calculateResultRecord(abimoRecord &record)
 
     // Abflussvariablen der versiegelten Flaechen
     // runoff variables of sealed surfaces
-    float runoffSealedSurface1; // old: row1
-    float runoffSealedSurface2; // old: row2
-    float runoffSealedSurface3; // old: row3
-    float runoffSealedSurface4; // old: row4
+    // Take care: for consistency use indices 1 to 4 only, do not use 0 (roofs)!
+    // old: row1 - row4
+    std::array<float,5> runoffSealedSurfaces = {0, 0, 0, 0, 0};
 
     // Infiltrationsvariablen der versiegelten Flaechen
     // infiltration variables of sealed surfaces
-    float infiltrationSealedSurface1; // old: ri1
-    float infiltrationSealedSurface2; // old: ri2
-    float infiltrationSealedSurface3; // old: ri3
-    float infiltrationSealedSurface4; // old: ri4
+    // Take care: for consistency use indices 1 to 4 only, do not use 0 (roofs)!
+    // old: ri1 - ri4
+    std::array<float,5> infiltrationSealedSurfaces = {0, 0, 0, 0, 0};
 
     // Abfluss- / Infiltrationsvariablen der Dachflaechen
     // runoff- / infiltration variables of roof surfaces
@@ -207,8 +205,6 @@ void Calculation::calculateResultRecord(abimoRecord &record)
     if (m_resultRecord.usage != Usage::waterbody_G)
     {
         // Feldkapazitaet
-        // cls_6b: der Fall der mit NULL belegten FELD_30 und FELD_150 Werte
-        // wird hier im ersten Fall behandelt - ich erwarte dann den Wert 0
         m_resultRecord.usableFieldCapacity = PDR::estimateWaterHoldingCapacity(
             record.fieldCapacity_30,
             record.fieldCapacity_150,
@@ -239,13 +235,6 @@ void Calculation::calculateResultRecord(abimoRecord &record)
         m_counters.incrementIrrigationForcedToZero();
         m_resultRecord.irrigation = 0;
     }
-
-    // cls_6a: an dieser Stelle muss garantiert werden, dass f30 und
-    // f150 als Parameter von getNUTZ einen definierten Wert erhalten
-    // und zwar 0.
-    // FIXED: alle Werte sind definiert... wenn keine 0, sondern nichts
-    // bzw. Leerzeichen angegeben wurden, wird nun eine 0 eingesetzt
-    // aber eigentlich war das auch schon so ... ???
 
     // Bagrov-calculation for sealed surfaces
     getClimaticConditions(record.district, record.code);
@@ -301,53 +290,53 @@ void Calculation::calculateResultRecord(abimoRecord &record)
             areaFractionMain *
             m_bagrovValues[0]; // 0 = roof!
 
-    runoffSealedSurface1 =
+    runoffSealedSurfaces[1] =
             (1.0F - m_initValues.getInfiltrationFactor(1)) *
             (
-                record.unbuiltSealedFractionSurface1 *
+                record.unbuiltSealedFractionSurface.at(1) *
                 record.unbuiltSealedFractionConnected *
                 record.mainFractionUnbuiltSealed *
                 areaFractionMain +
-                record.roadSealedFractionSurface1 *
+                record.roadSealedFractionSurface.at(1) *
                 record.roadSealedFractionConnected *
                 record.roadFractionSealed *
                 areaFractionRoad
                 ) * m_bagrovValues[1];
 
-    runoffSealedSurface2 =
+    runoffSealedSurfaces[2] =
             (1.0F - m_initValues.getInfiltrationFactor(2)) *
             (
-                record.unbuiltSealedFractionSurface2 *
+                record.unbuiltSealedFractionSurface.at(2) *
                 record.unbuiltSealedFractionConnected *
                 record.mainFractionUnbuiltSealed *
                 areaFractionMain +
-                record.roadSealedFractionSurface2 *
+                record.roadSealedFractionSurface.at(2) *
                 record.roadSealedFractionConnected *
                 record.roadFractionSealed *
                 areaFractionRoad
                 ) * m_bagrovValues[2];
 
-    runoffSealedSurface3 =
+    runoffSealedSurfaces[3] =
             (1.0F - m_initValues.getInfiltrationFactor(3)) *
             (
-                record.unbuiltSealedFractionSurface3 *
+                record.unbuiltSealedFractionSurface.at(3) *
                 record.unbuiltSealedFractionConnected *
                 record.mainFractionUnbuiltSealed *
                 areaFractionMain +
-                record.roadSealedFractionSurface3 *
+                record.roadSealedFractionSurface.at(3) *
                 record.roadSealedFractionConnected *
                 record.roadFractionSealed *
                 areaFractionRoad
                 ) * m_bagrovValues[3];
 
-    runoffSealedSurface4 =
+    runoffSealedSurfaces[4] =
             (1.0F - m_initValues.getInfiltrationFactor(4)) *
             (
-                record.unbuiltSealedFractionSurface4 *
+                record.unbuiltSealedFractionSurface.at(4) *
                 record.unbuiltSealedFractionConnected *
                 record.mainFractionUnbuiltSealed *
                 areaFractionMain +
-                record.roadSealedFractionSurface4 *
+                record.roadSealedFractionSurface.at(4) *
                 record.roadSealedFractionConnected *
                 record.roadFractionSealed *
                 areaFractionRoad
@@ -360,41 +349,41 @@ void Calculation::calculateResultRecord(abimoRecord &record)
             areaFractionMain *
             m_bagrovValues[0]; // 0 = roof
 
-    infiltrationSealedSurface1 = (
-                record.unbuiltSealedFractionSurface1 *
+    infiltrationSealedSurfaces[1] = (
+                record.unbuiltSealedFractionSurface.at(1) *
                 record.mainFractionUnbuiltSealed *
                 areaFractionMain +
-                record.roadSealedFractionSurface1 *
+                record.roadSealedFractionSurface.at(1) *
                 record.roadFractionSealed *
                 areaFractionRoad
-                ) * m_bagrovValues[1] - runoffSealedSurface1;
+                ) * m_bagrovValues[1] - runoffSealedSurfaces[1];
 
-    infiltrationSealedSurface2 = (
-                record.unbuiltSealedFractionSurface2 *
+    infiltrationSealedSurfaces[2] = (
+                record.unbuiltSealedFractionSurface.at(2) *
                 record.mainFractionUnbuiltSealed *
                 areaFractionMain +
-                record.roadSealedFractionSurface2 *
+                record.roadSealedFractionSurface.at(2) *
                 record.roadFractionSealed *
                 areaFractionRoad
-                ) * m_bagrovValues[2] - runoffSealedSurface2;
+                ) * m_bagrovValues[2] - runoffSealedSurfaces[2];
 
-    infiltrationSealedSurface3 = (
-                record.unbuiltSealedFractionSurface3 *
+    infiltrationSealedSurfaces[3] = (
+                record.unbuiltSealedFractionSurface.at(3) *
                 record.mainFractionUnbuiltSealed *
                 areaFractionMain +
-                record.roadSealedFractionSurface3 *
+                record.roadSealedFractionSurface.at(3) *
                 record.roadFractionSealed *
                 areaFractionRoad
-                ) * m_bagrovValues[3] - runoffSealedSurface3;
+                ) * m_bagrovValues[3] - runoffSealedSurfaces[3];
 
-    infiltrationSealedSurface4 = (
-                record.unbuiltSealedFractionSurface4 *
+    infiltrationSealedSurfaces[4] = (
+                record.unbuiltSealedFractionSurface.at(4) *
                 record.mainFractionUnbuiltSealed *
                 areaFractionMain +
-                record.roadSealedFractionSurface4 *
+                record.roadSealedFractionSurface.at(4) *
                 record.roadFractionSealed *
                 areaFractionRoad
-                ) * m_bagrovValues[4] - runoffSealedSurface4;
+                ) * m_bagrovValues[4] - runoffSealedSurfaces[4];
 
     // consider unsealed road surfaces as pavement class 4
     // old: 0.11F * (1-vgs) * fsant * R4V;
@@ -414,10 +403,10 @@ void Calculation::calculateResultRecord(abimoRecord &record)
     // calculate runoff 'row' for entire block patial area (FLGES +
     // STR_FLGES) (mm/a)
     m_surfaceRunoff = (
-                runoffSealedSurface1 +
-                runoffSealedSurface2 +
-                runoffSealedSurface3 +
-                runoffSealedSurface4 +
+                runoffSealedSurfaces[1] +
+                runoffSealedSurfaces[2] +
+                runoffSealedSurfaces[3] +
+                runoffSealedSurfaces[4] +
                 runoffRoofs +
                 runoffPerviousRoads
                 );
@@ -433,10 +422,10 @@ void Calculation::calculateResultRecord(abimoRecord &record)
     // calculate infiltration rate 'ri' for entire block partial area
     // (mm/a)
     m_infiltration = (
-                infiltrationSealedSurface1 +
-                infiltrationSealedSurface2 +
-                infiltrationSealedSurface3 +
-                infiltrationSealedSurface4 +
+                infiltrationSealedSurfaces[1] +
+                infiltrationSealedSurfaces[2] +
+                infiltrationSealedSurfaces[3] +
+                infiltrationSealedSurfaces[4] +
                 infiltrationRoofs +
                 infiltrationPerviousRoads +
                 infiltrationPerviousSurfaces
