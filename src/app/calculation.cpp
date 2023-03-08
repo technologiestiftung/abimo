@@ -534,9 +534,9 @@ float Calculation::initValueOrReportedDefaultValue(
     QString string;
     string.setNum(result);
 
-    m_protocolStream << "\r\n" + name + " unbekannt fuer " + code +
-        " von Bezirk " + districtString + "\r\n" + name +
-        "=" + string + " angenommen\r\n";
+    m_protocolStream << QString(
+        "\r\n%1 unbekannt fuer %2 von Bezirk %3\r\n%4=%5 angenommen\r\n"
+    ).arg(name, code, districtString, name, string);
 
     m_counters.incrementRecordsProtocol();
 
