@@ -1,6 +1,7 @@
 #ifndef ABIMOREADER_H
 #define ABIMOREADER_H
 
+#include <QString>
 #include <QStringList>
 
 #include "abimorecord.h"
@@ -17,8 +18,15 @@ public:
     bool checkAndRead();
 
 private:
-    // convert string to float and divide by 100
-    float floatFraction(QString string);
+    // current row index (0 = first row)
+    int m_rowIndex;
+    // whether to show debug messages when reading/interpreting values
+    bool m_debug;
+
+    QString getAsString(const char* fieldName);
+    int getAsInteger(const char* fieldName);
+    float getAsFloat(const char* fieldName);
+    float getAsFloatFraction(const char* fieldName);
 };
 
 #endif // ABIMOREADER_H

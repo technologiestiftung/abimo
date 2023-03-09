@@ -70,44 +70,73 @@ bool AbimoReader::isAbimoFile()
     return helpers::containsAll(m_fieldPositionMap, requiredFields());
 }
 
-void AbimoReader::fillRecord(int k, AbimoRecord& record, bool debug)
+void AbimoReader::fillRecord(int rowIndex, AbimoRecord& record, bool debug)
 {
-    record.unbuiltSealedFractionSurface[1] = floatFraction(getRecord(k, "BELAG1"));
-    record.unbuiltSealedFractionSurface[2] = floatFraction(getRecord(k, "BELAG2"));
-    record.unbuiltSealedFractionSurface[3] = floatFraction(getRecord(k, "BELAG3"));
-    record.unbuiltSealedFractionSurface[4] = floatFraction(getRecord(k, "BELAG4"));
-    record.district = getRecord(k, "BEZIRK").toInt();
-    record.code = getRecord(k, "CODE");
-    record.fieldCapacity_150 = getRecord(k, "FELD_150").toInt();
-    record.fieldCapacity_30 = getRecord(k, "FELD_30").toInt();
-    record.mainArea = getRecord(k, "FLGES").toFloat();
-    record.depthToWaterTable = getRecord(k, "FLUR").toFloat();
-    record.builtSealedFractionConnected = floatFraction(getRecord(k, "KAN_BEB"));
-    record.roadSealedFractionConnected = floatFraction(getRecord(k, "KAN_STR"));
-    record.unbuiltSealedFractionConnected = floatFraction(getRecord(k, "KAN_VGU"));
+    m_rowIndex = rowIndex;
+    m_debug = debug;
+
     record.usage = helpers::stringToInt(
-        getRecord(k, "NUTZUNG"),
-        QString("k: %1, NUTZUNG = ").arg(QString::number(k)),
+        getRecord(rowIndex, "NUTZUNG"),
+        QString("k: %1, NUTZUNG = ").arg(QString::number(rowIndex)),
         debug
     );
+
+    record.code = getAsString("CODE");
+
+    record.precipitationYear = getAsInteger("REGENJA");
+    record.precipitationSummer = getAsInteger("REGENSO");
+
+    record.depthToWaterTable = getAsFloat("FLUR");
+
+    record.type = getAsInteger("TYP");
+    record.fieldCapacity_30 = getAsInteger("FELD_30");
+    record.fieldCapacity_150 = getAsInteger("FELD_150");
+
+    record.district = getAsInteger("BEZIRK");
+
     record.mainFractionBuiltSealed = helpers::stringToFloat(
-        getRecord(k, "PROBAU"),
-        QString("k: %1, PROBAU = ").arg(QString::number(k)),
+        getRecord(rowIndex, "PROBAU"),
+        QString("k: %1, PROBAU = ").arg(QString::number(rowIndex)),
         debug
     ) / 100.0F;
-    record.mainFractionUnbuiltSealed = floatFraction(getRecord(k, "PROVGU"));
-    record.precipitationYear = getRecord(k, "REGENJA").toInt();
-    record.precipitationSummer = getRecord(k, "REGENSO").toInt();
-    record.roadSealedFractionSurface[1] = floatFraction(getRecord(k, "STR_BELAG1"));
-    record.roadSealedFractionSurface[2] = floatFraction(getRecord(k, "STR_BELAG2"));
-    record.roadSealedFractionSurface[3] = floatFraction(getRecord(k, "STR_BELAG3"));
-    record.roadSealedFractionSurface[4] = floatFraction(getRecord(k, "STR_BELAG4"));
-    record.type = getRecord(k, "TYP").toInt();
-    record.roadFractionSealed = floatFraction(getRecord(k, "VGSTRASSE"));
-    record.roadArea = getRecord(k, "STR_FLGES").toFloat();
+
+    record.mainFractionUnbuiltSealed = getAsFloatFraction("PROVGU");
+    record.roadFractionSealed = getAsFloatFraction("VGSTRASSE");
+
+    record.builtSealedFractionConnected = getAsFloatFraction("KAN_BEB");
+    record.unbuiltSealedFractionConnected = getAsFloatFraction("KAN_VGU");
+    record.roadSealedFractionConnected = getAsFloatFraction("KAN_STR");
+
+    record.unbuiltSealedFractionSurface[1] = getAsFloatFraction("BELAG1");
+    record.unbuiltSealedFractionSurface[2] = getAsFloatFraction("BELAG2");
+    record.unbuiltSealedFractionSurface[3] = getAsFloatFraction("BELAG3");
+    record.unbuiltSealedFractionSurface[4] = getAsFloatFraction("BELAG4");
+
+    record.roadSealedFractionSurface[1] = getAsFloatFraction("STR_BELAG1");
+    record.roadSealedFractionSurface[2] = getAsFloatFraction("STR_BELAG2");
+    record.roadSealedFractionSurface[3] = getAsFloatFraction("STR_BELAG3");
+    record.roadSealedFractionSurface[4] = getAsFloatFraction("STR_BELAG4");
+
+    record.mainArea = getAsFloat("FLGES");
+    record.roadArea = getAsFloat("STR_FLGES");
 }
 
-float AbimoReader::floatFraction(QString string)
+QString AbimoReader::getAsString(const char* fieldName)
 {
-    return (string.toFloat() / 100.0);
+    return getRecord(m_rowIndex, QString(fieldName));
+}
+
+int AbimoReader::getAsInteger(const char* fieldName)
+{
+    return getRecord(m_rowIndex, QString(fieldName)).toInt();
+}
+
+float AbimoReader::getAsFloat(const char* fieldName)
+{
+    return getRecord(m_rowIndex, QString(fieldName)).toFloat();
+}
+
+float AbimoReader::getAsFloatFraction(const char* fieldName)
+{
+    return getAsFloat(fieldName) / 100.0;
 }
