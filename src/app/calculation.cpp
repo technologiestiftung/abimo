@@ -483,7 +483,7 @@ float Calculation::realEvapotranspiration(
 float Calculation::initValueOrReportedDefaultValue(
         int district,
         QString code,
-        QHash<int, int> &hash,
+        QHash<int,int> &hash,
         int defaultValue,
         QString name
 )
@@ -499,12 +499,12 @@ float Calculation::initValueOrReportedDefaultValue(
     QString districtString;
     districtString.setNum(district);
 
-    QString string;
-    string.setNum(result);
+    QString resultString;
+    resultString.setNum(result);
 
     m_protocolStream << QString(
         "\r\n%1 unbekannt fuer %2 von Bezirk %3\r\n%4=%5 angenommen\r\n"
-    ).arg(name, code, districtString, name, string);
+    ).arg(name, code, districtString, name, resultString);
 
     m_counters.incrementRecordsProtocol();
 
