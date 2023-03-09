@@ -32,6 +32,7 @@ HEADERS += \
     $$INCDIR/config.h\
     $$INCDIR/counters.h\
     $$INCDIR/dbaseField.h \
+    $$INCDIR/dbaseFile.h \
     $$INCDIR/dbaseReader.h \
     $$INCDIR/dbaseWriter.h \
     $$INCDIR/effectivenessunsealed.h \
@@ -48,6 +49,7 @@ SOURCES += \
     $$INCDIR/config.cpp \
     $$INCDIR/counters.cpp \
     $$INCDIR/dbaseField.cpp \
+    $$INCDIR/dbaseFile.cpp \
     $$INCDIR/dbaseReader.cpp \
     $$INCDIR/dbaseWriter.cpp \
     $$INCDIR/effectivenessunsealed.cpp \

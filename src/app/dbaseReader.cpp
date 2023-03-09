@@ -7,29 +7,14 @@
 #include <QDebug>
 #include <QHash>
 #include <QIODevice>
-#include <QStringList>
-#include <QtGlobal>
 #include <QVector>
 
 #include "dbaseField.h"
+#include "dbaseFile.h"
 #include "dbaseReader.h"
-#include "helpers.h"
 
-DbaseReader::DbaseReader(const QString& file):
-    m_file(file),    
-    m_headerLength(0),
-    m_recordLength(0),
-    m_recordNumber(0),
-    m_fieldNumber(0),
-    m_values(0)
+DbaseReader::DbaseReader(const QString& file) : DbaseFile(file)
 {}
-
-DbaseReader::~DbaseReader()
-{
-    if (m_values != 0) {
-        delete[] m_values;
-    }
-}
 
 bool DbaseReader::checkAndRead()
 {
@@ -153,61 +138,6 @@ QString DbaseReader::getRecord(int num, int field)
     return m_values[num * m_fieldNumber + field];
 }
 
-QString DbaseReader::getVersion()
-{
-    return m_version;
-}
-
-QString DbaseReader::getLanguageDriver()
-{
-    return m_languageDriver;
-}
-
-QDate DbaseReader::getDate()
-{
-    return m_date;
-}
-
-int DbaseReader::getHeaderLength()
-{
-    return m_headerLength;
-}
-
-int DbaseReader::getRecordLength()
-{
-    return m_recordLength;
-}
-
-int DbaseReader::getRecordNumber()
-{
-    return m_recordNumber;
-}
-
-int DbaseReader::getFieldNumber()
-{
-    return m_fieldNumber;
-}
-
-QString* DbaseReader::getValues()
-{
-    return m_values;
-}
-
-QString DbaseReader::getError()
-{
-    return m_error;
-}
-
-QString DbaseReader::getFullError()
-{
-    return m_fullError;
-}
-
-int DbaseReader::expectedFileSize()
-{
-    return m_headerLength + (m_recordNumber * m_recordLength) + 1;
-}
-
 QString DbaseReader::byteToVersion(quint8 byte, bool debug)
 {
     QHash<QString, quint8> versionIDs;
@@ -294,16 +224,4 @@ int DbaseReader::bytesToInteger(
 )
 {
     return (int) (byte1 + (byte2 << 8) + (byte3 << 16) + (byte4 << 24));
-}
-
-int DbaseReader::numberOfFields(int numBytesHeader)
-{
-    // each field is described by 32 bytes in the file header
-    const int numBytesPerField = 32;
-
-    // 32 bytes file information
-    const int numBytesFileInfo = 32;
-
-    // 1 byte terminator (0Dh)
-    return (numBytesHeader - numBytesFileInfo - 1) / numBytesPerField;
 }

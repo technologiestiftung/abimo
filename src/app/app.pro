@@ -26,6 +26,7 @@ HEADERS += \
     constants.h \
     counters.h \
     dbaseField.h \
+    dbaseFile.h \
     dbaseReader.h \
     dbaseWriter.h \
     effectivenessunsealed.h \
@@ -44,6 +45,7 @@ SOURCES += \
     config.cpp \
     counters.cpp \
     dbaseField.cpp \
+    dbaseFile.cpp \
     dbaseReader.cpp \
     dbaseWriter.cpp \
     effectivenessunsealed.cpp \
