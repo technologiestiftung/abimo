@@ -67,7 +67,7 @@ bool AbimoReader::checkAndRead()
 
 bool AbimoReader::isAbimoFile()
 {
-    return helpers::containsAll(m_hash, requiredFields());
+    return helpers::containsAll(m_fieldPositionMap, requiredFields());
 }
 
 void AbimoReader::fillRecord(int k, AbimoRecord& record, bool debug)

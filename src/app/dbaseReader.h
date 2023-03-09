@@ -19,48 +19,72 @@ class DbaseReader
 public:
     DbaseReader(const QString& file);
     ~DbaseReader();
-    bool read();
-    QString getVersion();
-    QString getLanguageDriver();
-    QDate getDate();
-    int getNumberOfRecords();
-    int getLengthOfHeader();
-    int getLengthOfEachRecord();
-    int getCountFields();
-    QString getRecord(int num, int field);
-    QString getRecord(int num, const QString& name);
-    QString getError();
-    QString getFullError();
-    QString* getValues();
 
     // may be overridden by sub-classes
     virtual bool checkAndRead();
+
+    // Function to read the dbf file
+    bool read();
+
+    // Function to get one record (row)
+    QString getRecord(int num, const QString& name);
+    QString getRecord(int num, int field);
+
+    // Accessor functions
+    QString getVersion();
+    QString getLanguageDriver();
+    QDate getDate();
+
+    int getHeaderLength();
+    int getRecordLength();
+    int getRecordNumber();
+    int getFieldNumber();
+
+    QString* getValues();
+
+    QString getError();
+    QString getFullError();
 
 // members to which classes that inherit from DbaseReader have access
 protected:
 
     // VARIABLES
 
+    // Path to dbf file
     QFile m_file;
+
+    // Version of dbf format, see byteToVersion() for a list
     QString m_version;
+
+    // Language (code page) used in dbf file, see byteToLanguageDriver()
     QString m_languageDriver;
+
+    // Date when dbf file was created
     QDate m_date;
-    QHash<QString,int> m_hash;
-    QString m_error;
-    QString m_fullError;
+
+    // length of the header in bytes
+    int m_headerLength;
+
+    // length of a record in bytes
+    int m_recordLength;
+
+    // number of records (data rows) in file
+    int m_recordNumber;
+
+    // number of fields in a record (data row)
+    int m_fieldNumber;
+
+    // Hash assigning the 0-based field indices to the field names
+    QHash<QString,int> m_fieldPositionMap;
+
+    // String values representing the data content of the dbf file
     QString* m_values;
 
-    // count of records in file
-    int m_numberOfRecords;
+    // Error string (short)
+    QString m_error;
 
-    // length of the header in byte
-    int m_lengthOfHeader;
-
-    // length of a record in byte
-    int m_lengthOfEachRecord;
-
-    // count of fields
-    int m_numberOfFields;
+    // Error string (long)
+    QString m_fullError;
 
     // FUNCTIONS
 
@@ -75,14 +99,14 @@ protected:
     // 3 byte unsigned char give the date of last edit
     QDate bytesToDate(quint8 byteYear, quint8 byteMonth, quint8 byteDay);
 
-    // 32 bit unsigned char to int
-    int bytesToInteger(quint8 byte1, quint8 byte2, quint8 byte3, quint8 byte4);
-
     // 16 bit unsigned char to int
     int bytesToInteger(quint8 byte1, quint8 byte2);
 
-    // compute the count of fields
-    int computeNumberOfFields(int numBytesHeader);
+    // 32 bit unsigned char to int
+    int bytesToInteger(quint8 byte1, quint8 byte2, quint8 byte3, quint8 byte4);
+
+    // compute the number of fields in one record (row)
+    int numberOfFields(int numBytesHeader);
 };
 
 #endif

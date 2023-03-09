@@ -16,12 +16,12 @@
 #include "helpers.h"
 
 DbaseReader::DbaseReader(const QString& file):
-    m_file(file),
-    m_values(0),
-    m_recordNumber(0),
+    m_file(file),    
     m_headerLength(0),
     m_recordLength(0),
-    m_fieldNumber(0)
+    m_recordNumber(0),
+    m_fieldNumber(0),
+    m_values(0)
 {}
 
 DbaseReader::~DbaseReader()
@@ -29,21 +29,6 @@ DbaseReader::~DbaseReader()
     if (m_values != 0) {
         delete[] m_values;
     }
-}
-
-QString DbaseReader::getError()
-{
-    return m_error;
-}
-
-QString DbaseReader::getFullError()
-{
-    return m_fullError;
-}
-
-QString* DbaseReader::getValues()
-{
-    return m_values;
 }
 
 bool DbaseReader::checkAndRead()
@@ -124,7 +109,7 @@ bool DbaseReader::read()
 
     for (int i = 0; i < m_fieldNumber; i++) {
         fields[i] = DbaseField(m_file.read(32));
-        m_hash[fields[i].getName()] = i;
+        m_fieldPositionMap[fields[i].getName()] = i;
     }
 
     // Terminator
@@ -150,18 +135,13 @@ bool DbaseReader::read()
     return true;
 }
 
-int DbaseReader::expectedFileSize()
-{
-    return m_headerLength + (m_recordNumber * m_recordLength) + 1;
-}
-
 QString DbaseReader::getRecord(int num, const QString& name)
 {
-    if (!m_hash.contains(name)) {
+    if (!m_fieldPositionMap.contains(name)) {
         return 0;
     }
 
-    return getRecord(num, m_hash[name]);
+    return getRecord(num, m_fieldPositionMap[name]);
 }
 
 QString DbaseReader::getRecord(int num, int field)
@@ -173,14 +153,9 @@ QString DbaseReader::getRecord(int num, int field)
     return m_values[num * m_fieldNumber + field];
 }
 
-int DbaseReader::getFieldNumber()
+QString DbaseReader::getVersion()
 {
-    return m_fieldNumber;
-}
-
-QDate DbaseReader::getDate()
-{
-    return m_date;
+    return m_version;
 }
 
 QString DbaseReader::getLanguageDriver()
@@ -188,14 +163,9 @@ QString DbaseReader::getLanguageDriver()
     return m_languageDriver;
 }
 
-QString DbaseReader::getVersion()
+QDate DbaseReader::getDate()
 {
-    return m_version;
-}
-
-int DbaseReader::getRecordNumber()
-{
-    return m_recordNumber;
+    return m_date;
 }
 
 int DbaseReader::getHeaderLength()
@@ -208,27 +178,34 @@ int DbaseReader::getRecordLength()
     return m_recordLength;
 }
 
-int DbaseReader::bytesToInteger(quint8 byte1, quint8 byte2)
+int DbaseReader::getRecordNumber()
 {
-    return (int) (byte1 + (byte2 << 8));
+    return m_recordNumber;
 }
 
-int DbaseReader::bytesToInteger(
-        quint8 byte1, quint8 byte2, quint8 byte3, quint8 byte4)
+int DbaseReader::getFieldNumber()
 {
-    return (int) (byte1 + (byte2 << 8) + (byte3 << 16) + (byte4 << 24));
+    return m_fieldNumber;
 }
 
-QDate DbaseReader::bytesToDate(
-        quint8 byteYear, quint8 byteMonth, quint8 byteDay)
+QString* DbaseReader::getValues()
 {
-    int year = (int) byteYear;
+    return m_values;
+}
 
-    if (year >= 100) {
-        year += 1900;
-    }
+QString DbaseReader::getError()
+{
+    return m_error;
+}
 
-    return QDate(year, (int) byteMonth, (int) byteDay);
+QString DbaseReader::getFullError()
+{
+    return m_fullError;
+}
+
+int DbaseReader::expectedFileSize()
+{
+    return m_headerLength + (m_recordNumber * m_recordLength) + 1;
 }
 
 QString DbaseReader::byteToVersion(quint8 byte, bool debug)
@@ -293,6 +270,30 @@ QString DbaseReader::byteToLanguageDriver(quint8 byte, bool debug)
     }
 
     return result;
+}
+
+QDate DbaseReader::bytesToDate(
+        quint8 byteYear, quint8 byteMonth, quint8 byteDay)
+{
+    int year = (int) byteYear;
+
+    if (year >= 100) {
+        year += 1900;
+    }
+
+    return QDate(year, (int) byteMonth, (int) byteDay);
+}
+
+int DbaseReader::bytesToInteger(quint8 byte1, quint8 byte2)
+{
+    return (int) (byte1 + (byte2 << 8));
+}
+
+int DbaseReader::bytesToInteger(
+    quint8 byte1, quint8 byte2, quint8 byte3, quint8 byte4
+)
+{
+    return (int) (byte1 + (byte2 << 8) + (byte3 << 16) + (byte4 << 24));
 }
 
 int DbaseReader::numberOfFields(int numBytesHeader)

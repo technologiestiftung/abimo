@@ -79,7 +79,7 @@ bool Calculation::calculate(QString outputFile, bool debug)
     DbaseWriter writer(outputFile, m_initValues);
 
     // get the number of rows in the input data
-    int recordCount = m_dbReader.getNumberOfRecords();
+    int recordCount = m_dbReader.getRecordNumber();
 
     // loop over all block partial areas (= records/rows of input data)
     for (int k = 0; k < recordCount; k++) {
