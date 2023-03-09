@@ -378,15 +378,6 @@ void Calculation::calculateResultRecord(AbimoRecord &record)
 // =============================================================================
 void Calculation::getClimaticConditions(int district, QString code)
 {
-    // Potential evaporation
-    float potentialEvaporation;
-
-    // Prepcipitation at ground level
-    float precipitation;
-
-    // ratio of precipitation to potential evaporation
-    float xRatio;
-
     // Parameter for the city districts
     if (m_resultRecord.usage == Usage::waterbody_G) {
 
@@ -405,15 +396,22 @@ void Calculation::getClimaticConditions(int district, QString code)
         );
     }
 
-    // Declaration of potential evaporation and precipitation
-    potentialEvaporation = static_cast<float>(m_resultRecord.longtimeMeanPotentialEvaporation); // no more correction with 1.1
-    precipitation = static_cast<float>(m_resultRecord.precipitationYear * m_initValues.getPrecipitationCorrectionFactor());
+    // potential evaporation
+    float potentialEvaporation = static_cast<float>(
+        m_resultRecord.longtimeMeanPotentialEvaporation
+    ); // no more correction with 1.1
+
+    // precipitation (at ground level)
+    float precipitation = static_cast<float>(
+        m_resultRecord.precipitationYear *
+        m_initValues.getPrecipitationCorrectionFactor()
+    );
 
     // Berechnung der Abfluesse RDV und R1V bis R4V fuer versiegelte
     // Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4
 
-    // ratio precipitation to potential evaporation
-    xRatio = precipitation / potentialEvaporation;
+    // ratio of precipitation to potential evaporation
+    float xRatio = precipitation / potentialEvaporation;
 
     // Berechnung des Abflusses RxV fuer versiegelte Teilflaechen mittels
     // Umrechnung potentieller Verdunstungen potentialEvaporation zu realen
@@ -443,18 +441,10 @@ float Calculation::realEvapotranspiration(
 {
     assert(potentialEvaporation > 0.0);
 
-    // Effectivity parameter
-    float effectivityParameter;
-
-    // ratio of real evaporation to potential evaporation
-    float yRatio;
-
-    // result value: real evapotranspiration
-    float realEvapotranspiration;
-
-    // Determine effectiveness parameter bag for unsealed surfaces
-    // Modul Raster abgespeckt
-    effectivityParameter = EffectivenessUnsealed::getEffectivityParameter(
+    // Determine effectivity/effectiveness ??? parameter (old???: bag) for
+    // unsealed surfaces
+    // Modul Raster abgespeckt (???)
+    float effectivityParameter = EffectivenessUnsealed::getEffectivityParameter(
         m_resultRecord.usableFieldCapacity,
         m_resultRecord.usage == Usage::forested_W,
         m_resultRecord.yieldPower,
@@ -466,7 +456,8 @@ float Calculation::realEvapotranspiration(
 
     // Calculate the x-factor of bagrov relation: x = (P + KR + BER)/ETP
     // Then get the y-factor: y = fbag(n, x)
-    yRatio = Bagrov::nbagro(
+    // ratio of real evaporation to potential evaporation
+    float yRatio = Bagrov::nbagro(
         effectivityParameter,
         (
             precipitation +
@@ -476,7 +467,7 @@ float Calculation::realEvapotranspiration(
     );
 
     // Get the real evapotransporation using estimated y-factor
-    realEvapotranspiration = yRatio * potentialEvaporation;
+    float realEvapotranspiration = yRatio * potentialEvaporation;
 
     if (m_potentialCapillaryRise < 0) {
         realEvapotranspiration += (
