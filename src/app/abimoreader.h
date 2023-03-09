@@ -27,6 +27,7 @@ private:
     int getAsInteger(const char* fieldName);
     float getAsFloat(const char* fieldName);
     float getAsFloatFraction(const char* fieldName);
+    QString rowFieldIndicator(QString& fieldName);
 };
 
 #endif // ABIMOREADER_H

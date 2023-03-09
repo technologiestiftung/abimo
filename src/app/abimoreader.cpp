@@ -4,7 +4,9 @@
 #include "dbaseReader.h"
 #include "helpers.h"
 
-AbimoReader::AbimoReader(const QString& file) : DbaseReader(file)
+AbimoReader::AbimoReader(const QString& file) : DbaseReader(file),
+    m_rowIndex(0),
+    m_debug(false)
 {
     // Child constructor code here
 }
@@ -75,31 +77,21 @@ void AbimoReader::fillRecord(int rowIndex, AbimoRecord& record, bool debug)
     m_rowIndex = rowIndex;
     m_debug = debug;
 
-    record.usage = helpers::stringToInt(
-        getRecord(rowIndex, "NUTZUNG"),
-        QString("k: %1, NUTZUNG = ").arg(QString::number(rowIndex)),
-        debug
-    );
-
+    record.usage = getAsInteger("NUTZUNG");
     record.code = getAsString("CODE");
 
     record.precipitationYear = getAsInteger("REGENJA");
     record.precipitationSummer = getAsInteger("REGENSO");
 
     record.depthToWaterTable = getAsFloat("FLUR");
-
     record.type = getAsInteger("TYP");
+
     record.fieldCapacity_30 = getAsInteger("FELD_30");
     record.fieldCapacity_150 = getAsInteger("FELD_150");
 
     record.district = getAsInteger("BEZIRK");
 
-    record.mainFractionBuiltSealed = helpers::stringToFloat(
-        getRecord(rowIndex, "PROBAU"),
-        QString("k: %1, PROBAU = ").arg(QString::number(rowIndex)),
-        debug
-    ) / 100.0F;
-
+    record.mainFractionBuiltSealed = getAsFloatFraction("PROBAU");
     record.mainFractionUnbuiltSealed = getAsFloatFraction("PROVGU");
     record.roadFractionSealed = getAsFloatFraction("VGSTRASSE");
 
@@ -128,15 +120,33 @@ QString AbimoReader::getAsString(const char* fieldName)
 
 int AbimoReader::getAsInteger(const char* fieldName)
 {
-    return getRecord(m_rowIndex, QString(fieldName)).toInt();
+    QString name = QString(fieldName);
+    QString value = getRecord(m_rowIndex, name);
+
+    return (m_debug) ?
+        helpers::stringToInt(value, rowFieldIndicator(name), m_debug) :
+        value.toInt();
 }
 
 float AbimoReader::getAsFloat(const char* fieldName)
 {
-    return getRecord(m_rowIndex, QString(fieldName)).toFloat();
+    QString name = QString(fieldName);
+    QString value = getRecord(m_rowIndex, name);
+
+    return (m_debug) ?
+        helpers::stringToFloat(value, rowFieldIndicator(name), m_debug) :
+        value.toFloat();
 }
 
 float AbimoReader::getAsFloatFraction(const char* fieldName)
 {
     return getAsFloat(fieldName) / 100.0;
+}
+
+QString AbimoReader::rowFieldIndicator(QString& fieldName)
+{
+    return QString("rowIndex: %1, %s = ").arg(
+        QString::number(m_rowIndex),
+        fieldName
+    );
 }
