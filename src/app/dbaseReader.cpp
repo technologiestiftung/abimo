@@ -18,10 +18,10 @@
 DbaseReader::DbaseReader(const QString& file):
     m_file(file),
     m_values(0),
-    m_numberOfRecords(0),
-    m_lengthOfHeader(0),
-    m_lengthOfEachRecord(0),
-    m_numberOfFields(0)
+    m_recordNumber(0),
+    m_headerLength(0),
+    m_recordLength(0),
+    m_fieldNumber(0)
 {}
 
 DbaseReader::~DbaseReader()
@@ -77,9 +77,9 @@ bool DbaseReader::read()
 
     m_version = byteToVersion(info[0], false);
     m_date = bytesToDate(info[1], info[2], info[3]);
-    m_numberOfRecords = bytesToInteger(info[4], info[5], info[6], info[7]);
-    m_lengthOfHeader = bytesToInteger(info[8], info[9]);
-    m_lengthOfEachRecord = bytesToInteger(info[10], info[11]);
+    m_recordNumber = bytesToInteger(info[4], info[5], info[6], info[7]);
+    m_headerLength = bytesToInteger(info[8], info[9]);
+    m_recordLength = bytesToInteger(info[10], info[11]);
 
     // info[12], info[13] reserved - filled with '00h'
     // info[14] - transaction flag
@@ -92,7 +92,7 @@ bool DbaseReader::read()
 
     // info[30 - 31] reserved
 
-    m_numberOfFields = computeNumberOfFields(m_lengthOfHeader);
+    m_fieldNumber = numberOfFields(m_headerLength);
 
     if (m_file.size() != expectedFileSize()) {
         m_error = "Datei unbekannten Formats, falsche Groesse.\nSoll: %1\nIst: %2";
@@ -103,26 +103,26 @@ bool DbaseReader::read()
         return false;
     }
 
-    if (m_numberOfRecords <= 0) {
+    if (m_recordNumber <= 0) {
         m_error = "keine Records in der datei vorhanden.";
         return false;
     }
 
-    if (m_lengthOfEachRecord <= 1 || m_lengthOfEachRecord > 4000) {
+    if (m_recordLength <= 1 || m_recordLength > 4000) {
         m_error = "Groesse der records ist zu klein oder zu gross.";
         return false;
     }
 
-    if (m_numberOfFields < 1) {
+    if (m_fieldNumber < 1) {
         m_error = "keine Felder gefunden.";
         return false;
     }
 
     // rest of header are field information
     QVector<DbaseField> fields;
-    fields.resize(m_numberOfFields);
+    fields.resize(m_fieldNumber);
 
-    for (int i = 0; i < m_numberOfFields; i++) {
+    for (int i = 0; i < m_fieldNumber; i++) {
         fields[i] = DbaseField(m_file.read(32));
         m_hash[fields[i].getName()] = i;
     }
@@ -130,18 +130,18 @@ bool DbaseReader::read()
     // Terminator
     m_file.read(2);
 
-    QByteArray arr = m_file.read(m_lengthOfEachRecord * m_numberOfRecords);
+    QByteArray arr = m_file.read(m_recordLength * m_recordNumber);
     m_file.close();
 
     QBuffer buffer(&arr);
     buffer.open(QIODevice::ReadOnly);
 
-    m_values = new QString[m_numberOfRecords * m_numberOfFields];
+    m_values = new QString[m_recordNumber * m_fieldNumber];
 
-    for (int i = 0; i < m_numberOfRecords; i++) {
-        for (int j = 0; j < m_numberOfFields; j++) {
+    for (int i = 0; i < m_recordNumber; i++) {
+        for (int j = 0; j < m_fieldNumber; j++) {
             QString s = buffer.read(fields[j].getFieldLength()).trimmed();
-            m_values[i * m_numberOfFields + j] = ((s.size() > 0) ? s : "0");
+            m_values[i * m_fieldNumber + j] = ((s.size() > 0) ? s : "0");
         }
         buffer.read(1);
     }
@@ -152,7 +152,7 @@ bool DbaseReader::read()
 
 int DbaseReader::expectedFileSize()
 {
-    return m_lengthOfHeader + (m_numberOfRecords * m_lengthOfEachRecord) + 1;
+    return m_headerLength + (m_recordNumber * m_recordLength) + 1;
 }
 
 QString DbaseReader::getRecord(int num, const QString& name)
@@ -166,16 +166,16 @@ QString DbaseReader::getRecord(int num, const QString& name)
 
 QString DbaseReader::getRecord(int num, int field)
 {
-    if (num >= m_numberOfRecords || field >= m_numberOfFields) {
+    if (num >= m_recordNumber || field >= m_fieldNumber) {
         return 0;
     }
 
-    return m_values[num * m_numberOfFields + field];
+    return m_values[num * m_fieldNumber + field];
 }
 
-int DbaseReader::getCountFields()
+int DbaseReader::getFieldNumber()
 {
-    return m_numberOfFields;
+    return m_fieldNumber;
 }
 
 QDate DbaseReader::getDate()
@@ -193,19 +193,19 @@ QString DbaseReader::getVersion()
     return m_version;
 }
 
-int DbaseReader::getNumberOfRecords()
+int DbaseReader::getRecordNumber()
 {
-    return m_numberOfRecords;
+    return m_recordNumber;
 }
 
-int DbaseReader::getLengthOfHeader()
+int DbaseReader::getHeaderLength()
 {
-    return m_lengthOfHeader;
+    return m_headerLength;
 }
 
-int DbaseReader::getLengthOfEachRecord()
+int DbaseReader::getRecordLength()
 {
-    return m_lengthOfEachRecord;
+    return m_recordLength;
 }
 
 int DbaseReader::bytesToInteger(quint8 byte1, quint8 byte2)
@@ -295,7 +295,7 @@ QString DbaseReader::byteToLanguageDriver(quint8 byte, bool debug)
     return result;
 }
 
-int DbaseReader::computeNumberOfFields(int numBytesHeader)
+int DbaseReader::numberOfFields(int numBytesHeader)
 {
     // each field is described by 32 bytes in the file header
     const int numBytesPerField = 32;
