@@ -13,11 +13,11 @@
 #include <QTextStream>
 #include <QtDebug>
 
+#include "abimoreader.h"
 #include "main.h"
 #include "bagrov.h"
 #include "calculation.h"
 #include "constants.h"
-#include "dbaseReader.h"
 #include "helpers.h"
 #include "initvalues.h"
 #include "mainwindow.h"
@@ -136,7 +136,7 @@ int main_batch(int argc, char *argv[])
 
     debugInputs(inputFileName, outputFileName, configFileName, logFileName, debug);
 
-    DbaseReader dbReader(inputFileName);
+    AbimoReader dbReader(inputFileName);
 
     if (! dbReader.checkAndRead()) {
         qDebug() << dbReader.getFullError();

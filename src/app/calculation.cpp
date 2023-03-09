@@ -10,13 +10,13 @@
 #include <QString>
 #include <QTextStream>
 
+#include "abimoreader.h"
 #include "abimorecord.h"
 #include "bagrov.h"
 #include "calculation.h"
 #include "config.h"
 #include "constants.h"
 #include "counters.h"
-#include "dbaseReader.h"
 #include "dbaseWriter.h"
 #include "effectivenessunsealed.h"
 #include "helpers.h"
@@ -24,7 +24,7 @@
 #include "pdr.h"
 
 Calculation::Calculation(
-        DbaseReader &dbaseReader,
+        AbimoReader &dbaseReader,
         InitValues &initValues,
         QTextStream &protocolStream
 ):
@@ -533,7 +533,7 @@ void Calculation::runCalculation(
 )
 {
     // Open the input file
-    DbaseReader dbReader(inputFile);
+    AbimoReader dbReader(inputFile);
 
     // Try to read the raw (text) values into the dbReader object
     if (!dbReader.checkAndRead()) {

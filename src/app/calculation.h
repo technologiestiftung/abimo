@@ -11,9 +11,9 @@
 #include <QString>
 #include <QTextStream>
 
+#include "abimoreader.h"
 #include "abimorecord.h"
 #include "counters.h"
-#include "dbaseReader.h"
 #include "dbaseWriter.h"
 #include "initvalues.h"
 #include "config.h"
@@ -26,7 +26,7 @@ public:
 
     // Constructor
     Calculation(
-            DbaseReader &dbaseReader,
+            AbimoReader &dbaseReader,
             InitValues &initValues,
             QTextStream & protocolStream
     );
@@ -59,7 +59,7 @@ private:
 
     InitValues &m_initValues;
     QTextStream &m_protocolStream;
-    DbaseReader &m_dbReader;
+    AbimoReader &m_dbReader;
     PDR m_resultRecord; // old: ptrDA
     QString m_error;
 

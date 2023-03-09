@@ -82,7 +82,7 @@ private:
     int bytesToInteger(quint8 byte1, quint8 byte2);
 
     // compute the count of fields
-    int computeCountFields(int numBytesHeader);
+    int computeNumberOfFields(int numBytesHeader);
 
     // convert string to float and divide by 100
     float floatFraction(QString string);

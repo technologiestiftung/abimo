@@ -19,9 +19,9 @@
 #include <QTextStream>
 #include <QWidget>
 
+#include "abimoreader.h"
 #include "calculation.h"
 #include "constants.h"
-#include "dbaseReader.h"
 #include "helpers.h"
 #include "initvalues.h"
 #include "mainwindow.h"
@@ -146,8 +146,8 @@ void MainWindow::computeFile()
     // Select configuration file
     configFileName = QString("config.xml");
 
-    // Open a DBASE File
-    DbaseReader dbReader(inputFileName);
+    // Open a DBASE File as expected by Abimo
+    AbimoReader dbReader(inputFileName);
 
     setText("Lese Quelldatei...");
     repaint();

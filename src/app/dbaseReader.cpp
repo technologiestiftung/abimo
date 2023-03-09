@@ -138,7 +138,7 @@ bool DbaseReader::read()
 
     // info[30 - 31] reserved
 
-    m_numberOfFields = computeCountFields(m_lengthOfHeader);
+    m_numberOfFields = computeNumberOfFields(m_lengthOfHeader);
 
     if (m_file.size() != expectedFileSize()) {
         m_error = "Datei unbekannten Formats, falsche Groesse.\nSoll: %1\nIst: %2";
@@ -341,7 +341,7 @@ QString DbaseReader::byteToLanguageDriver(quint8 byte, bool debug)
     return result;
 }
 
-int DbaseReader::computeCountFields(int numBytesHeader)
+int DbaseReader::computeNumberOfFields(int numBytesHeader)
 {
     // each field is described by 32 bytes in the file header
     const int numBytesPerField = 32;

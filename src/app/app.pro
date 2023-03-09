@@ -18,6 +18,7 @@ QT += \
 CONFIG *= debug_and_release debug_and_release_target
 
 HEADERS += \
+    abimoreader.h \
     abimorecord.h \
     bagrov.h \
     calculation.h \
@@ -36,6 +37,7 @@ HEADERS += \
     saxhandler.h
 
 SOURCES += \
+    abimoreader.cpp \
     abimorecord.cpp \
     bagrov.cpp \
     calculation.cpp \
