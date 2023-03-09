@@ -6,6 +6,7 @@
 #include <QStringList>
 #include <QtTest>
 
+#include "../app/abimoreader.h"
 #include "../app/calculation.h"
 #include "../app/config.h"
 #include "../app/dbaseReader.h"
@@ -94,13 +95,13 @@ void TestAbimo::test_helpers_stringsAreEqual()
 
 void TestAbimo::test_requiredFields()
 {
-    QStringList strings = DbaseReader::requiredFields();
+    QStringList strings = AbimoReader::requiredFields();
     QCOMPARE(strings.length(), 25);
 }
 
 void TestAbimo::test_dbaseReader()
 {
-    DbaseReader reader(dataFilePath("abimo_2019_mitstrassen.dbf"));
+    AbimoReader reader(dataFilePath("abimo_2019_mitstrassen.dbf"));
 
     bool success = reader.checkAndRead();
 

@@ -31,13 +31,13 @@ public:
     QString getRecord(int num, const QString& name);
     QString getError();
     QString getFullError();
-    static QStringList requiredFields();
-    bool isAbimoFile();
-    bool checkAndRead();
     QString* getValues();
-    void fillRecord(int k, AbimoRecord& record, bool debug = false);
 
-private:
+    // may be overridden by sub-classes
+    virtual bool checkAndRead();
+
+// members to which classes that inherit from DbaseReader have access
+protected:
 
     // VARIABLES
 
@@ -83,9 +83,6 @@ private:
 
     // compute the count of fields
     int computeNumberOfFields(int numBytesHeader);
-
-    // convert string to float and divide by 100
-    float floatFraction(QString string);
 };
 
 #endif
