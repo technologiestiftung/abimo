@@ -45,7 +45,9 @@ bool DbaseWriter::write()
     writeFileData(data);
 
     if (!m_file.open(QIODevice::WriteOnly)) {
-        m_error = "kann Out-Datei: '" + m_file.fileName() + "' nicht oeffnen\n Grund: " + m_file.error();
+        m_error = QString(
+            "kann Out-Datei: '%1' nicht oeffnen\n Grund: %2"
+        ).arg(m_file.fileName(), m_file.error());
         return false;
     }
 
