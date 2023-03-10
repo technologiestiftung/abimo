@@ -141,15 +141,11 @@ void DbaseWriter::writeFileData(QByteArray& data)
 
                 QString stringValue = strlist.at(0);
 
-                if (stringValue.contains('-')) {
-                    stringValue= QString("-") +
+                stringValue = (stringValue.contains('-')) ?
+                    QString("-") +
                         stringValue.right(stringValue.length() - 1)
-                        .rightJustified(frontLength - 1, QChar(0x30));
-                }
-                else {
-                    stringValue = stringValue
-                        .rightJustified(frontLength, QChar(0x30));
-                }
+                        .rightJustified(frontLength - 1, QChar(0x30)) :
+                    stringValue.rightJustified(frontLength, QChar(0x30));
 
                 data.append(stringValue);
                 data.append(".");
