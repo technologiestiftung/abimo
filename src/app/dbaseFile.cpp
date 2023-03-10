@@ -10,69 +10,69 @@ DbaseFile::DbaseFile(const QString& filePath) :
 {
 }
 
-QString DbaseFile::getVersion()
+QString DbaseFile::getVersion() const
 {
     return m_version;
 }
 
-QString DbaseFile::getLanguageDriver()
+QString DbaseFile::getLanguageDriver() const
 {
     return m_languageDriver;
 }
 
-QDate DbaseFile::getDate()
+QDate DbaseFile::getDate() const
 {
     return m_date;
 }
 
-int DbaseFile::getHeaderLength()
+int DbaseFile::getHeaderLength() const
 {
     return m_headerLength;
 }
 
-int DbaseFile::getRecordLength()
+int DbaseFile::getRecordLength() const
 {
     return m_recordLength;
 }
 
-int DbaseFile::getRecordNumber()
+int DbaseFile::getRecordNumber() const
 {
     return m_recordNumber;
 }
 
-int DbaseFile::getFieldNumber()
+int DbaseFile::getFieldNumber() const
 {
     return m_fieldNumber;
 }
 
-QVector<QString> DbaseFile::getValues()
+QVector<QString> DbaseFile::getValues() const
 {
     return m_stringValues;
 }
 
-QString DbaseFile::getError()
+QString DbaseFile::getError() const
 {
     return m_error;
 }
 
-QString DbaseFile::getFullError()
+QString DbaseFile::getFullError() const
 {
     return m_fullError;
 }
 
-int DbaseFile::expectedFileSize()
+int DbaseFile::expectedFileSize() const
 {
     return m_headerLength + (m_recordNumber * m_recordLength) + 1;
 }
 
-int DbaseFile::numberOfFields(int numBytesHeader)
+int DbaseFile::calculateNumberOfFields(int headerLength)
 {
-    // each field is described by 32 bytes in the file header
-    const int numBytesPerField = 32;
+    return (headerLength - m_bytesFileInfo - m_bytesTerminator) /
+        m_bytesPerField;
+}
 
-    // 32 bytes file information
-    const int numBytesFileInfo = 32;
-
-    // 1 byte terminator (0Dh)
-    return (numBytesHeader - numBytesFileInfo - 1) / numBytesPerField;
+int DbaseFile::calculateHeaderLength(int numberOfFields)
+{
+    return numberOfFields * m_bytesPerField + m_bytesFileInfo +
+        m_bytesTerminator;
 }

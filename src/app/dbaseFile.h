@@ -12,26 +12,38 @@ public:
     DbaseFile(const QString& filePath);
 
     // Accessor functions
-    QString getVersion();
-    QString getLanguageDriver();
-    QDate getDate();
+    QString getVersion() const;
+    QString getLanguageDriver() const;
+    QDate getDate() const;
 
-    int getHeaderLength();
-    int getRecordLength();
-    int getRecordNumber();
-    int getFieldNumber();
+    int getHeaderLength() const;
+    int getRecordLength() const;
+    int getRecordNumber() const;
+    int getFieldNumber() const;
 
-    QVector<QString> getValues();
+    QVector<QString> getValues() const;
 
-    QString getError();
-    QString getFullError();
+    QString getError() const;
+    QString getFullError() const;
 
-    int expectedFileSize();
+    int expectedFileSize() const;
 
     // compute the number of fields in one record (row)
-    static int numberOfFields(int numBytesHeader);
+    static int calculateNumberOfFields(int headerLength);
+    static int calculateHeaderLength(int numberOfFields);
+
+private:
+    // each field is described by 32 bytes in the file header
+    static const int m_bytesPerField = 32;
+
+    // 32 bytes file information
+    static const int m_bytesFileInfo = 32;
+
+    // 1 byte terminator (0Dh)
+    static const int m_bytesTerminator = 1;
 
 protected:
+
     // Path to dbf file
     QFile m_file;
 

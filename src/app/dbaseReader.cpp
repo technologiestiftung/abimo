@@ -62,7 +62,7 @@ bool DbaseReader::read()
 
     // info[30 - 31] reserved
 
-    m_fieldNumber = numberOfFields(m_headerLength);
+    m_fieldNumber = calculateNumberOfFields(m_headerLength);
 
     if (m_file.size() != expectedFileSize()) {
         m_error = "Datei unbekannten Formats, falsche Groesse.\nSoll: %1\nIst: %2";

@@ -32,7 +32,7 @@ DbaseWriter::DbaseWriter(const QString& filePath, const InitValues& initValues) 
     fields.push_back(DbaseField("FLAECHE", "N", initValues.getDigitsTotalArea()));
     fields.push_back(DbaseField("VERDUNSTUN", "N", initValues.getDigitsEvaporation()));
 
-    m_headerLength = fields.size() * 32 + 32 + 1;
+    m_headerLength = calculateHeaderLength(fields.size());
 
     m_date = QDateTime::currentDateTime().date();
 
