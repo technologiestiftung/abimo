@@ -11,9 +11,15 @@ public:
     AbimoRecord();
     int usage; // old: NUTZUNG
     QString code; // old: CODE
+
+    // precipitation for entire year and for summer season only
     int precipitationYear; // old: REGENJA
     int precipitationSummer; // old: REGENSO
+
+    // Flurabstandswert [m] ID_FLW 4.1 N
+    // depth to groundwater table 'FLUR'
     float depthToWaterTable; // old: FLUR
+
     int type; // old: TYP
     int fieldCapacity_30; // old: FELD_30
     int fieldCapacity_150; // old: FELD_150

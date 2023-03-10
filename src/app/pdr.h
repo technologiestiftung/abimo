@@ -39,6 +39,25 @@ struct UsageTuple {
     int irrigation;
 };
 
+struct PotentialEvaporation {
+    // l-j. MW der pot. Verdunstung [mm/a] ID_ETP 003 N
+    int perYearInteger; // old: ETP
+
+    // potentielle Verdunstung im Sommer ID_ETPS neu
+    int inSummerInteger; // old: ETPS
+
+    float perYearFloat;
+};
+
+struct Precipitation {
+
+    // precipitation for entire year and for summer season only
+    int perYearInteger;
+    int inSummerInteger;
+
+    float perYearCorrectedFloat;
+};
+
 class PDR
 {
 private:
@@ -63,17 +82,8 @@ public:
     // water holding capacity (= nutzbare Feldkapazitaet)
     float usableFieldCapacity; // old: nFK
 
-    // Flurabstandswert [m] ID_FLW 4.1 N
-    float depthToWaterTable; // old: FLW
-
     // Hauptnutzungsform [L,W,G,B,K,D] ID_NUT 001 C
     Usage usage; // old: NUT
-
-    // Langjaehriger MW des Gesamtabflusses [mm/a] 004 N
-//    float totalRunoff; // old: R
-
-    // Langjaehriger MW des Regenwasserabflusses [mm/a] 003 N
-    int runoff; // old: ROW
 
     // Versiegelungsgrad bebauter Flaechen [%] ID_VER 002 N
     int mainPercentageSealed; // old: VER
@@ -84,17 +94,11 @@ public:
     // j. Beregnungshoehe landw. Nutzfl. [mm/a] ID_BER 003 N
     int irrigation; // old: BER
 
-    // Niederschlag <MD-Wert> [mm/a] ID_PMD 003 N
-    float precipitationYear; // old: P1
-
-    // l-j. MW der pot. Verdunstung [mm/a] ID_ETP 003 N
-    int longtimeMeanPotentialEvaporation; // old: ETP
-
     // Kapillarer Aufstieg pro Jahr ID_KR neu
     int meanPotentialCapillaryRiseRate; // old: KR
 
-    // Sommer-Niederschlag ID_PS neu
-    float precipitationSummer; // old: P1S
+    // l-j. MW der pot. Verdunstung [mm/a] ID_ETP 003 N
+    int potentialEvaporationYear; // old: ETP
 
     // potentielle Verdunstung im Sommer ID_ETPS neu
     int potentialEvaporationSummer; // old: ETPS

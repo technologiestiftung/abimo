@@ -13,10 +13,11 @@
 
 #include "abimoReader.h"
 #include "abimoRecord.h"
+#include "config.h"
 #include "counters.h"
 #include "dbaseWriter.h"
 #include "initValues.h"
-#include "config.h"
+#include "pdr.h"
 
 class Calculation: public QObject
 {
@@ -86,6 +87,8 @@ private:
 
     // Langjaehriger MW des Gesamtabflusses [mm/a] 004 N
     float m_totalRunoff; // old: R
+
+    // Langjaehriger MW des Regenwasserabflusses [mm/a] 003 N
     float m_surfaceRunoff;
 
     // Langjaehriger MW des unterird. Abflusses [mm/a] 004 N
@@ -104,10 +107,24 @@ private:
 
     void logNotDefined(QString code, int type);
 
-    void getClimaticConditions(int bez, QString codestr);
+    void getClimaticConditions(
+        Precipitation precipitation,
+        PotentialEvaporation potentialEvaporation,
+        AbimoRecord& record
+    );
+
+    PotentialEvaporation getPotentialEvaporation(
+        Usage& usage, InitValues& initValues, int district, QString code
+    );
+
+    Precipitation getPrecipitation(
+        int precipitationYear, InitValues& initValues
+    );
 
     float realEvapotranspiration(
-        float potentialEvaporation, float precipiation
+        PotentialEvaporation potentialEvaporation,
+        Precipitation precipitation,
+        AbimoRecord& record
     );
 
     float initValueOrReportedDefaultValue(

@@ -149,13 +149,6 @@ void Calculation::calculateResultRecord(AbimoRecord &record)
     // old: ri1 - ri4
     std::vector<float> infiltrationSealedSurfaces = {0, 0, 0, 0, 0};
 
-    // precipitation for entire year and for summer season only
-    m_resultRecord.precipitationYear = record.precipitationYear;
-    m_resultRecord.precipitationSummer = record.precipitationSummer;
-
-    // depth to groundwater table 'FLUR'
-    m_resultRecord.depthToWaterTable = record.depthToWaterTable;
-
     // declaration of yield power (ERT) and irrigation (BER) for agricultural or
     // gardening purposes
     UsageResult usageResult = m_config.getUsageResult(
@@ -193,7 +186,7 @@ void Calculation::calculateResultRecord(AbimoRecord &record)
         );
 
         // pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS
-        m_potentialCapillaryRise = m_resultRecord.depthToWaterTable - rootingDepth;
+        m_potentialCapillaryRise = record.depthToWaterTable - rootingDepth;
 
         // mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres
         m_resultRecord.meanPotentialCapillaryRiseRate =
@@ -211,8 +204,16 @@ void Calculation::calculateResultRecord(AbimoRecord &record)
         m_resultRecord.irrigation = 0;
     }
 
+    Precipitation precipitation = getPrecipitation(
+        static_cast<float>(record.precipitationYear), m_initValues
+    );
+
+    PotentialEvaporation potentialEvaporation = getPotentialEvaporation(
+        m_resultRecord.usage, m_initValues, record.district, record.code
+    );
+
     // Bagrov-calculation for sealed surfaces
-    getClimaticConditions(record.district, record.code);
+    getClimaticConditions(precipitation, potentialEvaporation, record);
 
     // percentage of total sealed area
     // share of roof area [%] 'PROBAU' +
@@ -334,8 +335,6 @@ void Calculation::calculateResultRecord(AbimoRecord &record)
         runoffPerviousRoads
     );
 
-    m_resultRecord.runoff = helpers::roundToInteger(m_surfaceRunoff);
-
     // calculate volume 'rowvol' from runoff (qcm/s)
     m_surfaceRunoffFlow = record.yearlyHeightToVolumeFlow(m_surfaceRunoff);
 
@@ -366,7 +365,7 @@ void Calculation::calculateResultRecord(AbimoRecord &record)
     // runoff and infiltration from precipitation of entire year,
     // multiplied by precipitation correction factor
     m_evaporation = (
-        m_resultRecord.precipitationYear *
+        static_cast<float>(record.precipitationYear) *
         m_initValues.getPrecipitationCorrectionFactor()
     ) - m_totalRunoff;
 
@@ -376,42 +375,19 @@ void Calculation::calculateResultRecord(AbimoRecord &record)
 // This function uses...
 // This function modifies...
 // =============================================================================
-void Calculation::getClimaticConditions(int district, QString code)
+void Calculation::getClimaticConditions(
+    Precipitation precipitation,
+    PotentialEvaporation potentialEvaporation,
+    AbimoRecord& record
+)
 {
-    // Parameter for the city districts
-    if (m_resultRecord.usage == Usage::waterbody_G) {
-
-        m_resultRecord.longtimeMeanPotentialEvaporation = initValueOrReportedDefaultValue(
-            district, code, m_initValues.hashEG, 775, "EG"
-        );
-    }
-    else {
-
-        m_resultRecord.longtimeMeanPotentialEvaporation = initValueOrReportedDefaultValue(
-            district, code, m_initValues.hashETP, 660, "ETP"
-        );
-
-        m_resultRecord.potentialEvaporationSummer = initValueOrReportedDefaultValue(
-            district, code, m_initValues.hashETPS, 530, "ETPS"
-        );
-    }
-
-    // potential evaporation
-    float potentialEvaporation = static_cast<float>(
-        m_resultRecord.longtimeMeanPotentialEvaporation
-    ); // no more correction with 1.1
-
-    // precipitation (at ground level)
-    float precipitation = static_cast<float>(
-        m_resultRecord.precipitationYear *
-        m_initValues.getPrecipitationCorrectionFactor()
-    );
-
     // Berechnung der Abfluesse RDV und R1V bis R4V fuer versiegelte
     // Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4
 
     // ratio of precipitation to potential evaporation
-    float xRatio = precipitation / potentialEvaporation;
+    float xRatio =
+        precipitation.perYearCorrectedFloat /
+        potentialEvaporation.perYearFloat;
 
     // Berechnung des Abflusses RxV fuer versiegelte Teilflaechen mittels
     // Umrechnung potentieller Verdunstungen potentialEvaporation zu realen
@@ -421,25 +397,72 @@ void Calculation::getClimaticConditions(int district, QString code)
 
     for (int i = 0; i < static_cast<int>(m_bagrovValues.size()); i++) {
 
-        m_bagrovValues[i] = precipitation -
+        m_bagrovValues[i] = precipitation.perYearCorrectedFloat -
             Bagrov::nbagro(m_initValues.getBagrovValue(i), xRatio) *
-            potentialEvaporation;
+            potentialEvaporation.perYearFloat;
     }
 
     // Calculate runoff RUV for unsealed surfaces
     float actualEvaporation = (m_resultRecord.usage == Usage::waterbody_G) ?
-        potentialEvaporation :
-        realEvapotranspiration(potentialEvaporation, precipitation);
+        potentialEvaporation.perYearFloat :
+        realEvapotranspiration(potentialEvaporation, precipitation, record);
 
-    m_unsealedSurfaceRunoff = precipitation - actualEvaporation;
+    m_unsealedSurfaceRunoff =
+        precipitation.perYearCorrectedFloat - actualEvaporation;
+}
+
+PotentialEvaporation Calculation::getPotentialEvaporation(
+    Usage& usage, InitValues& initValues, int district, QString code
+)
+{
+    PotentialEvaporation result;
+
+    // Parameter for the city districts
+    if (usage == Usage::waterbody_G) {
+
+        result.perYearInteger = initValueOrReportedDefaultValue(
+            district, code, initValues.hashEG, 775, "EG"
+        );
+
+        // What about potentialEvaporationSummer?
+        result.inSummerInteger = -1;
+    }
+    else {
+        result.perYearInteger = initValueOrReportedDefaultValue(
+            district, code, initValues.hashETP, 660, "ETP"
+        );
+        result.inSummerInteger = initValueOrReportedDefaultValue(
+            district, code, initValues.hashETPS, 530, "ETPS"
+        );
+    }
+
+    // no more correction with 1.1
+    result.perYearFloat = static_cast<float>(result.perYearInteger);
+
+    return result;
+}
+
+Precipitation Calculation::getPrecipitation(
+    int precipitationYear, InitValues& initValues
+)
+{
+    Precipitation result;
+
+    // precipitation (at ground level)
+    result.perYearCorrectedFloat = static_cast<float>(
+        precipitationYear * initValues.getPrecipitationCorrectionFactor()
+    );
+
+    return result;
 }
 
 float Calculation::realEvapotranspiration(
-    float potentialEvaporation,
-    float precipitation
+    PotentialEvaporation potentialEvaporation,
+    Precipitation precipitation,
+    AbimoRecord& record
 )
 {
-    assert(potentialEvaporation > 0.0);
+    assert(potentialEvaporation.perYearFloat > 0.0);
 
     // Determine effectivity/effectiveness ??? parameter (old???: bag) for
     // unsealed surfaces
@@ -449,8 +472,8 @@ float Calculation::realEvapotranspiration(
         m_resultRecord.usage == Usage::forested_W,
         m_resultRecord.yieldPower,
         m_resultRecord.irrigation,
-        m_resultRecord.precipitationSummer,
-        m_resultRecord.potentialEvaporationSummer,
+        static_cast<float>(precipitation.inSummerInteger),
+        potentialEvaporation.inSummerInteger,
         m_resultRecord.meanPotentialCapillaryRiseRate
     );
 
@@ -460,24 +483,24 @@ float Calculation::realEvapotranspiration(
     float yRatio = Bagrov::nbagro(
         effectivityParameter,
         (
-            precipitation +
+            precipitation.perYearCorrectedFloat +
             m_resultRecord.meanPotentialCapillaryRiseRate +
             m_resultRecord.irrigation
-        ) / potentialEvaporation
+        ) / potentialEvaporation.perYearFloat
     );
 
     // Get the real evapotransporation using estimated y-factor
-    float realEvapotranspiration = yRatio * potentialEvaporation;
+    float result = yRatio * potentialEvaporation.perYearFloat;
 
     if (m_potentialCapillaryRise < 0) {
-        realEvapotranspiration += (
-            potentialEvaporation - yRatio * potentialEvaporation
-        ) * static_cast<float>(
-            exp(m_resultRecord.depthToWaterTable / m_potentialCapillaryRise)
-        );
+        result +=
+            (potentialEvaporation.perYearFloat - result) *
+            static_cast<float>(
+                exp(record.depthToWaterTable / m_potentialCapillaryRise)
+            );
     }
 
-    return realEvapotranspiration;
+    return result;
 }
 
 float Calculation::initValueOrReportedDefaultValue(
