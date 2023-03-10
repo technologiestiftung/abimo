@@ -131,8 +131,10 @@ void DbaseWriter::writeFileData(QByteArray& data)
 
             int fieldLength = fields[j].getFieldLength();
 
+            QString str = strings.at(j);
+
             if (fields[j].getDecimalCount() > 0) {
-                QString str = strings.at(j);
+
                 QStringList strlist = str.split(".");
                 int frontLength = fieldLength - 1 - fields[j].getDecimalCount();
                 if (strlist.at(0).contains('-')) {
@@ -149,9 +151,7 @@ void DbaseWriter::writeFileData(QByteArray& data)
                 ));
             }
             else {
-                data.append(strings.at(j).rightJustified(
-                  fieldLength, QChar(0x30)
-                ));
+                data.append(str.rightJustified(fieldLength, QChar(0x30)));
             }
         }
     }
