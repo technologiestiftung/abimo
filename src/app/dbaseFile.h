@@ -9,7 +9,7 @@
 class DbaseFile
 {
 public:
-    DbaseFile(const QString& file);
+    DbaseFile(const QString& filePath);
 
     // Accessor functions
     QString getVersion();

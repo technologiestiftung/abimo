@@ -1,7 +1,7 @@
 #include "dbaseFile.h"
 
-DbaseFile::DbaseFile(const QString& file) :
-    m_file(file),
+DbaseFile::DbaseFile(const QString& filePath) :
+    m_file(filePath),
     m_headerLength(0),
     m_recordLength(0),
     m_recordNumber(0),
