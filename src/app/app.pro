@@ -32,6 +32,7 @@ HEADERS += \
     effectivenessUnsealed.h \
     helpers.h \
     initValues.h \
+    intermediateResults.h \
     main.h \
     mainWindow.h \
     pdr.h \
@@ -51,6 +52,7 @@ SOURCES += \
     effectivenessUnsealed.cpp \
     helpers.cpp \
     initValues.cpp \
+    intermediateResults.cpp \
     main.cpp \
     mainWindow.cpp \
     pdr.cpp \
