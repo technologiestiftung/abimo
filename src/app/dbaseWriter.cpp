@@ -4,6 +4,8 @@
  ***************************************************************************/
 #include <math.h> // for pow(), round()
 
+#include <QDebug>
+
 #include "dbaseFile.h"
 #include "dbaseWriter.h"
 #include "helpers.h"

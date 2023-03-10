@@ -5,6 +5,7 @@
 
 #include <QByteArray>
 #include <QChar>
+#include <QDebug>
 #include <QString>
 #include <QStringList>
 
@@ -94,9 +95,10 @@ QString DbaseField::formatNumericString(QString s, int length, int decimalPlaces
 
     bool isNegative = left.contains('-');
 
-    if (isNegative) {
-        left = QString("-") + left.right(left.length() - 1);
-    }
+    // this looks useless...
+    //if (isNegative) {
+    //    left = QString("-") + left.right(left.length() - 1);
+    //}
 
     int leftLength = length - 1 - decimalPlaces - ((isNegative) ? 1 : 0);
 
@@ -107,6 +109,10 @@ QString DbaseField::formatNumericString(QString s, int length, int decimalPlaces
 
     // fails!
     // assert(result.length() == length);
+
+    //qDebug() << QString("formatNumericString('%1', %2, %3) = '%4'").arg(
+    //    s, QString::number(length), QString::number(decimalPlaces), result
+    //);
 
     return result;
 }

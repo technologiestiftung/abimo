@@ -11,11 +11,6 @@
 #include <QStringList>
 #include <QVector>
 
-
-
-
-
-
 namespace helpers
 {
     QString nowString();
