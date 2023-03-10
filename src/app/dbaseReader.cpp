@@ -106,12 +106,12 @@ bool DbaseReader::read()
     QBuffer buffer(&arr);
     buffer.open(QIODevice::ReadOnly);
 
-    m_values = new QString[m_recordNumber * m_fieldNumber];
+    m_stringValues.resize(m_recordNumber * m_fieldNumber);
 
     for (int i = 0; i < m_recordNumber; i++) {
         for (int j = 0; j < m_fieldNumber; j++) {
             QString s = buffer.read(fields[j].getFieldLength()).trimmed();
-            m_values[i * m_fieldNumber + j] = ((s.size() > 0) ? s : "0");
+            m_stringValues[i * m_fieldNumber + j] = ((s.size() > 0) ? s : "0");
         }
         buffer.read(1);
     }
@@ -135,7 +135,7 @@ QString DbaseReader::getRecord(int num, int field)
         return 0;
     }
 
-    return m_values[num * m_fieldNumber + field];
+    return m_stringValues[num * m_fieldNumber + field];
 }
 
 QString DbaseReader::byteToVersion(quint8 byte, bool debug)

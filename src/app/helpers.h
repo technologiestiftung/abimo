@@ -9,6 +9,7 @@
 #include <QHash>
 #include <QString>
 #include <QStringList>
+#include <QVector>
 
 namespace helpers
 {
@@ -23,7 +24,10 @@ namespace helpers
     void openFileOrAbort(QFile& file, QIODevice::OpenModeFlag mode = QIODevice::ReadOnly);
     bool filesAreIdentical(QString file_1, QString file_2, bool debug = true, int maxDiffs = 5);
     void abortIfNoSuchFile(QString filePath, QString context = "");
-    bool stringsAreEqual(QString* strings_1, QString* strings_2, int n, int maxDiffs = 5, bool debug = false);
+    bool stringsAreEqual(QVector<QString>& strings_1,
+                         QVector<QString>& strings_2,
+                         int maxDiffs = 5,
+                         bool debug = false);
     int stringToInt(QString string, QString context, bool debug = false);
     float stringToFloat(QString string, QString context, bool debug = false);
     int index(float xi, const std::vector<float> &x, float epsilon = 0.0001F);

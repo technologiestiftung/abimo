@@ -86,11 +86,11 @@ void TestAbimo::test_helpers_filesAreIdentical()
 
 void TestAbimo::test_helpers_stringsAreEqual()
 {
-    QString strings_1[] = {"a", "b", "c", "d", "e", "f"};
-    QString strings_2[] = {"a", "b", "d", "e", "f", "g"};
+    QVector<QString> strings_1 = {"a", "b", "c", "d", "e", "f"};
+    QVector<QString> strings_2 = {"a", "b", "d", "e", "f", "g"};
 
-    QCOMPARE(helpers::stringsAreEqual(strings_1, strings_1, 6), true);
-    QCOMPARE(helpers::stringsAreEqual(strings_1, strings_2, 6), false);
+    QCOMPARE(helpers::stringsAreEqual(strings_1, strings_1), true);
+    QCOMPARE(helpers::stringsAreEqual(strings_1, strings_2), false);
 }
 
 void TestAbimo::test_requiredFields()
@@ -247,9 +247,10 @@ bool TestAbimo::dbfStringsAreIdentical(QString file_1, QString file_2)
         return false;
     };
 
-    return helpers::stringsAreEqual(
-        reader_1.getValues(), reader_2.getValues(), nrows_1 * ncols_1, 50, true
-    );
+    QVector<QString> values_1 = reader_1.getValues();
+    QVector<QString> values_2 = reader_2.getValues();
+
+    return helpers::stringsAreEqual(values_1, values_2, 10, true);
 }
 
 bool TestAbimo::numbersInFilesDiffer(QString file_1, QString file_2, int n_1, int n_2, QString subject)

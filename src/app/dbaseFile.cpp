@@ -6,15 +6,8 @@ DbaseFile::DbaseFile(const QString& file) :
     m_recordLength(0),
     m_recordNumber(0),
     m_fieldNumber(0),
-    m_values(0)
+    m_stringValues()
 {
-}
-
-DbaseFile::~DbaseFile()
-{
-    if (m_values != 0) {
-        delete[] m_values;
-    }
 }
 
 QString DbaseFile::getVersion()
@@ -52,9 +45,9 @@ int DbaseFile::getFieldNumber()
     return m_fieldNumber;
 }
 
-QString* DbaseFile::getValues()
+QVector<QString> DbaseFile::getValues()
 {
-    return m_values;
+    return m_stringValues;
 }
 
 QString DbaseFile::getError()

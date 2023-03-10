@@ -140,13 +140,16 @@ void helpers::abortIfNoSuchFile(QString filePath, QString context)
     }
 }
 
-bool helpers::stringsAreEqual(QString* strings_1, QString* strings_2, int n, int maxDiffs, bool debug)
+bool helpers::stringsAreEqual(
+        QVector<QString>& strings_1,
+        QVector<QString>& strings_2, int maxDiffs, bool debug)
 {
     int n_diffs = 0;
     int i = 0;
+    int n = helpers::min(strings_1.size(), strings_2.size());
 
     while (i < n && n_diffs < maxDiffs) {
-        if (*strings_1 != *strings_2) {
+        if (strings_1.at(i) != strings_2.at(i)) {
             n_diffs++;
             if (debug) {
                 qDebug() << QString(
@@ -154,12 +157,10 @@ bool helpers::stringsAreEqual(QString* strings_1, QString* strings_2, int n, int
                     QString::number(n_diffs),
                     QString::number(i)
                 );
-                qDebug() << QString("  string 1: '%1'").arg(*strings_1);
-                qDebug() << QString("  string 2: '%1'").arg(*strings_2);
+                qDebug() << QString("  string 1: '%1'").arg(strings_1.at(i));
+                qDebug() << QString("  string 2: '%1'").arg(strings_2.at(i));
             }
         }
-        strings_1++;
-        strings_2++;
         i++;
     }
 

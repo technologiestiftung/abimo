@@ -4,12 +4,12 @@
 #include <QDate>
 #include <QFile>
 #include <QString>
+#include <QVector>
 
 class DbaseFile
 {
 public:
     DbaseFile(const QString& file);
-    ~DbaseFile();
 
     // Accessor functions
     QString getVersion();
@@ -21,7 +21,7 @@ public:
     int getRecordNumber();
     int getFieldNumber();
 
-    QString* getValues();
+    QVector<QString> getValues();
 
     QString getError();
     QString getFullError();
@@ -60,7 +60,7 @@ protected:
     QHash<QString,int> m_fieldPositionMap;
 
     // String values representing the data content of the dbf file
-    QString* m_values;
+    QVector<QString> m_stringValues;
 
     // Error string (short)
     QString m_error;
