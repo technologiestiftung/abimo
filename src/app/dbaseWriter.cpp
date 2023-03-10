@@ -130,7 +130,7 @@ void DbaseWriter::writeFileData(QByteArray& data)
         data.append(QChar(0x20));
 
         for (int j = 0; j < fields.size(); j++) {
-            data.append(helpers::formatNumericString(
+            data.append(DbaseField::formatNumericString(
                 strings.at(j),
                 fields[j].getFieldLength(),
                 fields[j].getDecimalCount()

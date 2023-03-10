@@ -6,6 +6,7 @@
 #include <QByteArray>
 #include <QChar>
 #include <QString>
+#include <QStringList>
 
 #include "dbaseField.h"
 
@@ -59,4 +60,53 @@ void DbaseField::setFieldLength(int fieldLength)
 int DbaseField::getDecimalCount()
 {
     return m_numDecimalPlaces;
+}
+
+QString DbaseField::formatNumericString(QString s, int length, int decimalPlaces)
+{
+    // https://www.dbase.com/Knowledgebase/INT/db7_file_fmt.htm
+    // F - Float: Number stored as a string, right justified, and padded with
+    //     blanks to the width of the field.
+    // N - Numeric: Number stored as a string, right justified, and padded with
+    //     blanks to the width of the field.
+
+    const QChar blank = QChar(0x30); // should be QChar(0x20)!
+
+    // s = "123.456", length = 5, decimalPlaces = 1
+    // left = "123", right = "456"
+    // leftLength = 3 (length - 1 - decimalPlaces - ((isNegative) ? 1 : 0))
+    // left.rightJustified(leftLength, blank) = "123"
+    // right.leftJustified(decimalPlaces, blank) = "456" and not "4"!
+
+    if (decimalPlaces <= 0) {
+        return s.rightJustified(length, blank, true);
+    }
+
+    // The rest of the function handles numbers with decimal places
+
+    // Provide the substrings left and right of the decimal character (".")
+    QStringList parts = s.split(".");
+
+    assert(parts.length() == 2);
+
+    QString left = parts.at(0);
+    QString right = parts.at(1);
+
+    bool isNegative = left.contains('-');
+
+    if (isNegative) {
+        left = QString("-") + left.right(left.length() - 1);
+    }
+
+    int leftLength = length - 1 - decimalPlaces - ((isNegative) ? 1 : 0);
+
+    QString result = QString("%1.%2").arg(
+        left.rightJustified(leftLength, blank, true),
+        right.leftJustified(decimalPlaces, blank, true)
+    );
+
+    // fails!
+    // assert(result.length() == length);
+
+    return result;
 }

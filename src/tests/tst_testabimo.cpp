@@ -9,6 +9,7 @@
 #include "../app/abimoReader.h"
 #include "../app/calculation.h"
 #include "../app/config.h"
+#include "../app/dbaseField.h"
 #include "../app/dbaseReader.h"
 #include "../app/helpers.h"
 
@@ -24,6 +25,7 @@ private slots:
     void test_helpers_containsAll();
     void test_helpers_filesAreIdentical();
     void test_helpers_stringsAreEqual();
+    void test_helpers_formatNumericString();
     void test_requiredFields();
     void test_dbaseReader();
     void test_xmlReader();
@@ -93,6 +95,30 @@ void TestAbimo::test_helpers_stringsAreEqual()
     QCOMPARE(helpers::stringsAreEqual(strings_1, strings_2), false);
 }
 
+void TestAbimo::test_helpers_formatNumericString()
+{
+    // Result string
+    QString r;
+
+    r = DbaseField::formatNumericString(QString("123"), 4, 0);
+    QCOMPARE(r, QString("0123"));
+
+    r = DbaseField::formatNumericString(QString("123.456"), 5, 1);
+    QCOMPARE(r, QString("123.4"));
+
+    r = DbaseField::formatNumericString(QString("123.456"), 6, 1);
+    QCOMPARE(r, QString("0123.4"));
+
+    r = DbaseField::formatNumericString(QString("123.456"), 6, 2);
+    QCOMPARE(r, QString("123.45"));
+
+    r = DbaseField::formatNumericString(QString("-123.4"), 5, 0);
+    QCOMPARE(r, QString("-123.")); // is that what we want?
+
+    r = DbaseField::formatNumericString(QString("-123.456"), 7, 1);
+    QCOMPARE(r, QString("-123.4")); // is not of length 7!
+}
+
 void TestAbimo::test_requiredFields()
 {
     QStringList strings = AbimoReader::requiredFields();
@@ -160,7 +186,7 @@ void TestAbimo::test_calc()
     QVERIFY(dbfStringsAreIdentical(outputFile, outFile_noConfig));
 
     // Files are not identical due to differing dates in the header
-    //QVERIFY(Helpers::filesAreIdentical(outputFile, referenceFile));
+    //QVERIFY(helpers::filesAreIdentical(outputFile, referenceFile));
 
     // Run the simulation with initial values from config file
     Calculation::runCalculation(inputFile, configFile, outputFile);

@@ -22,6 +22,7 @@ public:
     int getDecimalCount();
     void setFieldLength(int fieldLength);
     void set(QString name, QString type, int numDecimalPlaces);
+    static QString formatNumericString(QString s, int length, int decimalPlaces);
 
 private:
     QString m_name;
