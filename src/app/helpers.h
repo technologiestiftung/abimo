@@ -30,6 +30,7 @@ namespace helpers
                          bool debug = false);
     int stringToInt(QString string, QString context, bool debug = false);
     float stringToFloat(QString string, QString context, bool debug = false);
+    QString formatNumericString(QString s, int totalLength, int decimalPlaces);
     int index(float xi, const std::vector<float> &x, float epsilon = 0.0001F);
     float interpolate(float xi, const std::vector<float> &x, const std::vector<float> &y);
     QString removeFileExtension(QString);

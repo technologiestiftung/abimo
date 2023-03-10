@@ -189,6 +189,37 @@ float helpers::stringToFloat(QString string, QString context, bool debug)
     return result;
 }
 
+QString helpers::formatNumericString(
+    QString s, int totalLength, int decimalPlaces
+)
+{
+    const QChar space = QChar(0x30);
+
+    if (decimalPlaces <= 0) {
+        return s.rightJustified(totalLength, space);
+    }
+
+    // The rest of the function handles numbers with decimal places
+
+    // Provide the substrings left and right of the decimal character (".")
+    QStringList parts = s.split(".");
+    QString left = parts.at(0);
+    QString right = parts.at(1);
+
+    bool isNegative = left.contains('-');
+
+    if (isNegative) {
+        left = QString("-") + left.right(left.length() - 1);
+    }
+
+    int leftLength = totalLength - 1 - decimalPlaces - ((isNegative) ? 1 : 0);
+
+    return QString("%1.%2").arg(
+        left.rightJustified(leftLength, space),
+        right.leftJustified(decimalPlaces, space)
+    );
+}
+
 //
 // Find the index of a value in a sorted array
 //

@@ -6,6 +6,7 @@
 
 #include "dbaseFile.h"
 #include "dbaseWriter.h"
+#include "helpers.h"
 #include "initValues.h"
 
 DbaseWriter::DbaseWriter(const QString& filePath, const InitValues& initValues) :
@@ -125,39 +126,15 @@ void DbaseWriter::writeFileData(QByteArray& data)
     for (int i = 0; i < m_numberOfRecords; i++) {
 
         strings = record.at(i);
+
         data.append(QChar(0x20));
 
         for (int j = 0; j < fields.size(); j++) {
-
-            int fieldLength = fields[j].getFieldLength();
-
-            QString str = strings.at(j);
-
-            if (fields[j].getDecimalCount() > 0) {
-
-                QStringList strlist = str.split(".");
-
-                int frontLength = fieldLength - 1 - fields[j].getDecimalCount();
-
-                QString stringValue = strlist.at(0);
-
-                stringValue = (stringValue.contains('-')) ?
-                    QString("-") +
-                        stringValue.right(stringValue.length() - 1)
-                        .rightJustified(frontLength - 1, QChar(0x30)) :
-                    stringValue.rightJustified(frontLength, QChar(0x30));
-
-                data.append(stringValue);
-                data.append(".");
-
-                data.append(strlist.at(1).leftJustified(
-                    fields[j].getDecimalCount(),
-                    QChar(0x30)
-                ));
-            }
-            else {
-                data.append(str.rightJustified(fieldLength, QChar(0x30)));
-            }
+            data.append(helpers::formatNumericString(
+                strings.at(j),
+                fields[j].getFieldLength(),
+                fields[j].getDecimalCount()
+            ));
         }
     }
 
