@@ -19,12 +19,12 @@
 #include <QTextStream>
 #include <QWidget>
 
-#include "abimoreader.h"
+#include "abimoReader.h"
 #include "calculation.h"
 #include "constants.h"
 #include "helpers.h"
-#include "initvalues.h"
-#include "mainwindow.h"
+#include "initValues.h"
+#include "mainWindow.h"
 
 MainWindow::MainWindow(QApplication* app, QCommandLineParser* arguments):
     QMainWindow(),

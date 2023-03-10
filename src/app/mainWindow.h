@@ -18,7 +18,7 @@
 #include <QWidget>
 
 #include "calculation.h"
-#include "initvalues.h"
+#include "initValues.h"
 
 class MainWindow : public QMainWindow
 {

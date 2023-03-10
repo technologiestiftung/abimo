@@ -4,7 +4,7 @@
 #include <QString>
 #include <QStringList>
 
-#include "abimorecord.h"
+#include "abimoRecord.h"
 #include "dbaseReader.h"
 
 class AbimoReader : public DbaseReader

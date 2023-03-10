@@ -5,7 +5,7 @@
 
 #include <QDebug>
 
-#include "saxhandler.h"
+#include "saxHandler.h"
 
 SaxHandler::SaxHandler(InitValues &initValues):
     state(ParameterGroup::None),

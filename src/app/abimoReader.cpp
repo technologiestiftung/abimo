@@ -1,6 +1,6 @@
 #include <QString>
 
-#include "abimoreader.h"
+#include "abimoReader.h"
 #include "dbaseReader.h"
 #include "helpers.h"
 

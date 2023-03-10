@@ -16,7 +16,7 @@
 #include <QVector>
 
 #include "dbaseWriter.h"
-#include "initvalues.h"
+#include "initValues.h"
 
 DbaseWriter::DbaseWriter(QString &file, InitValues &initValues):
     fileName(file),

@@ -11,8 +11,8 @@
 #include <QXmlSimpleReader>
 
 #include "helpers.h"
-#include "initvalues.h"
-#include "saxhandler.h"
+#include "initValues.h"
+#include "saxHandler.h"
 
 InitValues::InitValues():
 

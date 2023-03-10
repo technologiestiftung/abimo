@@ -6,7 +6,7 @@
 #include <QStringList>
 #include <QtTest>
 
-#include "../app/abimoreader.h"
+#include "../app/abimoReader.h"
 #include "../app/calculation.h"
 #include "../app/config.h"
 #include "../app/dbaseReader.h"

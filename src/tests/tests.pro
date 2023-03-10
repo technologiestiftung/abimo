@@ -25,8 +25,8 @@ INCDIR = ../app
 #INCLUDEPATH += $$INCDIR
 
 HEADERS += \
-    $$INCDIR/abimoreader.h \
-    $$INCDIR/abimorecord.h \
+    $$INCDIR/abimoReader.h \
+    $$INCDIR/abimoRecord.h \
     $$INCDIR/bagrov.h \
     $$INCDIR/calculation.h\
     $$INCDIR/config.h\
@@ -35,15 +35,15 @@ HEADERS += \
     $$INCDIR/dbaseFile.h \
     $$INCDIR/dbaseReader.h \
     $$INCDIR/dbaseWriter.h \
-    $$INCDIR/effectivenessunsealed.h \
+    $$INCDIR/effectivenessUnsealed.h \
     $$INCDIR/helpers.h \
-    $$INCDIR/initvalues.h \
+    $$INCDIR/initValues.h \
     $$INCDIR/pdr.h \
-    $$INCDIR/saxhandler.h
+    $$INCDIR/saxHandler.h
 
 SOURCES += \
-    $$INCDIR/abimoreader.cpp \
-    $$INCDIR/abimorecord.cpp \
+    $$INCDIR/abimoReader.cpp \
+    $$INCDIR/abimoRecord.cpp \
     $$INCDIR/bagrov.cpp \
     $$INCDIR/calculation.cpp \
     $$INCDIR/config.cpp \
@@ -52,9 +52,9 @@ SOURCES += \
     $$INCDIR/dbaseFile.cpp \
     $$INCDIR/dbaseReader.cpp \
     $$INCDIR/dbaseWriter.cpp \
-    $$INCDIR/effectivenessunsealed.cpp \
+    $$INCDIR/effectivenessUnsealed.cpp \
     $$INCDIR/helpers.cpp \
-    $$INCDIR/initvalues.cpp \
+    $$INCDIR/initValues.cpp \
     $$INCDIR/pdr.cpp \
-    $$INCDIR/saxhandler.cpp \
+    $$INCDIR/saxHandler.cpp \
     tst_testabimo.cpp
