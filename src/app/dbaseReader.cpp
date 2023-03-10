@@ -47,7 +47,7 @@ bool DbaseReader::read()
 
     m_version = byteToVersion(info[0], false);
     m_date = bytesToDate(info[1], info[2], info[3]);
-    m_recordNumber = bytesToInteger(info[4], info[5], info[6], info[7]);
+    m_numberOfRecords = bytesToInteger(info[4], info[5], info[6], info[7]);
     m_headerLength = bytesToInteger(info[8], info[9]);
     m_recordLength = bytesToInteger(info[10], info[11]);
 
@@ -62,7 +62,7 @@ bool DbaseReader::read()
 
     // info[30 - 31] reserved
 
-    m_fieldNumber = calculateNumberOfFields(m_headerLength);
+    m_numberofFields = calculateNumberOfFields(m_headerLength);
 
     if (m_file.size() != expectedFileSize()) {
         m_error = "Datei unbekannten Formats, falsche Groesse.\nSoll: %1\nIst: %2";
@@ -73,7 +73,7 @@ bool DbaseReader::read()
         return false;
     }
 
-    if (m_recordNumber <= 0) {
+    if (m_numberOfRecords <= 0) {
         m_error = "keine Records in der datei vorhanden.";
         return false;
     }
@@ -83,16 +83,16 @@ bool DbaseReader::read()
         return false;
     }
 
-    if (m_fieldNumber < 1) {
+    if (m_numberofFields < 1) {
         m_error = "keine Felder gefunden.";
         return false;
     }
 
     // rest of header are field information
     QVector<DbaseField> fields;
-    fields.resize(m_fieldNumber);
+    fields.resize(m_numberofFields);
 
-    for (int i = 0; i < m_fieldNumber; i++) {
+    for (int i = 0; i < m_numberofFields; i++) {
         fields[i] = DbaseField(m_file.read(32));
         m_fieldPositionMap[fields[i].getName()] = i;
     }
@@ -100,18 +100,18 @@ bool DbaseReader::read()
     // Terminator
     m_file.read(2);
 
-    QByteArray arr = m_file.read(m_recordLength * m_recordNumber);
+    QByteArray arr = m_file.read(m_recordLength * m_numberOfRecords);
     m_file.close();
 
     QBuffer buffer(&arr);
     buffer.open(QIODevice::ReadOnly);
 
-    m_stringValues.resize(m_recordNumber * m_fieldNumber);
+    m_stringValues.resize(m_numberOfRecords * m_numberofFields);
 
-    for (int i = 0; i < m_recordNumber; i++) {
-        for (int j = 0; j < m_fieldNumber; j++) {
+    for (int i = 0; i < m_numberOfRecords; i++) {
+        for (int j = 0; j < m_numberofFields; j++) {
             QString s = buffer.read(fields[j].getFieldLength()).trimmed();
-            m_stringValues[i * m_fieldNumber + j] = ((s.size() > 0) ? s : "0");
+            m_stringValues[i * m_numberofFields + j] = ((s.size() > 0) ? s : "0");
         }
         buffer.read(1);
     }
@@ -131,11 +131,11 @@ QString DbaseReader::getRecord(int num, const QString& name)
 
 QString DbaseReader::getRecord(int num, int field)
 {
-    if (num >= m_recordNumber || field >= m_fieldNumber) {
+    if (num >= m_numberOfRecords || field >= m_numberofFields) {
         return 0;
     }
 
-    return m_stringValues[num * m_fieldNumber + field];
+    return m_stringValues[num * m_numberofFields + field];
 }
 
 QString DbaseReader::byteToVersion(quint8 byte, bool debug)

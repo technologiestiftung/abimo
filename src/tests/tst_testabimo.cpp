@@ -198,7 +198,7 @@ bool TestAbimo::dbfHeadersAreIdentical(QString file_1, QString file_2)
                  << "This is expected.";
     }
 
-    if (reader_1.getRecordNumber() != reader_2.getRecordNumber()) {
+    if (reader_1.getNumberOfRecords() != reader_2.getNumberOfRecords()) {
         qDebug() << "numberOfRecords differs";
         return false;
     }
@@ -233,15 +233,15 @@ bool TestAbimo::dbfStringsAreIdentical(QString file_1, QString file_2)
     reader_1.read();
     reader_2.read();
 
-    int nrows_1 = reader_1.getRecordNumber();
-    int nrows_2 = reader_2.getRecordNumber();
+    int nrows_1 = reader_1.getNumberOfRecords();
+    int nrows_2 = reader_2.getNumberOfRecords();
 
     if (numbersInFilesDiffer(file_1, file_2, nrows_1, nrows_2, "rows")) {
         return false;
     };
 
-    int ncols_1 = reader_1.getFieldNumber();
-    int ncols_2 = reader_2.getFieldNumber();
+    int ncols_1 = reader_1.getNumberOfFields();
+    int ncols_2 = reader_2.getNumberOfFields();
 
     if (numbersInFilesDiffer(file_1, file_2, ncols_1, ncols_2, "columns")) {
         return false;

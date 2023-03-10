@@ -18,8 +18,8 @@ public:
 
     int getHeaderLength() const;
     int getRecordLength() const;
-    int getRecordNumber() const;
-    int getFieldNumber() const;
+    int getNumberOfRecords() const;
+    int getNumberOfFields() const;
 
     QVector<QString> getValues() const;
 
@@ -38,9 +38,6 @@ private:
 
     // 32 bytes file information
     static const int m_bytesFileInfo = 32;
-
-    // 1 byte terminator (0Dh)
-    static const int m_bytesTerminator = 1;
 
 protected:
 
@@ -63,10 +60,10 @@ protected:
     int m_recordLength;
 
     // number of records (data rows) in file
-    int m_recordNumber;
+    int m_numberOfRecords;
 
     // number of fields in a record (data row)
-    int m_fieldNumber;
+    int m_numberofFields;
 
     // Hash assigning the 0-based field indices to the field names
     QHash<QString,int> m_fieldPositionMap;

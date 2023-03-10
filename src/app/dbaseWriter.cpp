@@ -76,7 +76,7 @@ int DbaseWriter::writeFileHeader(QByteArray& data)
     index = writeThreeByteDate(data, index, m_date);
 
     // Write record number at bytes 4 to 7
-    index = writeFourByteInteger(data, index, m_recordNumber);
+    index = writeFourByteInteger(data, index, m_numberOfRecords);
 
     // Write length of header at bytes 8 to 9
     index = writeTwoByteInteger(data, index, m_headerLength);
@@ -130,7 +130,7 @@ void DbaseWriter::writeFileData(QByteArray& data)
 {
     QVector<QString> strings;
 
-    for (int i = 0; i < m_recordNumber; i++) {
+    for (int i = 0; i < m_numberOfRecords; i++) {
 
         strings = record.at(i);
         data.append(QChar(0x20));
@@ -217,7 +217,7 @@ void DbaseWriter::addRecord()
 {
     QVector<QString> v(fields.size());
     record.append(v);
-    m_recordNumber ++;
+    m_numberOfRecords ++;
 }
 
 void DbaseWriter::setRecordField(int i, const QString& value)

@@ -4,8 +4,8 @@ DbaseFile::DbaseFile(const QString& filePath) :
     m_file(filePath),
     m_headerLength(0),
     m_recordLength(0),
-    m_recordNumber(0),
-    m_fieldNumber(0),
+    m_numberOfRecords(0),
+    m_numberofFields(0),
     m_stringValues()
 {
 }
@@ -35,14 +35,14 @@ int DbaseFile::getRecordLength() const
     return m_recordLength;
 }
 
-int DbaseFile::getRecordNumber() const
+int DbaseFile::getNumberOfRecords() const
 {
-    return m_recordNumber;
+    return m_numberOfRecords;
 }
 
-int DbaseFile::getFieldNumber() const
+int DbaseFile::getNumberOfFields() const
 {
-    return m_fieldNumber;
+    return m_numberofFields;
 }
 
 QVector<QString> DbaseFile::getValues() const
@@ -62,17 +62,15 @@ QString DbaseFile::getFullError() const
 
 int DbaseFile::expectedFileSize() const
 {
-    return m_headerLength + (m_recordNumber * m_recordLength) + 1;
+    return m_headerLength + (m_numberOfRecords * m_recordLength) + 1;
 }
 
 int DbaseFile::calculateNumberOfFields(int headerLength)
 {
-    return (headerLength - m_bytesFileInfo - m_bytesTerminator) /
-        m_bytesPerField;
+    return (headerLength - m_bytesFileInfo - 1) / m_bytesPerField;
 }
 
 int DbaseFile::calculateHeaderLength(int numberOfFields)
 {
-    return numberOfFields * m_bytesPerField + m_bytesFileInfo +
-        m_bytesTerminator;
+    return numberOfFields * m_bytesPerField + m_bytesFileInfo + 1;
 }
