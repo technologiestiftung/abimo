@@ -10,17 +10,17 @@
 #include <QString>
 #include <QTextStream>
 
-#include "abimoRreader.h"
-#include "abimoRrecord.h"
+#include "abimoReader.h"
+#include "abimoRecord.h"
 #include "bagrov.h"
 #include "calculation.h"
 #include "config.h"
 #include "constants.h"
 #include "counters.h"
 #include "dbaseWriter.h"
-#include "effectivenessUunsealed.h"
+#include "effectivenessUnsealed.h"
 #include "helpers.h"
-#include "initVvalues.h"
+#include "initValues.h"
 #include "pdr.h"
 
 Calculation::Calculation(

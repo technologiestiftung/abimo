@@ -11,11 +11,11 @@
 #include <QString>
 #include <QTextStream>
 
-#include "abimoRreader.h"
-#include "abimoRrecord.h"
+#include "abimoReader.h"
+#include "abimoRecord.h"
 #include "counters.h"
 #include "dbaseWriter.h"
-#include "initVvalues.h"
+#include "initValues.h"
 #include "config.h"
 
 class Calculation: public QObject

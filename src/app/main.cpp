@@ -13,14 +13,14 @@
 #include <QTextStream>
 #include <QtDebug>
 
-#include "abimoRreader.h"
+#include "abimoReader.h"
 #include "main.h"
 #include "bagrov.h"
 #include "calculation.h"
 #include "constants.h"
 #include "helpers.h"
-#include "initVvalues.h"
-#include "mainWwindow.h"
+#include "initValues.h"
+#include "mainWindow.h"
 
 bool parseForBatch(int &argc, char** /*argv*/)
 {
