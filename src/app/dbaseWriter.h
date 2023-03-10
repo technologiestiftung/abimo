@@ -13,7 +13,7 @@
 #include <QVector>
 
 #include "dbaseField.h"
-#include "initvalues.h"
+#include "initVvalues.h"
 
 const int countFields = 9;
 const int lengthOfHeader = countFields * 32 + 32 + 1;

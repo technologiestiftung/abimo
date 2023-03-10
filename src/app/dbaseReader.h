@@ -11,7 +11,7 @@
 #include <QHash>
 #include <QString>
 
-#include "abimorecord.h"
+#include "abimoRrecord.h"
 #include "dbaseFile.h"
 
 class DbaseReader : public DbaseFile

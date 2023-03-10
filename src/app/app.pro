@@ -18,8 +18,8 @@ QT += \
 CONFIG *= debug_and_release debug_and_release_target
 
 HEADERS += \
-    abimoreader.h \
-    abimorecord.h \
+    abimoRreader.h \
+    abimoRrecord.h \
     bagrov.h \
     calculation.h \
     config.h \
@@ -29,17 +29,17 @@ HEADERS += \
     dbaseFile.h \
     dbaseReader.h \
     dbaseWriter.h \
-    effectivenessunsealed.h \
+    effectivenessUunsealed.h \
     helpers.h \
-    initvalues.h \
+    initVvalues.h \
     main.h \
-    mainwindow.h \
+    mainWwindow.h \
     pdr.h \
-    saxhandler.h
+    saxHhandler.h
 
 SOURCES += \
-    abimoreader.cpp \
-    abimorecord.cpp \
+    abimoRreader.cpp \
+    abimoRrecord.cpp \
     bagrov.cpp \
     calculation.cpp \
     config.cpp \
@@ -48,13 +48,13 @@ SOURCES += \
     dbaseFile.cpp \
     dbaseReader.cpp \
     dbaseWriter.cpp \
-    effectivenessunsealed.cpp \
+    effectivenessUunsealed.cpp \
     helpers.cpp \
-    initvalues.cpp \
+    initVvalues.cpp \
     main.cpp \
-    mainwindow.cpp \
+    mainWwindow.cpp \
     pdr.cpp \
-    saxhandler.cpp
+    saxHhandler.cpp
 
 #RC_FILE += AbimoQt.rc
 #OTHER_FILES += release/config.xml
