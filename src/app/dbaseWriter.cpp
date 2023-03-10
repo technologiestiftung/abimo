@@ -18,7 +18,7 @@
 #include "dbaseWriter.h"
 #include "initValues.h"
 
-DbaseWriter::DbaseWriter(QString& filePath, InitValues &initValues) :
+DbaseWriter::DbaseWriter(const QString& filePath, const InitValues& initValues) :
     DbaseFile(filePath)
 {
     // Felder mit Namen, Typ, Nachkommastellen
@@ -65,7 +65,7 @@ bool DbaseWriter::write()
     return true;
 }
 
-int DbaseWriter::writeFileHeader(QByteArray &data)
+int DbaseWriter::writeFileHeader(QByteArray& data)
 {
     int index = 0;
 
@@ -126,7 +126,7 @@ int DbaseWriter::writeFileHeader(QByteArray &data)
     return index;
 }
 
-void DbaseWriter::writeFileData(QByteArray &data)
+void DbaseWriter::writeFileData(QByteArray& data)
 {
     QVector<QString> strings;
 
@@ -167,7 +167,7 @@ void DbaseWriter::writeFileData(QByteArray &data)
     data.append(QChar(0x1A));
 }
 
-int DbaseWriter::writeBytes(QByteArray &data, int index, int value, int n_values)
+int DbaseWriter::writeBytes(QByteArray&data, int index, int value, int n_values)
 {
     for (int i = index; i < index + n_values; i++) {
         data[i] = (quint8) value;
@@ -176,7 +176,7 @@ int DbaseWriter::writeBytes(QByteArray &data, int index, int value, int n_values
     return index + n_values;
 }
 
-int DbaseWriter::writeThreeByteDate(QByteArray &data, int index, QDate date)
+int DbaseWriter::writeThreeByteDate(QByteArray& data, int index, QDate date)
 {
     int year = date.year();
     int year2 = year % 100;
@@ -195,7 +195,7 @@ int DbaseWriter::writeThreeByteDate(QByteArray &data, int index, QDate date)
     return index + 3;
 }
 
-int DbaseWriter::writeFourByteInteger(QByteArray &data, int index, int value)
+int DbaseWriter::writeFourByteInteger(QByteArray& data, int index, int value)
 {
     data[index] = (quint8) value;
     data[index + 1] = (quint8) (value >> 8);
@@ -205,7 +205,7 @@ int DbaseWriter::writeFourByteInteger(QByteArray &data, int index, int value)
     return index + 4;
 }
 
-int DbaseWriter::writeTwoByteInteger(QByteArray &data, int index, int value)
+int DbaseWriter::writeTwoByteInteger(QByteArray& data, int index, int value)
 {
     data[index] = (quint8) value;
     data[index + 1] = (quint8)(value >> 8);
@@ -220,7 +220,7 @@ void DbaseWriter::addRecord()
     m_recordNumber ++;
 }
 
-void DbaseWriter::setRecordField(int i, QString value)
+void DbaseWriter::setRecordField(int i, const QString& value)
 {
     record.last()[i] = QString(value);
 
@@ -243,14 +243,14 @@ void DbaseWriter::setRecordField(int i, float value)
     setRecordField(i, valueStr);
 }
 
-void DbaseWriter::setRecordField(QString name, QString value)
+void DbaseWriter::setRecordField(const QString& name, const QString& value)
 {
     if (m_fieldPositionMap.contains(name)) {
         setRecordField(m_fieldPositionMap[name], value);
     }
 }
 
-void DbaseWriter::setRecordField(QString name, float value)
+void DbaseWriter::setRecordField(const QString& name, float value)
 {
     if (m_fieldPositionMap.contains(name)) {
         setRecordField(m_fieldPositionMap[name], value);

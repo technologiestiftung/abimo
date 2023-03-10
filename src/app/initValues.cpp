@@ -132,60 +132,59 @@ void InitValues::setPrecipitationCorrectionFactor(float v) {
     countSets |= 1 << 19;
 }
 
-float InitValues::getInfiltrationFactor(int index)
-{
+float InitValues::getInfiltrationFactor(int index) const {
     return infiltrationFactors.at(index);
 }
 
-float InitValues::getBagrovValue(int index) {
+float InitValues::getBagrovValue(int index) const {
     return bagrovValues.at(index);
 }
 
-int InitValues::getDigitsTotalRunoff() {
+int InitValues::getDigitsTotalRunoff() const {
     return digitsTotalRunoff;
 }
 
-int InitValues::getDigitsRunoff() {
+int InitValues::getDigitsRunoff() const {
     return digitsRunoff;
 }
 
-int InitValues::getDigitsInfiltrationRate() {
+int InitValues::getDigitsInfiltrationRate() const {
     return digitsInfiltrationRate;
 }
 
-int InitValues::getDigitsTotalRunoffFlow() {
+int InitValues::getDigitsTotalRunoffFlow() const {
     return digitsTotalRunoffFlow;
 }
 
-int InitValues::getDigitsRainwaterRunoff() {
+int InitValues::getDigitsRainwaterRunoff() const {
     return digitsRainwaterRunoff;
 }
 
-int InitValues::getDigitsTotalSubsurfaceFlow() {
+int InitValues::getDigitsTotalSubsurfaceFlow() const {
     return digitsTotalSubsurfaceFlow;
 }
 
-int InitValues::getDigitsTotalArea() {
+int InitValues::getDigitsTotalArea() const {
     return digitsTotalArea;
 }
 
-int InitValues::getDigitsEvaporation() {
+int InitValues::getDigitsEvaporation() const {
     return digitsEvaporation;
 }
 
-bool InitValues::getIrrigationToZero() {
+bool InitValues::getIrrigationToZero() const {
     return irrigationToZero;
 }
 
-float InitValues::getPrecipitationCorrectionFactor() {
+float InitValues::getPrecipitationCorrectionFactor() const {
     return precipitationCorrectionFactor;
 }
 
-bool InitValues::allSet() {
+bool InitValues::allSet() const {
     return countSets == 1048575;
 }
 
-int InitValues::getCountSets() {
+int InitValues::getCountSets() const {
     return countSets;
 }
 

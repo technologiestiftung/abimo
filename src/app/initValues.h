@@ -29,24 +29,24 @@ public:
     void setDigitsEvaporation(int v);
     void setIrrigationToZero(bool v);
     void setPrecipitationCorrectionFactor(float v);
-    float getInfiltrationFactor(int index);
-    float getBagrovValue(int index);
-    int getDigitsTotalRunoff();
-    int getDigitsRunoff();
-    int getDigitsInfiltrationRate();
-    int getDigitsTotalRunoffFlow();
-    int getDigitsRainwaterRunoff();
-    int getDigitsTotalSubsurfaceFlow();
-    int getDigitsTotalArea();
-    int getDigitsEvaporation();
-    bool getIrrigationToZero();
-    float getPrecipitationCorrectionFactor();
-    bool allSet();
+    float getInfiltrationFactor(int index) const;
+    float getBagrovValue(int index) const;
+    int getDigitsTotalRunoff() const;
+    int getDigitsRunoff() const;
+    int getDigitsInfiltrationRate() const;
+    int getDigitsTotalRunoffFlow() const;
+    int getDigitsRainwaterRunoff() const;
+    int getDigitsTotalSubsurfaceFlow() const;
+    int getDigitsTotalArea() const;
+    int getDigitsEvaporation() const;
+    bool getIrrigationToZero() const;
+    float getPrecipitationCorrectionFactor() const;
+    bool allSet() const;
     void putToHashOfType(QString districts, int value, int hashType);
     QHash<int, int> hashETP;
     QHash<int, int> hashETPS;
     QHash<int, int> hashEG;
-    int getCountSets();
+    int getCountSets() const;
 
 private:
     // Infiltrationsfaktoren
