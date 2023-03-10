@@ -2,19 +2,9 @@
  * For copyright information please see COPYRIGHT in the base directory
  * of this repository (https://github.com/KWB-R/abimo).
  ***************************************************************************/
+#include <math.h> // for pow(), round()
 
-#include <math.h>
-#include <QByteArray>
-#include <QChar>
-#include <QDateTime>
-#include <QFile>
-#include <QHash>
-#include <QIODevice>
-#include <QString>
-#include <QStringList>
-#include <QTextStream>
-#include <QVector>
-
+#include "dbaseFile.h"
 #include "dbaseWriter.h"
 #include "initValues.h"
 
