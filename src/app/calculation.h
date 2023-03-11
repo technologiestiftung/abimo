@@ -105,7 +105,7 @@ private:
 
     int progressNumber(int i, int n, float max);
 
-    void calculateResultRecord(AbimoInputRecord &record);
+    void doCalculationsFor(AbimoInputRecord &record);
 
     int fillResultRecord(
         AbimoInputRecord& inputRecord,

@@ -101,7 +101,7 @@ bool Calculation::calculate(QString outputFile, bool debug)
         else {
 
             // Calculate and set result record fields to calculated values
-            calculateResultRecord(inputRecord);
+            doCalculationsFor(inputRecord);
 
             fillResultRecord(inputRecord, outputRecord);
 
@@ -141,7 +141,7 @@ int Calculation::progressNumber(int i, int n, float max)
     return (int) (static_cast<float>(i) / static_cast<float>(n) * max);
 }
 
-void Calculation::calculateResultRecord(AbimoInputRecord& inputRecord)
+void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
 {
     // Abflussvariablen der versiegelten Flaechen
     // runoff variables of sealed surfaces
