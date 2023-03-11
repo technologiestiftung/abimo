@@ -210,9 +210,11 @@ void DbaseWriter::setRecordField(int i, float value)
     int decimalCount = fields[i].getDecimalCount();
 
     // round
+    /*
     value *= pow(10, decimalCount);
     value = round(value);
     value *= pow(10, -decimalCount);
+    */
 
     QString valueStr;
     valueStr.setNum(value, 'f', decimalCount);
