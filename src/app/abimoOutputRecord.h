@@ -7,15 +7,15 @@ class AbimoOutputRecord
 {
 public:
     AbimoOutputRecord();
-    QString code_CODE; // record.code
-    float totalRunoff_R; // m_totalRunoff
-    float runoff_ROW; // m_surfaceRunoff
-    float infiltrationRate_RI; // m_infiltration
-    float totalRunoffFlow_RVOL; // m_totalRunoffFlow
-    float rainwaterRunoff_ROWVOL; // m_surfaceRunoffFlow
-    float totalSubsurfaceFlow_RIVOL; // m_infiltrationFlow
-    float totalArea_FLAECHE; // record.totalArea()
-    float evaporation_VERDUNSTUN; // m_evaporation
+    QString code_CODE;
+    float totalRunoff_R;
+    float surfaceRunoff_ROW;
+    float infiltration_RI;
+    float totalRunoffFlow_RVOL;
+    float surfaceRunoffFlow_ROWVOL;
+    float infiltrationFlow_RIVOL;
+    float totalArea_FLAECHE;
+    float evaporation_VERDUNSTUN;
 };
 
 #endif // ABIMOOUTPUTRECORD_H

@@ -547,11 +547,11 @@ int Calculation::fillResultRecord(
 {
     outputRecord.code_CODE = inputRecord.code;
     outputRecord.totalRunoff_R = m_totalRunoff_R;
-    outputRecord.runoff_ROW = m_surfaceRunoff_ROW;
-    outputRecord.infiltrationRate_RI = m_infiltration_RI;
+    outputRecord.surfaceRunoff_ROW = m_surfaceRunoff_ROW;
+    outputRecord.infiltration_RI = m_infiltration_RI;
     outputRecord.totalRunoffFlow_RVOL = m_totalRunoffFlow_RVOL;
-    outputRecord.rainwaterRunoff_ROWVOL = m_surfaceRunoffFlow_ROWVOL;
-    outputRecord.totalSubsurfaceFlow_RIVOL = m_infiltrationFlow_RIVOL;
+    outputRecord.surfaceRunoffFlow_ROWVOL = m_surfaceRunoffFlow_ROWVOL;
+    outputRecord.infiltrationFlow_RIVOL = m_infiltrationFlow_RIVOL;
     outputRecord.totalArea_FLAECHE = inputRecord.totalArea_FLAECHE();
     outputRecord.evaporation_VERDUNSTUN = m_evaporation_VERDUNSTUN;
 
@@ -566,11 +566,11 @@ void Calculation::writeResultRecord(
     writer.addRecord();
     writer.setRecordField("CODE", record.code_CODE);
     writer.setRecordField("R", record.totalRunoff_R);
-    writer.setRecordField("ROW", record.runoff_ROW);
-    writer.setRecordField("RI", record.infiltrationRate_RI);
+    writer.setRecordField("ROW", record.surfaceRunoff_ROW);
+    writer.setRecordField("RI", record.infiltration_RI);
     writer.setRecordField("RVOL", record.totalRunoffFlow_RVOL);
-    writer.setRecordField("ROWVOL", record.rainwaterRunoff_ROWVOL);
-    writer.setRecordField("RIVOL", record.totalSubsurfaceFlow_RIVOL);
+    writer.setRecordField("ROWVOL", record.surfaceRunoffFlow_ROWVOL);
+    writer.setRecordField("RIVOL", record.infiltrationFlow_RIVOL);
     writer.setRecordField("FLAECHE", record.totalArea_FLAECHE);
     writer.setRecordField("VERDUNSTUN", record.evaporation_VERDUNSTUN);
 }
