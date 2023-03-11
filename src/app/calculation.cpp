@@ -12,6 +12,7 @@
 
 #include "abimoReader.h"
 #include "abimoInputRecord.h"
+#include "abimoOutputRecord.h"
 #include "bagrov.h"
 #include "calculation.h"
 #include "config.h"
@@ -64,6 +65,7 @@ bool Calculation::calculate(QString outputFile, bool debug)
 {
     // Current Abimo record (represents one row of the input dbf file)
     AbimoInputRecord inputRecord;
+    AbimoOutputRecord outputRecord;
 
     // Number of processed records
     int numProcessed = 0;
@@ -101,8 +103,10 @@ bool Calculation::calculate(QString outputFile, bool debug)
             // Calculate and set result record fields to calculated values
             calculateResultRecord(inputRecord);
 
+            fillResultRecord(inputRecord, outputRecord);
+
             // Set the corresponding row in the result data structure
-            writeResultRecord(inputRecord, writer);
+            writeResultRecord(outputRecord, writer);
 
             // Increment the number of processed data rows
             numProcessed++;
@@ -188,12 +192,12 @@ void Calculation::calculateResultRecord(AbimoInputRecord& inputRecord)
         );
 
         // pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS
-        m_potentialCapillaryRise = inputRecord.depthToWaterTable - rootingDepth;
+        m_potentialCapillaryRise_TAS = inputRecord.depthToWaterTable - rootingDepth;
 
         // mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres
         m_resultRecord.meanPotentialCapillaryRiseRate =
             PDR::getMeanPotentialCapillaryRiseRate(
-                m_potentialCapillaryRise,
+                m_potentialCapillaryRise_TAS,
                 m_resultRecord.usableFieldCapacity,
                 m_resultRecord.usage,
                 m_resultRecord.yieldPower
@@ -228,7 +232,7 @@ void Calculation::calculateResultRecord(AbimoInputRecord& inputRecord)
     // if sum of total building development area and road area is
     // inconsiderably small it is assumed, that the area is unknown and
     // 100 % building development area will be given by default
-    if (inputRecord.totalArea() < 0.0001) {
+    if (inputRecord.totalArea_FLAECHE() < 0.0001) {
         // *protokollStream << "\r\nDie Flaeche des Elements " +
         // record.CODE + " ist 0 \r\nund wird automatisch auf 100 gesetzt\r\n";
         m_counters.incrementRecordsProtocol();
@@ -327,22 +331,22 @@ void Calculation::calculateResultRecord(AbimoInputRecord& inputRecord)
     // runoff for unsealed surfaces rowuv = 0 (???)
     float infiltrationPerviousSurfaces = (
         100.0F - static_cast<float>(m_resultRecord.mainPercentageSealed)
-    ) / 100.0F * m_unsealedSurfaceRunoff;
+    ) / 100.0F * m_unsealedSurfaceRunoff_RUV;
 
-    // calculate runoff 'row' for entire block patial area (FLGES +
+    // calculate runoff 'ROW' for entire block patial area (FLGES +
     // STR_FLGES) (mm/a)
-    m_surfaceRunoff = (
+    m_surfaceRunoff_ROW = (
         helpers::vectorSum(runoffSealedSurfaces) +
         runoffRoofs +
         runoffPerviousRoads
     );
 
     // calculate volume 'rowvol' from runoff (qcm/s)
-    m_surfaceRunoffFlow = inputRecord.yearlyHeightToVolumeFlow(m_surfaceRunoff);
+    m_surfaceRunoffFlow_ROWVOL = inputRecord.yearlyHeightToVolumeFlow(m_surfaceRunoff_ROW);
 
     // calculate infiltration rate 'ri' for entire block partial area
     // (mm/a)
-    m_infiltration = (
+    m_infiltration_RI = (
         helpers::vectorSum(infiltrationSealedSurfaces) +
         infiltrationRoofs +
         infiltrationPerviousRoads +
@@ -350,26 +354,26 @@ void Calculation::calculateResultRecord(AbimoInputRecord& inputRecord)
     );
 
     // calculate volume 'rivol' from infiltration rate (qcm/s)
-    m_infiltrationFlow = inputRecord.yearlyHeightToVolumeFlow(m_infiltration);
+    m_infiltrationFlow_RIVOL = inputRecord.yearlyHeightToVolumeFlow(m_infiltration_RI);
 
     // calculate total system losses 'r' due to runoff and infiltration
     // for entire block partial area
-    m_totalRunoff = m_surfaceRunoff + m_infiltration;
+    m_totalRunoff_R = m_surfaceRunoff_ROW + m_infiltration_RI;
 
     // set totalRunoff in the result record
     //resultRecord.totalRunoff = INT_ROUND(totalRunoff);
 
     // calculate volume of system losses 'rvol' due to runoff and
     // infiltration
-    m_totalRunoffFlow = m_surfaceRunoffFlow + m_infiltrationFlow;
+    m_totalRunoffFlow_RVOL = m_surfaceRunoffFlow_ROWVOL + m_infiltrationFlow_RIVOL;
 
-    // calculate evaporation 'verdunst' by subtracting 'r', the sum of
+    // calculate evaporation 'VERDUNST' by subtracting 'R', the sum of
     // runoff and infiltration from precipitation of entire year,
     // multiplied by precipitation correction factor
-    m_evaporation = (
+    m_evaporation_VERDUNSTUN = (
         static_cast<float>(inputRecord.precipitationYear) *
         m_initValues.getPrecipitationCorrectionFactor()
-    ) - m_totalRunoff;
+    ) - m_totalRunoff_R;
 
 }
 
@@ -409,7 +413,7 @@ void Calculation::getClimaticConditions(
         potentialEvaporation.perYearFloat :
         realEvapotranspiration(potentialEvaporation, precipitation, record);
 
-    m_unsealedSurfaceRunoff =
+    m_unsealedSurfaceRunoff_RUV =
         precipitation.perYearCorrectedFloat - actualEvaporation;
 }
 
@@ -494,11 +498,11 @@ float Calculation::realEvapotranspiration(
     // Get the real evapotransporation using estimated y-factor
     float result = yRatio * potentialEvaporation.perYearFloat;
 
-    if (m_potentialCapillaryRise < 0) {
+    if (m_potentialCapillaryRise_TAS < 0) {
         result +=
             (potentialEvaporation.perYearFloat - result) *
             static_cast<float>(
-                exp(record.depthToWaterTable / m_potentialCapillaryRise)
+                exp(record.depthToWaterTable / m_potentialCapillaryRise_TAS)
             );
     }
 
@@ -536,18 +540,39 @@ float Calculation::initValueOrReportedDefaultValue(
     return result;
 }
 
-void Calculation::writeResultRecord(AbimoInputRecord& record, DbaseWriter& writer)
+int Calculation::fillResultRecord(
+    AbimoInputRecord& inputRecord,
+    AbimoOutputRecord& outputRecord
+)
+{
+    outputRecord.code_CODE = inputRecord.code;
+    outputRecord.totalRunoff_R = m_totalRunoff_R;
+    outputRecord.runoff_ROW = m_surfaceRunoff_ROW;
+    outputRecord.infiltrationRate_RI = m_infiltration_RI;
+    outputRecord.totalRunoffFlow_RVOL = m_totalRunoffFlow_RVOL;
+    outputRecord.rainwaterRunoff_ROWVOL = m_surfaceRunoffFlow_ROWVOL;
+    outputRecord.totalSubsurfaceFlow_RIVOL = m_infiltrationFlow_RIVOL;
+    outputRecord.totalArea_FLAECHE = inputRecord.totalArea_FLAECHE();
+    outputRecord.evaporation_VERDUNSTUN = m_evaporation_VERDUNSTUN;
+
+    return 0;
+}
+
+void Calculation::writeResultRecord(
+    AbimoOutputRecord& record,
+    DbaseWriter& writer
+)
 {
     writer.addRecord();
-    writer.setRecordField("CODE", record.code);
-    writer.setRecordField("R", m_totalRunoff);
-    writer.setRecordField("ROW", m_surfaceRunoff);
-    writer.setRecordField("RI", m_infiltration);
-    writer.setRecordField("RVOL", m_totalRunoffFlow);
-    writer.setRecordField("ROWVOL", m_surfaceRunoffFlow);
-    writer.setRecordField("RIVOL", m_infiltrationFlow);
-    writer.setRecordField("FLAECHE", record.totalArea());
-    writer.setRecordField("VERDUNSTUN", m_evaporation);
+    writer.setRecordField("CODE", record.code_CODE);
+    writer.setRecordField("R", record.totalRunoff_R);
+    writer.setRecordField("ROW", record.runoff_ROW);
+    writer.setRecordField("RI", record.infiltrationRate_RI);
+    writer.setRecordField("RVOL", record.totalRunoffFlow_RVOL);
+    writer.setRecordField("ROWVOL", record.rainwaterRunoff_ROWVOL);
+    writer.setRecordField("RIVOL", record.totalSubsurfaceFlow_RIVOL);
+    writer.setRecordField("FLAECHE", record.totalArea_FLAECHE);
+    writer.setRecordField("VERDUNSTUN", record.evaporation_VERDUNSTUN);
 }
 
 void Calculation::runCalculation(

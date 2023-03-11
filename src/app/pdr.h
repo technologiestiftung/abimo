@@ -67,14 +67,17 @@ private:
 
 public:
     PDR();
+
     void setUsageYieldIrrigation(Usage usage, int yield = 0, int irrigation = 0);
     void setUsageYieldIrrigation(UsageTuple tuple);
+
     static int getMeanPotentialCapillaryRiseRate(
         float potentialCapillaryRise,
         float usableFieldCapacity,
         Usage usage,
         int yieldPower
     );
+
     static float estimateWaterHoldingCapacity(int f30, int f150, bool isForest);
     static int estimateDaysOfGrowth(Usage usage, int yield);
 

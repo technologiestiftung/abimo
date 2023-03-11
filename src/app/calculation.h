@@ -13,6 +13,7 @@
 
 #include "abimoReader.h"
 #include "abimoInputRecord.h"
+#include "abimoOutputRecord.h"
 #include "config.h"
 #include "counters.h"
 #include "dbaseWriter.h"
@@ -62,9 +63,10 @@ private:
     InitValues& m_initValues;
     QTextStream& m_protocolStream;
     AbimoReader& m_dbReader;
-    PDR m_resultRecord; // old: ptrDA
-    QString m_error;
 
+    PDR m_resultRecord; // old: ptrDA
+
+    QString m_error;
     Counters m_counters;
 
     // Variable to control whether to stop processing
@@ -102,8 +104,15 @@ private:
     );
 
     int progressNumber(int i, int n, float max);
+
     void calculateResultRecord(AbimoInputRecord &record);
-    void writeResultRecord(AbimoInputRecord &record, DbaseWriter& writer);
+
+    int fillResultRecord(
+        AbimoInputRecord& inputRecord,
+        AbimoOutputRecord& outputRecord
+    );
+
+    void writeResultRecord(AbimoOutputRecord& record, DbaseWriter& writer);
 };
 
 #endif

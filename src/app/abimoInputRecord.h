@@ -76,19 +76,19 @@ public:
     // area of roads within city block
     float roadArea; // old: STR_FLGES, fs;
 
-    inline float totalArea() {
+    inline float totalArea_FLAECHE() {
         return mainArea + roadArea;
     }
 
     inline float fractionOfTotalArea(float area) {
-        float total = totalArea();
+        float total = totalArea_FLAECHE();
         assert(total > 0);
         assert(area <= total);
         return area / total;
     }
 
     inline float yearlyHeightToVolumeFlow(float height) {
-        return height * 3.171F * totalArea() / 100000.0F;
+        return height * 3.171F * totalArea_FLAECHE() / 100000.0F;
     }
 
 };

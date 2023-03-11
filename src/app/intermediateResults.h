@@ -14,32 +14,32 @@ protected:
     std::array<float,5> m_bagrovValues;
 
     // runoff for unsealed partial surfaces
-    float m_unsealedSurfaceRunoff; // old: RUV
+    float m_unsealedSurfaceRunoff_RUV;
 
     // Regenwasserabfluss in Qubikzentimeter pro Sekunde
-    float m_surfaceRunoffFlow; // old: ROWVOL
+    float m_surfaceRunoffFlow_ROWVOL;
 
     // unterirdischer Gesamtabfluss in qcm/s
-    float m_infiltrationFlow; // old: RIVOL
+    float m_infiltrationFlow_RIVOL;
 
     // Gesamtabfluss in qcm/s
-    float m_totalRunoffFlow; // old: RVOL
+    float m_totalRunoffFlow_RVOL;
 
     // potentielle Aufstiegshoehe
-    float m_potentialCapillaryRise; // old: TAS
+    float m_potentialCapillaryRise_TAS;
 
     // Additional member variables (m_ indicates member)
 
     // Langjaehriger MW des Gesamtabflusses [mm/a] 004 N
-    float m_totalRunoff; // old: R
+    float m_totalRunoff_R;
 
     // Langjaehriger MW des Regenwasserabflusses [mm/a] 003 N
-    float m_surfaceRunoff;
+    float m_surfaceRunoff_ROW;
 
     // Langjaehriger MW des unterird. Abflusses [mm/a] 004 N
-    // old: RI
-    float m_infiltration;
-    float m_evaporation;
+    float m_infiltration_RI;
+
+    float m_evaporation_VERDUNSTUN;
 };
 
 #endif // INTERMEDIATERESULTS_H
