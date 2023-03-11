@@ -19,6 +19,7 @@ CONFIG *= debug_and_release debug_and_release_target
 
 HEADERS += \
     abimoInputRecord.h \
+    abimoOutputRecord.h \
     abimoReader.h \
     bagrov.h \
     calculation.h \
@@ -40,6 +41,7 @@ HEADERS += \
 
 SOURCES += \
     abimoInputRecord.cpp \
+    abimoOutputRecord.cpp \
     abimoReader.cpp \
     bagrov.cpp \
     calculation.cpp \
