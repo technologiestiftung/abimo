@@ -26,7 +26,7 @@ INCDIR = ../app
 
 HEADERS += \
     $$INCDIR/abimoReader.h \
-    $$INCDIR/abimoRecord.h \
+    $$INCDIR/abimoInputRecord.h \
     $$INCDIR/bagrov.h \
     $$INCDIR/calculation.h\
     $$INCDIR/config.h\
@@ -44,7 +44,7 @@ HEADERS += \
 
 SOURCES += \
     $$INCDIR/abimoReader.cpp \
-    $$INCDIR/abimoRecord.cpp \
+    $$INCDIR/abimoInputRecord.cpp \
     $$INCDIR/bagrov.cpp \
     $$INCDIR/calculation.cpp \
     $$INCDIR/config.cpp \

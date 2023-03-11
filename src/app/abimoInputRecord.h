@@ -1,14 +1,15 @@
-#ifndef ABIMORECORD_H
-#define ABIMORECORD_H
+#ifndef ABIMOINPUTRECORD_H
+#define ABIMOINPUTRECORD_H
 
 #include <array>
 #include <QString>
 
 // Fraction indicates numbers between 0 and 1 (instead of percentages)
-class AbimoRecord
+class AbimoInputRecord
 {
 public:
-    AbimoRecord();
+    AbimoInputRecord();
+
     int usage; // old: NUTZUNG
     QString code; // old: CODE
 
@@ -92,4 +93,4 @@ public:
 
 };
 
-#endif // ABIMORECORD_H
+#endif // ABIMOINPUTRECORD_H

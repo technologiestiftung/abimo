@@ -12,7 +12,7 @@
 #include <QTextStream>
 
 #include "abimoReader.h"
-#include "abimoRecord.h"
+#include "abimoInputRecord.h"
 #include "config.h"
 #include "counters.h"
 #include "dbaseWriter.h"
@@ -45,9 +45,9 @@ public:
     // Calculation class
     bool calculate(QString outputFile, bool debug = false);
 
-    Counters getCounters();
+    Counters getCounters() const;
 
-    QString getError();
+    QString getError() const;
 
     void stopProcessing();
 
@@ -57,7 +57,7 @@ signals:
 private:
 
     // All private member variables of this class will be prefixed with "m_"
-    Config m_config;
+    Config m_usageMappings;
 
     InitValues& m_initValues;
     QTextStream& m_protocolStream;
@@ -79,7 +79,7 @@ private:
     void getClimaticConditions(
         Precipitation precipitation,
         PotentialEvaporation potentialEvaporation,
-        AbimoRecord& record
+        AbimoInputRecord& record
     );
 
     PotentialEvaporation getPotentialEvaporation(
@@ -93,7 +93,7 @@ private:
     float realEvapotranspiration(
         PotentialEvaporation potentialEvaporation,
         Precipitation precipitation,
-        AbimoRecord& record
+        AbimoInputRecord& record
     );
 
     float initValueOrReportedDefaultValue(
@@ -102,8 +102,8 @@ private:
     );
 
     int progressNumber(int i, int n, float max);
-    void calculateResultRecord(AbimoRecord &record);
-    void writeResultRecord(AbimoRecord &record, DbaseWriter& writer);
+    void calculateResultRecord(AbimoInputRecord &record);
+    void writeResultRecord(AbimoInputRecord &record, DbaseWriter& writer);
 };
 
 #endif
