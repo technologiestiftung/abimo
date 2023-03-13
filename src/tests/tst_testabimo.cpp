@@ -5,6 +5,7 @@
 #include <QString>
 #include <QStringList>
 #include <QtTest>
+#include <QtTest/QtTest>
 
 #include "../app/abimoReader.h"
 #include "../app/calculation.h"
@@ -32,6 +33,7 @@ private slots:
     void test_config_getTWS();
     void test_calc();
     void test_bagrov();
+    void compare_dbfHeaders(DbaseFileHeader& h1, DbaseFileHeader& h2);
 
     QString testDataDir();
     QString dataFilePath(QString fileName, bool mustExist = true);
@@ -131,7 +133,7 @@ void TestAbimo::test_dbaseReader()
 
     bool success = reader.checkAndRead();
 
-    qDebug() << "fullError: " << reader.getFullError();
+    qDebug() << "fullError: " << reader.getError().textLong;
 
     QCOMPARE(success, true);
     QCOMPARE(reader.isAbimoFile(), true);
@@ -203,6 +205,14 @@ void TestAbimo::test_bagrov()
 
 }
 
+void TestAbimo::compare_dbfHeaders(DbaseFileHeader& h1, DbaseFileHeader& h2)
+{
+    QCOMPARE(h1.version, h2.version);
+    QCOMPARE(h1.numberOfRecords, h2.numberOfRecords);
+    QCOMPARE(h1.recordLength, h2.recordLength);
+    QCOMPARE(h1.languageDriver, h2.languageDriver);
+}
+
 bool TestAbimo::dbfHeadersAreIdentical(QString file_1, QString file_2)
 {
     DbaseReader reader_1(file_1);
@@ -211,41 +221,26 @@ bool TestAbimo::dbfHeadersAreIdentical(QString file_1, QString file_2)
     reader_1.read();
     reader_2.read();
 
-    if (reader_1.getVersion() != reader_2.getVersion()) {
-        qDebug() << "version differs";
-        return false;
-    }
+    DbaseFileHeader h1 = reader_1.getHeader();
+    DbaseFileHeader h2 = reader_2.getHeader();
 
-    QDate date_1 = reader_1.getDate();
-    QDate date_2 = reader_2.getDate();
+    compare_dbfHeaders(h1, h2);
+
+    QDate date_1 = h1.date;
+    QDate date_2 = h2.date;
 
     if (date_1 != date_2) {
         qDebug() << "date differs (" << date_1 << "vs" << date_2 << ")."
                  << "This is expected.";
     }
 
-    if (reader_1.getNumberOfRecords() != reader_2.getNumberOfRecords()) {
-        qDebug() << "numberOfRecords differs";
+    int length1 = reader_1.calculateRecordLength();
+    int length2 = reader_2.calculateRecordLength();
+
+    if (length1 != length2) {
+        qDebug() << "record length (recalculated) differs";
+        qDebug() << "length1:" << length1 << "\b, length2:" << length2;
         return false;
-    }
-
-    if (reader_1.getHeaderLength() != reader_2.getHeaderLength()) {
-        qDebug() << "lengthOfHeader differs";
-        return false;
-    }
-
-    if (reader_1.getRecordLength() != reader_2.getRecordLength()) {
-        qDebug() << "lengthOfEachRecord differs";
-        return false;
-    }
-
-    QString lng_1 = reader_1.getLanguageDriver();
-    QString lng_2 = reader_2.getLanguageDriver();
-
-    if (lng_1 != lng_2) {
-        qDebug() << "languageDriver differs"
-                 << "(" << lng_1 << "vs" << lng_2 << ")";
-        //return false;
     }
 
     return true;
@@ -259,8 +254,8 @@ bool TestAbimo::dbfStringsAreIdentical(QString file_1, QString file_2)
     reader_1.read();
     reader_2.read();
 
-    int nrows_1 = reader_1.getNumberOfRecords();
-    int nrows_2 = reader_2.getNumberOfRecords();
+    int nrows_1 = reader_1.getHeader().numberOfRecords;
+    int nrows_2 = reader_2.getHeader().numberOfRecords;
 
     if (numbersInFilesDiffer(file_1, file_2, nrows_1, nrows_2, "rows")) {
         return false;
@@ -273,8 +268,8 @@ bool TestAbimo::dbfStringsAreIdentical(QString file_1, QString file_2)
         return false;
     };
 
-    QVector<QString> values_1 = reader_1.getValues();
-    QVector<QString> values_2 = reader_2.getValues();
+    QVector<QString> values_1 = reader_1.getStringValues();
+    QVector<QString> values_2 = reader_2.getStringValues();
 
     return helpers::stringsAreEqual(values_1, values_2, 10, true);
 }
@@ -291,6 +286,16 @@ bool TestAbimo::numbersInFilesDiffer(QString file_1, QString file_2, int n_1, in
     return false;
 }
 
-QTEST_APPLESS_MAIN(TestAbimo)
+//QTEST_APPLESS_MAIN(TestAbimo)
+int main(int argc, char *argv[])
+{
+    TestAbimo tc;
+
+    //QTEST_SET_MAIN_SOURCE_PATH
+    printf("__FILE__: %s\n", __FILE__);
+    QTest::setMainSourcePath(__FILE__);
+
+    return QTest::qExec(&tc, argc, argv);
+}
 
 #include "tst_testabimo.moc"

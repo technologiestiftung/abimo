@@ -1,3 +1,4 @@
+
 # Load common settings
 ! include( ../common.pri ) {
     error( "Couldn't find the common.pri file!" )
@@ -18,6 +19,12 @@ CONFIG += \
 
 #CONFIG -= app_bundle
 
+DEFINES += DEBUG
+#error("QT_TESTCASE_BUILDDIR: $$QT_TESTCASE_BUILDDIR")
+
+QT_TESTCASE_BUILDDIR = $$PWD/my-abimo-test/build
+#error("QT_TESTCASE_BUILDDIR: $$QT_TESTCASE_BUILDDIR")
+
 #TEMPLATE = app
 
 INCDIR = ../app
@@ -26,6 +33,7 @@ INCDIR = ../app
 
 HEADERS += \
     $$INCDIR/abimoReader.h \
+    $$INCDIR/abimoWriter.h \
     $$INCDIR/abimoInputRecord.h \
     $$INCDIR/abimoOutputRecord.h \
     $$INCDIR/bagrov.h \
@@ -45,6 +53,7 @@ HEADERS += \
 
 SOURCES += \
     $$INCDIR/abimoReader.cpp \
+    $$INCDIR/abimoWriter.cpp \
     $$INCDIR/abimoInputRecord.cpp \
     $$INCDIR/abimoOutputRecord.cpp \
     $$INCDIR/bagrov.cpp \
