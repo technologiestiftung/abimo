@@ -11,6 +11,11 @@ AbimoReader::AbimoReader(const QString& file) : DbaseReader(file),
     // Child constructor code here
 }
 
+AbimoReader::~AbimoReader()
+{
+
+};
+
 QStringList AbimoReader::requiredFields()
 {
     return {

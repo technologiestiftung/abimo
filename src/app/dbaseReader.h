@@ -20,6 +20,7 @@ class DbaseReader : public DbaseFile
 
 public:
     DbaseReader(const QString& file);
+    ~DbaseReader();
 
     // may be overridden by sub-classes
     virtual bool checkAndRead();

@@ -19,6 +19,10 @@ DbaseReader::DbaseReader(const QString& file) :
 {
 }
 
+DbaseReader::~DbaseReader()
+{
+}
+
 bool DbaseReader::checkAndRead()
 {
     QString fileName = m_file.fileName();

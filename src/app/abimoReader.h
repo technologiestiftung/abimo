@@ -11,6 +11,7 @@ class AbimoReader : public DbaseReader
 {
 public:
     AbimoReader(const QString& file);
+    ~AbimoReader();
 
     static QStringList requiredFields();
     bool isAbimoFile();
