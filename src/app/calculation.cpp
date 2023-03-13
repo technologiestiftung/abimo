@@ -61,7 +61,7 @@ QString Calculation::getError() const
 //            debug: whether or not to show debug messages
 // Rueckgabewert: BOOL. TRUE, wenn das Einlesen der Datei erfolgreich war.
 // =============================================================================
-bool Calculation::calculate(QString outputFile, bool debug)
+bool Calculation::calculate(QString& outputFile, bool debug)
 {
     // Current Abimo record (represents one row of the input dbf file)
     AbimoInputRecord inputRecord;

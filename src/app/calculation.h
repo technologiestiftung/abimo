@@ -44,7 +44,7 @@ public:
 
     // Member function to perform the calculation on an instance of the
     // Calculation class
-    bool calculate(QString outputFile, bool debug = false);
+    bool calculate(QString& outputFile, bool debug = false);
 
     Counters getCounters() const;
 
