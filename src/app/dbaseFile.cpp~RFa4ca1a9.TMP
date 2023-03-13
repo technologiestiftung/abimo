@@ -7,18 +7,50 @@
 
 DbaseFile::DbaseFile(const QString& filePath) :
     m_file(filePath),
-    m_header(),
+    m_version(""),
+    m_languageDriver(""),
+    //m_numberofFields(0),
     m_fields(),
-    m_fieldPositionMap(),
-    m_error()
+    m_numberOfRecords(0),
+    m_headerLength(0),
+    //m_recordLength(0),
+    m_error(""),
+    m_fullError(""),
+    m_fieldPositionMap()
 {
-    m_header.date = QDateTime::currentDateTime().date();
+    m_date = QDateTime::currentDateTime().date();
 }
 
-DbaseFileHeader DbaseFile::getHeader() const
+QString DbaseFile::getVersion() const
 {
-    assert(m_header.recordLength == calculateRecordLength());
-    return m_header;
+    return m_version;
+}
+
+QString DbaseFile::getLanguageDriver() const
+{
+    return m_languageDriver;
+}
+
+QDate DbaseFile::getDate() const
+{
+    return m_date;
+}
+
+int DbaseFile::getHeaderLength() const
+{
+    return m_headerLength;
+}
+
+/*
+int DbaseFile::getRecordLength() const
+{
+    return m_recordLength;
+}
+*/
+
+int DbaseFile::getNumberOfRecords() const
+{
+    return m_numberOfRecords;
 }
 
 int DbaseFile::getNumberOfFields() const
@@ -38,16 +70,19 @@ int DbaseFile::getFieldPosition(const QString& fieldName) const
         -1;
 }
 
-DbaseFileError DbaseFile::getError() const
+QString DbaseFile::getError() const
 {
     return m_error;
 }
 
-int DbaseFile::calculateFileSize(
-    int headerLength, int numberOfRecords, int recordLength
-)
+QString DbaseFile::getFullError() const
 {
-    return headerLength + (numberOfRecords * recordLength) + 1;
+    return m_fullError;
+}
+
+int DbaseFile::expectedFileSize() const
+{
+    return m_headerLength + (m_numberOfRecords * getRecordLength()) + 1;
 }
 
 int DbaseFile::calculateNumberOfFields(int headerLength)
@@ -62,41 +97,33 @@ int DbaseFile::calculateHeaderLength(int numberOfFields)
 
 void DbaseFile::defineField(DbaseField& field)
 {
-    // Add field description to vector m_fields
     m_fields.push_back(field);
-
-    // Add the corresponding column number to the hash
     addFieldNameToFieldPositionMap();
-
-    // Update field 'recordLength' in the file header
-    m_header.recordLength = calculateRecordLength();
 }
 
 void DbaseFile::defineField(QString& name, QString& type, int numDecimalPlaces)
 {
-    DbaseField field = DbaseField(name, type, numDecimalPlaces);
-    defineField(field);
+    m_fields.push_back(DbaseField(name, type, numDecimalPlaces));
+    //m_fieldPositionMap[m_fields[i].getName()] = i;
 }
 
 void DbaseFile::defineField(const char* name, const char* type, int numDecimalPlaces)
 {
-    DbaseField field = DbaseField(name, type, numDecimalPlaces);
-    defineField(field);
+    m_fields.push_back(DbaseField(QString(name), QString(type), numDecimalPlaces));
+    //m_fieldPositionMap[m_fields[i].getName()] = i;
 }
 
 void DbaseFile::addFieldNameToFieldPositionMap()
 {
     // index of the last field in the vector m_fields
-    int index = m_fields.size() - 1;
-    m_fieldPositionMap[m_fields.at(index).getName()] = index;
+    int index = m_fields.size();
+    m_fieldPositionMap[m_fields[index].getName()] = index;
 }
 
 // Calculate the length of one data row in bytes (1 byte separator?)
-int DbaseFile::calculateRecordLength() const
+int DbaseFile::getRecordLength()
 {
     int length = 1;
-
-    //assert(m_fields.size() > 0);
 
     for (int i = 0; i < m_fields.size(); i++) {
         length += m_fields[i].getFieldLength();
