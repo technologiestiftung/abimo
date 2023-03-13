@@ -38,17 +38,17 @@ void DbaseField::set(QString name, QString type, int numDecimalPlaces)
     m_numDecimalPlaces = numDecimalPlaces;
 }
 
-QString DbaseField::getName()
+QString DbaseField::getName() const
 {
     return m_name;
 }
 
-QString DbaseField::getType()
+QString DbaseField::getType() const
 {
     return m_type;
 }
 
-int DbaseField::getFieldLength()
+int DbaseField::getFieldLength() const
 {
     return m_fieldLength;
 }
@@ -58,7 +58,7 @@ void DbaseField::setFieldLength(int fieldLength)
     m_fieldLength = fieldLength;
 }
 
-int DbaseField::getDecimalCount()
+int DbaseField::getDecimalCount() const
 {
     return m_numDecimalPlaces;
 }
