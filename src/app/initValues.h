@@ -57,6 +57,16 @@ private:
     // index 0: roof, indices 1-4: surface classes 1-4
     std::array<float,5> bagrovValues;
 
+    /*
+    writer.setRecordField("R", record.totalRunoff_R);
+    writer.setRecordField("ROW", record.surfaceRunoff_ROW);
+    writer.setRecordField("RI", record.infiltration_RI);
+    writer.setRecordField("RVOL", record.totalRunoffFlow_RVOL);
+    writer.setRecordField("ROWVOL", record.surfaceRunoffFlow_ROWVOL);
+    writer.setRecordField("RIVOL", record.infiltrationFlow_RIVOL);
+    writer.setRecordField("FLAECHE", record.totalArea_FLAECHE);
+    writer.setRecordField("VERDUNSTUN", record.evaporation_VERDUNSTUN);
+*/
     // Nachkomma
     int digitsTotalRunoff_R; // old: decR
     int digitsSurfaceRunoff_ROW; // old: decROW

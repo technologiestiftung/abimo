@@ -2,6 +2,7 @@
 #define ABIMOWRITER_H
 
 #include <QString>
+#include <QVector>
 
 #include "dbaseWriter.h"
 #include "initValues.h"
