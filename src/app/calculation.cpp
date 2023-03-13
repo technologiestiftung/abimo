@@ -11,6 +11,7 @@
 #include <QTextStream>
 
 #include "abimoReader.h"
+#include "abimoWriter.h"
 #include "abimoInputRecord.h"
 #include "abimoOutputRecord.h"
 #include "bagrov.h"
@@ -18,7 +19,6 @@
 #include "config.h"
 #include "constants.h"
 #include "counters.h"
-#include "dbaseWriter.h"
 #include "effectivenessUnsealed.h"
 #include "helpers.h"
 #include "initValues.h"
@@ -73,11 +73,13 @@ bool Calculation::calculate(QString& outputFile, bool debug)
     // Initialise counters
     m_counters.initialise();
 
-    // Provide a dbf writer object
-    DbaseWriter writer(outputFile, m_initValues);
+    // Provide an AbimoWriter object
+    AbimoWriter writer(outputFile, m_initValues);
+
+    assert(writer.getNumberOfFields() == 9);
 
     // Get the number of rows in the input data
-    int recordCount = m_dbReader.getNumberOfRecords();
+    int recordCount = m_dbReader.getHeader().numberOfRecords;
 
     // loop over all block partial areas (= records/rows of input data)
     for (int i = 0; i < recordCount; i++) {
@@ -128,8 +130,9 @@ bool Calculation::calculate(QString& outputFile, bool debug)
     emit processSignal(50, "Schreibe Ergebnisse.");
 
     if (!writer.write()) {
-        m_protocolStream << "Error: " + writer.getError() +"\r\n";
-        m_error = "Fehler beim Schreiben der Ergebnisse.\n" + writer.getError();
+        QString errorText = writer.getError().textShort;
+        m_protocolStream << "Error: " + errorText +"\r\n";
+        m_error = "Fehler beim Schreiben der Ergebnisse.\n" + errorText;
         return false;
     }
 
@@ -560,8 +563,8 @@ int Calculation::fillResultRecord(
 
 void Calculation::writeResultRecord(
     AbimoOutputRecord& record,
-    DbaseWriter& writer
-)
+    AbimoWriter& writer
+) const
 {
     writer.addRecord();
     writer.setRecordField("CODE", record.code_CODE);

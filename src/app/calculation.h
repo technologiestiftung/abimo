@@ -12,6 +12,7 @@
 #include <QTextStream>
 
 #include "abimoReader.h"
+#include "abimoWriter.h"
 #include "abimoInputRecord.h"
 #include "abimoOutputRecord.h"
 #include "config.h"
@@ -112,7 +113,7 @@ private:
         AbimoOutputRecord& outputRecord
     );
 
-    void writeResultRecord(AbimoOutputRecord& record, DbaseWriter& writer);
+    void writeResultRecord(AbimoOutputRecord& record, AbimoWriter& writer) const;
 };
 
 #endif
