@@ -52,6 +52,7 @@ bool AbimoReader::checkAndRead()
     QString fileName = m_file.fileName();
     QString text;
 
+    // Call the checkAndRead() function of the parent class first
     bool succeeded = DbaseReader::checkAndRead();
 
     if (!succeeded) {

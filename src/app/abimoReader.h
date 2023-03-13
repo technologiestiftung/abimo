@@ -16,7 +16,7 @@ public:
     static QStringList requiredFields();
     bool isAbimoFile();
     void fillRecord(int k, AbimoInputRecord& record, bool debug = false);
-    bool checkAndRead();
+    bool checkAndRead() override;
 
 private:
     // current row index (0 = first row)
