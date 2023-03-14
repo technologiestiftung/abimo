@@ -72,14 +72,13 @@ int DbaseWriter::writeFileHeader(QByteArray& data)
     // Index into the byte array
     int index = 0;
 
-    // Write start byte
-    index = writeBytes(data, index, 0x03, 1);
-
     // Write first part of header (without field specifications)
     index = writeFileHeaderBase(data, index, m_header);
 
     // Write second part of header (field specifications)
     //const QVector<DbaseField>& fields = getFieldDefinitions();
+    assert(getNumberOfFields() > 0);
+
     for (int i = 0; i < m_fields.size(); i++) {
         index = writeFileHeaderField(data, index, m_fields.at(i));
     }
@@ -94,6 +93,9 @@ int DbaseWriter::writeFileHeaderBase(
     QByteArray& data, int index, DbaseFileHeader& header
 )
 {
+    // Write start byte at byte 0
+    index = writeBytes(data, index, 0x03, 1);
+
     // Write date at bytes 1 to 3
     index = writeThreeByteDate(data, index, header.date);
 
@@ -125,21 +127,26 @@ int DbaseWriter::writeFileHeaderField(
     // Write name to data, fill up with zeros
     QString name = field.getName();
 
+    // Write field name to bytes 0 .. 9
     for (int i = 0; i < 11; i++) {
         value = ((i < name.size())? name[i].toLatin1() : 0x00);
         index = writeBytes(data, index, value, 1);
     }
 
-    // Write type to data, fill up with zeros
+    // Write field type to byte 10
     QString type = field.getType();
     index = writeBytes(data, index, type[0].toLatin1(), 1);
+
+    // Write 0 to bytes 11 .. 14
     index = writeBytes(data, index, 0x00, 4);
 
-    // Write field length and decimal count to data (one byte each)
+    // Write field length to byte 15
     index = writeBytes(data, index, field.getFieldLength(), 1);
+
+    // Write number of decimal places to byte 16
     index = writeBytes(data, index, field.getDecimalCount(), 1);
 
-    // Write 14 zeros
+    // Write 14-times 0 to bytes 17 .. 31
     index = writeBytes(data, index, 0x00, 14);
 
     return index;
