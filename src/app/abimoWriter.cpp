@@ -21,16 +21,4 @@ AbimoWriter::AbimoWriter(QString& filePath, InitValues& initValues) :
     defineField("VERDUNSTUN", "N", initValues.getDigitsEvaporation_VERDUNSTUN());
 
     assert(getNumberOfFields() == 9);
-
-    /*
-    m_fields.push_back(DbaseField("CODE", "C", 0));
-    m_fields.push_back(DbaseField("R", "N", initValues.getDigitsTotalRunoff()));
-    m_fields.push_back(DbaseField("ROW", "N", initValues.getDigitsRunoff()));
-    m_fields.push_back(DbaseField("RI", "N", initValues.getDigitsInfiltrationRate()));
-    m_fields.push_back(DbaseField("RVOL", "N", initValues.getDigitsTotalRunoffFlow()));
-    m_fields.push_back(DbaseField("ROWVOL", "N", initValues.getDigitsRainwaterRunoff()));
-    m_fields.push_back(DbaseField("RIVOL", "N", initValues.getDigitsTotalSubsurfaceFlow()));
-    m_fields.push_back(DbaseField("FLAECHE", "N", initValues.getDigitsTotalArea()));
-    m_fields.push_back(DbaseField("VERDUNSTUN", "N", initValues.getDigitsEvaporation()));
-    */
 }
