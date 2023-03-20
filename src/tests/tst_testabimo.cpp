@@ -94,14 +94,13 @@ void TestAbimo::test_helpers_stringsAreEqual()
     QCOMPARE(helpers::stringsAreEqual(strings_1, strings_1), true);
     QCOMPARE(helpers::stringsAreEqual(strings_1, strings_2), false);
 }
+
 void test_stringManipulation(QString& s) {
     s = QString("a");
 }
 
 void TestAbimo::test_helpers_formatNumericString()
 {
-    return;
-
     // Result string
     QString s;
 

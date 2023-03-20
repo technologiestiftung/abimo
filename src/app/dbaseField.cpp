@@ -114,12 +114,30 @@ void DbaseField::formatNumericString(
     }
 
     // truncate = true!
-    s = left + "." + parts[1].leftJustified(digits, fill);
+    QString s1, s2;
+
+    // truncate is only relevant if the length of the string is greater than
+    // the target length
+    if (parts[1].length() > digits) {
+        qDebug() << "length > digits -> truncate = true/false will have an impact...";
+    }
+
+    s1 = left + "." + parts[1].leftJustified(digits, fill, false);
+    s2 = left + "." + parts[1].leftJustified(digits, fill, true);
+
+    if (QString::compare(s1, s2) != 0) {
+        qDebug() << "s1 != s2. s1 =" << s1 << ", s2 =" << s2;
+    }
+
+    //assert(QString::compare(s1, s2));
+
+    s = s2;
 
     if (debug) {
         qDebug() << "s =" << s;
     }
 
+    // also truncate = true?
     s = s.rightJustified(length, fill);
 
     if (debug) {
