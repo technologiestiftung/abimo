@@ -70,7 +70,7 @@ void DbaseField::formatNumericString(
 {
     if (debug) {
         qDebug() << "formatNumericString(" <<
-                    s << "," << length << "," << digits << "," << fill;
+                    s << "," << length << "," << digits << "," << fill << ")";
     }
 
     // https://www.dbase.com/Knowledgebase/INT/db7_file_fmt.htm
