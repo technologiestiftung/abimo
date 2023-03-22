@@ -411,7 +411,7 @@ void Calculation::getClimaticConditions(
     // Calculate runoff RUV for unsealed surfaces
     float actualEvaporation = (m_resultRecord.usage == Usage::waterbody_G) ?
         potentialEvaporation :
-        realEvapotranspiration(potentialEvaporation, precipitation, inputRecord);
+        realEvapotranspiration(potentialEvaporationInfo, precipitationInfo, inputRecord);
 
     m_unsealedSurfaceRunoff_RUV = precipitation - actualEvaporation;
 }
@@ -462,11 +462,13 @@ Precipitation Calculation::getPrecipitation(
 }
 
 float Calculation::realEvapotranspiration(
-    float potentialEvaporation,
-    float precipitation,
+    PotentialEvaporation& potentialEvaporationInfo,
+    Precipitation& precipitationInfo,
     AbimoInputRecord& inputRecord
 )
 {
+    float potentialEvaporation = potentialEvaporationInfo.perYearFloat;
+
     assert(potentialEvaporation > 0.0);
 
     // Determine effectivity/effectiveness ??? parameter (old???: bag) for
@@ -488,7 +490,7 @@ float Calculation::realEvapotranspiration(
     float yRatio = Bagrov::nbagro(
         effectivityParameter,
         (
-            precipitation +
+            precipitationInfo.perYearCorrectedFloat +
             m_resultRecord.meanPotentialCapillaryRiseRate +
             m_resultRecord.irrigation
         ) / potentialEvaporation

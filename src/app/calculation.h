@@ -93,8 +93,8 @@ private:
     );
 
     float realEvapotranspiration(
-        float potentialEvaporation,
-        float precipiation,
+        PotentialEvaporation& potentialEvaporationInfo,
+        Precipitation& precipitationInfo,
         AbimoInputRecord& inputRecord
     );
 
