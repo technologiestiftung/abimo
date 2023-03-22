@@ -468,9 +468,7 @@ float Calculation::realEvapotranspiration(
     AbimoInputRecord& inputRecord
 )
 {
-    float potentialEvaporation = potentialEvaporationInfo.perYearFloat;
-
-    assert(potentialEvaporation > 0.0);
+    assert(potentialEvaporationInfo.perYearFloat > 0.0);
 
     // Determine effectivity/effectiveness ??? parameter (old???: bag) for
     // unsealed surfaces
@@ -494,15 +492,15 @@ float Calculation::realEvapotranspiration(
             precipitationInfo.perYearCorrectedFloat +
             m_resultRecord.meanPotentialCapillaryRiseRate +
             m_resultRecord.irrigation
-        ) / potentialEvaporation
+        ) / potentialEvaporationInfo.perYearFloat
     );
 
     // Get the real evapotransporation using estimated y-factor
-    float realEvapotranspiration = yRatio * potentialEvaporation;
+    float realEvapotranspiration = yRatio * potentialEvaporationInfo.perYearFloat;
 
     if (m_potentialCapillaryRise_TAS < 0) {
         realEvapotranspiration += (
-            potentialEvaporation - yRatio * potentialEvaporation
+            potentialEvaporationInfo.perYearFloat - yRatio * potentialEvaporationInfo.perYearFloat
         ) * static_cast<float>(
             exp(inputRecord.depthToWaterTable / m_potentialCapillaryRise_TAS)
         );
