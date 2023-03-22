@@ -66,10 +66,6 @@ private:
     PDR m_resultRecord; // old: ptrDA
     QString m_error;
 
-    // Abfluesse nach Bagrov fuer Daecher (index 0) und Oberflaechenklassen
-    // 1 bis 4 (index 1 bis 4)
-    std::array<float,5> m_bagrovValues;
-
     // runoff for unsealed partial surfaces
     float m_unsealedSurfaceRunoff; // old: RUV
 

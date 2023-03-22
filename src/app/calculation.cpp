@@ -34,7 +34,6 @@ Calculation::Calculation(
     m_initValues(initValues),
     m_protocolStream(protocolStream),
     m_dbReader(dbaseReader),
-    m_bagrovValues({0, 0, 0, 0, 0}),
     m_unsealedSurfaceRunoff(0), // old: RUV
     m_surfaceRunoffFlow(0), // old: ROWVOL
     m_infiltrationFlow(0), // old: RIVOL
