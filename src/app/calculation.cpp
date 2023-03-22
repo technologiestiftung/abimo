@@ -100,7 +100,7 @@ bool Calculation::calculate(QString outputFile, bool debug)
         }
         else {
 
-            // calculate and set result record fields to calculated values
+            // Calculate and set result record fields to calculated values
             doCalculationsFor(inputRecord);
             writeResultRecord(inputRecord, writer);
 
@@ -320,7 +320,7 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
         100.0F - static_cast<float>(m_resultRecord.mainPercentageSealed)
     ) / 100.0F * m_unsealedSurfaceRunoff_RUV;
 
-    // calculate runoff 'row' for entire block patial area (FLGES +
+    // calculate runoff 'ROW' for entire block patial area (FLGES +
     // STR_FLGES) (mm/a)
     m_surfaceRunoff_ROW = (
         helpers::vectorSum(runoffSealedSurfaces) +
@@ -354,7 +354,7 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
     // infiltration
     m_totalRunoffFlow_RVOL = m_surfaceRunoffFlow_ROWVOL + m_infiltrationFlow_RIVOL;
 
-    // calculate evaporation 'verdunst' by subtracting 'r', the sum of
+    // calculate evaporation 'VERDUNST' by subtracting 'R', the sum of
     // runoff and infiltration from precipitation of entire year,
     // multiplied by precipitation correction factor
     m_evaporation_VERDUNSTUN = (
@@ -424,6 +424,51 @@ void Calculation::getClimaticConditions(int district, QString code, AbimoInputRe
         realEvapotranspiration(potentialEvaporation, precipitation, inputRecord);
 
     m_unsealedSurfaceRunoff_RUV = precipitation - actualEvaporation;
+}
+
+PotentialEvaporation Calculation::getPotentialEvaporation(
+    Usage& usage, InitValues& initValues, int district, QString code
+)
+{
+    PotentialEvaporation result;
+
+    // Parameter for the city districts
+    if (usage == Usage::waterbody_G) {
+
+        result.perYearInteger = initValueOrReportedDefaultValue(
+            district, code, initValues.hashEG, 775, "EG"
+        );
+
+        // What about potentialEvaporationSummer?
+        result.inSummerInteger = -1;
+    }
+    else {
+        result.perYearInteger = initValueOrReportedDefaultValue(
+            district, code, initValues.hashETP, 660, "ETP"
+        );
+        result.inSummerInteger = initValueOrReportedDefaultValue(
+            district, code, initValues.hashETPS, 530, "ETPS"
+        );
+    }
+
+    // no more correction with 1.1
+    result.perYearFloat = static_cast<float>(result.perYearInteger);
+
+    return result;
+}
+
+Precipitation Calculation::getPrecipitation(
+    int precipitationYear, InitValues& initValues
+)
+{
+    Precipitation result;
+
+    // precipitation (at ground level)
+    result.perYearCorrectedFloat = static_cast<float>(
+        precipitationYear * initValues.getPrecipitationCorrectionFactor()
+    );
+
+    return result;
 }
 
 float Calculation::realEvapotranspiration(

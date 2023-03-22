@@ -60,14 +60,13 @@ private:
     // All private member variables of this class will be prefixed with "m_"
     Config m_usageMappings;
 
-    InitValues &m_initValues;
-    QTextStream &m_protocolStream;
-    AbimoReader &m_dbReader;
+    InitValues& m_initValues;
+    QTextStream& m_protocolStream;
+    AbimoReader& m_dbReader;
+
     PDR m_resultRecord; // old: ptrDA
+
     QString m_error;
-
-    // Additional member variables (m_ indicates member)
-
     Counters m_counters;
 
     // Variable to control whether to stop processing
@@ -80,6 +79,14 @@ private:
     void logNotDefined(QString code, int type);
 
     void getClimaticConditions(int bez, QString codestr, AbimoInputRecord& inputRecord);
+
+    PotentialEvaporation getPotentialEvaporation(
+        Usage& usage, InitValues& initValues, int district, QString code
+    );
+
+    Precipitation getPrecipitation(
+        int precipitationYear, InitValues& initValues
+    );
 
     float realEvapotranspiration(
         float potentialEvaporation,
