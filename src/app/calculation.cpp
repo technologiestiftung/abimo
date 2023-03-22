@@ -385,14 +385,13 @@ void Calculation::getClimaticConditions(
     m_resultRecord.potentialEvaporationYear = potentialEvaporationInfo.perYearInteger;
     m_resultRecord.potentialEvaporationSummer = potentialEvaporationInfo.inSummerInteger;
 
-    // precipitation (at ground level)
-    float precipitation = precipitationInfo.perYearCorrectedFloat;
-
     // Berechnung der Abfluesse RDV und R1V bis R4V fuer versiegelte
     // Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4
 
     // ratio of precipitation to potential evaporation
-    float xRatio = precipitation / potentialEvaporationInfo.perYearFloat;
+    float xRatio =
+        precipitationInfo.perYearCorrectedFloat /
+        potentialEvaporationInfo.perYearFloat;
 
     // Berechnung des Abflusses RxV fuer versiegelte Teilflaechen mittels
     // Umrechnung potentieller Verdunstungen potentialEvaporation zu realen
@@ -402,7 +401,7 @@ void Calculation::getClimaticConditions(
 
     for (int i = 0; i < static_cast<int>(m_bagrovValues.size()); i++) {
 
-        m_bagrovValues[i] = precipitation -
+        m_bagrovValues[i] = precipitationInfo.perYearCorrectedFloat -
             Bagrov::nbagro(m_initValues.getBagrovValue(i), xRatio) *
             potentialEvaporationInfo.perYearFloat;
     }
@@ -410,9 +409,15 @@ void Calculation::getClimaticConditions(
     // Calculate runoff RUV for unsealed surfaces
     float actualEvaporation = (m_resultRecord.usage == Usage::waterbody_G) ?
         potentialEvaporationInfo.perYearFloat :
-        realEvapotranspiration(potentialEvaporationInfo, precipitationInfo, inputRecord);
+        realEvapotranspiration(
+            potentialEvaporationInfo,
+            precipitationInfo,
+            inputRecord
+        );
 
-    m_unsealedSurfaceRunoff_RUV = precipitation - actualEvaporation;
+    m_unsealedSurfaceRunoff_RUV =
+        precipitationInfo.perYearCorrectedFloat -
+        actualEvaporation;
 }
 
 PotentialEvaporation Calculation::getPotentialEvaporation(
