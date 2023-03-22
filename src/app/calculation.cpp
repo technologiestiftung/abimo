@@ -384,7 +384,7 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
 void Calculation::getClimaticConditions(
     Precipitation precipitation,
     PotentialEvaporation potentialEvaporation,
-    AbimoInputRecord& record
+    AbimoInputRecord& inputRecord
 )
 {
     // Berechnung der Abfluesse RDV und R1V bis R4V fuer versiegelte
@@ -411,7 +411,7 @@ void Calculation::getClimaticConditions(
     // Calculate runoff RUV for unsealed surfaces
     float actualEvaporation = (m_resultRecord.usage == Usage::waterbody_G) ?
         potentialEvaporation.perYearFloat :
-        realEvapotranspiration(potentialEvaporation, precipitation, record);
+        realEvapotranspiration(potentialEvaporation, precipitation, inputRecord);
 
     m_unsealedSurfaceRunoff_RUV =
         precipitation.perYearCorrectedFloat - actualEvaporation;
@@ -465,7 +465,7 @@ Precipitation Calculation::getPrecipitation(
 float Calculation::realEvapotranspiration(
     PotentialEvaporation potentialEvaporation,
     Precipitation precipitation,
-    AbimoInputRecord& record
+    AbimoInputRecord& inputRecord
 )
 {
     assert(potentialEvaporation.perYearFloat > 0.0);
@@ -502,7 +502,7 @@ float Calculation::realEvapotranspiration(
         result +=
             (potentialEvaporation.perYearFloat - result) *
             static_cast<float>(
-                exp(record.depthToWaterTable / m_potentialCapillaryRise_TAS)
+                exp(inputRecord.depthToWaterTable / m_potentialCapillaryRise_TAS)
             );
     }
 
