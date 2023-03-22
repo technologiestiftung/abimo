@@ -70,20 +70,21 @@ bool Calculation::calculate(QString outputFile, bool debug)
     AbimoRecord record;
 
     // Number of processed records
-    int index = 0;
+    int numProcessed = 0;
 
-    // count protocol entries
+    // Initialise counters
     m_counters.initialise();
 
-    // first entry into protocol
+    // Provide a dbf writer object
     DbaseWriter writer(outputFile, m_initValues);
 
-    // get the number of rows in the input data
+    // Get the number of rows in the input data
     int recordCount = m_dbReader.getNumberOfRecords();
 
     // loop over all block partial areas (= records/rows of input data)
     for (int k = 0; k < recordCount; k++) {
 
+        // Break out of the loop if the user pressed "Cancel"
         if (!m_continueProcessing) {
             break;
         }
@@ -103,16 +104,16 @@ bool Calculation::calculate(QString outputFile, bool debug)
         }
         else {
             // Hier koennten falls gewuenscht die Flaechen dokumentiert
-            // werden, deren NUTZUNG=NULL
+            // werden, deren NUTZUNG = NULL
             m_counters.incrementNoUsageGiven();
         }
 
         emit processSignal(progressNumber(k, recordCount, 50.0), "Berechne");
     }
 
-    // set counters
+    // Set counters
     m_counters.setRecordsRead(recordCount);
-    m_counters.setRecordsWritten(index);
+    m_counters.setRecordsWritten(numProcessed);
 
     if (!m_continueProcessing) {
         m_protocolStream << "Berechnungen abgebrochen.\r\n";
