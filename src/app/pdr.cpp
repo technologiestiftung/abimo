@@ -48,10 +48,8 @@ PDR::PDR():
     mainPercentageSealed(0),
     yieldPower(0),
     irrigation(0),
-    precipitationYear(0.0F),
     longtimeMeanPotentialEvaporation(0),
     meanPotentialCapillaryRiseRate(0),
-    precipitationSummer(0.0F),
     potentialEvaporationSummer(0)
 {}
 

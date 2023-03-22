@@ -150,10 +150,6 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
     // old: ri1 - ri4
     std::vector<float> infiltrationSealedSurfaces = {0, 0, 0, 0, 0};
 
-    // precipitation for entire year and for summer season only
-    m_resultRecord.precipitationYear = inputRecord.precipitationYear;
-    m_resultRecord.precipitationSummer = inputRecord.precipitationSummer;
-
     // declaration of yield power (ERT) and irrigation (BER) for agricultural or
     // gardening purposes
     UsageResult usageResult = m_usageMappings.getUsageResult(
@@ -364,7 +360,7 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
     // runoff and infiltration from precipitation of entire year,
     // multiplied by precipitation correction factor
     m_evaporation_VERDUNSTUN = (
-        m_resultRecord.precipitationYear *
+        helpers::asFloat(inputRecord.precipitationYear) *
         m_initValues.getPrecipitationCorrectionFactor()
     ) - m_totalRunoff_R;
 
@@ -401,7 +397,7 @@ void Calculation::getClimaticConditions(int district, QString code, AbimoInputRe
 
     // precipitation (at ground level)
     float precipitation = static_cast<float>(
-        m_resultRecord.precipitationYear *
+        helpers::asFloat(inputRecord.precipitationYear) *
         m_initValues.getPrecipitationCorrectionFactor()
     );
 
@@ -448,7 +444,7 @@ float Calculation::realEvapotranspiration(
         m_resultRecord.usage == Usage::forested_W,
         m_resultRecord.yieldPower,
         m_resultRecord.irrigation,
-        m_resultRecord.precipitationSummer,
+        helpers::asFloat(inputRecord.precipitationSummer),
         m_resultRecord.potentialEvaporationSummer,
         m_resultRecord.meanPotentialCapillaryRiseRate
     );

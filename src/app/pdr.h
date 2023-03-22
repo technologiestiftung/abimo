@@ -103,17 +103,11 @@ public:
     // j. Beregnungshoehe landw. Nutzfl. [mm/a] ID_BER 003 N
     int irrigation; // old: BER
 
-    // Niederschlag <MD-Wert> [mm/a] ID_PMD 003 N
-    float precipitationYear; // old: P1
-
     // l-j. MW der pot. Verdunstung [mm/a] ID_ETP 003 N
     int longtimeMeanPotentialEvaporation; // old: ETP
 
     // Kapillarer Aufstieg pro Jahr ID_KR neu
     int meanPotentialCapillaryRiseRate; // old: KR
-
-    // Sommer-Niederschlag ID_PS neu
-    float precipitationSummer; // old: P1S
 
     // potentielle Verdunstung im Sommer ID_ETPS neu
     int potentialEvaporationSummer; // old: ETPS
