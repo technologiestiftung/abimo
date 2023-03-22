@@ -81,7 +81,7 @@ private:
     void getClimaticConditions(
         Precipitation precipitation,
         PotentialEvaporation potentialEvaporation,
-        AbimoInputRecord& record
+        AbimoInputRecord& inputRecord
     );
 
     PotentialEvaporation getPotentialEvaporation(
