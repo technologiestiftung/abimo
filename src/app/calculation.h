@@ -78,7 +78,11 @@ private:
 
     void logNotDefined(QString code, int type);
 
-    void getClimaticConditions(int bez, QString codestr, AbimoInputRecord& inputRecord);
+    void getClimaticConditions(
+            AbimoInputRecord& inputRecord,
+            Precipitation& precipitationInfo,
+            PotentialEvaporation& potentialEvaporationInfo
+    );
 
     PotentialEvaporation getPotentialEvaporation(
         Usage& usage, InitValues& initValues, int district, QString code

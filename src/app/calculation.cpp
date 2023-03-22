@@ -214,7 +214,7 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
     );
 
     // Bagrov-calculation for sealed surfaces
-    getClimaticConditions(inputRecord.district, inputRecord.code, inputRecord);
+    getClimaticConditions(inputRecord, precipitation, potentialEvaporation);
 
     // percentage of total sealed area
     // share of roof area [%] 'PROBAU' +
@@ -376,30 +376,15 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
 // This function uses...
 // This function modifies...
 // =============================================================================
-void Calculation::getClimaticConditions(int district, QString code, AbimoInputRecord& inputRecord)
+void Calculation::getClimaticConditions(
+        AbimoInputRecord& inputRecord,
+        Precipitation& precipitationInfo,
+        PotentialEvaporation& potentialEvaporationInfo
+)
 {
-    // Parameter for the city districts
-    if (m_resultRecord.usage == Usage::waterbody_G) {
-
-        m_resultRecord.potentialEvaporationYear = initValueOrReportedDefaultValue(
-            district, code, m_initValues.hashEG, 775, "EG"
-        );
-    }
-    else {
-
-        m_resultRecord.potentialEvaporationYear = initValueOrReportedDefaultValue(
-            district, code, m_initValues.hashETP, 660, "ETP"
-        );
-
-        m_resultRecord.potentialEvaporationSummer = initValueOrReportedDefaultValue(
-            district, code, m_initValues.hashETPS, 530, "ETPS"
-        );
-    }
-
-    // potential evaporation
-    float potentialEvaporation = static_cast<float>(
-        m_resultRecord.potentialEvaporationYear
-    ); // no more correction with 1.1
+    m_resultRecord.potentialEvaporationYear = potentialEvaporationInfo.perYearInteger;
+    m_resultRecord.potentialEvaporationSummer = potentialEvaporationInfo.inSummerInteger;
+    float potentialEvaporation = potentialEvaporationInfo.perYearFloat;
 
     // precipitation (at ground level)
     float precipitation = static_cast<float>(
