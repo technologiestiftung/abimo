@@ -382,9 +382,6 @@ void Calculation::getClimaticConditions(
         AbimoInputRecord& inputRecord
 )
 {
-    m_resultRecord.potentialEvaporationYear = potentialEvaporationInfo.perYearInteger;
-    m_resultRecord.potentialEvaporationSummer = potentialEvaporationInfo.inSummerInteger;
-
     // Berechnung der Abfluesse RDV und R1V bis R4V fuer versiegelte
     // Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4
 
@@ -484,7 +481,7 @@ float Calculation::realEvapotranspiration(
         m_resultRecord.yieldPower,
         m_resultRecord.irrigation,
         helpers::asFloat(inputRecord.precipitationSummer),
-        m_resultRecord.potentialEvaporationSummer,
+        potentialEvaporationInfo.inSummerInteger,
         m_resultRecord.meanPotentialCapillaryRiseRate
     );
 
