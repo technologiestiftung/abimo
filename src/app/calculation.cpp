@@ -164,7 +164,7 @@ void Calculation::calculateResultRecord(AbimoInputRecord &inputRecord)
 
     // declaration of yield power (ERT) and irrigation (BER) for agricultural or
     // gardening purposes
-    UsageResult usageResult = m_config.getUsageResult(
+    UsageResult usageResult = m_usageMappings.getUsageResult(
         inputRecord.usage, inputRecord.type, inputRecord.code
     );
 
@@ -180,7 +180,7 @@ void Calculation::calculateResultRecord(AbimoInputRecord &inputRecord)
     }
 
     m_resultRecord.setUsageYieldIrrigation(
-        m_config.getUsageTuple(usageResult.tupleIndex)
+        m_usageMappings.getUsageTuple(usageResult.tupleIndex)
     );
 
     if (m_resultRecord.usage != Usage::waterbody_G)
@@ -193,7 +193,7 @@ void Calculation::calculateResultRecord(AbimoInputRecord &inputRecord)
         );
 
         // mittl. Durchwurzelungstiefe TWS
-        float rootingDepth = m_config.getRootingDepth(
+        float rootingDepth = m_usageMappings.getRootingDepth(
             m_resultRecord.usage,
             m_resultRecord.yieldPower
         );
