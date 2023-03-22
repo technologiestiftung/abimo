@@ -43,9 +43,9 @@ public:
     // Calculation class
     bool calculate(QString outputFile, bool debug = false);
 
-    Counters getCounters();
+    Counters getCounters() const;
 
-    QString getError();
+    QString getError() const;
 
     void stopProcessing();
 

@@ -47,12 +47,12 @@ void Calculation::stopProcessing()
     m_continueProcessing = false;
 }
 
-Counters Calculation::getCounters()
+Counters Calculation::getCounters() const
 {
     return m_counters;
 }
 
-QString Calculation::getError()
+QString Calculation::getError() const
 {
     return m_error;
 }
