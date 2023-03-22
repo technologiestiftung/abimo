@@ -69,7 +69,7 @@ bool AbimoReader::isAbimoFile()
     return helpers::containsAll(m_fieldPositionMap, requiredFields());
 }
 
-void AbimoReader::fillRecord(int rowIndex, AbimoRecord& record, bool debug)
+void AbimoReader::fillRecord(int rowIndex, AbimoInputRecord& record, bool debug)
 {
     m_rowIndex = rowIndex;
     m_debug = debug;

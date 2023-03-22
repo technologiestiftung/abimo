@@ -4,7 +4,7 @@
 #include <QString>
 #include <QStringList>
 
-#include "abimoRecord.h"
+#include "abimoInputRecord.h"
 #include "dbaseReader.h"
 
 class AbimoReader : public DbaseReader
@@ -14,7 +14,7 @@ public:
 
     static QStringList requiredFields();
     bool isAbimoFile();
-    void fillRecord(int k, AbimoRecord& record, bool debug = false);
+    void fillRecord(int k, AbimoInputRecord& record, bool debug = false);
     bool checkAndRead();
 
 private:
