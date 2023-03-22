@@ -19,7 +19,7 @@ public:
 
     // Flurabstandswert [m] ID_FLW 4.1 N
     // depth to groundwater table 'FLUR'
-    float depthToWaterTable; // old: FLUR
+    float depthToWaterTable; // old: FLUR, FLW
 
     int type; // old: TYP
     int fieldCapacity_30; // old: FELD_30
