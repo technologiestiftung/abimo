@@ -22,13 +22,15 @@
 #include "effectivenessUnsealed.h"
 #include "helpers.h"
 #include "initValues.h"
+#include "intermediateResults.h"
 #include "pdr.h"
 
 Calculation::Calculation(
-        AbimoReader &dbaseReader,
-        InitValues &initValues,
-        QTextStream &protocolStream
-):
+    AbimoReader& dbaseReader,
+    InitValues& initValues,
+    QTextStream& protocolStream
+) :
+    IntermediateResults(),
     m_initValues(initValues),
     m_protocolStream(protocolStream),
     m_dbReader(dbaseReader),
@@ -39,7 +41,7 @@ Calculation::Calculation(
     m_totalRunoffFlow(0), // old: RVOL
     m_potentialCapillaryRise(0), // old: TAS
     m_counters(),
-    m_continueProcessing(true) // old: weiter
+    m_continueProcessing(true)
 {
 }
 
