@@ -214,7 +214,7 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
     );
 
     // Bagrov-calculation for sealed surfaces
-    getClimaticConditions(inputRecord, precipitation, potentialEvaporation);
+    getClimaticConditions(precipitation, potentialEvaporation, inputRecord);
 
     // percentage of total sealed area
     // share of roof area [%] 'PROBAU' +
@@ -377,14 +377,13 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
 // This function modifies...
 // =============================================================================
 void Calculation::getClimaticConditions(
-        AbimoInputRecord& inputRecord,
         Precipitation& precipitationInfo,
-        PotentialEvaporation& potentialEvaporationInfo
+        PotentialEvaporation& potentialEvaporationInfo,
+        AbimoInputRecord& inputRecord
 )
 {
     m_resultRecord.potentialEvaporationYear = potentialEvaporationInfo.perYearInteger;
     m_resultRecord.potentialEvaporationSummer = potentialEvaporationInfo.inSummerInteger;
-    float potentialEvaporation = potentialEvaporationInfo.perYearFloat;
 
     // precipitation (at ground level)
     float precipitation = precipitationInfo.perYearCorrectedFloat;
@@ -393,7 +392,7 @@ void Calculation::getClimaticConditions(
     // Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4
 
     // ratio of precipitation to potential evaporation
-    float xRatio = precipitation / potentialEvaporation;
+    float xRatio = precipitation / potentialEvaporationInfo.perYearFloat;
 
     // Berechnung des Abflusses RxV fuer versiegelte Teilflaechen mittels
     // Umrechnung potentieller Verdunstungen potentialEvaporation zu realen
@@ -405,12 +404,12 @@ void Calculation::getClimaticConditions(
 
         m_bagrovValues[i] = precipitation -
             Bagrov::nbagro(m_initValues.getBagrovValue(i), xRatio) *
-            potentialEvaporation;
+            potentialEvaporationInfo.perYearFloat;
     }
 
     // Calculate runoff RUV for unsealed surfaces
     float actualEvaporation = (m_resultRecord.usage == Usage::waterbody_G) ?
-        potentialEvaporation :
+        potentialEvaporationInfo.perYearFloat :
         realEvapotranspiration(potentialEvaporationInfo, precipitationInfo, inputRecord);
 
     m_unsealedSurfaceRunoff_RUV = precipitation - actualEvaporation;
