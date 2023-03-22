@@ -107,10 +107,12 @@ private:
 
     void logNotDefined(QString code, int type);
 
-    void getClimaticConditions(int bez, QString codestr);
+    void getClimaticConditions(int bez, QString codestr, AbimoInputRecord& inputRecord);
 
     float realEvapotranspiration(
-        float potentialEvaporation, float precipiation
+        float potentialEvaporation,
+        float precipiation,
+        AbimoInputRecord& inputRecord
     );
 
     float initValueOrReportedDefaultValue(

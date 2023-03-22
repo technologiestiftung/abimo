@@ -85,9 +85,6 @@ public:
     // water holding capacity (= nutzbare Feldkapazitaet)
     float usableFieldCapacity; // old: nFK
 
-    // Flurabstandswert [m] ID_FLW 4.1 N
-    float depthToWaterTable; // old: FLW
-
     // Hauptnutzungsform [L,W,G,B,K,D] ID_NUT 001 C
     Usage usage; // old: NUT
 

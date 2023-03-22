@@ -160,9 +160,6 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
     m_resultRecord.precipitationYear = inputRecord.precipitationYear;
     m_resultRecord.precipitationSummer = inputRecord.precipitationSummer;
 
-    // depth to groundwater table 'FLUR'
-    m_resultRecord.depthToWaterTable = inputRecord.depthToWaterTable;
-
     // declaration of yield power (ERT) and irrigation (BER) for agricultural or
     // gardening purposes
     UsageResult usageResult = m_usageMappings.getUsageResult(
@@ -200,7 +197,7 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
         );
 
         // pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS
-        m_potentialCapillaryRise = m_resultRecord.depthToWaterTable - rootingDepth;
+        m_potentialCapillaryRise = inputRecord.depthToWaterTable - rootingDepth;
 
         // mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres
         m_resultRecord.meanPotentialCapillaryRiseRate =
@@ -219,7 +216,7 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
     }
 
     // Bagrov-calculation for sealed surfaces
-    getClimaticConditions(inputRecord.district, inputRecord.code);
+    getClimaticConditions(inputRecord.district, inputRecord.code, inputRecord);
 
     // percentage of total sealed area
     // share of roof area [%] 'PROBAU' +
@@ -383,7 +380,7 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
 // This function uses...
 // This function modifies...
 // =============================================================================
-void Calculation::getClimaticConditions(int district, QString code)
+void Calculation::getClimaticConditions(int district, QString code, AbimoInputRecord& inputRecord)
 {
     // Parameter for the city districts
     if (m_resultRecord.usage == Usage::waterbody_G) {
@@ -436,14 +433,15 @@ void Calculation::getClimaticConditions(int district, QString code)
     // Calculate runoff RUV for unsealed surfaces
     float actualEvaporation = (m_resultRecord.usage == Usage::waterbody_G) ?
         potentialEvaporation :
-        realEvapotranspiration(potentialEvaporation, precipitation);
+        realEvapotranspiration(potentialEvaporation, precipitation, inputRecord);
 
     m_unsealedSurfaceRunoff = precipitation - actualEvaporation;
 }
 
 float Calculation::realEvapotranspiration(
     float potentialEvaporation,
-    float precipitation
+    float precipitation,
+    AbimoInputRecord& inputRecord
 )
 {
     assert(potentialEvaporation > 0.0);
@@ -480,7 +478,7 @@ float Calculation::realEvapotranspiration(
         realEvapotranspiration += (
             potentialEvaporation - yRatio * potentialEvaporation
         ) * static_cast<float>(
-            exp(m_resultRecord.depthToWaterTable / m_potentialCapillaryRise)
+            exp(inputRecord.depthToWaterTable / m_potentialCapillaryRise)
         );
     }
 
