@@ -100,7 +100,7 @@ bool Calculation::calculate(QString outputFile, bool debug)
             calculateResultRecord(record);
             writeResultRecord(record, writer);
 
-            index++;
+            numProcessed++;
         }
         else {
             // Hier koennten falls gewuenscht die Flaechen dokumentiert
