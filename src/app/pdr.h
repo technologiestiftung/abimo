@@ -39,6 +39,25 @@ struct UsageTuple {
     int irrigation;
 };
 
+struct PotentialEvaporation {
+    // l-j. MW der pot. Verdunstung [mm/a] ID_ETP 003 N
+    int perYearInteger; // old: ETP
+
+    // potentielle Verdunstung im Sommer ID_ETPS neu
+    int inSummerInteger; // old: ETPS
+
+    float perYearFloat;
+};
+
+struct Precipitation {
+
+    // precipitation for entire year and for summer season only
+    int perYearInteger;
+    int inSummerInteger;
+
+    float perYearCorrectedFloat;
+};
+
 class PDR
 {
 private:
@@ -48,14 +67,17 @@ private:
 
 public:
     PDR();
+
     void setUsageYieldIrrigation(Usage usage, int yield = 0, int irrigation = 0);
     void setUsageYieldIrrigation(UsageTuple tuple);
+
     static int getMeanPotentialCapillaryRiseRate(
         float potentialCapillaryRise,
         float usableFieldCapacity,
         Usage usage,
         int yieldPower
     );
+
     static float estimateWaterHoldingCapacity(int f30, int f150, bool isForest);
     static int estimateDaysOfGrowth(Usage usage, int yield);
 

@@ -11,7 +11,8 @@
 #include <QTextStream>
 
 #include "abimoReader.h"
-#include "abimoRecord.h"
+#include "abimoInputRecord.h"
+#include "abimoOutputRecord.h"
 #include "bagrov.h"
 #include "calculation.h"
 #include "config.h"
@@ -47,12 +48,12 @@ void Calculation::stopProcessing()
     m_continueProcessing = false;
 }
 
-Counters Calculation::getCounters()
+Counters Calculation::getCounters() const
 {
     return m_counters;
 }
 
-QString Calculation::getError()
+QString Calculation::getError() const
 {
     return m_error;
 }
@@ -67,52 +68,54 @@ QString Calculation::getError()
 bool Calculation::calculate(QString outputFile, bool debug)
 {
     // Current Abimo record (represents one row of the input dbf file)
-    AbimoRecord record;
+    AbimoInputRecord inputRecord;
+    AbimoOutputRecord outputRecord;
 
     // Number of processed records
-    int index = 0;
+    int numProcessed = 0;
 
-    // count protocol entries
+    // Initialise counters
     m_counters.initialise();
 
-    // first entry into protocol
+    // Provide a dbf writer object
     DbaseWriter writer(outputFile, m_initValues);
 
-    // get the number of rows in the input data
+    // Get the number of rows in the input data
     int recordCount = m_dbReader.getNumberOfRecords();
 
     // loop over all block partial areas (= records/rows of input data)
     for (int k = 0; k < recordCount; k++) {
 
+        // Break out of the loop if the user pressed "Cancel"
         if (!m_continueProcessing) {
             break;
         }
 
         // Fill record with data from row k
-        m_dbReader.fillRecord(k, record, debug);
+        m_dbReader.fillRecord(k, inputRecord, debug);
 
         // NUTZUNG = integer representing the type of area usage for each block
         // partial area
-        if (record.usage != 0) {
+        if (inputRecord.usage != 0) {
 
             // calculate and set result record fields to calculated values
-            calculateResultRecord(record);
-            writeResultRecord(record, writer);
+            calculateResultRecord(inputRecord);
+            writeResultRecord(inputRecord, writer);
 
-            index++;
+            numProcessed++;
         }
         else {
             // Hier koennten falls gewuenscht die Flaechen dokumentiert
-            // werden, deren NUTZUNG=NULL
+            // werden, deren NUTZUNG = NULL
             m_counters.incrementNoUsageGiven();
         }
 
         emit processSignal(progressNumber(k, recordCount, 50.0), "Berechne");
     }
 
-    // set counters
+    // Set counters
     m_counters.setRecordsRead(recordCount);
-    m_counters.setRecordsWritten(index);
+    m_counters.setRecordsWritten(numProcessed);
 
     if (!m_continueProcessing) {
         m_protocolStream << "Berechnungen abgebrochen.\r\n";
@@ -135,7 +138,7 @@ int Calculation::progressNumber(int i, int n, float max)
     return (int) (static_cast<float>(i) / static_cast<float>(n) * max);
 }
 
-void Calculation::calculateResultRecord(AbimoRecord &record)
+void Calculation::calculateResultRecord(AbimoInputRecord &inputRecord)
 {
     // Abflussvariablen der versiegelten Flaechen
     // runoff variables of sealed surfaces
@@ -150,16 +153,16 @@ void Calculation::calculateResultRecord(AbimoRecord &record)
     std::vector<float> infiltrationSealedSurfaces = {0, 0, 0, 0, 0};
 
     // precipitation for entire year and for summer season only
-    m_resultRecord.precipitationYear = record.precipitationYear;
-    m_resultRecord.precipitationSummer = record.precipitationSummer;
+    m_resultRecord.precipitationYear = inputRecord.precipitationYear;
+    m_resultRecord.precipitationSummer = inputRecord.precipitationSummer;
 
     // depth to groundwater table 'FLUR'
-    m_resultRecord.depthToWaterTable = record.depthToWaterTable;
+    m_resultRecord.depthToWaterTable = inputRecord.depthToWaterTable;
 
     // declaration of yield power (ERT) and irrigation (BER) for agricultural or
     // gardening purposes
     UsageResult usageResult = m_config.getUsageResult(
-        record.usage, record.type, record.code
+        inputRecord.usage, inputRecord.type, inputRecord.code
     );
 
     if (usageResult.tupleIndex < 0) {
@@ -181,8 +184,8 @@ void Calculation::calculateResultRecord(AbimoRecord &record)
     {
         // Feldkapazitaet
         m_resultRecord.usableFieldCapacity = PDR::estimateWaterHoldingCapacity(
-            record.fieldCapacity_30,
-            record.fieldCapacity_150,
+            inputRecord.fieldCapacity_30,
+            inputRecord.fieldCapacity_150,
             m_resultRecord.usage == Usage::forested_W
         );
 
@@ -212,25 +215,25 @@ void Calculation::calculateResultRecord(AbimoRecord &record)
     }
 
     // Bagrov-calculation for sealed surfaces
-    getClimaticConditions(record.district, record.code);
+    getClimaticConditions(inputRecord.district, inputRecord.code);
 
     // percentage of total sealed area
     // share of roof area [%] 'PROBAU' +
     // share of other (unbuilt) sealed areas (e.g. Hofflaechen)
     m_resultRecord.mainPercentageSealed = helpers::roundToInteger(
-        record.mainFractionBuiltSealed * 100 +
-        record.mainFractionUnbuiltSealed * 100
+        inputRecord.mainFractionBuiltSealed * 100 +
+        inputRecord.mainFractionUnbuiltSealed * 100
     );
 
     // if sum of total building development area and road area is
     // inconsiderably small it is assumed, that the area is unknown and
     // 100 % building development area will be given by default
-    if (record.totalArea() < 0.0001) {
+    if (inputRecord.totalArea_FLAECHE() < 0.0001) {
         // *protokollStream << "\r\nDie Flaeche des Elements " +
         // record.CODE + " ist 0 \r\nund wird automatisch auf 100 gesetzt\r\n";
         m_counters.incrementRecordsProtocol();
         m_counters.incrementNoAreaGiven();
-        record.mainArea = 100.0F;
+        inputRecord.mainArea = 100.0F;
     }
 
     // share of building development area / road area to total area
@@ -238,12 +241,12 @@ void Calculation::calculateResultRecord(AbimoRecord &record)
     // Verhaeltnis Bebauungsflaeche zu Gesamtflaeche
     // Fraction of total area that is not allocated to roads
     // old: fbant (ant = Anteil)
-    float areaFractionMain = record.fractionOfTotalArea(record.mainArea);
+    float areaFractionMain = inputRecord.fractionOfTotalArea(inputRecord.mainArea);
 
     // Verhaeltnis Strassenflaeche zu Gesamtflaeche
     // Fraction of total area that is allocated to roads
     // old: fsant (ant = Anteil)
-    float areaFractionRoad = record.fractionOfTotalArea(record.roadArea);
+    float areaFractionRoad = inputRecord.fractionOfTotalArea(inputRecord.roadArea);
 
     // Runoff for sealed surfaces
 
@@ -261,8 +264,8 @@ void Calculation::calculateResultRecord(AbimoRecord &record)
     // old: rowd
     float runoffRoofs =
         (1.0F - m_initValues.getInfiltrationFactor(0)) * // 0 = roof!
-        record.mainFractionBuiltSealed *
-        record.builtSealedFractionConnected *
+        inputRecord.mainFractionBuiltSealed *
+        inputRecord.builtSealedFractionConnected *
         areaFractionMain *
         m_bagrovValues[0]; // 0 = roof!
 
@@ -271,13 +274,13 @@ void Calculation::calculateResultRecord(AbimoRecord &record)
         runoffSealedSurfaces[i] =
             (1.0F - m_initValues.getInfiltrationFactor(i)) *
             (
-                record.unbuiltSealedFractionSurface.at(i) *
-                record.unbuiltSealedFractionConnected *
-                record.mainFractionUnbuiltSealed *
+                inputRecord.unbuiltSealedFractionSurface.at(i) *
+                inputRecord.unbuiltSealedFractionConnected *
+                inputRecord.mainFractionUnbuiltSealed *
                 areaFractionMain +
-                record.roadSealedFractionSurface.at(i) *
-                record.roadSealedFractionConnected *
-                record.roadFractionSealed *
+                inputRecord.roadSealedFractionSurface.at(i) *
+                inputRecord.roadSealedFractionConnected *
+                inputRecord.roadFractionSealed *
                 areaFractionRoad
             ) * m_bagrovValues[i];
     }
@@ -285,19 +288,19 @@ void Calculation::calculateResultRecord(AbimoRecord &record)
     // infiltration of/for/from? roof surfaces (Infiltration der Dachflaechen)
     // old: rid
     float infiltrationRoofs =
-        (1 - record.builtSealedFractionConnected) *
-        record.mainFractionBuiltSealed *
+        (1 - inputRecord.builtSealedFractionConnected) *
+        inputRecord.mainFractionBuiltSealed *
         areaFractionMain *
         m_bagrovValues[0]; // 0 = roof
 
     for (int i = 1; i < static_cast<int>(infiltrationSealedSurfaces.size()); i++) {
 
         infiltrationSealedSurfaces[i] = (
-            record.unbuiltSealedFractionSurface.at(i) *
-            record.mainFractionUnbuiltSealed *
+            inputRecord.unbuiltSealedFractionSurface.at(i) *
+            inputRecord.mainFractionUnbuiltSealed *
             areaFractionMain +
-            record.roadSealedFractionSurface.at(i) *
-            record.roadFractionSealed *
+            inputRecord.roadSealedFractionSurface.at(i) *
+            inputRecord.roadFractionSealed *
             areaFractionRoad
         ) * m_bagrovValues[i] - runoffSealedSurfaces[i];
     }
@@ -314,7 +317,7 @@ void Calculation::calculateResultRecord(AbimoRecord &record)
     // old: riuvs
     // old: 0.89F * (1-vgs) * fsant * R4V;
     float infiltrationPerviousRoads =
-            (1 - record.roadFractionSealed) *
+            (1 - inputRecord.roadFractionSealed) *
             areaFractionRoad *
             m_bagrovValues[4];
 
@@ -337,7 +340,7 @@ void Calculation::calculateResultRecord(AbimoRecord &record)
     m_resultRecord.runoff = helpers::roundToInteger(m_surfaceRunoff);
 
     // calculate volume 'rowvol' from runoff (qcm/s)
-    m_surfaceRunoffFlow = record.yearlyHeightToVolumeFlow(m_surfaceRunoff);
+    m_surfaceRunoffFlow = inputRecord.yearlyHeightToVolumeFlow(m_surfaceRunoff);
 
     // calculate infiltration rate 'ri' for entire block partial area
     // (mm/a)
@@ -349,7 +352,7 @@ void Calculation::calculateResultRecord(AbimoRecord &record)
     );
 
     // calculate volume 'rivol' from infiltration rate (qcm/s)
-    m_infiltrationFlow = record.yearlyHeightToVolumeFlow(m_infiltration);
+    m_infiltrationFlow = inputRecord.yearlyHeightToVolumeFlow(m_infiltration);
 
     // calculate total system losses 'r' due to runoff and infiltration
     // for entire block partial area
@@ -511,7 +514,7 @@ float Calculation::initValueOrReportedDefaultValue(
     return result;
 }
 
-void Calculation::writeResultRecord(AbimoRecord& record, DbaseWriter& writer)
+void Calculation::writeResultRecord(AbimoInputRecord& record, DbaseWriter& writer)
 {
     writer.addRecord();
     writer.setRecordField("CODE", record.code);
@@ -521,7 +524,7 @@ void Calculation::writeResultRecord(AbimoRecord& record, DbaseWriter& writer)
     writer.setRecordField("RVOL", m_totalRunoffFlow);
     writer.setRecordField("ROWVOL", m_surfaceRunoffFlow);
     writer.setRecordField("RIVOL", m_infiltrationFlow);
-    writer.setRecordField("FLAECHE", record.totalArea());
+    writer.setRecordField("FLAECHE", record.totalArea_FLAECHE());
     writer.setRecordField("VERDUNSTUN", m_evaporation);
 }
 

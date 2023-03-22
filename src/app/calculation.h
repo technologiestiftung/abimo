@@ -12,7 +12,8 @@
 #include <QTextStream>
 
 #include "abimoReader.h"
-#include "abimoRecord.h"
+#include "abimoInputRecord.h"
+#include "abimoOutputRecord.h"
 #include "counters.h"
 #include "dbaseWriter.h"
 #include "initValues.h"
@@ -43,9 +44,9 @@ public:
     // Calculation class
     bool calculate(QString outputFile, bool debug = false);
 
-    Counters getCounters();
+    Counters getCounters() const;
 
-    QString getError();
+    QString getError() const;
 
     void stopProcessing();
 
@@ -116,8 +117,8 @@ private:
     );
 
     int progressNumber(int i, int n, float max);
-    void calculateResultRecord(AbimoRecord &record);
-    void writeResultRecord(AbimoRecord &record, DbaseWriter& writer);
+    void calculateResultRecord(AbimoInputRecord &inputRecord);
+    void writeResultRecord(AbimoInputRecord &inputRecord, DbaseWriter& writer);
 };
 
 #endif

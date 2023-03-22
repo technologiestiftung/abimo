@@ -1,19 +1,26 @@
-#ifndef ABIMORECORD_H
-#define ABIMORECORD_H
+#ifndef ABIMOINPUTRECORD_H
+#define ABIMOINPUTRECORD_H
 
 #include <array>
 #include <QString>
 
 // Fraction indicates numbers between 0 and 1 (instead of percentages)
-class AbimoRecord
+class AbimoInputRecord
 {
 public:
-    AbimoRecord();
+    AbimoInputRecord();
+
     int usage; // old: NUTZUNG
     QString code; // old: CODE
+
+    // precipitation for entire year and for summer season only
     int precipitationYear; // old: REGENJA
     int precipitationSummer; // old: REGENSO
+
+    // Flurabstandswert [m] ID_FLW 4.1 N
+    // depth to groundwater table 'FLUR'
     float depthToWaterTable; // old: FLUR
+
     int type; // old: TYP
     int fieldCapacity_30; // old: FELD_30
     int fieldCapacity_150; // old: FELD_150
@@ -69,21 +76,21 @@ public:
     // area of roads within city block
     float roadArea; // old: STR_FLGES, fs;
 
-    inline float totalArea() {
+    inline float totalArea_FLAECHE() {
         return mainArea + roadArea;
     }
 
     inline float fractionOfTotalArea(float area) {
-        float total = totalArea();
+        float total = totalArea_FLAECHE();
         assert(total > 0);
         assert(area <= total);
         return area / total;
     }
 
     inline float yearlyHeightToVolumeFlow(float height) {
-        return height * 3.171F * totalArea() / 100000.0F;
+        return height * 3.171F * totalArea_FLAECHE() / 100000.0F;
     }
 
 };
 
-#endif // ABIMORECORD_H
+#endif // ABIMOINPUTRECORD_H
