@@ -96,20 +96,21 @@ bool Calculation::calculate(QString outputFile, bool debug)
         // Fill record with data from the current row i
         m_dbReader.fillRecord(i, inputRecord, debug);
 
-        // NUTZUNG = integer representing the type of area usage for each block
-        // partial area
-        if (inputRecord.usage != 0) {
+        // usage = integer representing the type of area usage for the current
+        // block partial area
+        if (inputRecord.usage == 0) {
 
-            // calculate and set result record fields to calculated values
-            calculateResultRecord(inputRecord);
-            writeResultRecord(inputRecord, writer);
-
-            numProcessed++;
-        }
-        else {
             // Hier koennten falls gewuenscht die Flaechen dokumentiert
             // werden, deren NUTZUNG = NULL
             m_counters.incrementNoUsageGiven();
+        }
+        else {
+
+            // calculate and set result record fields to calculated values
+            doCalculationsFor(inputRecord);
+            writeResultRecord(inputRecord, writer);
+
+            numProcessed++;
         }
 
         // Send a signal to the progress bar dialog
@@ -141,7 +142,7 @@ int Calculation::progressNumber(int i, int n, float max)
     return (int) (static_cast<float>(i) / static_cast<float>(n) * max);
 }
 
-void Calculation::calculateResultRecord(AbimoInputRecord &inputRecord)
+void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
 {
     // Abflussvariablen der versiegelten Flaechen
     // runoff variables of sealed surfaces

@@ -119,8 +119,8 @@ private:
     );
 
     int progressNumber(int i, int n, float max);
-    void calculateResultRecord(AbimoInputRecord &inputRecord);
-    void writeResultRecord(AbimoInputRecord &inputRecord, DbaseWriter& writer);
+    void doCalculationsFor(AbimoInputRecord& inputRecord);
+    void writeResultRecord(AbimoInputRecord& inputRecord, DbaseWriter& writer);
 };
 
 #endif
