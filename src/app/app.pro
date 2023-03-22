@@ -21,6 +21,7 @@ HEADERS += \
     abimoInputRecord.h \
     abimoOutputRecord.h \
     abimoReader.h \
+    abimoWriter.h \
     bagrov.h \
     calculation.h \
     config.h \
@@ -42,6 +43,7 @@ SOURCES += \
     abimoInputRecord.cpp \
     abimoOutputRecord.cpp \
     abimoReader.cpp \
+    abimoWriter.cpp \
     bagrov.cpp \
     calculation.cpp \
     config.cpp \
