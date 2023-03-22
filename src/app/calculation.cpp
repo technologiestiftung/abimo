@@ -34,11 +34,6 @@ Calculation::Calculation(
     m_initValues(initValues),
     m_protocolStream(protocolStream),
     m_dbReader(dbaseReader),
-    m_unsealedSurfaceRunoff(0), // old: RUV
-    m_surfaceRunoffFlow(0), // old: ROWVOL
-    m_infiltrationFlow(0), // old: RIVOL
-    m_totalRunoffFlow(0), // old: RVOL
-    m_potentialCapillaryRise(0), // old: TAS
     m_counters(),
     m_continueProcessing(true)
 {
@@ -196,12 +191,12 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
         );
 
         // pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS
-        m_potentialCapillaryRise = inputRecord.depthToWaterTable - rootingDepth;
+        m_potentialCapillaryRise_TAS = inputRecord.depthToWaterTable - rootingDepth;
 
         // mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres
         m_resultRecord.meanPotentialCapillaryRiseRate =
             PDR::getMeanPotentialCapillaryRiseRate(
-                m_potentialCapillaryRise,
+                m_potentialCapillaryRise_TAS,
                 m_resultRecord.usableFieldCapacity,
                 m_resultRecord.usage,
                 m_resultRecord.yieldPower
@@ -327,7 +322,7 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
     // runoff for unsealed surfaces rowuv = 0 (???)
     float infiltrationPerviousSurfaces = (
         100.0F - static_cast<float>(m_resultRecord.mainPercentageSealed)
-    ) / 100.0F * m_unsealedSurfaceRunoff;
+    ) / 100.0F * m_unsealedSurfaceRunoff_RUV;
 
     // calculate runoff 'row' for entire block patial area (FLGES +
     // STR_FLGES) (mm/a)
@@ -340,7 +335,7 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
     m_resultRecord.runoff = helpers::roundToInteger(m_surfaceRunoff);
 
     // calculate volume 'rowvol' from runoff (qcm/s)
-    m_surfaceRunoffFlow = inputRecord.yearlyHeightToVolumeFlow(m_surfaceRunoff);
+    m_surfaceRunoffFlow_ROWVOL = inputRecord.yearlyHeightToVolumeFlow(m_surfaceRunoff);
 
     // calculate infiltration rate 'ri' for entire block partial area
     // (mm/a)
@@ -352,7 +347,7 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
     );
 
     // calculate volume 'rivol' from infiltration rate (qcm/s)
-    m_infiltrationFlow = inputRecord.yearlyHeightToVolumeFlow(m_infiltration);
+    m_infiltrationFlow_RIVOL = inputRecord.yearlyHeightToVolumeFlow(m_infiltration);
 
     // calculate total system losses 'r' due to runoff and infiltration
     // for entire block partial area
@@ -363,7 +358,7 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
 
     // calculate volume of system losses 'rvol' due to runoff and
     // infiltration
-    m_totalRunoffFlow = m_surfaceRunoffFlow + m_infiltrationFlow;
+    m_totalRunoffFlow_RVOL = m_surfaceRunoffFlow_ROWVOL + m_infiltrationFlow_RIVOL;
 
     // calculate evaporation 'verdunst' by subtracting 'r', the sum of
     // runoff and infiltration from precipitation of entire year,
@@ -434,7 +429,7 @@ void Calculation::getClimaticConditions(int district, QString code, AbimoInputRe
         potentialEvaporation :
         realEvapotranspiration(potentialEvaporation, precipitation, inputRecord);
 
-    m_unsealedSurfaceRunoff = precipitation - actualEvaporation;
+    m_unsealedSurfaceRunoff_RUV = precipitation - actualEvaporation;
 }
 
 float Calculation::realEvapotranspiration(
@@ -473,11 +468,11 @@ float Calculation::realEvapotranspiration(
     // Get the real evapotransporation using estimated y-factor
     float realEvapotranspiration = yRatio * potentialEvaporation;
 
-    if (m_potentialCapillaryRise < 0) {
+    if (m_potentialCapillaryRise_TAS < 0) {
         realEvapotranspiration += (
             potentialEvaporation - yRatio * potentialEvaporation
         ) * static_cast<float>(
-            exp(inputRecord.depthToWaterTable / m_potentialCapillaryRise)
+            exp(inputRecord.depthToWaterTable / m_potentialCapillaryRise_TAS)
         );
     }
 
@@ -522,9 +517,9 @@ void Calculation::writeResultRecord(AbimoInputRecord& record, DbaseWriter& write
     writer.setRecordField("R", m_totalRunoff);
     writer.setRecordField("ROW", m_surfaceRunoff);
     writer.setRecordField("RI", m_infiltration);
-    writer.setRecordField("RVOL", m_totalRunoffFlow);
-    writer.setRecordField("ROWVOL", m_surfaceRunoffFlow);
-    writer.setRecordField("RIVOL", m_infiltrationFlow);
+    writer.setRecordField("RVOL", m_totalRunoffFlow_RVOL);
+    writer.setRecordField("ROWVOL", m_surfaceRunoffFlow_ROWVOL);
+    writer.setRecordField("RIVOL", m_infiltrationFlow_RIVOL);
     writer.setRecordField("FLAECHE", record.totalArea_FLAECHE());
     writer.setRecordField("VERDUNSTUN", m_evaporation);
 }

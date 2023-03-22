@@ -66,21 +66,6 @@ private:
     PDR m_resultRecord; // old: ptrDA
     QString m_error;
 
-    // runoff for unsealed partial surfaces
-    float m_unsealedSurfaceRunoff; // old: RUV
-
-    // Regenwasserabfluss in Qubikzentimeter pro Sekunde
-    float m_surfaceRunoffFlow; // old: ROWVOL
-
-    // unterirdischer Gesamtabfluss in qcm/s
-    float m_infiltrationFlow; // old: RIVOL
-
-    // Gesamtabfluss in qcm/s
-    float m_totalRunoffFlow; // old: RVOL
-
-    // potentielle Aufstiegshoehe
-    float m_potentialCapillaryRise; // old: TAS
-
     // Additional member variables (m_ indicates member)
 
     // Langjaehriger MW des Gesamtabflusses [mm/a] 004 N
