@@ -21,6 +21,7 @@ HEADERS += \
     abimoInputRecord.h \
     abimoOutputRecord.h \
     abimoReader.h \
+    abimoWriter.h \
     bagrov.h \
     calculation.h \
     config.h \
@@ -33,6 +34,7 @@ HEADERS += \
     effectivenessUnsealed.h \
     helpers.h \
     initValues.h \
+    intermediateResults.h \
     main.h \
     mainWindow.h \
     pdr.h \
@@ -42,6 +44,7 @@ SOURCES += \
     abimoInputRecord.cpp \
     abimoOutputRecord.cpp \
     abimoReader.cpp \
+    abimoWriter.cpp \
     bagrov.cpp \
     calculation.cpp \
     config.cpp \
@@ -53,6 +56,7 @@ SOURCES += \
     effectivenessUnsealed.cpp \
     helpers.cpp \
     initValues.cpp \
+    intermediateResults.cpp \
     main.cpp \
     mainWindow.cpp \
     pdr.cpp \

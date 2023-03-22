@@ -39,6 +39,7 @@ HEADERS += \
     $$INCDIR/effectivenessUnsealed.h \
     $$INCDIR/helpers.h \
     $$INCDIR/initValues.h \
+    $$INCDIR/intermediateResults.h \
     $$INCDIR/pdr.h \
     $$INCDIR/saxHandler.h
 
@@ -57,6 +58,7 @@ SOURCES += \
     $$INCDIR/effectivenessUnsealed.cpp \
     $$INCDIR/helpers.cpp \
     $$INCDIR/initValues.cpp \
+    $$INCDIR/intermediateResults.cpp \
     $$INCDIR/pdr.cpp \
     $$INCDIR/saxHandler.cpp \
     tst_testabimo.cpp

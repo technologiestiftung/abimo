@@ -14,12 +14,14 @@
 #include "abimoReader.h"
 #include "abimoInputRecord.h"
 #include "abimoOutputRecord.h"
+#include "config.h"
 #include "counters.h"
 #include "dbaseWriter.h"
 #include "initValues.h"
-#include "config.h"
+#include "intermediateResults.h"
+#include "pdr.h"
 
-class Calculation: public QObject
+class Calculation : public QObject, public IntermediateResults
 {
     Q_OBJECT
 
