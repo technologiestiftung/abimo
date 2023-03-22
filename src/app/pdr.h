@@ -97,11 +97,11 @@ public:
     // j. Beregnungshoehe landw. Nutzfl. [mm/a] ID_BER 003 N
     int irrigation; // old: BER
 
-    // l-j. MW der pot. Verdunstung [mm/a] ID_ETP 003 N
-    int longtimeMeanPotentialEvaporation; // old: ETP
-
     // Kapillarer Aufstieg pro Jahr ID_KR neu
     int meanPotentialCapillaryRiseRate; // old: KR
+
+    // l-j. MW der pot. Verdunstung [mm/a] ID_ETP 003 N
+    int potentialEvaporationYear; // old: ETP
 
     // potentielle Verdunstung im Sommer ID_ETPS neu
     int potentialEvaporationSummer; // old: ETPS

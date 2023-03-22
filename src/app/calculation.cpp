@@ -373,13 +373,13 @@ void Calculation::getClimaticConditions(int district, QString code, AbimoInputRe
     // Parameter for the city districts
     if (m_resultRecord.usage == Usage::waterbody_G) {
 
-        m_resultRecord.longtimeMeanPotentialEvaporation = initValueOrReportedDefaultValue(
+        m_resultRecord.potentialEvaporationYear = initValueOrReportedDefaultValue(
             district, code, m_initValues.hashEG, 775, "EG"
         );
     }
     else {
 
-        m_resultRecord.longtimeMeanPotentialEvaporation = initValueOrReportedDefaultValue(
+        m_resultRecord.potentialEvaporationYear = initValueOrReportedDefaultValue(
             district, code, m_initValues.hashETP, 660, "ETP"
         );
 
@@ -390,7 +390,7 @@ void Calculation::getClimaticConditions(int district, QString code, AbimoInputRe
 
     // potential evaporation
     float potentialEvaporation = static_cast<float>(
-        m_resultRecord.longtimeMeanPotentialEvaporation
+        m_resultRecord.potentialEvaporationYear
     ); // no more correction with 1.1
 
     // precipitation (at ground level)
