@@ -205,6 +205,14 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
         m_resultRecord.irrigation = 0;
     }
 
+    Precipitation precipitation = getPrecipitation(
+        static_cast<float>(inputRecord.precipitationYear), m_initValues
+    );
+
+    PotentialEvaporation potentialEvaporation = getPotentialEvaporation(
+        m_resultRecord.usage, m_initValues, inputRecord.district, inputRecord.code
+    );
+
     // Bagrov-calculation for sealed surfaces
     getClimaticConditions(inputRecord.district, inputRecord.code, inputRecord);
 
