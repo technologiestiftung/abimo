@@ -387,10 +387,7 @@ void Calculation::getClimaticConditions(
     float potentialEvaporation = potentialEvaporationInfo.perYearFloat;
 
     // precipitation (at ground level)
-    float precipitation = static_cast<float>(
-        helpers::asFloat(inputRecord.precipitationYear) *
-        m_initValues.getPrecipitationCorrectionFactor()
-    );
+    float precipitation = precipitationInfo.perYearCorrectedFloat;
 
     // Berechnung der Abfluesse RDV und R1V bis R4V fuer versiegelte
     // Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4
