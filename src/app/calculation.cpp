@@ -228,7 +228,7 @@ void Calculation::calculateResultRecord(AbimoInputRecord &inputRecord)
     // if sum of total building development area and road area is
     // inconsiderably small it is assumed, that the area is unknown and
     // 100 % building development area will be given by default
-    if (inputRecord.totalArea() < 0.0001) {
+    if (inputRecord.totalArea_FLAECHE() < 0.0001) {
         // *protokollStream << "\r\nDie Flaeche des Elements " +
         // record.CODE + " ist 0 \r\nund wird automatisch auf 100 gesetzt\r\n";
         m_counters.incrementRecordsProtocol();
@@ -524,7 +524,7 @@ void Calculation::writeResultRecord(AbimoInputRecord& record, DbaseWriter& write
     writer.setRecordField("RVOL", m_totalRunoffFlow);
     writer.setRecordField("ROWVOL", m_surfaceRunoffFlow);
     writer.setRecordField("RIVOL", m_infiltrationFlow);
-    writer.setRecordField("FLAECHE", record.totalArea());
+    writer.setRecordField("FLAECHE", record.totalArea_FLAECHE());
     writer.setRecordField("VERDUNSTUN", m_evaporation);
 }
 
