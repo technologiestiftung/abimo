@@ -328,8 +328,6 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
         runoffPerviousRoads
     );
 
-    m_resultRecord.runoff = helpers::roundToInteger(m_surfaceRunoff_ROW);
-
     // calculate volume 'rowvol' from runoff (qcm/s)
     m_surfaceRunoffFlow_ROWVOL = inputRecord.yearlyHeightToVolumeFlow(m_surfaceRunoff_ROW);
 

@@ -88,12 +88,6 @@ public:
     // Hauptnutzungsform [L,W,G,B,K,D] ID_NUT 001 C
     Usage usage; // old: NUT
 
-    // Langjaehriger MW des Gesamtabflusses [mm/a] 004 N
-//    float totalRunoff; // old: R
-
-    // Langjaehriger MW des Regenwasserabflusses [mm/a] 003 N
-    int runoff; // old: ROW
-
     // Versiegelungsgrad bebauter Flaechen [%] ID_VER 002 N
     int mainPercentageSealed; // old: VER
 
