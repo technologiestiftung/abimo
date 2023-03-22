@@ -18,6 +18,7 @@ QT += \
 CONFIG *= debug_and_release debug_and_release_target
 
 HEADERS += \
+    abimoOutputRecord.h \
     abimoReader.h \
     abimoRecord.h \
     bagrov.h \
@@ -38,6 +39,7 @@ HEADERS += \
     saxHandler.h
 
 SOURCES += \
+    abimoOutputRecord.cpp \
     abimoReader.cpp \
     abimoRecord.cpp \
     bagrov.cpp \

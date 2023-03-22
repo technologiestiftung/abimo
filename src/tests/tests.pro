@@ -25,6 +25,7 @@ INCDIR = ../app
 #INCLUDEPATH += $$INCDIR
 
 HEADERS += \
+    $$INCDIR/abimoOutputRecord.h \
     $$INCDIR/abimoReader.h \
     $$INCDIR/abimoRecord.h \
     $$INCDIR/bagrov.h \
@@ -42,6 +43,7 @@ HEADERS += \
     $$INCDIR/saxHandler.h
 
 SOURCES += \
+    $$INCDIR/abimoOutputRecord.cpp \
     $$INCDIR/abimoReader.cpp \
     $$INCDIR/abimoRecord.cpp \
     $$INCDIR/bagrov.cpp \
