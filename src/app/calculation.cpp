@@ -462,6 +462,51 @@ Precipitation Calculation::getPrecipitation(
     return result;
 }
 
+PotentialEvaporation Calculation::getPotentialEvaporation(
+    Usage& usage, InitValues& initValues, int district, QString code
+)
+{
+    PotentialEvaporation result;
+
+    // Parameter for the city districts
+    if (usage == Usage::waterbody_G) {
+
+        result.perYearInteger = initValueOrReportedDefaultValue(
+            district, code, initValues.hashEG, 775, "EG"
+        );
+
+        // What about potentialEvaporationSummer?
+        result.inSummerInteger = -1;
+    }
+    else {
+        result.perYearInteger = initValueOrReportedDefaultValue(
+            district, code, initValues.hashETP, 660, "ETP"
+        );
+        result.inSummerInteger = initValueOrReportedDefaultValue(
+            district, code, initValues.hashETPS, 530, "ETPS"
+        );
+    }
+
+    // no more correction with 1.1
+    result.perYearFloat = static_cast<float>(result.perYearInteger);
+
+    return result;
+}
+
+Precipitation Calculation::getPrecipitation(
+    int precipitationYear, InitValues& initValues
+)
+{
+    Precipitation result;
+
+    // precipitation (at ground level)
+    result.perYearCorrectedFloat = static_cast<float>(
+        precipitationYear * initValues.getPrecipitationCorrectionFactor()
+    );
+
+    return result;
+}
+
 float Calculation::realEvapotranspiration(
     PotentialEvaporation potentialEvaporation,
     Precipitation precipitation,

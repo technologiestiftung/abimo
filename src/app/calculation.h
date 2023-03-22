@@ -92,6 +92,14 @@ private:
         int precipitationYear, InitValues& initValues
     );
 
+    PotentialEvaporation getPotentialEvaporation(
+        Usage& usage, InitValues& initValues, int district, QString code
+    );
+
+    Precipitation getPrecipitation(
+        int precipitationYear, InitValues& initValues
+    );
+
     float realEvapotranspiration(
         PotentialEvaporation potentialEvaporation,
         Precipitation precipitation,
