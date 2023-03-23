@@ -89,7 +89,9 @@ private:
     );
 
     Precipitation getPrecipitation(
-        int precipitationYear, InitValues& initValues
+        int precipitationYear,
+        int precipitationSummer,
+        InitValues& initValues
     );
 
     float realEvapotranspiration(

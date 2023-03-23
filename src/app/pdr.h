@@ -56,6 +56,7 @@ struct Precipitation {
     int inSummerInteger;
 
     float perYearCorrectedFloat;
+    float inSummerFloat;
 };
 
 class PDR
