@@ -156,6 +156,7 @@ void DbaseWriter::writeFileData(QByteArray& data)
 {
     const QVector<DbaseField>& fields = getFieldDefinitions();
     QVector<QString> strings;
+    char fill = '0';
 
     for (int i = 0; i < m_header.numberOfRecords; i++) {
 
@@ -164,11 +165,18 @@ void DbaseWriter::writeFileData(QByteArray& data)
         data.append(QChar(0x20));
 
         for (int j = 0; j < fields.size(); j++) {
-            data.append(DbaseField::formatNumericString(
-                strings.at(j),
+
+            DbaseField::formatNumericString(
+                strings[j],
                 fields[j].getFieldLength(),
-                fields[j].getDecimalCount()
-            ));
+                fields[j].getDecimalCount(),
+                fill,
+                false
+            );
+
+            assert(strings[j].length() == fields[j].getFieldLength());
+
+            data.append(strings[j]);
         }
     }
 
@@ -242,11 +250,9 @@ void DbaseWriter::setRecordField(int i, float value)
     int decimalCount = m_fields[i].getDecimalCount();
 
     // round
-    /*
     value *= pow(10, decimalCount);
     value = round(value);
     value *= pow(10, -decimalCount);
-    */
 
     QString valueStr;
     valueStr.setNum(value, 'f', decimalCount);

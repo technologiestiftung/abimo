@@ -82,7 +82,7 @@ private:
     void getClimaticConditions(
         Precipitation precipitation,
         PotentialEvaporation potentialEvaporation,
-        AbimoInputRecord& record
+        AbimoInputRecord& inputRecord
     );
 
     PotentialEvaporation getPotentialEvaporation(
@@ -90,7 +90,9 @@ private:
     );
 
     Precipitation getPrecipitation(
-        int precipitationYear, InitValues& initValues
+        int precipitationYear,
+        int precipitationSummer,
+        InitValues& initValues
     );
 
     float realEvapotranspiration(
@@ -106,7 +108,7 @@ private:
 
     int progressNumber(int i, int n, float max);
 
-    void doCalculationsFor(AbimoInputRecord &record);
+    void doCalculationsFor(AbimoInputRecord &inputRecord);
 
     int fillResultRecord(
         AbimoInputRecord& inputRecord,

@@ -28,8 +28,6 @@ protected:
     // potentielle Aufstiegshoehe
     float m_potentialCapillaryRise_TAS;
 
-    // Additional member variables (m_ indicates member)
-
     // Langjaehriger MW des Gesamtabflusses [mm/a] 004 N
     float m_totalRunoff_R;
 

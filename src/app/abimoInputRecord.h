@@ -13,13 +13,17 @@ public:
     int usage; // old: NUTZUNG
     QString code; // old: CODE
 
-    // precipitation for entire year and for summer season only
-    int precipitationYear; // old: REGENJA
-    int precipitationSummer; // old: REGENSO
+    // precipitation for entire year
+    // Niederschlag <MD-Wert> [mm/a] ID_PMD 003 N
+    int precipitationYear; // old: REGENJA, P1
+
+    // precipitationfor summer season only
+    // Sommer-Niederschlag ID_PS neu
+    int precipitationSummer; // old: REGENSO, P1S
 
     // Flurabstandswert [m] ID_FLW 4.1 N
     // depth to groundwater table 'FLUR'
-    float depthToWaterTable; // old: FLUR
+    float depthToWaterTable; // old: FLUR, FLW
 
     int type; // old: TYP
     int fieldCapacity_30; // old: FELD_30
