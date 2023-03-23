@@ -485,6 +485,11 @@ float Calculation::realEvapotranspiration(
 {
     assert(potentialEvaporation.perYearFloat > 0.0);
 
+    assert(
+        precipitation.inSummerInteger ==
+        inputRecord.precipitationSummer
+    );
+
     // Determine effectivity/effectiveness ??? parameter (old???: bag) for
     // unsealed surfaces
     // Modul Raster abgespeckt (???)
@@ -493,7 +498,9 @@ float Calculation::realEvapotranspiration(
         m_resultRecord.usage == Usage::forested_W,
         m_resultRecord.yieldPower,
         m_resultRecord.irrigation,
-        static_cast<float>(precipitation.inSummerInteger),
+        //static_cast<float>(precipitation.inSummerInteger),
+        //static_cast<float>(inputRecord.precipitationSummer),
+        precipitation.inSummerFloat,
         potentialEvaporation.inSummerInteger,
         m_resultRecord.meanPotentialCapillaryRiseRate
     );
