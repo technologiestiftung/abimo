@@ -211,7 +211,9 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
     }
 
     Precipitation precipitation = getPrecipitation(
-        static_cast<float>(inputRecord.precipitationYear), m_initValues
+        inputRecord.precipitationYear,
+        inputRecord.precipitationSummer,
+        m_initValues
     );
 
     PotentialEvaporation potentialEvaporation = getPotentialEvaporation(
@@ -449,14 +451,27 @@ PotentialEvaporation Calculation::getPotentialEvaporation(
 }
 
 Precipitation Calculation::getPrecipitation(
-    int precipitationYear, InitValues& initValues
+    int precipitationYear,
+    int precipitationSummer,
+    InitValues& initValues
 )
 {
     Precipitation result;
 
-    // precipitation (at ground level)
+    // Set integer fields (originally from input dbf)
+    result.perYearInteger = precipitationYear;
+    result.inSummerInteger = precipitationSummer;
+
+    // Set float fields
+
+    // Correct the (non-summer) precipitation (at ground level)
     result.perYearCorrectedFloat = static_cast<float>(
         precipitationYear * initValues.getPrecipitationCorrectionFactor()
+    );
+
+    // No correction for summer precipitation!
+    result.inSummerFloat = static_cast<float>(
+        precipitationSummer
     );
 
     return result;
