@@ -496,17 +496,18 @@ float Calculation::realEvapotranspiration(
     );
 
     // Get the real evapotransporation using estimated y-factor
-    float realEvapotranspiration = yRatio * potentialEvaporationInfo.perYearFloat;
+    float result = yRatio * potentialEvaporationInfo.perYearFloat;
 
     if (m_potentialCapillaryRise_TAS < 0) {
-        realEvapotranspiration += (
-            potentialEvaporationInfo.perYearFloat - yRatio * potentialEvaporationInfo.perYearFloat
+        result += (
+            potentialEvaporationInfo.perYearFloat -
+            yRatio * potentialEvaporationInfo.perYearFloat
         ) * static_cast<float>(
             exp(inputRecord.depthToWaterTable / m_potentialCapillaryRise_TAS)
         );
     }
 
-    return realEvapotranspiration;
+    return result;
 }
 
 float Calculation::initValueOrReportedDefaultValue(
