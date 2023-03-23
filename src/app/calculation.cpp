@@ -498,8 +498,6 @@ float Calculation::realEvapotranspiration(
         m_resultRecord.usage == Usage::forested_W,
         m_resultRecord.yieldPower,
         m_resultRecord.irrigation,
-        //static_cast<float>(precipitation.inSummerInteger),
-        //static_cast<float>(inputRecord.precipitationSummer),
         precipitation.inSummerFloat,
         potentialEvaporation.inSummerInteger,
         m_resultRecord.meanPotentialCapillaryRiseRate
