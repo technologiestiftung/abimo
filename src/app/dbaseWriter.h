@@ -18,7 +18,6 @@ class DbaseWriter : public DbaseFile
 {
 public:
     DbaseWriter(QString& filePath);
-    //void setFieldConfiguration(const QVector<DbaseField>& dbaseFields);
     bool write();
     void addRecord();
     void setRecordField(int i, QString& value);

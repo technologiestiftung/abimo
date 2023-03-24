@@ -17,24 +17,6 @@ DbaseWriter::DbaseWriter(QString& filePath) :
 {
 }
 
-/*
-void DbaseWriter::setFieldConfiguration(const QVector<DbaseField>& dbaseFields)
-{
-    int numberOfFields = dbaseFields.size();
-
-    for (int i = 0; i < numberOfFields; i++) {
-        m_fields.push_back(dbaseFields[i]);
-    }
-
-    m_headerLength = calculateHeaderLength(numberOfFields);
-
-    // Fill the hash that assigns field numbers to field names
-    for (int i = 0; i < numberOfFields; i++) {
-        m_fieldPositionMap[m_fields[i].getName()] = i;
-    }
-}
-*/
-
 bool DbaseWriter::write()
 {
     QByteArray data;
