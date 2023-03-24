@@ -34,9 +34,14 @@ struct UsageResult {
 };
 
 struct UsageTuple {
-    Usage usage;
-    int yield;
-    int irrigation;
+    // Hauptnutzungsform [L,W,G,B,K,D] ID_NUT 001 C
+    Usage usage; // old: NUT
+
+    // Ertragsklasse landw. Nutzflaechen ID_ERT 002 N
+    int yield; // old: ERT
+
+    // j. Beregnungshoehe landw. Nutzfl. [mm/a] ID_BER 003 N
+    int irrigation; // old: BER
 };
 
 struct PotentialEvaporation {
@@ -69,9 +74,6 @@ private:
 public:
     PDR();
 
-    void setUsageYieldIrrigation(Usage usage, int yield = 0, int irrigation = 0);
-    void setUsageYieldIrrigation(UsageTuple tuple);
-
     static int getMeanPotentialCapillaryRiseRate(
         float potentialCapillaryRise,
         float usableFieldCapacity,
@@ -86,26 +88,13 @@ public:
     // water holding capacity (= nutzbare Feldkapazitaet)
     float usableFieldCapacity; // old: nFK
 
-    // Hauptnutzungsform [L,W,G,B,K,D] ID_NUT 001 C
-    Usage usage; // old: NUT
+    UsageTuple usageTuple;
 
     // Versiegelungsgrad bebauter Flaechen [%] ID_VER 002 N
     int mainPercentageSealed; // old: VER
 
-    // Ertragsklasse landw. Nutzflaechen ID_ERT 002 N
-    int yieldPower; // old: ERT
-
-    // j. Beregnungshoehe landw. Nutzfl. [mm/a] ID_BER 003 N
-    int irrigation; // old: BER
-
     // Kapillarer Aufstieg pro Jahr ID_KR neu
     int meanPotentialCapillaryRiseRate; // old: KR
-
-    // l-j. MW der pot. Verdunstung [mm/a] ID_ETP 003 N
-    int potentialEvaporationYear; // old: ETP
-
-    // potentielle Verdunstung im Sommer ID_ETPS neu
-    int potentialEvaporationSummer; // old: ETPS
 };
 
 #endif

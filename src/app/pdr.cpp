@@ -43,26 +43,10 @@ const std::vector<float> PDR::MEAN_POTENTIAL_CAPILLARY_RISE_RATES_SUMMER = {
 
 PDR::PDR():
     usableFieldCapacity(0),
-    usage(Usage::unknown),
+    usageTuple{Usage::unknown, 0, 0},
     mainPercentageSealed(0),
-    yieldPower(0),
-    irrigation(0),
-    meanPotentialCapillaryRiseRate(0),
-    potentialEvaporationYear(0),
-    potentialEvaporationSummer(0)
+    meanPotentialCapillaryRiseRate(0)
 {}
-
-void PDR::setUsageYieldIrrigation(Usage usage, int yield, int irrigation)
-{
-    this->usage = usage;
-    this->yieldPower = yield;
-    this->irrigation = irrigation;
-}
-
-void PDR::setUsageYieldIrrigation(UsageTuple tuple)
-{
-    setUsageYieldIrrigation(tuple.usage, tuple.yield, tuple.irrigation);
-}
 
 // mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres
 //
