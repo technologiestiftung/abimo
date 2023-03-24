@@ -31,6 +31,7 @@ Calculation::Calculation(
     QTextStream& protocolStream
 ) :
     IntermediateResults(),
+    m_usageTuple{Usage::unknown, 0, 0},
     m_initValues(initValues),
     m_protocolStream(protocolStream),
     m_dbReader(dbaseReader),
@@ -161,7 +162,9 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
     // declaration of yield power (ERT) and irrigation (BER) for agricultural or
     // gardening purposes
     UsageResult usageResult = m_usageMappings.getUsageResult(
-        inputRecord.usage, inputRecord.type, inputRecord.code
+        inputRecord.usage,
+        inputRecord.type,
+        inputRecord.code
     );
 
     if (usageResult.tupleIndex < 0) {
@@ -175,23 +178,21 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
         m_counters.incrementRecordsProtocol();
     }
 
-    m_resultRecord.usageTuple = m_usageMappings.getUsageTuple(
-        usageResult.tupleIndex
-    );
+    m_usageTuple = m_usageMappings.getUsageTuple(usageResult.tupleIndex);
 
-    if (m_resultRecord.usageTuple.usage != Usage::waterbody_G)
+    if (m_usageTuple.usage != Usage::waterbody_G)
     {
         // Feldkapazitaet
         m_resultRecord.usableFieldCapacity = PDR::estimateWaterHoldingCapacity(
             inputRecord.fieldCapacity_30,
             inputRecord.fieldCapacity_150,
-            m_resultRecord.usageTuple.usage == Usage::forested_W
+            m_usageTuple.usage == Usage::forested_W
         );
 
         // mittl. Durchwurzelungstiefe TWS
         float rootingDepth = m_usageMappings.getRootingDepth(
-            m_resultRecord.usageTuple.usage,
-            m_resultRecord.usageTuple.yield
+            m_usageTuple.usage,
+            m_usageTuple.yield
         );
 
         // pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS
@@ -202,15 +203,15 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
             PDR::getMeanPotentialCapillaryRiseRate(
                 m_potentialCapillaryRise_TAS,
                 m_resultRecord.usableFieldCapacity,
-                m_resultRecord.usageTuple.usage,
-                m_resultRecord.usageTuple.yield
+                m_usageTuple.usage,
+                m_usageTuple.yield
             );
     }
 
-    if (m_initValues.getIrrigationToZero() && m_resultRecord.usageTuple.irrigation != 0) {
+    if (m_initValues.getIrrigationToZero() && m_usageTuple.irrigation != 0) {
         //*protokollStream << "Erzwinge BER=0 fuer Code: " << code << ", Wert war:" << ptrDA.BER << " \r\n";
         m_counters.incrementIrrigationForcedToZero();
-        m_resultRecord.usageTuple.irrigation = 0;
+        m_usageTuple.irrigation = 0;
     }
 
     Precipitation precipitation = getPrecipitation(
@@ -220,7 +221,7 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
     );
 
     PotentialEvaporation potentialEvaporation = getPotentialEvaporation(
-        m_resultRecord.usageTuple.usage,
+        m_usageTuple.usage,
         m_initValues,
         inputRecord.district,
         inputRecord.code
@@ -417,7 +418,7 @@ void Calculation::getClimaticConditions(
     }
 
     // Calculate runoff RUV for unsealed surfaces
-    float actualEvaporation = (m_resultRecord.usageTuple.usage == Usage::waterbody_G) ?
+    float actualEvaporation = (m_usageTuple.usage == Usage::waterbody_G) ?
         potentialEvaporation.perYearFloat :
         realEvapotranspiration(potentialEvaporation, precipitation, inputRecord);
 
@@ -501,9 +502,9 @@ float Calculation::realEvapotranspiration(
     // Modul Raster abgespeckt (???)
     float effectivityParameter = EffectivenessUnsealed::getEffectivityParameter(
         m_resultRecord.usableFieldCapacity,
-        m_resultRecord.usageTuple.usage == Usage::forested_W,
-        m_resultRecord.usageTuple.yield,
-        m_resultRecord.usageTuple.irrigation,
+        m_usageTuple.usage == Usage::forested_W,
+        m_usageTuple.yield,
+        m_usageTuple.irrigation,
         precipitation.inSummerFloat,
         potentialEvaporation.inSummerInteger,
         m_resultRecord.meanPotentialCapillaryRiseRate
@@ -517,7 +518,7 @@ float Calculation::realEvapotranspiration(
         (
             precipitation.perYearCorrectedFloat +
             m_resultRecord.meanPotentialCapillaryRiseRate +
-            m_resultRecord.usageTuple.irrigation
+            m_usageTuple.irrigation
         ) / potentialEvaporation.perYearFloat
     );
 

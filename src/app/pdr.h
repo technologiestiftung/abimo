@@ -88,8 +88,6 @@ public:
     // water holding capacity (= nutzbare Feldkapazitaet)
     float usableFieldCapacity; // old: nFK
 
-    UsageTuple usageTuple;
-
     // Versiegelungsgrad bebauter Flaechen [%] ID_VER 002 N
     int mainPercentageSealed; // old: VER
 
