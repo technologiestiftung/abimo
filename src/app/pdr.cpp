@@ -43,8 +43,7 @@ const std::vector<float> PDR::MEAN_POTENTIAL_CAPILLARY_RISE_RATES_SUMMER = {
 
 PDR::PDR():
     usableFieldCapacity(0),
-    mainPercentageSealed(0),
-    meanPotentialCapillaryRiseRate(0)
+    mainPercentageSealed(0)
 {}
 
 // mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres

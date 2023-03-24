@@ -179,6 +179,8 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
 
     UsageTuple usageTuple = m_usageMappings.getUsageTuple(usageResult.tupleIndex);
 
+    float meanPotentialCapillaryRiseRate = 0.0f;
+
     if (usageTuple.usage != Usage::waterbody_G)
     {
         // Feldkapazitaet
@@ -198,7 +200,8 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
         m_potentialCapillaryRise_TAS = inputRecord.depthToWaterTable - rootingDepth;
 
         // mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres
-        m_resultRecord.meanPotentialCapillaryRiseRate =
+        // Kapillarer Aufstieg pro Jahr ID_KR neu, old: KR
+        meanPotentialCapillaryRiseRate =
             PDR::getMeanPotentialCapillaryRiseRate(
                 m_potentialCapillaryRise_TAS,
                 m_resultRecord.usableFieldCapacity,
@@ -231,7 +234,8 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
         precipitation,
         potentialEvaporation,
         inputRecord,
-        usageTuple
+        usageTuple,
+        meanPotentialCapillaryRiseRate
     );
 
     // percentage of total sealed area
@@ -398,7 +402,8 @@ void Calculation::getClimaticConditions(
     Precipitation precipitation,
     PotentialEvaporation potentialEvaporation,
     AbimoInputRecord& inputRecord,
-    UsageTuple& usageTuple
+    UsageTuple& usageTuple,
+    float meanPotentialCapillaryRiseRate
 )
 {
     // Berechnung der Abfluesse RDV und R1V bis R4V fuer versiegelte
@@ -428,7 +433,8 @@ void Calculation::getClimaticConditions(
         realEvapotranspiration(
             potentialEvaporation,
             precipitation,
-            inputRecord,
+            inputRecord.depthToWaterTable,
+            meanPotentialCapillaryRiseRate,
             usageTuple
         );
 
@@ -497,16 +503,12 @@ Precipitation Calculation::getPrecipitation(
 float Calculation::realEvapotranspiration(
     PotentialEvaporation potentialEvaporation,
     Precipitation precipitation,
-    AbimoInputRecord& inputRecord,
+    float depthToWaterTable,
+    float meanPotentialCapillaryRiseRate,
     UsageTuple& usageTuple
 )
 {
     assert(potentialEvaporation.perYearFloat > 0.0);
-
-    assert(
-        precipitation.inSummerInteger ==
-        inputRecord.precipitationSummer
-    );
 
     // Determine effectivity/effectiveness ??? parameter (old???: bag) for
     // unsealed surfaces
@@ -518,7 +520,7 @@ float Calculation::realEvapotranspiration(
         usageTuple.irrigation,
         precipitation.inSummerFloat,
         potentialEvaporation.inSummerInteger,
-        m_resultRecord.meanPotentialCapillaryRiseRate
+        meanPotentialCapillaryRiseRate
     );
 
     // Calculate the x-factor of bagrov relation: x = (P + KR + BER)/ETP
@@ -528,7 +530,7 @@ float Calculation::realEvapotranspiration(
         effectivityParameter,
         (
             precipitation.perYearCorrectedFloat +
-            m_resultRecord.meanPotentialCapillaryRiseRate +
+            meanPotentialCapillaryRiseRate +
             usageTuple.irrigation
         ) / potentialEvaporation.perYearFloat
     );
@@ -540,7 +542,7 @@ float Calculation::realEvapotranspiration(
         result +=
             (potentialEvaporation.perYearFloat - result) *
             static_cast<float>(
-                exp(inputRecord.depthToWaterTable / m_potentialCapillaryRise_TAS)
+                exp(depthToWaterTable / m_potentialCapillaryRise_TAS)
             );
     }
 

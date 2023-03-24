@@ -83,7 +83,8 @@ private:
         Precipitation precipitation,
         PotentialEvaporation potentialEvaporation,
         AbimoInputRecord& inputRecord,
-        UsageTuple& usageTuple
+        UsageTuple& usageTuple,
+        float meanPotentialCapillaryRiseRate
     );
 
     PotentialEvaporation getPotentialEvaporation(
@@ -99,7 +100,8 @@ private:
     float realEvapotranspiration(
         PotentialEvaporation potentialEvaporation,
         Precipitation precipitation,
-        AbimoInputRecord& record,
+        float depthToWaterTable,
+        float meanPotentialCapillaryRiseRate,
         UsageTuple& usageTuple
     );
 

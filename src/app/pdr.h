@@ -90,9 +90,6 @@ public:
 
     // Versiegelungsgrad bebauter Flaechen [%] ID_VER 002 N
     int mainPercentageSealed; // old: VER
-
-    // Kapillarer Aufstieg pro Jahr ID_KR neu
-    int meanPotentialCapillaryRiseRate; // old: KR
 };
 
 #endif
