@@ -233,9 +233,9 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
     getClimaticConditions(
         precipitation,
         potentialEvaporation,
-        inputRecord,
         usageTuple,
-        meanPotentialCapillaryRiseRate
+        meanPotentialCapillaryRiseRate,
+        inputRecord.depthToWaterTable
     );
 
     // percentage of total sealed area
@@ -401,9 +401,9 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
 void Calculation::getClimaticConditions(
     Precipitation precipitation,
     PotentialEvaporation potentialEvaporation,
-    AbimoInputRecord& inputRecord,
     UsageTuple& usageTuple,
-    float meanPotentialCapillaryRiseRate
+    float meanPotentialCapillaryRiseRate,
+    float depthToWaterTable
 )
 {
     // Berechnung der Abfluesse RDV und R1V bis R4V fuer versiegelte
@@ -433,7 +433,7 @@ void Calculation::getClimaticConditions(
         realEvapotranspiration(
             potentialEvaporation,
             precipitation,
-            inputRecord.depthToWaterTable,
+            depthToWaterTable,
             meanPotentialCapillaryRiseRate,
             usageTuple
         );

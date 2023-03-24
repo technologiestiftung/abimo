@@ -82,9 +82,9 @@ private:
     void getClimaticConditions(
         Precipitation precipitation,
         PotentialEvaporation potentialEvaporation,
-        AbimoInputRecord& inputRecord,
         UsageTuple& usageTuple,
-        float meanPotentialCapillaryRiseRate
+        float meanPotentialCapillaryRiseRate,
+        float depthToWaterTable
     );
 
     PotentialEvaporation getPotentialEvaporation(
