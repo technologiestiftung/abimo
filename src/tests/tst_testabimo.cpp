@@ -224,10 +224,11 @@ void TestAbimo::test_bagrov()
 
 void TestAbimo::compare_dbfHeaders(DbaseFileHeader& h1, DbaseFileHeader& h2)
 {
-    QCOMPARE(h1.version, h2.version);
+    QCOMPARE(h1.headerLength, h2.headerLength);
+    QCOMPARE(h1.languageDriver, h2.languageDriver);
     QCOMPARE(h1.numberOfRecords, h2.numberOfRecords);
     QCOMPARE(h1.recordLength, h2.recordLength);
-    QCOMPARE(h1.languageDriver, h2.languageDriver);
+    QCOMPARE(h1.version, h2.version);
 }
 
 bool TestAbimo::dbfHeadersAreIdentical(QString file_1, QString file_2)
