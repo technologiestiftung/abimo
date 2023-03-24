@@ -31,7 +31,6 @@ Calculation::Calculation(
     QTextStream& protocolStream
 ) :
     IntermediateResults(),
-    m_usageTuple{Usage::unknown, 0, 0},
     m_initValues(initValues),
     m_protocolStream(protocolStream),
     m_dbReader(dbaseReader),
@@ -178,21 +177,21 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
         m_counters.incrementRecordsProtocol();
     }
 
-    m_usageTuple = m_usageMappings.getUsageTuple(usageResult.tupleIndex);
+    UsageTuple usageTuple = m_usageMappings.getUsageTuple(usageResult.tupleIndex);
 
-    if (m_usageTuple.usage != Usage::waterbody_G)
+    if (usageTuple.usage != Usage::waterbody_G)
     {
         // Feldkapazitaet
         m_resultRecord.usableFieldCapacity = PDR::estimateWaterHoldingCapacity(
             inputRecord.fieldCapacity_30,
             inputRecord.fieldCapacity_150,
-            m_usageTuple.usage == Usage::forested_W
+            usageTuple.usage == Usage::forested_W
         );
 
         // mittl. Durchwurzelungstiefe TWS
         float rootingDepth = m_usageMappings.getRootingDepth(
-            m_usageTuple.usage,
-            m_usageTuple.yield
+            usageTuple.usage,
+            usageTuple.yield
         );
 
         // pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS
@@ -203,15 +202,15 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
             PDR::getMeanPotentialCapillaryRiseRate(
                 m_potentialCapillaryRise_TAS,
                 m_resultRecord.usableFieldCapacity,
-                m_usageTuple.usage,
-                m_usageTuple.yield
+                usageTuple.usage,
+                usageTuple.yield
             );
     }
 
-    if (m_initValues.getIrrigationToZero() && m_usageTuple.irrigation != 0) {
+    if (m_initValues.getIrrigationToZero() && usageTuple.irrigation != 0) {
         //*protokollStream << "Erzwinge BER=0 fuer Code: " << code << ", Wert war:" << ptrDA.BER << " \r\n";
         m_counters.incrementIrrigationForcedToZero();
-        m_usageTuple.irrigation = 0;
+        usageTuple.irrigation = 0;
     }
 
     Precipitation precipitation = getPrecipitation(
@@ -221,14 +220,19 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
     );
 
     PotentialEvaporation potentialEvaporation = getPotentialEvaporation(
-        m_usageTuple.usage,
+        usageTuple.usage,
         m_initValues,
         inputRecord.district,
         inputRecord.code
     );
 
     // Bagrov-calculation for sealed surfaces
-    getClimaticConditions(precipitation, potentialEvaporation, inputRecord);
+    getClimaticConditions(
+        precipitation,
+        potentialEvaporation,
+        inputRecord,
+        usageTuple
+    );
 
     // percentage of total sealed area
     // share of roof area [%] 'PROBAU' +
@@ -393,7 +397,8 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
 void Calculation::getClimaticConditions(
     Precipitation precipitation,
     PotentialEvaporation potentialEvaporation,
-    AbimoInputRecord& inputRecord
+    AbimoInputRecord& inputRecord,
+    UsageTuple& usageTuple
 )
 {
     // Berechnung der Abfluesse RDV und R1V bis R4V fuer versiegelte
@@ -418,9 +423,14 @@ void Calculation::getClimaticConditions(
     }
 
     // Calculate runoff RUV for unsealed surfaces
-    float actualEvaporation = (m_usageTuple.usage == Usage::waterbody_G) ?
+    float actualEvaporation = (usageTuple.usage == Usage::waterbody_G) ?
         potentialEvaporation.perYearFloat :
-        realEvapotranspiration(potentialEvaporation, precipitation, inputRecord);
+        realEvapotranspiration(
+            potentialEvaporation,
+            precipitation,
+            inputRecord,
+            usageTuple
+        );
 
     m_unsealedSurfaceRunoff_RUV =
         precipitation.perYearCorrectedFloat - actualEvaporation;
@@ -487,7 +497,8 @@ Precipitation Calculation::getPrecipitation(
 float Calculation::realEvapotranspiration(
     PotentialEvaporation potentialEvaporation,
     Precipitation precipitation,
-    AbimoInputRecord& inputRecord
+    AbimoInputRecord& inputRecord,
+    UsageTuple& usageTuple
 )
 {
     assert(potentialEvaporation.perYearFloat > 0.0);
@@ -502,9 +513,9 @@ float Calculation::realEvapotranspiration(
     // Modul Raster abgespeckt (???)
     float effectivityParameter = EffectivenessUnsealed::getEffectivityParameter(
         m_resultRecord.usableFieldCapacity,
-        m_usageTuple.usage == Usage::forested_W,
-        m_usageTuple.yield,
-        m_usageTuple.irrigation,
+        usageTuple.usage == Usage::forested_W,
+        usageTuple.yield,
+        usageTuple.irrigation,
         precipitation.inSummerFloat,
         potentialEvaporation.inSummerInteger,
         m_resultRecord.meanPotentialCapillaryRiseRate
@@ -518,7 +529,7 @@ float Calculation::realEvapotranspiration(
         (
             precipitation.perYearCorrectedFloat +
             m_resultRecord.meanPotentialCapillaryRiseRate +
-            m_usageTuple.irrigation
+            usageTuple.irrigation
         ) / potentialEvaporation.perYearFloat
     );
 

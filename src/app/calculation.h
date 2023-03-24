@@ -61,8 +61,6 @@ private:
     // All private member variables of this class will be prefixed with "m_"
     Config m_usageMappings;
 
-    UsageTuple m_usageTuple;
-
     InitValues& m_initValues;
     QTextStream& m_protocolStream;
     AbimoReader& m_dbReader;
@@ -84,7 +82,8 @@ private:
     void getClimaticConditions(
         Precipitation precipitation,
         PotentialEvaporation potentialEvaporation,
-        AbimoInputRecord& inputRecord
+        AbimoInputRecord& inputRecord,
+        UsageTuple& usageTuple
     );
 
     PotentialEvaporation getPotentialEvaporation(
@@ -100,7 +99,8 @@ private:
     float realEvapotranspiration(
         PotentialEvaporation potentialEvaporation,
         Precipitation precipitation,
-        AbimoInputRecord& record
+        AbimoInputRecord& record,
+        UsageTuple& usageTuple
     );
 
     float initValueOrReportedDefaultValue(
