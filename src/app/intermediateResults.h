@@ -22,9 +22,6 @@ protected:
     // Gesamtabfluss in qcm/s
     float m_totalRunoffFlow_RVOL;
 
-    // potentielle Aufstiegshoehe
-    float m_potentialCapillaryRise_TAS;
-
     // Langjaehriger MW des Gesamtabflusses [mm/a] 004 N
     float m_totalRunoff_R;
 

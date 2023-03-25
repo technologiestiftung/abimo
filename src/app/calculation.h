@@ -94,6 +94,7 @@ private:
         Precipitation precipitation,
         float depthToWaterTable,
         float meanPotentialCapillaryRiseRate,
+        float potentialCapillaryRise_TAS,
         float usableFieldCapacity,
         UsageTuple& usageTuple
     );

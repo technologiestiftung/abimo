@@ -181,6 +181,10 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
 
     float meanPotentialCapillaryRiseRate = 0.0f;
 
+    // pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS
+    // potentielle Aufstiegshoehe
+    float potentialCapillaryRise_TAS = 0.0f;
+
     // nFK-Wert (ergibt sich aus Bodenart) ID_NFK neu
     // water holding capacity (= nutzbare Feldkapazitaet)
     float usableFieldCapacity = 0.0f; // old: nFK
@@ -194,20 +198,16 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
             usageTuple.usage == Usage::forested_W
         );
 
-        // mittl. Durchwurzelungstiefe TWS
-        float rootingDepth = m_usageMappings.getRootingDepth(
-            usageTuple.usage,
-            usageTuple.yield
-        );
-
         // pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS
-        m_potentialCapillaryRise_TAS = inputRecord.depthToWaterTable - rootingDepth;
+        // potentielle Aufstiegshoehe
+        potentialCapillaryRise_TAS = inputRecord.depthToWaterTable -
+            m_usageMappings.getRootingDepth(usageTuple.usage, usageTuple.yield);
 
         // mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres
         // Kapillarer Aufstieg pro Jahr ID_KR neu, old: KR
         meanPotentialCapillaryRiseRate =
             PDR::getMeanPotentialCapillaryRiseRate(
-                m_potentialCapillaryRise_TAS,
+                potentialCapillaryRise_TAS,
                 usableFieldCapacity,
                 usageTuple.usage,
                 usageTuple.yield
@@ -263,6 +263,7 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
             precipitation,
             inputRecord.depthToWaterTable,
             meanPotentialCapillaryRiseRate,
+            potentialCapillaryRise_TAS,
             usableFieldCapacity,
             usageTuple
         );
@@ -490,6 +491,7 @@ float Calculation::realEvapotranspiration(
     Precipitation precipitation,
     float depthToWaterTable,
     float meanPotentialCapillaryRiseRate,
+    float potentialCapillaryRise_TAS,
     float usableFieldCapacity,
     UsageTuple& usageTuple
 )
@@ -522,10 +524,10 @@ float Calculation::realEvapotranspiration(
     // Get the real evapotransporation using estimated y-factor
     float result = yRatio * potentialEvaporation.perYearFloat;
 
-    if (m_potentialCapillaryRise_TAS < 0) {
+    if (potentialCapillaryRise_TAS < 0) {
         result += (potentialEvaporation.perYearFloat - result) *
             static_cast<float>(
-                exp(depthToWaterTable / m_potentialCapillaryRise_TAS)
+                exp(depthToWaterTable / potentialCapillaryRise_TAS)
             );
     }
 
