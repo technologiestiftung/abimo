@@ -206,25 +206,8 @@ void Calculation::doCalculationsFor(
     // Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4
     setBagrovValues(precipitation, potentialEvaporation, results.bagrovValues);
 
-    // percentage of total sealed area
-    // share of roof area [%] 'PROBAU' +
-    // share of other (unbuilt) sealed areas (e.g. Hofflaechen)
-    // Versiegelungsgrad bebauter Flaechen [%] ID_VER 002 N, old: VER
-    float mainPercentageSealed = static_cast<float>(helpers::roundToInteger(
-        input.mainFractionBuiltSealed * 100 +
-        input.mainFractionUnbuiltSealed * 100
-    ));
-
-    // if sum of total building development area and road area is
-    // inconsiderably small it is assumed, that the area is unknown and
-    // 100 % building development area will be given by default
-    if (input.totalArea_FLAECHE() < 0.0001) {
-        // *protokollStream << "\r\nDie Flaeche des Elements " +
-        // record.CODE + " ist 0 \r\nund wird automatisch auf 100 gesetzt\r\n";
-        m_counters.incrementRecordsProtocol();
-        m_counters.incrementNoAreaGiven();
-        input.mainArea = 100.0F;
-    }
+    // Set default area if total area is zero
+    handleTotalAreaOfZero(input);
 
     // share of building development area / road area to total area
 
@@ -322,6 +305,15 @@ void Calculation::doCalculationsFor(
             (1 - input.roadFractionSealed) *
             areaFractionRoad *
             results.bagrovValues[4];
+
+    // percentage of total sealed area
+    // share of roof area [%] 'PROBAU' +
+    // share of other (unbuilt) sealed areas (e.g. Hofflaechen)
+    // Versiegelungsgrad bebauter Flaechen [%] ID_VER 002 N, old: VER
+    float mainPercentageSealed = static_cast<float>(helpers::roundToInteger(
+        input.mainFractionBuiltSealed * 100 +
+        input.mainFractionUnbuiltSealed * 100
+    ));
 
     // Calculate runoff RUV for unsealed surfaces
     // runoff for unsealed partial surfaces
@@ -577,6 +569,20 @@ void Calculation::setBagrovValues(
         bagrovValues[i] = precipitation.perYearCorrectedFloat -
             Bagrov::nbagro(m_initValues.getBagrovValue(i), xRatio) *
             potentialEvaporation.perYearFloat;
+    }
+}
+
+void Calculation::handleTotalAreaOfZero(AbimoInputRecord& input)
+{
+    // if sum of total building development area and road area is
+    // inconsiderably small it is assumed, that the area is unknown and
+    // 100 % building development area will be given by default
+    if (input.totalArea_FLAECHE() < 0.0001) {
+        // *protokollStream << "\r\nDie Flaeche des Elements " +
+        // record.CODE + " ist 0 \r\nund wird automatisch auf 100 gesetzt\r\n";
+        m_counters.incrementRecordsProtocol();
+        m_counters.incrementNoAreaGiven();
+        input.mainArea = 100.0F;
     }
 }
 

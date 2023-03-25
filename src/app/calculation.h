@@ -127,6 +127,8 @@ private:
         std::array<float,5>& bagrovValues
     );
 
+    void handleTotalAreaOfZero(AbimoInputRecord& input);
+
     float actualEvaporation(
         UsageTuple& usageTuple,
         PotentialEvaporation& potentialEvaporation,
