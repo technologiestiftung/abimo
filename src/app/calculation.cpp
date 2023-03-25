@@ -177,22 +177,7 @@ void Calculation::doCalculationsFor(
     // Berechnung der Abfluesse RDV und R1V bis R4V fuer versiegelte
     // Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4
 
-    // ratio of precipitation to potential evaporation
-    float xRatio =
-        precipitation.perYearCorrectedFloat /
-        potentialEvaporation.perYearFloat;
-
-    // Berechnung des Abflusses RxV fuer versiegelte Teilflaechen mittels
-    // Umrechnung potentieller Verdunstungen potentialEvaporation zu realen
-    // ueber Umrechnungsfaktor yRatio und subtrahiert von Niederschlag
-    // precipitation
-    // index 0 = roof, indices 1 - 4 = surface classes 1 - 4
-
-    for (int i = 0; i < static_cast<int>(results.bagrovValues.size()); i++) {
-        results.bagrovValues[i] = precipitation.perYearCorrectedFloat -
-            Bagrov::nbagro(m_initValues.getBagrovValue(i), xRatio) *
-            potentialEvaporation.perYearFloat;
-    }
+    setBagrovValues(precipitation, potentialEvaporation, results.bagrovValues);
 
     // Calculate runoff RUV for unsealed surfaces
     float actualEvaporation = (usageTuple.usage == Usage::waterbody_G) ?
@@ -513,6 +498,30 @@ Precipitation Calculation::getPrecipitation(
     );
 
     return result;
+}
+
+void Calculation::setBagrovValues(
+    Precipitation& precipitation,
+    PotentialEvaporation& potentialEvaporation,
+    std::array<float,5>& bagrovValues
+)
+{
+    // ratio of precipitation to potential evaporation
+    float xRatio =
+        precipitation.perYearCorrectedFloat /
+        potentialEvaporation.perYearFloat;
+
+    // Berechnung des Abflusses RxV fuer versiegelte Teilflaechen mittels
+    // Umrechnung potentieller Verdunstungen potentialEvaporation zu realen
+    // ueber Umrechnungsfaktor yRatio und subtrahiert von Niederschlag
+    // precipitation
+
+    // index 0 = roof, indices 1 - 4 = surface classes 1 - 4
+    for (int i = 0; i < static_cast<int>(bagrovValues.size()); i++) {
+        bagrovValues[i] = precipitation.perYearCorrectedFloat -
+            Bagrov::nbagro(m_initValues.getBagrovValue(i), xRatio) *
+            potentialEvaporation.perYearFloat;
+    }
 }
 
 float Calculation::realEvapotranspiration(

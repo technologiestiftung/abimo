@@ -97,6 +97,12 @@ private:
         InitValues& initValues
     );
 
+    void setBagrovValues(
+        Precipitation& precipitation,
+        PotentialEvaporation& potentialEvaporation,
+        std::array<float,5>& bagrovValues
+    );
+
     float realEvapotranspiration(
         PotentialEvaporation potentialEvaporation,
         Precipitation precipitation,
