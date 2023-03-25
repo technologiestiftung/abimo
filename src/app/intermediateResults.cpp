@@ -2,7 +2,6 @@
 
 IntermediateResults::IntermediateResults() :
     m_bagrovValues({0.0, 0.0, 0.0, 0.0, 0.0}),
-    m_unsealedSurfaceRunoff_RUV(0.0),
     m_surfaceRunoffFlow_ROWVOL(0.0),
     m_infiltrationFlow_RIVOL(0.0),
     m_totalRunoffFlow_RVOL(0.0),

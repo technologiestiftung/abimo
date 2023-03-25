@@ -13,9 +13,6 @@ protected:
     // 1 bis 4 (index 1 bis 4)
     std::array<float,5> m_bagrovValues;
 
-    // runoff for unsealed partial surfaces
-    float m_unsealedSurfaceRunoff_RUV;
-
     // Regenwasserabfluss in Qubikzentimeter pro Sekunde
     float m_surfaceRunoffFlow_ROWVOL;
 

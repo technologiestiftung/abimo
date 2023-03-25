@@ -262,9 +262,9 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
             usageTuple
         );
 
-    m_unsealedSurfaceRunoff_RUV = precipitation.perYearCorrectedFloat -
+    // runoff for unsealed partial surfaces
+    float unsealedSurfaceRunoff_RUV = precipitation.perYearCorrectedFloat -
         actualEvaporation;
-
 
     // percentage of total sealed area
     // share of roof area [%] 'PROBAU' +
@@ -376,7 +376,7 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
     // runoff for unsealed surfaces rowuv = 0 (???)
     float infiltrationPerviousSurfaces = (
         100.0F - static_cast<float>(m_resultRecord.mainPercentageSealed)
-    ) / 100.0F * m_unsealedSurfaceRunoff_RUV;
+    ) / 100.0F * unsealedSurfaceRunoff_RUV;
 
     // calculate runoff 'ROW' for entire block patial area (FLGES +
     // STR_FLGES) (mm/a)
