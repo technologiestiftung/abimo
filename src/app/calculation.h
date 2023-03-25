@@ -78,7 +78,10 @@ private:
     void logNotDefined(QString code, int type);
 
     PotentialEvaporation getPotentialEvaporation(
-        Usage& usage, InitValues& initValues, int district, QString code
+        Usage& usage,
+        InitValues& initValues,
+        int district,
+        QString code
     );
 
     Precipitation getPrecipitation(
@@ -98,24 +101,30 @@ private:
     );
 
     float initValueOrReportedDefaultValue(
-        int bez, QString code, QHash<int, int> &hash, int defaultValue,
+        int bez,
+        QString code,
+        QHash<int, int> &hash,
+        int defaultValue,
         QString name
     );
 
     int progressNumber(int i, int n, float max);
 
     void doCalculationsFor(
-        AbimoInputRecord& inputRecord,
+        AbimoInputRecord& input,
         IntermediateResults& results
     );
 
     int fillResultRecord(
-        AbimoInputRecord& inputRecord,
+        AbimoInputRecord& input,
         IntermediateResults& results,
-        AbimoOutputRecord& outputRecord
+        AbimoOutputRecord& output
     );
 
-    void writeResultRecord(AbimoOutputRecord& record, AbimoWriter& writer) const;
+    void writeResultRecord(
+        AbimoOutputRecord& output,
+        AbimoWriter& writer
+    ) const;
 };
 
 #endif

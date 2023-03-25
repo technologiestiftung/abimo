@@ -146,7 +146,7 @@ int Calculation::progressNumber(int i, int n, float max)
 }
 
 void Calculation::doCalculationsFor(
-    AbimoInputRecord& inputRecord,
+    AbimoInputRecord& input,
     IntermediateResults& results
 )
 {
@@ -165,9 +165,9 @@ void Calculation::doCalculationsFor(
     // declaration of yield power (ERT) and irrigation (BER) for agricultural or
     // gardening purposes
     UsageResult usageResult = m_usageMappings.getUsageResult(
-        inputRecord.usage,
-        inputRecord.type,
-        inputRecord.code
+        input.usage,
+        input.type,
+        input.code
     );
 
     if (usageResult.tupleIndex < 0) {
@@ -197,14 +197,14 @@ void Calculation::doCalculationsFor(
     {
         // Feldkapazitaet
         usableFieldCapacity = SoilAndVegetation::estimateWaterHoldingCapacity(
-            inputRecord.fieldCapacity_30,
-            inputRecord.fieldCapacity_150,
+            input.fieldCapacity_30,
+            input.fieldCapacity_150,
             usageTuple.usage == Usage::forested_W
         );
 
         // pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS
         // potentielle Aufstiegshoehe
-        potentialCapillaryRise_TAS = inputRecord.depthToWaterTable -
+        potentialCapillaryRise_TAS = input.depthToWaterTable -
             m_usageMappings.getRootingDepth(usageTuple.usage, usageTuple.yield);
 
         // mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres
@@ -225,16 +225,16 @@ void Calculation::doCalculationsFor(
     }
 
     Precipitation precipitation = getPrecipitation(
-        inputRecord.precipitationYear,
-        inputRecord.precipitationSummer,
+        input.precipitationYear,
+        input.precipitationSummer,
         m_initValues
     );
 
     PotentialEvaporation potentialEvaporation = getPotentialEvaporation(
         usageTuple.usage,
         m_initValues,
-        inputRecord.district,
-        inputRecord.code
+        input.district,
+        input.code
     );
 
     // Bagrov-calculation for sealed surfaces
@@ -265,7 +265,7 @@ void Calculation::doCalculationsFor(
         realEvapotranspiration(
             potentialEvaporation,
             precipitation,
-            inputRecord.depthToWaterTable,
+            input.depthToWaterTable,
             meanPotentialCapillaryRiseRate,
             potentialCapillaryRise_TAS,
             usableFieldCapacity,
@@ -281,19 +281,19 @@ void Calculation::doCalculationsFor(
     // share of other (unbuilt) sealed areas (e.g. Hofflaechen)
     // Versiegelungsgrad bebauter Flaechen [%] ID_VER 002 N, old: VER
     float mainPercentageSealed = helpers::roundToInteger(
-        inputRecord.mainFractionBuiltSealed * 100 +
-        inputRecord.mainFractionUnbuiltSealed * 100
+        input.mainFractionBuiltSealed * 100 +
+        input.mainFractionUnbuiltSealed * 100
     );
 
     // if sum of total building development area and road area is
     // inconsiderably small it is assumed, that the area is unknown and
     // 100 % building development area will be given by default
-    if (inputRecord.totalArea_FLAECHE() < 0.0001) {
+    if (input.totalArea_FLAECHE() < 0.0001) {
         // *protokollStream << "\r\nDie Flaeche des Elements " +
         // record.CODE + " ist 0 \r\nund wird automatisch auf 100 gesetzt\r\n";
         m_counters.incrementRecordsProtocol();
         m_counters.incrementNoAreaGiven();
-        inputRecord.mainArea = 100.0F;
+        input.mainArea = 100.0F;
     }
 
     // share of building development area / road area to total area
@@ -301,12 +301,12 @@ void Calculation::doCalculationsFor(
     // Verhaeltnis Bebauungsflaeche zu Gesamtflaeche
     // Fraction of total area that is not allocated to roads
     // old: fbant (ant = Anteil)
-    float areaFractionMain = inputRecord.fractionOfTotalArea(inputRecord.mainArea);
+    float areaFractionMain = input.fractionOfTotalArea(input.mainArea);
 
     // Verhaeltnis Strassenflaeche zu Gesamtflaeche
     // Fraction of total area that is allocated to roads
     // old: fsant (ant = Anteil)
-    float areaFractionRoad = inputRecord.fractionOfTotalArea(inputRecord.roadArea);
+    float areaFractionRoad = input.fractionOfTotalArea(input.roadArea);
 
     // Runoff for sealed surfaces
 
@@ -324,8 +324,8 @@ void Calculation::doCalculationsFor(
     // old: rowd
     float runoffRoofs =
         (1.0F - m_initValues.getInfiltrationFactor(0)) * // 0 = roof!
-        inputRecord.mainFractionBuiltSealed *
-        inputRecord.builtSealedFractionConnected *
+        input.mainFractionBuiltSealed *
+        input.builtSealedFractionConnected *
         areaFractionMain *
         results.bagrovValues[0]; // 0 = roof!
 
@@ -334,13 +334,13 @@ void Calculation::doCalculationsFor(
         runoffSealedSurfaces[i] =
             (1.0F - m_initValues.getInfiltrationFactor(i)) *
             (
-                inputRecord.unbuiltSealedFractionSurface.at(i) *
-                inputRecord.unbuiltSealedFractionConnected *
-                inputRecord.mainFractionUnbuiltSealed *
+                input.unbuiltSealedFractionSurface.at(i) *
+                input.unbuiltSealedFractionConnected *
+                input.mainFractionUnbuiltSealed *
                 areaFractionMain +
-                inputRecord.roadSealedFractionSurface.at(i) *
-                inputRecord.roadSealedFractionConnected *
-                inputRecord.roadFractionSealed *
+                input.roadSealedFractionSurface.at(i) *
+                input.roadSealedFractionConnected *
+                input.roadFractionSealed *
                 areaFractionRoad
             ) * results.bagrovValues[i];
     }
@@ -348,19 +348,19 @@ void Calculation::doCalculationsFor(
     // infiltration of/for/from? roof surfaces (Infiltration der Dachflaechen)
     // old: rid
     float infiltrationRoofs =
-        (1 - inputRecord.builtSealedFractionConnected) *
-        inputRecord.mainFractionBuiltSealed *
+        (1 - input.builtSealedFractionConnected) *
+        input.mainFractionBuiltSealed *
         areaFractionMain *
         results.bagrovValues[0]; // 0 = roof
 
     for (int i = 1; i < static_cast<int>(infiltrationSealedSurfaces.size()); i++) {
 
         infiltrationSealedSurfaces[i] = (
-            inputRecord.unbuiltSealedFractionSurface.at(i) *
-            inputRecord.mainFractionUnbuiltSealed *
+            input.unbuiltSealedFractionSurface.at(i) *
+            input.mainFractionUnbuiltSealed *
             areaFractionMain +
-            inputRecord.roadSealedFractionSurface.at(i) *
-            inputRecord.roadFractionSealed *
+            input.roadSealedFractionSurface.at(i) *
+            input.roadFractionSealed *
             areaFractionRoad
         ) * results.bagrovValues[i] - runoffSealedSurfaces[i];
     }
@@ -377,7 +377,7 @@ void Calculation::doCalculationsFor(
     // old: riuvs
     // old: 0.89F * (1-vgs) * fsant * R4V;
     float infiltrationPerviousRoads =
-            (1 - inputRecord.roadFractionSealed) *
+            (1 - input.roadFractionSealed) *
             areaFractionRoad *
             results.bagrovValues[4];
 
@@ -398,7 +398,7 @@ void Calculation::doCalculationsFor(
     );
 
     // calculate volume 'rowvol' from runoff (qcm/s)
-    results.surfaceRunoffFlow_ROWVOL = inputRecord.yearlyHeightToVolumeFlow(
+    results.surfaceRunoffFlow_ROWVOL = input.yearlyHeightToVolumeFlow(
         results.surfaceRunoff_ROW
     );
 
@@ -412,7 +412,7 @@ void Calculation::doCalculationsFor(
     );
 
     // calculate volume 'rivol' from infiltration rate (qcm/s)
-    results.infiltrationFlow_RIVOL = inputRecord.yearlyHeightToVolumeFlow(
+    results.infiltrationFlow_RIVOL = input.yearlyHeightToVolumeFlow(
         results.infiltration_RI
     );
 
@@ -435,7 +435,7 @@ void Calculation::doCalculationsFor(
     // runoff and infiltration from precipitation of entire year,
     // multiplied by precipitation correction factor
     results.evaporation_VERDUNSTUN = (
-        static_cast<float>(inputRecord.precipitationYear) *
+        static_cast<float>(input.precipitationYear) *
         m_initValues.getPrecipitationCorrectionFactor()
     ) - results.totalRunoff_R;
 }
@@ -578,20 +578,20 @@ float Calculation::initValueOrReportedDefaultValue(
 }
 
 int Calculation::fillResultRecord(
-    AbimoInputRecord& inputRecord,
+    AbimoInputRecord& input,
     IntermediateResults& results,
-    AbimoOutputRecord& outputRecord
+    AbimoOutputRecord& output
 )
 {
-    outputRecord.code_CODE = inputRecord.code;
-    outputRecord.totalRunoff_R = results.totalRunoff_R;
-    outputRecord.surfaceRunoff_ROW = results.surfaceRunoff_ROW;
-    outputRecord.infiltration_RI = results.infiltration_RI;
-    outputRecord.totalRunoffFlow_RVOL = results.totalRunoffFlow_RVOL;
-    outputRecord.surfaceRunoffFlow_ROWVOL = results.surfaceRunoffFlow_ROWVOL;
-    outputRecord.infiltrationFlow_RIVOL = results.infiltrationFlow_RIVOL;
-    outputRecord.totalArea_FLAECHE = inputRecord.totalArea_FLAECHE();
-    outputRecord.evaporation_VERDUNSTUN = results.evaporation_VERDUNSTUN;
+    output.code_CODE = input.code;
+    output.totalRunoff_R = results.totalRunoff_R;
+    output.surfaceRunoff_ROW = results.surfaceRunoff_ROW;
+    output.infiltration_RI = results.infiltration_RI;
+    output.totalRunoffFlow_RVOL = results.totalRunoffFlow_RVOL;
+    output.surfaceRunoffFlow_ROWVOL = results.surfaceRunoffFlow_ROWVOL;
+    output.infiltrationFlow_RIVOL = results.infiltrationFlow_RIVOL;
+    output.totalArea_FLAECHE = input.totalArea_FLAECHE();
+    output.evaporation_VERDUNSTUN = results.evaporation_VERDUNSTUN;
 
     return 0;
 }
