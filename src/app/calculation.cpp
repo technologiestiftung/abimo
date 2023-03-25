@@ -181,10 +181,14 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
 
     float meanPotentialCapillaryRiseRate = 0.0f;
 
+    // nFK-Wert (ergibt sich aus Bodenart) ID_NFK neu
+    // water holding capacity (= nutzbare Feldkapazitaet)
+    float usableFieldCapacity = 0.0f; // old: nFK
+
     if (usageTuple.usage != Usage::waterbody_G)
     {
         // Feldkapazitaet
-        m_resultRecord.usableFieldCapacity = PDR::estimateWaterHoldingCapacity(
+        usableFieldCapacity = PDR::estimateWaterHoldingCapacity(
             inputRecord.fieldCapacity_30,
             inputRecord.fieldCapacity_150,
             usageTuple.usage == Usage::forested_W
@@ -204,7 +208,7 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
         meanPotentialCapillaryRiseRate =
             PDR::getMeanPotentialCapillaryRiseRate(
                 m_potentialCapillaryRise_TAS,
-                m_resultRecord.usableFieldCapacity,
+                usableFieldCapacity,
                 usageTuple.usage,
                 usageTuple.yield
             );
@@ -259,6 +263,7 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
             precipitation,
             inputRecord.depthToWaterTable,
             meanPotentialCapillaryRiseRate,
+            usableFieldCapacity,
             usageTuple
         );
 
@@ -485,6 +490,7 @@ float Calculation::realEvapotranspiration(
     Precipitation precipitation,
     float depthToWaterTable,
     float meanPotentialCapillaryRiseRate,
+    float usableFieldCapacity,
     UsageTuple& usageTuple
 )
 {
@@ -494,10 +500,8 @@ float Calculation::realEvapotranspiration(
     // unsealed surfaces
     // Modul Raster abgespeckt (???)
     float effectivityParameter = EffectivenessUnsealed::getEffectivityParameter(
-        m_resultRecord.usableFieldCapacity,
-        usageTuple.usage == Usage::forested_W,
-        usageTuple.yield,
-        usageTuple.irrigation,
+        usageTuple,
+        usableFieldCapacity,
         precipitation.inSummerFloat,
         potentialEvaporation.inSummerInteger,
         meanPotentialCapillaryRiseRate
@@ -519,8 +523,7 @@ float Calculation::realEvapotranspiration(
     float result = yRatio * potentialEvaporation.perYearFloat;
 
     if (m_potentialCapillaryRise_TAS < 0) {
-        result +=
-            (potentialEvaporation.perYearFloat - result) *
+        result += (potentialEvaporation.perYearFloat - result) *
             static_cast<float>(
                 exp(depthToWaterTable / m_potentialCapillaryRise_TAS)
             );

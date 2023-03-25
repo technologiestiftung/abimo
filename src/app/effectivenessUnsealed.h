@@ -7,10 +7,8 @@ class EffectivenessUnsealed
 {
 public:
     static float getEffectivityParameter(
+        UsageTuple& usageTuple,
         float usableFieldCapacity,
-        bool isForest,
-        int yieldPower,
-        int irrigation,
         float precipitationSummer,
         int potentialEvaporationSummer,
         float meanPotentialCapillaryRiseRate
