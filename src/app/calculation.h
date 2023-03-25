@@ -22,7 +22,7 @@
 #include "intermediateResults.h"
 #include "pdr.h"
 
-class Calculation : public QObject, public IntermediateResults
+class Calculation : public QObject
 {
     Q_OBJECT
 
@@ -65,8 +65,6 @@ private:
     QTextStream& m_protocolStream;
     AbimoReader& m_dbReader;
 
-    PDR m_resultRecord; // old: ptrDA
-
     QString m_error;
     Counters m_counters;
 
@@ -106,10 +104,14 @@ private:
 
     int progressNumber(int i, int n, float max);
 
-    void doCalculationsFor(AbimoInputRecord &inputRecord);
+    void doCalculationsFor(
+        AbimoInputRecord& inputRecord,
+        IntermediateResults& results
+    );
 
     int fillResultRecord(
         AbimoInputRecord& inputRecord,
+        IntermediateResults& results,
         AbimoOutputRecord& outputRecord
     );
 

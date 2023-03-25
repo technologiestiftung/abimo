@@ -30,7 +30,6 @@ Calculation::Calculation(
     InitValues& initValues,
     QTextStream& protocolStream
 ) :
-    IntermediateResults(),
     m_initValues(initValues),
     m_protocolStream(protocolStream),
     m_dbReader(dbaseReader),
@@ -102,10 +101,12 @@ bool Calculation::calculate(QString& outputFile, bool debug)
         }
         else {
 
-            // Calculate and set result record fields to calculated values
-            doCalculationsFor(inputRecord);
+            IntermediateResults results;
 
-            fillResultRecord(inputRecord, outputRecord);
+            // Calculate and set result record fields to calculated values
+            doCalculationsFor(inputRecord, results);
+
+            fillResultRecord(inputRecord, results, outputRecord);
 
             // Set the corresponding row in the result data structure
             writeResultRecord(outputRecord, writer);
@@ -144,7 +145,10 @@ int Calculation::progressNumber(int i, int n, float max)
     return (int) (static_cast<float>(i) / static_cast<float>(n) * max);
 }
 
-void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
+void Calculation::doCalculationsFor(
+    AbimoInputRecord& inputRecord,
+    IntermediateResults& results
+)
 {
     // Abflussvariablen der versiegelten Flaechen
     // runoff variables of sealed surfaces
@@ -240,8 +244,8 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
 
     // ratio of precipitation to potential evaporation
     float xRatio =
-            precipitation.perYearCorrectedFloat /
-            potentialEvaporation.perYearFloat;
+        precipitation.perYearCorrectedFloat /
+        potentialEvaporation.perYearFloat;
 
     // Berechnung des Abflusses RxV fuer versiegelte Teilflaechen mittels
     // Umrechnung potentieller Verdunstungen potentialEvaporation zu realen
@@ -249,8 +253,8 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
     // precipitation
     // index 0 = roof, indices 1 - 4 = surface classes 1 - 4
 
-    for (int i = 0; i < static_cast<int>(m_bagrovValues.size()); i++) {
-        m_bagrovValues[i] = precipitation.perYearCorrectedFloat -
+    for (int i = 0; i < static_cast<int>(results.bagrovValues.size()); i++) {
+        results.bagrovValues[i] = precipitation.perYearCorrectedFloat -
             Bagrov::nbagro(m_initValues.getBagrovValue(i), xRatio) *
             potentialEvaporation.perYearFloat;
     }
@@ -275,7 +279,8 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
     // percentage of total sealed area
     // share of roof area [%] 'PROBAU' +
     // share of other (unbuilt) sealed areas (e.g. Hofflaechen)
-    m_resultRecord.mainPercentageSealed = helpers::roundToInteger(
+    // Versiegelungsgrad bebauter Flaechen [%] ID_VER 002 N, old: VER
+    float mainPercentageSealed = helpers::roundToInteger(
         inputRecord.mainFractionBuiltSealed * 100 +
         inputRecord.mainFractionUnbuiltSealed * 100
     );
@@ -322,7 +327,7 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
         inputRecord.mainFractionBuiltSealed *
         inputRecord.builtSealedFractionConnected *
         areaFractionMain *
-        m_bagrovValues[0]; // 0 = roof!
+        results.bagrovValues[0]; // 0 = roof!
 
     for (int i = 1; i < static_cast<int>(runoffSealedSurfaces.size()); i++) {
 
@@ -337,7 +342,7 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
                 inputRecord.roadSealedFractionConnected *
                 inputRecord.roadFractionSealed *
                 areaFractionRoad
-            ) * m_bagrovValues[i];
+            ) * results.bagrovValues[i];
     }
 
     // infiltration of/for/from? roof surfaces (Infiltration der Dachflaechen)
@@ -346,7 +351,7 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
         (1 - inputRecord.builtSealedFractionConnected) *
         inputRecord.mainFractionBuiltSealed *
         areaFractionMain *
-        m_bagrovValues[0]; // 0 = roof
+        results.bagrovValues[0]; // 0 = roof
 
     for (int i = 1; i < static_cast<int>(infiltrationSealedSurfaces.size()); i++) {
 
@@ -357,7 +362,7 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
             inputRecord.roadSealedFractionSurface.at(i) *
             inputRecord.roadFractionSealed *
             areaFractionRoad
-        ) * m_bagrovValues[i] - runoffSealedSurfaces[i];
+        ) * results.bagrovValues[i] - runoffSealedSurfaces[i];
     }
 
     // Abfluss von unversiegelten Strassenflaechen
@@ -374,30 +379,32 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
     float infiltrationPerviousRoads =
             (1 - inputRecord.roadFractionSealed) *
             areaFractionRoad *
-            m_bagrovValues[4];
+            results.bagrovValues[4];
 
     // Infiltration unversiegelter Flaechen
     // infiltration of unsealed areas
     // old: riuv
     // runoff for unsealed surfaces rowuv = 0 (???)
     float infiltrationPerviousSurfaces = (
-        100.0F - static_cast<float>(m_resultRecord.mainPercentageSealed)
+        100.0F - static_cast<float>(mainPercentageSealed)
     ) / 100.0F * unsealedSurfaceRunoff_RUV;
 
     // calculate runoff 'ROW' for entire block patial area (FLGES +
     // STR_FLGES) (mm/a)
-    m_surfaceRunoff_ROW = (
+    results.surfaceRunoff_ROW = (
         helpers::vectorSum(runoffSealedSurfaces) +
         runoffRoofs +
         runoffPerviousRoads
     );
 
     // calculate volume 'rowvol' from runoff (qcm/s)
-    m_surfaceRunoffFlow_ROWVOL = inputRecord.yearlyHeightToVolumeFlow(m_surfaceRunoff_ROW);
+    results.surfaceRunoffFlow_ROWVOL = inputRecord.yearlyHeightToVolumeFlow(
+        results.surfaceRunoff_ROW
+    );
 
     // calculate infiltration rate 'ri' for entire block partial area
     // (mm/a)
-    m_infiltration_RI = (
+    results.infiltration_RI = (
         helpers::vectorSum(infiltrationSealedSurfaces) +
         infiltrationRoofs +
         infiltrationPerviousRoads +
@@ -405,27 +412,32 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
     );
 
     // calculate volume 'rivol' from infiltration rate (qcm/s)
-    m_infiltrationFlow_RIVOL = inputRecord.yearlyHeightToVolumeFlow(m_infiltration_RI);
+    results.infiltrationFlow_RIVOL = inputRecord.yearlyHeightToVolumeFlow(
+        results.infiltration_RI
+    );
 
     // calculate total system losses 'r' due to runoff and infiltration
     // for entire block partial area
-    m_totalRunoff_R = m_surfaceRunoff_ROW + m_infiltration_RI;
+    results.totalRunoff_R =
+        results.surfaceRunoff_ROW +
+        results.infiltration_RI;
 
     // set totalRunoff in the result record
     //resultRecord.totalRunoff = INT_ROUND(totalRunoff);
 
     // calculate volume of system losses 'rvol' due to runoff and
     // infiltration
-    m_totalRunoffFlow_RVOL = m_surfaceRunoffFlow_ROWVOL + m_infiltrationFlow_RIVOL;
+    results.totalRunoffFlow_RVOL =
+        results.surfaceRunoffFlow_ROWVOL +
+        results.infiltrationFlow_RIVOL;
 
     // calculate evaporation 'VERDUNST' by subtracting 'R', the sum of
     // runoff and infiltration from precipitation of entire year,
     // multiplied by precipitation correction factor
-    m_evaporation_VERDUNSTUN = (
+    results.evaporation_VERDUNSTUN = (
         static_cast<float>(inputRecord.precipitationYear) *
         m_initValues.getPrecipitationCorrectionFactor()
-    ) - m_totalRunoff_R;
-
+    ) - results.totalRunoff_R;
 }
 
 PotentialEvaporation Calculation::getPotentialEvaporation(
@@ -567,18 +579,19 @@ float Calculation::initValueOrReportedDefaultValue(
 
 int Calculation::fillResultRecord(
     AbimoInputRecord& inputRecord,
+    IntermediateResults& results,
     AbimoOutputRecord& outputRecord
 )
 {
     outputRecord.code_CODE = inputRecord.code;
-    outputRecord.totalRunoff_R = m_totalRunoff_R;
-    outputRecord.surfaceRunoff_ROW = m_surfaceRunoff_ROW;
-    outputRecord.infiltration_RI = m_infiltration_RI;
-    outputRecord.totalRunoffFlow_RVOL = m_totalRunoffFlow_RVOL;
-    outputRecord.surfaceRunoffFlow_ROWVOL = m_surfaceRunoffFlow_ROWVOL;
-    outputRecord.infiltrationFlow_RIVOL = m_infiltrationFlow_RIVOL;
+    outputRecord.totalRunoff_R = results.totalRunoff_R;
+    outputRecord.surfaceRunoff_ROW = results.surfaceRunoff_ROW;
+    outputRecord.infiltration_RI = results.infiltration_RI;
+    outputRecord.totalRunoffFlow_RVOL = results.totalRunoffFlow_RVOL;
+    outputRecord.surfaceRunoffFlow_ROWVOL = results.surfaceRunoffFlow_ROWVOL;
+    outputRecord.infiltrationFlow_RIVOL = results.infiltrationFlow_RIVOL;
     outputRecord.totalArea_FLAECHE = inputRecord.totalArea_FLAECHE();
-    outputRecord.evaporation_VERDUNSTUN = m_evaporation_VERDUNSTUN;
+    outputRecord.evaporation_VERDUNSTUN = results.evaporation_VERDUNSTUN;
 
     return 0;
 }

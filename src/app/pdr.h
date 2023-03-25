@@ -81,9 +81,6 @@ public:
 
     static float estimateWaterHoldingCapacity(int f30, int f150, bool isForest);
     static int estimateDaysOfGrowth(Usage usage, int yield);
-
-    // Versiegelungsgrad bebauter Flaechen [%] ID_VER 002 N
-    int mainPercentageSealed; // old: VER
 };
 
 #endif
