@@ -192,7 +192,7 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
     if (usageTuple.usage != Usage::waterbody_G)
     {
         // Feldkapazitaet
-        usableFieldCapacity = PDR::estimateWaterHoldingCapacity(
+        usableFieldCapacity = SoilAndVegetation::estimateWaterHoldingCapacity(
             inputRecord.fieldCapacity_30,
             inputRecord.fieldCapacity_150,
             usageTuple.usage == Usage::forested_W
@@ -206,7 +206,7 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
         // mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres
         // Kapillarer Aufstieg pro Jahr ID_KR neu, old: KR
         meanPotentialCapillaryRiseRate =
-            PDR::getMeanPotentialCapillaryRiseRate(
+            SoilAndVegetation::getMeanPotentialCapillaryRiseRate(
                 potentialCapillaryRise_TAS,
                 usableFieldCapacity,
                 usageTuple.usage,
