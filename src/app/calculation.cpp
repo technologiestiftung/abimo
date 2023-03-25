@@ -150,48 +150,17 @@ void Calculation::doCalculationsFor(
     IntermediateResults& results
 )
 {
-    // Abflussvariablen der versiegelten Flaechen
-    // runoff variables of sealed surfaces
-    // Take care: for consistency use indices 1 to 4 only, do not use 0 (roofs)!
-    // old: row1 - row4
-    std::vector<float> runoffSealedSurfaces = {0, 0, 0, 0, 0};
-
-    // Infiltrationsvariablen der versiegelten Flaechen
-    // infiltration variables of sealed surfaces
-    // Take care: for consistency use indices 1 to 4 only, do not use 0 (roofs)!
-    // old: ri1 - ri4
-    std::vector<float> infiltrationSealedSurfaces = {0, 0, 0, 0, 0};
-
-    // declaration of yield power (ERT) and irrigation (BER) for agricultural or
-    // gardening purposes
-    UsageResult usageResult = m_usageMappings.getUsageResult(
-        input.usage,
-        input.type,
-        input.code
-    );
-
-    if (usageResult.tupleIndex < 0) {
-        m_protocolStream << usageResult.message;
-        qDebug() << usageResult.message;
-        abort();
-    }
-
-    if (!usageResult.message.isEmpty()) {
-        m_protocolStream << usageResult.message;
-        m_counters.incrementRecordsProtocol();
-    }
-
-    UsageTuple usageTuple = m_usageMappings.getUsageTuple(usageResult.tupleIndex);
-
-    float meanPotentialCapillaryRiseRate = 0.0f;
-
-    // pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS
-    // potentielle Aufstiegshoehe
-    float potentialCapillaryRise_TAS = 0.0f;
+    // Based on the given input row, try to provide usage-specific information
+    UsageTuple usageTuple = tryToGetUsageInformation(input);
 
     // nFK-Wert (ergibt sich aus Bodenart) ID_NFK neu
     // water holding capacity (= nutzbare Feldkapazitaet)
     float usableFieldCapacity = 0.0f; // old: nFK
+
+    // pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS
+    // potentielle Aufstiegshoehe
+    float potentialCapillaryRise_TAS = 0.0f;
+    float meanPotentialCapillaryRiseRate = 0.0f;
 
     if (usageTuple.usage != Usage::waterbody_G)
     {
@@ -329,6 +298,12 @@ void Calculation::doCalculationsFor(
         areaFractionMain *
         results.bagrovValues[0]; // 0 = roof!
 
+    // Abflussvariablen der versiegelten Flaechen
+    // runoff variables of sealed surfaces
+    // Take care: for consistency use indices 1 to 4 only, do not use 0 (roofs)!
+    // old: row1 - row4
+    std::vector<float> runoffSealedSurfaces = {0, 0, 0, 0, 0};
+
     for (int i = 1; i < static_cast<int>(runoffSealedSurfaces.size()); i++) {
 
         runoffSealedSurfaces[i] =
@@ -352,6 +327,12 @@ void Calculation::doCalculationsFor(
         input.mainFractionBuiltSealed *
         areaFractionMain *
         results.bagrovValues[0]; // 0 = roof
+
+    // Infiltrationsvariablen der versiegelten Flaechen
+    // infiltration variables of sealed surfaces
+    // Take care: for consistency use indices 1 to 4 only, do not use 0 (roofs)!
+    // old: ri1 - ri4
+    std::vector<float> infiltrationSealedSurfaces = {0, 0, 0, 0, 0};
 
     for (int i = 1; i < static_cast<int>(infiltrationSealedSurfaces.size()); i++) {
 
@@ -438,6 +419,30 @@ void Calculation::doCalculationsFor(
         static_cast<float>(input.precipitationYear) *
         m_initValues.getPrecipitationCorrectionFactor()
     ) - results.totalRunoff_R;
+}
+
+UsageTuple Calculation::tryToGetUsageInformation(AbimoInputRecord& input)
+{
+    // declaration of yield power (ERT) and irrigation (BER) for agricultural or
+    // gardening purposes
+    UsageResult usageResult = m_usageMappings.getUsageResult(
+        input.usage,
+        input.type,
+        input.code
+    );
+
+    if (usageResult.tupleIndex < 0) {
+        m_protocolStream << usageResult.message;
+        qDebug() << usageResult.message;
+        abort();
+    }
+
+    if (!usageResult.message.isEmpty()) {
+        m_protocolStream << usageResult.message;
+        m_counters.incrementRecordsProtocol();
+    }
+
+    return m_usageMappings.getUsageTuple(usageResult.tupleIndex);
 }
 
 PotentialEvaporation Calculation::getPotentialEvaporation(

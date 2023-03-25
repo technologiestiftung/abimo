@@ -77,6 +77,8 @@ private:
 
     void logNotDefined(QString code, int type);
 
+    UsageTuple tryToGetUsageInformation(AbimoInputRecord& input);
+
     PotentialEvaporation getPotentialEvaporation(
         Usage& usage,
         InitValues& initValues,
