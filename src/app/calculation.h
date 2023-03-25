@@ -77,14 +77,12 @@ private:
 
     void logNotDefined(QString code, int type);
 
-    UsageTuple tryToGetUsageInformation(AbimoInputRecord& input);
+    UsageTuple provideUsageInformation(AbimoInputRecord& input);
 
     EvaporationRelevantVariables setEvaporationVars(
         UsageTuple& usageTuple,
         AbimoInputRecord& input
     );
-
-    void forceZeroIrrigationIfRequested(UsageTuple& usageTuple);
 
     PotentialEvaporation getPotentialEvaporation(
         Usage& usage,

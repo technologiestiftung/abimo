@@ -151,7 +151,7 @@ void Calculation::doCalculationsFor(
 )
 {
     // Based on the given input row, try to provide usage-specific information
-    UsageTuple usageTuple = tryToGetUsageInformation(input);
+    UsageTuple usageTuple = provideUsageInformation(input);
 
     // Provide variables relevant to calculate evaporation (?)
     // all values are 0.0 in case of water bodies -> TODO: may be not a good
@@ -159,9 +159,6 @@ void Calculation::doCalculationsFor(
     EvaporationRelevantVariables evaporationVars = setEvaporationVars(
         usageTuple, input
     );
-
-    // Override irrigation value with zero if the corresponding option is set
-    forceZeroIrrigationIfRequested(usageTuple);
 
     // Provide information on the precipitation
     Precipitation precipitation = getPrecipitation(
@@ -388,7 +385,7 @@ void Calculation::doCalculationsFor(
     ) - results.totalRunoff_R;
 }
 
-UsageTuple Calculation::tryToGetUsageInformation(AbimoInputRecord& input)
+UsageTuple Calculation::provideUsageInformation(AbimoInputRecord& input)
 {
     // declaration of yield power (ERT) and irrigation (BER) for agricultural or
     // gardening purposes
@@ -409,7 +406,17 @@ UsageTuple Calculation::tryToGetUsageInformation(AbimoInputRecord& input)
         m_counters.incrementRecordsProtocol();
     }
 
-    return m_usageMappings.getUsageTuple(usageResult.tupleIndex);
+    UsageTuple result = m_usageMappings.getUsageTuple(usageResult.tupleIndex);
+
+    // Override irrigation value with zero if the corresponding option is set
+    if (m_initValues.getIrrigationToZero() && result.irrigation != 0) {
+        //*protokollStream << "Erzwinge BER=0 fuer Code: " << input.code <<
+        //", Wert war:" << usageTuple.irrigation << " \r\n";
+        m_counters.incrementIrrigationForcedToZero();
+        result.irrigation = 0;
+    }
+
+    return result;
 }
 
 EvaporationRelevantVariables Calculation::setEvaporationVars(
@@ -448,16 +455,6 @@ EvaporationRelevantVariables Calculation::setEvaporationVars(
         );
 
     return result;
-}
-
-void Calculation::forceZeroIrrigationIfRequested(UsageTuple& usageTuple)
-{
-    if (m_initValues.getIrrigationToZero() && usageTuple.irrigation != 0) {
-        //*protokollStream << "Erzwinge BER=0 fuer Code: " << input.code <<
-        //", Wert war:" << usageTuple.irrigation << " \r\n";
-        m_counters.incrementIrrigationForcedToZero();
-        usageTuple.irrigation = 0;
-    }
 }
 
 PotentialEvaporation Calculation::getPotentialEvaporation(
