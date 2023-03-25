@@ -84,6 +84,8 @@ private:
         AbimoInputRecord& input
     );
 
+    void forceZeroIrrigationIfRequested(UsageTuple& usageTuple);
+
     PotentialEvaporation getPotentialEvaporation(
         Usage& usage,
         InitValues& initValues,

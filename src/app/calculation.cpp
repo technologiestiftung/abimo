@@ -153,31 +153,29 @@ void Calculation::doCalculationsFor(
     // Based on the given input row, try to provide usage-specific information
     UsageTuple usageTuple = tryToGetUsageInformation(input);
 
+    // Provide variables relevant to calculate evaporation (?)
+    // all values are 0.0 in case of water bodies -> TODO: may be not a good
+    // name. It is more about soil properties
     EvaporationRelevantVariables evaporationVars = setEvaporationVars(
-        usageTuple,
-        input
+        usageTuple, input
     );
 
-    if (m_initValues.getIrrigationToZero() && usageTuple.irrigation != 0) {
-        //*protokollStream << "Erzwinge BER=0 fuer Code: " << code << ", Wert war:" << ptrDA.BER << " \r\n";
-        m_counters.incrementIrrigationForcedToZero();
-        usageTuple.irrigation = 0;
-    }
+    // Override irrigation value with zero if the corresponding option is set
+    forceZeroIrrigationIfRequested(usageTuple);
 
+    // Provide information on the precipitation
     Precipitation precipitation = getPrecipitation(
-        input.precipitationYear,
-        input.precipitationSummer,
-        m_initValues
+        input.precipitationYear, input.precipitationSummer, m_initValues
     );
 
+    // Provide information on the potential evaporation
     PotentialEvaporation potentialEvaporation = getPotentialEvaporation(
-        usageTuple.usage,
-        m_initValues,
-        input.district,
-        input.code
+        usageTuple.usage, m_initValues, input.district, input.code
     );
 
-    // Bagrov-calculation for sealed surfaces
+    //
+    // Do the Bagrov-calculation for sealed surfaces...
+    //
 
     // Berechnung der Abfluesse RDV und R1V bis R4V fuer versiegelte
     // Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4
@@ -450,6 +448,16 @@ EvaporationRelevantVariables Calculation::setEvaporationVars(
         );
 
     return result;
+}
+
+void Calculation::forceZeroIrrigationIfRequested(UsageTuple& usageTuple)
+{
+    if (m_initValues.getIrrigationToZero() && usageTuple.irrigation != 0) {
+        //*protokollStream << "Erzwinge BER=0 fuer Code: " << input.code <<
+        //", Wert war:" << usageTuple.irrigation << " \r\n";
+        m_counters.incrementIrrigationForcedToZero();
+        usageTuple.irrigation = 0;
+    }
 }
 
 PotentialEvaporation Calculation::getPotentialEvaporation(
