@@ -72,11 +72,6 @@ private:
     bool m_continueProcessing;
 
     // Methods
-
-    float getSummerModificationFactor(float wa);
-
-    void logNotDefined(QString code, int type);
-
     UsageTuple provideUsageInformation(AbimoInputRecord& input);
 
     EvaporationRelevantVariables setEvaporationVars(

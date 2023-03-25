@@ -26,6 +26,7 @@ private:
     void initUsageAndTypeToTupleHash();
 
     UsageResult lookup(QHash<int,int>hash, int type, QString code);
+    QString notDefinedMessage(QString& code, int type);
 };
 
 #endif // USAGECONFIGURATION_H
