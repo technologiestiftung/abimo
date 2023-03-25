@@ -206,25 +206,14 @@ void Calculation::doCalculationsFor(
     // Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4
     setBagrovValues(precipitation, potentialEvaporation, results.bagrovValues);
 
-    // Calculate runoff RUV for unsealed surfaces
-    // runoff for unsealed partial surfaces
-    float unsealedSurfaceRunoff_RUV =
-        precipitation.perYearCorrectedFloat -
-        actualEvaporation(
-            usageTuple,
-            potentialEvaporation,
-            evaporationVars,
-            precipitation
-        );
-
     // percentage of total sealed area
     // share of roof area [%] 'PROBAU' +
     // share of other (unbuilt) sealed areas (e.g. Hofflaechen)
     // Versiegelungsgrad bebauter Flaechen [%] ID_VER 002 N, old: VER
-    float mainPercentageSealed = helpers::roundToInteger(
+    float mainPercentageSealed = static_cast<float>(helpers::roundToInteger(
         input.mainFractionBuiltSealed * 100 +
         input.mainFractionUnbuiltSealed * 100
-    );
+    ));
 
     // if sum of total building development area and road area is
     // inconsiderably small it is assumed, that the area is unknown and
@@ -334,12 +323,23 @@ void Calculation::doCalculationsFor(
             areaFractionRoad *
             results.bagrovValues[4];
 
+    // Calculate runoff RUV for unsealed surfaces
+    // runoff for unsealed partial surfaces
+    float unsealedSurfaceRunoff_RUV =
+        precipitation.perYearCorrectedFloat -
+        actualEvaporation(
+            usageTuple,
+            potentialEvaporation,
+            evaporationVars,
+            precipitation
+        );
+
     // Infiltration unversiegelter Flaechen
     // infiltration of unsealed areas
     // old: riuv
     // runoff for unsealed surfaces rowuv = 0 (???)
     float infiltrationPerviousSurfaces = (
-        100.0F - static_cast<float>(mainPercentageSealed)
+        100.0F - mainPercentageSealed
     ) / 100.0F * unsealedSurfaceRunoff_RUV;
 
     // calculate runoff 'ROW' for entire block patial area (FLGES +
