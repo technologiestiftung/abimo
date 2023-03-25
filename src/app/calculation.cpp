@@ -38,19 +38,52 @@ Calculation::Calculation(
 {
 }
 
-void Calculation::stopProcessing()
+void Calculation::runCalculation(
+        QString inputFile,
+        QString configFile,
+        QString outputFile,
+        bool debug
+)
 {
-    m_continueProcessing = false;
-}
+    // Open the input file
+    AbimoReader dbReader(inputFile);
 
-Counters Calculation::getCounters() const
-{
-    return m_counters;
-}
+    // Try to read the raw (text) values into the dbReader object
+    if (!dbReader.checkAndRead()) {
+        abort();
+    }
 
-QString Calculation::getError() const
-{
-    return m_error;
+    // Update default initial values with values given in configFile
+    InitValues initValues;
+
+    if (configFile.isEmpty()) {
+        qDebug() << "No config file given -> Using default values";
+    }
+    else {
+        qDebug() << "Using configuration file:" << configFile;
+        QString error = InitValues::updateFromConfig(initValues, configFile);
+        if (!error.isEmpty()) {
+            qDebug() << "Error in updateFromConfig: " << error;
+            abort();
+        }
+    }
+
+    QFile logHandle(helpers::defaultLogFileName(outputFile));
+
+    helpers::openFileOrAbort(logHandle, QFile::WriteOnly);
+
+    QTextStream logStream(&logHandle);
+
+    Calculation calculator(dbReader, initValues, logStream);
+
+    bool success = calculator.calculate(outputFile, debug);
+
+    if (!success) {
+        qDebug() << "Error in calculate(): " << calculator.getError();
+        abort();
+    }
+
+    logHandle.close();
 }
 
 // =============================================================================
@@ -140,11 +173,6 @@ bool Calculation::calculate(QString& outputFile, bool debug)
     return true;
 }
 
-int Calculation::progressNumber(int i, int n, float max)
-{
-    return (int) (static_cast<float>(i) / static_cast<float>(n) * max);
-}
-
 void Calculation::doCalculationsFor(
     AbimoInputRecord& input,
     IntermediateResults& results
@@ -176,7 +204,6 @@ void Calculation::doCalculationsFor(
 
     // Berechnung der Abfluesse RDV und R1V bis R4V fuer versiegelte
     // Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4
-
     setBagrovValues(precipitation, potentialEvaporation, results.bagrovValues);
 
     // Calculate runoff RUV for unsealed surfaces
@@ -442,6 +469,33 @@ EvaporationRelevantVariables Calculation::setEvaporationVars(
     return result;
 }
 
+Precipitation Calculation::getPrecipitation(
+    int precipitationYear,
+    int precipitationSummer,
+    InitValues& initValues
+)
+{
+    Precipitation result;
+
+    // Set integer fields (originally from input dbf)
+    result.perYearInteger = precipitationYear;
+    result.inSummerInteger = precipitationSummer;
+
+    // Set float fields
+
+    // Correct the (non-summer) precipitation (at ground level)
+    result.perYearCorrectedFloat = static_cast<float>(
+        precipitationYear * initValues.getPrecipitationCorrectionFactor()
+    );
+
+    // No correction for summer precipitation!
+    result.inSummerFloat = static_cast<float>(
+        precipitationSummer
+    );
+
+    return result;
+}
+
 PotentialEvaporation Calculation::getPotentialEvaporation(
     Usage& usage, InitValues& initValues, int district, QString code
 )
@@ -473,29 +527,33 @@ PotentialEvaporation Calculation::getPotentialEvaporation(
     return result;
 }
 
-Precipitation Calculation::getPrecipitation(
-    int precipitationYear,
-    int precipitationSummer,
-    InitValues& initValues
+float Calculation::initValueOrReportedDefaultValue(
+        int district,
+        QString code,
+        QHash<int,int> &hash,
+        int defaultValue,
+        QString name
 )
 {
-    Precipitation result;
+    // Take value from hash table (as read from xml file) if available
+    if (hash.contains(district)) {
+        return hash.value(district);
+    }
 
-    // Set integer fields (originally from input dbf)
-    result.perYearInteger = precipitationYear;
-    result.inSummerInteger = precipitationSummer;
+    // Default
+    float result = hash.contains(0) ? hash.value(0) : defaultValue;
 
-    // Set float fields
+    QString districtString;
+    districtString.setNum(district);
 
-    // Correct the (non-summer) precipitation (at ground level)
-    result.perYearCorrectedFloat = static_cast<float>(
-        precipitationYear * initValues.getPrecipitationCorrectionFactor()
-    );
+    QString resultString;
+    resultString.setNum(result);
 
-    // No correction for summer precipitation!
-    result.inSummerFloat = static_cast<float>(
-        precipitationSummer
-    );
+    m_protocolStream << QString(
+        "\r\n%1 unbekannt fuer %2 von Bezirk %3\r\n%4=%5 angenommen\r\n"
+    ).arg(name, code, districtString, name, resultString);
+
+    m_counters.incrementRecordsProtocol();
 
     return result;
 }
@@ -571,37 +629,6 @@ float Calculation::realEvapotranspiration(
     return result;
 }
 
-float Calculation::initValueOrReportedDefaultValue(
-        int district,
-        QString code,
-        QHash<int,int> &hash,
-        int defaultValue,
-        QString name
-)
-{
-    // Take value from hash table (as read from xml file) if available
-    if (hash.contains(district)) {
-        return hash.value(district);
-    }
-
-    // Default
-    float result = hash.contains(0) ? hash.value(0) : defaultValue;
-
-    QString districtString;
-    districtString.setNum(district);
-
-    QString resultString;
-    resultString.setNum(result);
-
-    m_protocolStream << QString(
-        "\r\n%1 unbekannt fuer %2 von Bezirk %3\r\n%4=%5 angenommen\r\n"
-    ).arg(name, code, districtString, name, resultString);
-
-    m_counters.incrementRecordsProtocol();
-
-    return result;
-}
-
 int Calculation::fillResultRecord(
     AbimoInputRecord& input,
     IntermediateResults& results,
@@ -638,50 +665,22 @@ void Calculation::writeResultRecord(
     writer.setRecordField("VERDUNSTUN", record.evaporation_VERDUNSTUN);
 }
 
-void Calculation::runCalculation(
-        QString inputFile,
-        QString configFile,
-        QString outputFile,
-        bool debug
-)
+int Calculation::progressNumber(int i, int n, float max)
 {
-    // Open the input file
-    AbimoReader dbReader(inputFile);
+    return (int) (static_cast<float>(i) / static_cast<float>(n) * max);
+}
 
-    // Try to read the raw (text) values into the dbReader object
-    if (!dbReader.checkAndRead()) {
-        abort();
-    }
+void Calculation::stopProcessing()
+{
+    m_continueProcessing = false;
+}
 
-    // Update default initial values with values given in configFile
-    InitValues initValues;
+Counters Calculation::getCounters() const
+{
+    return m_counters;
+}
 
-    if (configFile.isEmpty()) {
-        qDebug() << "No config file given -> Using default values";
-    }
-    else {
-        qDebug() << "Using configuration file:" << configFile;
-        QString error = InitValues::updateFromConfig(initValues, configFile);
-        if (!error.isEmpty()) {
-            qDebug() << "Error in updateFromConfig: " << error;
-            abort();
-        }
-    }
-
-    QFile logHandle(helpers::defaultLogFileName(outputFile));
-
-    helpers::openFileOrAbort(logHandle, QFile::WriteOnly);
-
-    QTextStream logStream(&logHandle);
-
-    Calculation calculator(dbReader, initValues, logStream);
-
-    bool success = calculator.calculate(outputFile, debug);
-
-    if (!success) {
-        qDebug() << "Error in calculate(): " << calculator.getError();
-        abort();
-    }
-
-    logHandle.close();
+QString Calculation::getError() const
+{
+    return m_error;
 }

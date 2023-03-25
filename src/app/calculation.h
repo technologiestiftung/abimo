@@ -30,27 +30,27 @@ public:
 
     // Constructor
     Calculation(
-            AbimoReader &dbaseReader,
-            InitValues &initValues,
-            QTextStream & protocolStream
+        AbimoReader &dbaseReader,
+        InitValues &initValues,
+        QTextStream & protocolStream
     );
 
     // Static function to perform a "batch run"
     static void runCalculation(
-            QString inputFile,
-            QString configFile,
-            QString outputFile,
-            bool debug = false
+        QString inputFile,
+        QString configFile,
+        QString outputFile,
+        bool debug = false
     );
 
-    // Member function to perform the calculation on an instance of the
-    // Calculation class
+    // Main function to perform the calculation of the whole input table
     bool calculate(QString& outputFile, bool debug = false);
 
+    // Get-functions
     Counters getCounters() const;
-
     QString getError() const;
 
+    // Function to be called to stop a running calculation
     void stopProcessing();
 
 signals:
@@ -58,25 +58,52 @@ signals:
 
 private:
 
+    //
     // All private member variables of this class will be prefixed with "m_"
+    //
+
+    // Mapping between type of area and "usage tuples" consisting of three
+    // elements (main usage type, yield, irrigation)
     UsageConfiguration m_usageMappings;
 
+    // Initial values as provided in config.xml
     InitValues& m_initValues;
+
+    // Accessor to the log file (.log)
     QTextStream& m_protocolStream;
+
+    // Accessor to the input file (.dbf)
     AbimoReader& m_dbReader;
 
+    // Structure holding long and short error text
     QString m_error;
+
+    // Structure holding different counters, required for reporting
     Counters m_counters;
 
     // Variable to control whether to stop processing
     bool m_continueProcessing;
 
+    //
     // Methods
+    //
+
+    void doCalculationsFor(
+        AbimoInputRecord& input,
+        IntermediateResults& results
+    );
+
     UsageTuple provideUsageInformation(AbimoInputRecord& input);
 
     EvaporationRelevantVariables setEvaporationVars(
         UsageTuple& usageTuple,
         AbimoInputRecord& input
+    );
+
+    Precipitation getPrecipitation(
+        int precipitationYear,
+        int precipitationSummer,
+        InitValues& initValues
     );
 
     PotentialEvaporation getPotentialEvaporation(
@@ -86,10 +113,12 @@ private:
         QString code
     );
 
-    Precipitation getPrecipitation(
-        int precipitationYear,
-        int precipitationSummer,
-        InitValues& initValues
+    float initValueOrReportedDefaultValue(
+        int bez,
+        QString code,
+        QHash<int, int> &hash,
+        int defaultValue,
+        QString name
     );
 
     void setBagrovValues(
@@ -106,21 +135,6 @@ private:
         UsageTuple& usageTuple
     );
 
-    float initValueOrReportedDefaultValue(
-        int bez,
-        QString code,
-        QHash<int, int> &hash,
-        int defaultValue,
-        QString name
-    );
-
-    int progressNumber(int i, int n, float max);
-
-    void doCalculationsFor(
-        AbimoInputRecord& input,
-        IntermediateResults& results
-    );
-
     int fillResultRecord(
         AbimoInputRecord& input,
         IntermediateResults& results,
@@ -131,6 +145,8 @@ private:
         AbimoOutputRecord& output,
         AbimoWriter& writer
     ) const;
+
+    int progressNumber(int i, int n, float max);
 };
 
 #endif
