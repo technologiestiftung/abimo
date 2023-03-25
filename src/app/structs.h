@@ -57,4 +57,16 @@ struct Precipitation {
     float inSummerFloat;
 };
 
+struct EvaporationRelevantVariables {
+
+    // nFK-Wert (ergibt sich aus Bodenart) ID_NFK neu
+    // water holding capacity (= nutzbare Feldkapazitaet)
+    float usableFieldCapacity = 0.0f; // old: nFK
+
+    // pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS
+    // potentielle Aufstiegshoehe
+    float potentialCapillaryRise_TAS = 0.0f;
+    float meanPotentialCapillaryRiseRate = 0.0f;
+};
+
 #endif // STRUCTS_H

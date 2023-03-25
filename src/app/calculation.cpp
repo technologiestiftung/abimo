@@ -153,39 +153,10 @@ void Calculation::doCalculationsFor(
     // Based on the given input row, try to provide usage-specific information
     UsageTuple usageTuple = tryToGetUsageInformation(input);
 
-    // nFK-Wert (ergibt sich aus Bodenart) ID_NFK neu
-    // water holding capacity (= nutzbare Feldkapazitaet)
-    float usableFieldCapacity = 0.0f; // old: nFK
-
-    // pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS
-    // potentielle Aufstiegshoehe
-    float potentialCapillaryRise_TAS = 0.0f;
-    float meanPotentialCapillaryRiseRate = 0.0f;
-
-    if (usageTuple.usage != Usage::waterbody_G)
-    {
-        // Feldkapazitaet
-        usableFieldCapacity = SoilAndVegetation::estimateWaterHoldingCapacity(
-            input.fieldCapacity_30,
-            input.fieldCapacity_150,
-            usageTuple.usage == Usage::forested_W
-        );
-
-        // pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS
-        // potentielle Aufstiegshoehe
-        potentialCapillaryRise_TAS = input.depthToWaterTable -
-            m_usageMappings.getRootingDepth(usageTuple.usage, usageTuple.yield);
-
-        // mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres
-        // Kapillarer Aufstieg pro Jahr ID_KR neu, old: KR
-        meanPotentialCapillaryRiseRate =
-            SoilAndVegetation::getMeanPotentialCapillaryRiseRate(
-                potentialCapillaryRise_TAS,
-                usableFieldCapacity,
-                usageTuple.usage,
-                usageTuple.yield
-            );
-    }
+    EvaporationRelevantVariables evaporationVars = setEvaporationVars(
+        usageTuple,
+        input
+    );
 
     if (m_initValues.getIrrigationToZero() && usageTuple.irrigation != 0) {
         //*protokollStream << "Erzwinge BER=0 fuer Code: " << code << ", Wert war:" << ptrDA.BER << " \r\n";
@@ -235,9 +206,7 @@ void Calculation::doCalculationsFor(
             potentialEvaporation,
             precipitation,
             input.depthToWaterTable,
-            meanPotentialCapillaryRiseRate,
-            potentialCapillaryRise_TAS,
-            usableFieldCapacity,
+            evaporationVars,
             usageTuple
         );
 
@@ -445,6 +414,44 @@ UsageTuple Calculation::tryToGetUsageInformation(AbimoInputRecord& input)
     return m_usageMappings.getUsageTuple(usageResult.tupleIndex);
 }
 
+EvaporationRelevantVariables Calculation::setEvaporationVars(
+    UsageTuple& usageTuple,
+    AbimoInputRecord& input
+)
+{
+    // Initialise variables that are relevant to calculate evaporation
+    EvaporationRelevantVariables result;
+
+    // Nothing to do for waterbodies
+    if (usageTuple.usage == Usage::waterbody_G) {
+        return result;
+    }
+
+    // Feldkapazitaet
+    result.usableFieldCapacity = SoilAndVegetation::estimateWaterHoldingCapacity(
+        input.fieldCapacity_30,
+        input.fieldCapacity_150,
+        usageTuple.usage == Usage::forested_W
+    );
+
+    // pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS
+    // potentielle Aufstiegshoehe
+    result.potentialCapillaryRise_TAS = input.depthToWaterTable -
+        m_usageMappings.getRootingDepth(usageTuple.usage, usageTuple.yield);
+
+    // mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres
+    // Kapillarer Aufstieg pro Jahr ID_KR neu, old: KR
+    result.meanPotentialCapillaryRiseRate =
+        SoilAndVegetation::getMeanPotentialCapillaryRiseRate(
+            result.potentialCapillaryRise_TAS,
+            result.usableFieldCapacity,
+            usageTuple.usage,
+            usageTuple.yield
+        );
+
+    return result;
+}
+
 PotentialEvaporation Calculation::getPotentialEvaporation(
     Usage& usage, InitValues& initValues, int district, QString code
 )
@@ -507,9 +514,7 @@ float Calculation::realEvapotranspiration(
     PotentialEvaporation potentialEvaporation,
     Precipitation precipitation,
     float depthToWaterTable,
-    float meanPotentialCapillaryRiseRate,
-    float potentialCapillaryRise_TAS,
-    float usableFieldCapacity,
+    EvaporationRelevantVariables& evaporationVars,
     UsageTuple& usageTuple
 )
 {
@@ -520,10 +525,10 @@ float Calculation::realEvapotranspiration(
     // Modul Raster abgespeckt (???)
     float effectivityParameter = EffectivenessUnsealed::getEffectivityParameter(
         usageTuple,
-        usableFieldCapacity,
+        evaporationVars.usableFieldCapacity,
         precipitation.inSummerFloat,
         potentialEvaporation.inSummerInteger,
-        meanPotentialCapillaryRiseRate
+        evaporationVars.meanPotentialCapillaryRiseRate
     );
 
     // Calculate the x-factor of bagrov relation: x = (P + KR + BER)/ETP
@@ -533,7 +538,7 @@ float Calculation::realEvapotranspiration(
         effectivityParameter,
         (
             precipitation.perYearCorrectedFloat +
-            meanPotentialCapillaryRiseRate +
+            evaporationVars.meanPotentialCapillaryRiseRate +
             usageTuple.irrigation
         ) / potentialEvaporation.perYearFloat
     );
@@ -541,10 +546,11 @@ float Calculation::realEvapotranspiration(
     // Get the real evapotransporation using estimated y-factor
     float result = yRatio * potentialEvaporation.perYearFloat;
 
-    if (potentialCapillaryRise_TAS < 0) {
+    if (evaporationVars.potentialCapillaryRise_TAS < 0) {
         result += (potentialEvaporation.perYearFloat - result) *
             static_cast<float>(
-                exp(depthToWaterTable / potentialCapillaryRise_TAS)
+                exp(depthToWaterTable /
+                evaporationVars.potentialCapillaryRise_TAS)
             );
     }
 

@@ -79,6 +79,11 @@ private:
 
     UsageTuple tryToGetUsageInformation(AbimoInputRecord& input);
 
+    EvaporationRelevantVariables setEvaporationVars(
+        UsageTuple& usageTuple,
+        AbimoInputRecord& input
+    );
+
     PotentialEvaporation getPotentialEvaporation(
         Usage& usage,
         InitValues& initValues,
@@ -96,9 +101,7 @@ private:
         PotentialEvaporation potentialEvaporation,
         Precipitation precipitation,
         float depthToWaterTable,
-        float meanPotentialCapillaryRiseRate,
-        float potentialCapillaryRise_TAS,
-        float usableFieldCapacity,
+        EvaporationRelevantVariables& evaporationVars,
         UsageTuple& usageTuple
     );
 
