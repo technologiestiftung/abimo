@@ -230,13 +230,41 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
     );
 
     // Bagrov-calculation for sealed surfaces
-    getClimaticConditions(
-        precipitation,
-        potentialEvaporation,
-        usageTuple,
-        meanPotentialCapillaryRiseRate,
-        inputRecord.depthToWaterTable
-    );
+
+    // Berechnung der Abfluesse RDV und R1V bis R4V fuer versiegelte
+    // Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4
+
+    // ratio of precipitation to potential evaporation
+    float xRatio =
+            precipitation.perYearCorrectedFloat /
+            potentialEvaporation.perYearFloat;
+
+    // Berechnung des Abflusses RxV fuer versiegelte Teilflaechen mittels
+    // Umrechnung potentieller Verdunstungen potentialEvaporation zu realen
+    // ueber Umrechnungsfaktor yRatio und subtrahiert von Niederschlag
+    // precipitation
+    // index 0 = roof, indices 1 - 4 = surface classes 1 - 4
+
+    for (int i = 0; i < static_cast<int>(m_bagrovValues.size()); i++) {
+        m_bagrovValues[i] = precipitation.perYearCorrectedFloat -
+            Bagrov::nbagro(m_initValues.getBagrovValue(i), xRatio) *
+            potentialEvaporation.perYearFloat;
+    }
+
+    // Calculate runoff RUV for unsealed surfaces
+    float actualEvaporation = (usageTuple.usage == Usage::waterbody_G) ?
+        potentialEvaporation.perYearFloat :
+        realEvapotranspiration(
+            potentialEvaporation,
+            precipitation,
+            inputRecord.depthToWaterTable,
+            meanPotentialCapillaryRiseRate,
+            usageTuple
+        );
+
+    m_unsealedSurfaceRunoff_RUV = precipitation.perYearCorrectedFloat -
+        actualEvaporation;
+
 
     // percentage of total sealed area
     // share of roof area [%] 'PROBAU' +
@@ -392,54 +420,6 @@ void Calculation::doCalculationsFor(AbimoInputRecord& inputRecord)
         m_initValues.getPrecipitationCorrectionFactor()
     ) - m_totalRunoff_R;
 
-}
-
-// =============================================================================
-// This function uses...
-// This function modifies...
-// =============================================================================
-void Calculation::getClimaticConditions(
-    Precipitation precipitation,
-    PotentialEvaporation potentialEvaporation,
-    UsageTuple& usageTuple,
-    float meanPotentialCapillaryRiseRate,
-    float depthToWaterTable
-)
-{
-    // Berechnung der Abfluesse RDV und R1V bis R4V fuer versiegelte
-    // Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4
-
-    // ratio of precipitation to potential evaporation
-    float xRatio =
-        precipitation.perYearCorrectedFloat /
-        potentialEvaporation.perYearFloat;
-
-    // Berechnung des Abflusses RxV fuer versiegelte Teilflaechen mittels
-    // Umrechnung potentieller Verdunstungen potentialEvaporation zu realen
-    // ueber Umrechnungsfaktor yRatio und subtrahiert von Niederschlag
-    // precipitation
-    // index 0 = roof, indices 1 - 4 = surface classes 1 - 4
-
-    for (int i = 0; i < static_cast<int>(m_bagrovValues.size()); i++) {
-
-        m_bagrovValues[i] = precipitation.perYearCorrectedFloat -
-            Bagrov::nbagro(m_initValues.getBagrovValue(i), xRatio) *
-            potentialEvaporation.perYearFloat;
-    }
-
-    // Calculate runoff RUV for unsealed surfaces
-    float actualEvaporation = (usageTuple.usage == Usage::waterbody_G) ?
-        potentialEvaporation.perYearFloat :
-        realEvapotranspiration(
-            potentialEvaporation,
-            precipitation,
-            depthToWaterTable,
-            meanPotentialCapillaryRiseRate,
-            usageTuple
-        );
-
-    m_unsealedSurfaceRunoff_RUV =
-        precipitation.perYearCorrectedFloat - actualEvaporation;
 }
 
 PotentialEvaporation Calculation::getPotentialEvaporation(

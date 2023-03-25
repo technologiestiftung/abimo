@@ -79,14 +79,6 @@ private:
 
     void logNotDefined(QString code, int type);
 
-    void getClimaticConditions(
-        Precipitation precipitation,
-        PotentialEvaporation potentialEvaporation,
-        UsageTuple& usageTuple,
-        float meanPotentialCapillaryRiseRate,
-        float depthToWaterTable
-    );
-
     PotentialEvaporation getPotentialEvaporation(
         Usage& usage, InitValues& initValues, int district, QString code
     );
