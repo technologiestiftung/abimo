@@ -214,8 +214,7 @@ void Calculation::doCalculationsFor(
             usageTuple,
             potentialEvaporation,
             evaporationVars,
-            precipitation,
-            input.depthToWaterTable
+            precipitation
         );
 
     // percentage of total sealed area
@@ -436,6 +435,8 @@ EvaporationRelevantVariables Calculation::setEvaporationVars(
     // Initialise variables that are relevant to calculate evaporation
     EvaporationRelevantVariables result;
 
+    result.depthToWaterTable = input.depthToWaterTable;
+
     // Nothing to do for waterbodies
     if (usageTuple.usage == Usage::waterbody_G) {
         return result;
@@ -450,7 +451,7 @@ EvaporationRelevantVariables Calculation::setEvaporationVars(
 
     // pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS
     // potentielle Aufstiegshoehe
-    result.potentialCapillaryRise_TAS = input.depthToWaterTable -
+    result.potentialCapillaryRise_TAS = result.depthToWaterTable -
         m_usageMappings.getRootingDepth(usageTuple.usage, usageTuple.yield);
 
     // mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres
@@ -583,8 +584,7 @@ float Calculation::actualEvaporation(
     UsageTuple& usageTuple,
     PotentialEvaporation& potentialEvaporation,
     EvaporationRelevantVariables& evaporationVars,
-    Precipitation& precipitation,
-    float depthToWaterTable
+    Precipitation& precipitation
 )
 {
     // For water bodies, return the potential evaporation
@@ -624,7 +624,7 @@ float Calculation::actualEvaporation(
     if (evaporationVars.potentialCapillaryRise_TAS < 0) {
         result += (potentialEvaporation.perYearFloat - result) *
             static_cast<float>(
-                exp(depthToWaterTable /
+                exp(evaporationVars.depthToWaterTable /
                 evaporationVars.potentialCapillaryRise_TAS)
             );
     }

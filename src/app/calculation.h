@@ -131,8 +131,7 @@ private:
         UsageTuple& usageTuple,
         PotentialEvaporation& potentialEvaporation,
         EvaporationRelevantVariables& evaporationVars,
-        Precipitation& precipitation,
-        float depthToWaterTable
+        Precipitation& precipitation
     );
 
     int fillResultRecord(

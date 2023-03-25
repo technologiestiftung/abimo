@@ -67,6 +67,10 @@ struct EvaporationRelevantVariables {
     // potentielle Aufstiegshoehe
     float potentialCapillaryRise_TAS = 0.0f;
     float meanPotentialCapillaryRiseRate = 0.0f;
+
+    // Flurabstandswert [m] ID_FLW 4.1 N
+    // depth to groundwater table 'FLUR'
+    float depthToWaterTable; // old: FLUR, FLW
 };
 
 #endif // STRUCTS_H
