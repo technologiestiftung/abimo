@@ -6,9 +6,9 @@
 #include <math.h> // for abs()
 #include <vector>
 
-#include "config.h"
+#include "usageConfiguration.h"
 #include "helpers.h"
-#include "pdr.h"
+#include "soilAndVegetation.h"
 
 // Potential rate of ascent (column labels for matrix
 // meanPotentialCapillaryRiseRateSummer)

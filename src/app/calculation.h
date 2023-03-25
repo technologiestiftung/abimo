@@ -15,12 +15,12 @@
 #include "abimoWriter.h"
 #include "abimoInputRecord.h"
 #include "abimoOutputRecord.h"
-#include "config.h"
+#include "usageConfiguration.h"
 #include "counters.h"
 #include "dbaseWriter.h"
 #include "initValues.h"
 #include "intermediateResults.h"
-#include "pdr.h"
+#include "soilAndVegetation.h"
 
 class Calculation : public QObject
 {
@@ -59,7 +59,7 @@ signals:
 private:
 
     // All private member variables of this class will be prefixed with "m_"
-    Config m_usageMappings;
+    UsageConfiguration m_usageMappings;
 
     InitValues& m_initValues;
     QTextStream& m_protocolStream;

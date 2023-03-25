@@ -1,15 +1,15 @@
 #include <QHash>
 
-#include "config.h"
-#include "pdr.h"
+#include "usageConfiguration.h"
+#include "soilAndVegetation.h"
 
-Config::Config()
+UsageConfiguration::UsageConfiguration()
 {    
     initUsageYieldIrrigationTuples();
     initUsageAndTypeToTupleHash();
 }
 
-void Config::initUsageYieldIrrigationTuples()
+void UsageConfiguration::initUsageYieldIrrigationTuples()
 {
     // Define all different value combinations
     // (usage - NUT, yield power - ERT, irrigation - BER)
@@ -39,7 +39,7 @@ void Config::initUsageYieldIrrigationTuples()
 // irrigation)-tuples
 //==============================================================================
 
-void Config::initUsageAndTypeToTupleHash()
+void UsageConfiguration::initUsageAndTypeToTupleHash()
 {
     // assignment of type identifiers to tuple indices
     //
@@ -171,7 +171,7 @@ void Config::initUsageAndTypeToTupleHash()
 //==============================================================================
 //    Bestimmung der Durchwurzelungstiefe TWS
 //==============================================================================
-float Config::getRootingDepth(Usage usage, int yield)
+float UsageConfiguration::getRootingDepth(Usage usage, int yield)
 {
     // Zuordnung Durchwurzelungstiefe in Abhaengigkeit der Nutzung
     switch(usage) {
@@ -193,7 +193,7 @@ float Config::getRootingDepth(Usage usage, int yield)
     }
 }
 
-UsageResult Config::getUsageResult(int usageID, int type, QString code)
+UsageResult UsageConfiguration::getUsageResult(int usageID, int type, QString code)
 {
     if (!usageHash.contains(usageID)) {
         return {
@@ -206,7 +206,7 @@ UsageResult Config::getUsageResult(int usageID, int type, QString code)
     return lookup(usageHash[usageID], type, code);
 }
 
-UsageResult Config::lookup(QHash<int,int>hash, int type, QString code)
+UsageResult UsageConfiguration::lookup(QHash<int,int>hash, int type, QString code)
 {
     if (hash.contains(type)) {
         return {hash[type], ""};
@@ -223,7 +223,7 @@ UsageResult Config::lookup(QHash<int,int>hash, int type, QString code)
     return {hash[-2], ""};
 }
 
-UsageTuple Config::getUsageTuple(int tupleID)
+UsageTuple UsageConfiguration::getUsageTuple(int tupleID)
 {
     assert(tupleID >= 0);
     return usageTuples[tupleID];

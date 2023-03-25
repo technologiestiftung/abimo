@@ -24,7 +24,6 @@ HEADERS += \
     abimoWriter.h \
     bagrov.h \
     calculation.h \
-    config.h \
     constants.h \
     counters.h \
     dbaseField.h \
@@ -37,8 +36,10 @@ HEADERS += \
     intermediateResults.h \
     main.h \
     mainWindow.h \
-    pdr.h \
-    saxHandler.h
+    saxHandler.h \
+    soilAndVegetation.h \
+    structs.h \
+    usageConfiguration.h
 
 SOURCES += \
     abimoInputRecord.cpp \
@@ -47,7 +48,6 @@ SOURCES += \
     abimoWriter.cpp \
     bagrov.cpp \
     calculation.cpp \
-    config.cpp \
     counters.cpp \
     dbaseField.cpp \
     dbaseFile.cpp \
@@ -59,8 +59,9 @@ SOURCES += \
     intermediateResults.cpp \
     main.cpp \
     mainWindow.cpp \
-    pdr.cpp \
-    saxHandler.cpp
+    saxHandler.cpp \
+    soilAndVegetation.cpp \
+    usageConfiguration.cpp
 
 #RC_FILE += AbimoQt.rc
 #OTHER_FILES += release/config.xml

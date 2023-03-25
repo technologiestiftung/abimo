@@ -38,7 +38,6 @@ HEADERS += \
     $$INCDIR/abimoWriter.h \
     $$INCDIR/bagrov.h \
     $$INCDIR/calculation.h\
-    $$INCDIR/config.h\
     $$INCDIR/counters.h\
     $$INCDIR/dbaseField.h \
     $$INCDIR/dbaseFile.h \
@@ -48,8 +47,9 @@ HEADERS += \
     $$INCDIR/helpers.h \
     $$INCDIR/initValues.h \
     $$INCDIR/intermediateResults.h \
-    $$INCDIR/pdr.h \
-    $$INCDIR/saxHandler.h
+    $$INCDIR/saxHandler.h \
+    $$INCDIR/soilAndVegetation.h \
+    $$INCDIR/usageConfiguration.h
 
 SOURCES += \
     $$INCDIR/abimoInputRecord.cpp \
@@ -58,7 +58,6 @@ SOURCES += \
     $$INCDIR/abimoWriter.cpp \
     $$INCDIR/bagrov.cpp \
     $$INCDIR/calculation.cpp \
-    $$INCDIR/config.cpp \
     $$INCDIR/counters.cpp \
     $$INCDIR/dbaseField.cpp \
     $$INCDIR/dbaseFile.cpp \
@@ -68,6 +67,7 @@ SOURCES += \
     $$INCDIR/helpers.cpp \
     $$INCDIR/initValues.cpp \
     $$INCDIR/intermediateResults.cpp \
-    $$INCDIR/pdr.cpp \
     $$INCDIR/saxHandler.cpp \
+    $$INCDIR/soilAndVegetation.cpp \
+    $$INCDIR/usageConfiguration.cpp \
     tst_testabimo.cpp

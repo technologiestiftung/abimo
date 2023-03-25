@@ -9,7 +9,7 @@
 
 #include "../app/abimoReader.h"
 #include "../app/calculation.h"
-#include "../app/config.h"
+#include "../app/usageConfiguration.h"
 #include "../app/dbaseField.h"
 #include "../app/dbaseReader.h"
 #include "../app/helpers.h"
@@ -179,7 +179,7 @@ void TestAbimo::test_xmlReader()
 void TestAbimo::test_config_getTWS()
 {
     // Create configuration object
-    Config config;
+    UsageConfiguration config;
     QVERIFY(qFuzzyCompare(config.getRootingDepth(Usage::vegetationless_D, 50), 0.2F));
     QVERIFY(qFuzzyCompare(config.getRootingDepth(Usage::agricultural_L, 50), 0.6F));
     QVERIFY(qFuzzyCompare(config.getRootingDepth(Usage::agricultural_L, 51), 0.7F));

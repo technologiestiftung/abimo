@@ -16,14 +16,14 @@
 #include "abimoOutputRecord.h"
 #include "bagrov.h"
 #include "calculation.h"
-#include "config.h"
+#include "usageConfiguration.h"
 #include "constants.h"
 #include "counters.h"
 #include "effectivenessUnsealed.h"
 #include "helpers.h"
 #include "initValues.h"
 #include "intermediateResults.h"
-#include "pdr.h"
+#include "soilAndVegetation.h"
 
 Calculation::Calculation(
     AbimoReader& dbaseReader,
