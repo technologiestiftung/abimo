@@ -127,12 +127,12 @@ private:
         std::array<float,5>& bagrovValues
     );
 
-    float realEvapotranspiration(
-        PotentialEvaporation potentialEvaporation,
-        Precipitation precipitation,
-        float depthToWaterTable,
+    float actualEvaporation(
+        UsageTuple& usageTuple,
+        PotentialEvaporation& potentialEvaporation,
         EvaporationRelevantVariables& evaporationVars,
-        UsageTuple& usageTuple
+        Precipitation& precipitation,
+        float depthToWaterTable
     );
 
     int fillResultRecord(

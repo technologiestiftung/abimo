@@ -207,19 +207,16 @@ void Calculation::doCalculationsFor(
     setBagrovValues(precipitation, potentialEvaporation, results.bagrovValues);
 
     // Calculate runoff RUV for unsealed surfaces
-    float actualEvaporation = (usageTuple.usage == Usage::waterbody_G) ?
-        potentialEvaporation.perYearFloat :
-        realEvapotranspiration(
-            potentialEvaporation,
-            precipitation,
-            input.depthToWaterTable,
-            evaporationVars,
-            usageTuple
-        );
-
     // runoff for unsealed partial surfaces
-    float unsealedSurfaceRunoff_RUV = precipitation.perYearCorrectedFloat -
-        actualEvaporation;
+    float unsealedSurfaceRunoff_RUV =
+        precipitation.perYearCorrectedFloat -
+        actualEvaporation(
+            usageTuple,
+            potentialEvaporation,
+            evaporationVars,
+            precipitation,
+            input.depthToWaterTable
+        );
 
     // percentage of total sealed area
     // share of roof area [%] 'PROBAU' +
@@ -582,14 +579,20 @@ void Calculation::setBagrovValues(
     }
 }
 
-float Calculation::realEvapotranspiration(
-    PotentialEvaporation potentialEvaporation,
-    Precipitation precipitation,
-    float depthToWaterTable,
+float Calculation::actualEvaporation(
+    UsageTuple& usageTuple,
+    PotentialEvaporation& potentialEvaporation,
     EvaporationRelevantVariables& evaporationVars,
-    UsageTuple& usageTuple
+    Precipitation& precipitation,
+    float depthToWaterTable
 )
 {
+    // For water bodies, return the potential evaporation
+    if (usageTuple.usage == Usage::waterbody_G) {
+        return potentialEvaporation.perYearFloat;
+    }
+
+    // Otherwise calculate the real evapo transpiration
     assert(potentialEvaporation.perYearFloat > 0.0);
 
     // Determine effectivity/effectiveness ??? parameter (old???: bag) for
