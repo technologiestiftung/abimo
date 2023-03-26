@@ -227,7 +227,7 @@ void Calculation::doCalculationsFor(
     RunoffSealed runoffSealed;
     calculateRunoffSealed(input, bagrovValues, runoffSealed);
 
-    // Infiltration into impervious surfaces
+    // Infiltration into impervious surfaces (?)
     InfiltrationSealed infiltrationSealed;
     calculateInfiltrationSealed(input, bagrovValues, runoffSealed, infiltrationSealed);
 
@@ -247,15 +247,6 @@ void Calculation::doCalculationsFor(
             input.areaFractionRoad() *
             bagrovValues.surface.last();
 
-    // percentage of total sealed area
-    // share of roof area [%] 'PROBAU' +
-    // share of other (unbuilt) sealed areas (e.g. Hofflaechen)
-    // Versiegelungsgrad bebauter Flaechen [%] ID_VER 002 N, old: VER
-    float mainPercentageSealed = static_cast<float>(helpers::roundToInteger(
-        input.mainFractionBuiltSealed * 100 +
-        input.mainFractionUnbuiltSealed * 100
-    ));
-
     // Calculate runoff RUV for unsealed surfaces
     // runoff for unsealed partial surfaces
     float unsealedSurfaceRunoff_RUV =
@@ -272,7 +263,7 @@ void Calculation::doCalculationsFor(
     // old: riuv
     // runoff for unsealed surfaces rowuv = 0 (???)
     float infiltrationPerviousSurfaces = (
-        100.0F - mainPercentageSealed
+        100.0F - input.mainPercentageSealed()
     ) / 100.0F * unsealedSurfaceRunoff_RUV;
 
     // calculate runoff 'ROW' for entire block patial area (FLGES +

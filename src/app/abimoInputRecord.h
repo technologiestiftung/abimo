@@ -4,6 +4,8 @@
 #include <array>
 #include <QString>
 
+#include "helpers.h"
+
 // Fraction indicates numbers between 0 and 1 (instead of percentages)
 class AbimoInputRecord
 {
@@ -103,6 +105,17 @@ public:
         assert(total > 0);
         assert(area <= total);
         return area / total;
+    }
+
+    // percentage of total sealed area
+    // share of roof area [%] 'PROBAU' +
+    // share of other (unbuilt) sealed areas (e.g. Hofflaechen)
+    // Versiegelungsgrad bebauter Flaechen [%] ID_VER 002 N, old: VER
+    inline float mainPercentageSealed() {
+        return static_cast<float>(helpers::roundToInteger(
+            mainFractionBuiltSealed * 100 +
+            mainFractionUnbuiltSealed * 100
+        ));
     }
 
     inline float yearlyHeightToVolumeFlow(float height) {
