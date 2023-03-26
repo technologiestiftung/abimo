@@ -204,24 +204,13 @@ void Calculation::doCalculationsFor(
 
     // Berechnung der Abfluesse RDV und R1V bis R4V fuer versiegelte
     // Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4
+    // - RDV / RxV: Gesamtabfluss versiegelte Flaeche
+
     BagrovValues bagrovValues;
     setBagrovValues(precipitation, potentialEvaporation, bagrovValues);
 
     // Set default area if total area is zero
     handleTotalAreaOfZero(input);
-
-    //
-    // Runoff for sealed surfaces
-    //
-    // Legende der Abflussberechnung der 4 Belagsklassen bzw. Dachklasse:
-    // - rowd / rowx: Abfluss Dachflaeche / Abfluss Belagsflaeche x
-    // - infdach / infbelx: Infiltrationsparameter Dachfl. / Belagsfl. x
-    // - belx: Anteil Belagsklasse x
-    // - blsx: Anteil Strassenbelagsklasse x
-    // - vgd / vgb: Anteil versiegelte Dachfl. / sonstige versiegelte Flaeche zu Gesamtblockteilflaeche
-    // - kd / kb / ks: Grad der Kanalisierung Dach / sonst. vers. Fl. / Strassenflaechen
-    // - fbant / fsant: ?
-    // - RDV / RxV: Gesamtabfluss versiegelte Flaeche
 
     // Runoff of impervious (sealed) surfaces
     Runoff runoff;
@@ -252,14 +241,14 @@ void Calculation::doCalculationsFor(
     calculateInfiltrationSealed(input, bagrovValues, runoff, infiltration);
 
     // ... from unsealed road surfaces
-    infiltration.perviousRoads =
+    infiltration.unsealedRoads =
         (1 - input.roadFractionSealed) *
         input.areaFractionRoad() *
         bagrovValues.surface.last();
 
     // ... from unsealed non-road surfaces
     // old: riuv
-    infiltration.perviousSurfaces = (
+    infiltration.unsealedSurfaces = (
         100.0F - input.mainPercentageSealed()
     ) / 100.0F * runoff.unsealedSurface_RUV;
 
@@ -271,8 +260,8 @@ void Calculation::doCalculationsFor(
     results.infiltration_RI = (
         infiltration.roof +
         helpers::vectorSum(infiltration.surface) +
-        infiltration.perviousRoads +
-        infiltration.perviousSurfaces
+        infiltration.unsealedRoads +
+        infiltration.unsealedSurfaces
     );
 
     // Set runoff-related fields in output record
@@ -283,12 +272,14 @@ void Calculation::doCalculationsFor(
     results.surfaceRunoff_ROW = (
         runoff.roof +
         helpers::vectorSum(runoff.sealedSurface) +
-        runoff.perviousRoads
+        runoff.unsealedRoads
     );
 
     // calculate total system losses 'r' due to runoff and infiltration
     // for entire block partial area
-    results.totalRunoff_R = results.surfaceRunoff_ROW + results.infiltration_RI;
+    results.totalRunoff_R =
+        results.surfaceRunoff_ROW +
+        results.infiltration_RI;
 
     // Convert yearly heights to flows
     //================================
@@ -538,8 +529,7 @@ void Calculation::calculateRunoffSealed(
     Runoff& runoff
 )
 {
-    // runoff from roof surfaces (Abfluss der Dachflaechen)
-    // old: rowd
+    // runoff from roof surfaces (Abfluss der Dachflaechen), old: rowd
     runoff.roof =
         (1.0F - m_initValues.getInfiltrationFactor(0)) * // 0 = roof!
         input.mainFractionBuiltSealed *
@@ -549,6 +539,7 @@ void Calculation::calculateRunoffSealed(
 
     for (int i = 0; i < static_cast<int>(runoff.sealedSurface.size()); i++) {
 
+        // Abfluss Belagsflaeche i + 1, old: row<i>
         runoff.sealedSurface[i] =
             (1.0F - m_initValues.getInfiltrationFactor(i + 1)) *
             (

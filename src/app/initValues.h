@@ -51,6 +51,8 @@ public:
 private:
     // Infiltrationsfaktoren
     // index 0: roof, indices 1-4: surface classes 1-4
+    // - infdach: Infiltrationsparameter Dachfl.
+    // - infbelx: Infiltrationsparameter Belagsfl. x
     std::array<float,5> infiltrationFactors; // old: infdach, infbel1 - infbel4
 
     // Bagrovwerte

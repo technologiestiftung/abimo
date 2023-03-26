@@ -101,7 +101,7 @@ struct Runoff {
     // old: rowuvs
     // consider unsealed road surfaces as pavement class 4 (???)
     // old: 0.11F * (1-vgs) * fsant * R4V;
-    float perviousRoads = 0.0;
+    float unsealedRoads = 0.0;
 };
 
 // Infiltrationsvariablen der versiegelten Flaechen
@@ -119,13 +119,13 @@ struct Infiltration {
     // infiltration of unsealed areas
     // old: riuv
     // runoff for unsealed surfaces rowuv = 0 (???)
-    float perviousSurfaces = 0.0;
+    float unsealedSurfaces = 0.0;
 
     // Infiltration von unversiegelten Strassenflaechen
     // infiltration for/from unsealed road surfaces
     // old: riuvs
     // old: 0.89F * (1-vgs) * fsant * R4V;
-    float perviousRoads = 0.0;
+    float unsealedRoads = 0.0;
 };
 
 #endif // STRUCTS_H
