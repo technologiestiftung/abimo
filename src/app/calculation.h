@@ -139,7 +139,7 @@ private:
         AbimoInputRecord& input,
         BagrovValues& bagrovValues,
         Runoff& runoff,
-        InfiltrationSealed& infiltrationSealed
+        Infiltration& infiltrationSealed
     );
 
     float actualEvaporation(

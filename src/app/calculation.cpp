@@ -223,26 +223,23 @@ void Calculation::doCalculationsFor(
     // - fbant / fsant: ?
     // - RDV / RxV: Gesamtabfluss versiegelte Flaeche
 
-    // Runoff of impervious surfaces
+    // Runoff of impervious (sealed) surfaces
     Runoff runoff;
     calculateRunoffSealed(input, bagrovValues, runoff);
 
     // Infiltration into impervious surfaces (?)
-    InfiltrationSealed infiltrationSealed;
-    calculateInfiltrationSealed(input, bagrovValues, runoff, infiltrationSealed);
+    Infiltration infiltration;
+    calculateInfiltrationSealed(input, bagrovValues, runoff, infiltration);
 
-    // Infiltration von unversiegelten Strassenflaechen
     // infiltration for/from unsealed road surfaces
-    // old: riuvs
-    // old: 0.89F * (1-vgs) * fsant * R4V;
-    float infiltrationPerviousRoads =
-            (1 - input.roadFractionSealed) *
-            input.areaFractionRoad() *
-            bagrovValues.surface.last();
+    infiltration.perviousRoads =
+        (1 - input.roadFractionSealed) *
+        input.areaFractionRoad() *
+        bagrovValues.surface.last();
 
     // Calculate runoff RUV for unsealed surfaces
     // runoff for unsealed partial surfaces
-    float unsealedSurfaceRunoff_RUV =
+    runoff.unsealedSurface_RUV =
         precipitation.perYearCorrectedFloat -
         actualEvaporation(
             usageTuple,
@@ -255,9 +252,9 @@ void Calculation::doCalculationsFor(
     // infiltration of unsealed areas
     // old: riuv
     // runoff for unsealed surfaces rowuv = 0 (???)
-    float infiltrationPerviousSurfaces = (
+    infiltration.perviousSurfaces = (
         100.0F - input.mainPercentageSealed()
-    ) / 100.0F * unsealedSurfaceRunoff_RUV;
+    ) / 100.0F * runoff.unsealedSurface_RUV;
 
     // calculate runoff 'ROW' for entire block patial area (FLGES +
     // STR_FLGES) (mm/a)
@@ -275,10 +272,10 @@ void Calculation::doCalculationsFor(
     // calculate infiltration rate 'ri' for entire block partial area
     // (mm/a)
     results.infiltration_RI = (
-        helpers::vectorSum(infiltrationSealed.surface) +
-        infiltrationSealed.roof +
-        infiltrationPerviousRoads +
-        infiltrationPerviousSurfaces
+        helpers::vectorSum(infiltration.surface) +
+        infiltration.roof +
+        infiltration.perviousRoads +
+        infiltration.perviousSurfaces
     );
 
     // calculate volume 'rivol' from infiltration rate (qcm/s)
@@ -557,7 +554,7 @@ void Calculation::calculateInfiltrationSealed(
     AbimoInputRecord& input,
     BagrovValues& bagrovValues,
     Runoff& runoff,
-    InfiltrationSealed& infiltrationSealed
+    Infiltration& infiltrationSealed
 )
 {
     infiltrationSealed.roof =

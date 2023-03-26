@@ -92,6 +92,10 @@ struct Runoff {
     // old: row1 - row4
     QVector<float> sealedSurface = {0.0, 0.0, 0.0, 0.0};
 
+    // Calculate runoff RUV for unsealed surfaces
+    // runoff for unsealed partial surfaces
+    float unsealedSurface_RUV = 0.0;
+
     // Abfluss von unversiegelten Strassenflaechen
     // runoff from unsealed road surfaces
     // old: rowuvs
@@ -102,7 +106,7 @@ struct Runoff {
 
 // Infiltrationsvariablen der versiegelten Flaechen
 // infiltration variables of sealed surfaces
-struct InfiltrationSealed {
+struct Infiltration {
 
     // infiltration of/for/from? roof surfaces (Infiltration der Dachflaechen)
     // old: rid
@@ -110,6 +114,18 @@ struct InfiltrationSealed {
 
     // old: ri1 - ri4
     QVector<float> surface = {0.0, 0.0, 0.0, 0.0};
+
+    // Infiltration unversiegelter Flaechen
+    // infiltration of unsealed areas
+    // old: riuv
+    // runoff for unsealed surfaces rowuv = 0 (???)
+    float perviousSurfaces = 0.0;
+
+    // Infiltration von unversiegelten Strassenflaechen
+    // infiltration for/from unsealed road surfaces
+    // old: riuvs
+    // old: 0.89F * (1-vgs) * fsant * R4V;
+    float perviousRoads = 0.0;
 };
 
 #endif // STRUCTS_H
