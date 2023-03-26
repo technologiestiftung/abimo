@@ -23,13 +23,13 @@ public:
     // old: REGENJA, P1
     int precipitationYear;
 
-    // precipitationfor summer season only
+    // precipitation for summer season only
     // Sommer-Niederschlag ID_PS neu
     // old: REGENSO, P1S
     int precipitationSummer;
 
+    // depth to groundwater table
     // Flurabstandswert [m] ID_FLW 4.1 N
-    // depth to groundwater table 'FLUR'
     // old: FLUR, FLW
     float depthToWaterTable;
 
@@ -68,18 +68,18 @@ public:
     //
 
     // ... roof surfaces (Dachflaechen)
-    // - kd: Grad der Kanalisierung Dachflaechen
-    // old: KAN_BEB_fraction, kd
+    // ... Grad der Kanalisierung Dachflaechen
+    // ... old: KAN_BEB_fraction, kd
     float builtSealedFractionConnected;
 
     // ... other sealed surfaces (sonst. versiegelte Flaechen)
-    // - kb: Grad der Kanalisierung sonstiger versiegelter Flaechen
-    // old: KAN_VGU_fraction, kb
+    // ... Grad der Kanalisierung sonstiger versiegelter Flaechen
+    // ... old: KAN_VGU_fraction, kb
     float unbuiltSealedFractionConnected;
 
     // ... sealed roads (Strassen)
-    // - ks: Grad der Kanalisierung Strassenflaechen
-    // old: KAN_STR_fraction, ks
+    // ... Grad der Kanalisierung Strassenflaechen
+    // ... old: KAN_STR_fraction, ks
     float roadSealedFractionConnected;
 
     //
@@ -110,15 +110,15 @@ public:
         return mainArea + roadArea;
     }
 
-    // Verhaeltnis Bebauungsflaeche zu Gesamtflaeche
     // Fraction of total area that is not allocated to roads
+    // Verhaeltnis Bebauungsflaeche zu Gesamtflaeche
     // old: fbant (ant = Anteil)
     inline float areaFractionMain() {
         return fractionOfTotalArea(mainArea);
     }
 
-    // Verhaeltnis Strassenflaeche zu Gesamtflaeche
     // Fraction of total area that is allocated to roads
+    // Verhaeltnis Strassenflaeche zu Gesamtflaeche
     // old: fsant (ant = Anteil)
     inline float areaFractionRoad() {
         return fractionOfTotalArea(roadArea);
