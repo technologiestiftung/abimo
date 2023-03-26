@@ -132,13 +132,13 @@ private:
     void calculateRunoffSealed(
         AbimoInputRecord& input,
         BagrovValues& bagrovValues,
-        RunoffSealed& runoffs
+        Runoff& runoff
     );
 
     void calculateInfiltrationSealed(
         AbimoInputRecord& input,
         BagrovValues& bagrovValues,
-        RunoffSealed& runoffs,
+        Runoff& runoff,
         InfiltrationSealed& infiltrationSealed
     );
 

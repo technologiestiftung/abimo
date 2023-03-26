@@ -86,11 +86,18 @@ struct BagrovValues {
 
 // Abflussvariablen der versiegelten Flaechen
 // runoff variables of sealed surfaces
-struct RunoffSealed {
+struct Runoff {
     float roof = 0.0;
 
     // old: row1 - row4
-    QVector<float> surface = {0.0, 0.0, 0.0, 0.0};
+    QVector<float> sealedSurface = {0.0, 0.0, 0.0, 0.0};
+
+    // Abfluss von unversiegelten Strassenflaechen
+    // runoff from unsealed road surfaces
+    // old: rowuvs
+    // consider unsealed road surfaces as pavement class 4 (???)
+    // old: 0.11F * (1-vgs) * fsant * R4V;
+    float perviousRoads = 0.0;
 };
 
 // Infiltrationsvariablen der versiegelten Flaechen
