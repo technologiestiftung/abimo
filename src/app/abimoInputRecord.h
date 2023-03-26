@@ -84,6 +84,20 @@ public:
         return mainArea + roadArea;
     }
 
+    // Verhaeltnis Bebauungsflaeche zu Gesamtflaeche
+    // Fraction of total area that is not allocated to roads
+    // old: fbant (ant = Anteil)
+    inline float areaFractionMain() {
+        return fractionOfTotalArea(mainArea);
+    }
+
+    // Verhaeltnis Strassenflaeche zu Gesamtflaeche
+    // Fraction of total area that is allocated to roads
+    // old: fsant (ant = Anteil)
+    inline float areaFractionRoad() {
+        return fractionOfTotalArea(roadArea);
+    }
+
     inline float fractionOfTotalArea(float area) {
         float total = totalArea_FLAECHE();
         assert(total > 0);

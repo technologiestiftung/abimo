@@ -2,6 +2,7 @@
 #define STRUCTS_H
 
 #include <QString>
+#include <QVector>
 
 // Descriptions from here:
 // https://www.berlin.de/umweltatlas/_assets/wasser/wasserhaushalt/
@@ -71,6 +72,37 @@ struct EvaporationRelevantVariables {
     // Flurabstandswert [m] ID_FLW 4.1 N
     // depth to groundwater table 'FLUR'
     float depthToWaterTable; // old: FLUR, FLW
+};
+
+// Abfluesse nach Bagrov
+struct BagrovValues {
+
+    // Abfluesse nach Bagrov fuer Daecher
+    float roof = 0.0;
+
+    // Abfluesse nach Bagrov fuer Oberflaechenklassen 1 bis 4
+    QVector<float> surface = {0.0, 0.0, 0.0, 0.0};
+};
+
+// Abflussvariablen der versiegelten Flaechen
+// runoff variables of sealed surfaces
+struct RunoffSealed {
+    float roof = 0.0;
+
+    // old: row1 - row4
+    QVector<float> surface = {0.0, 0.0, 0.0, 0.0};
+};
+
+// Infiltrationsvariablen der versiegelten Flaechen
+// infiltration variables of sealed surfaces
+struct InfiltrationSealed {
+
+    // infiltration of/for/from? roof surfaces (Infiltration der Dachflaechen)
+    // old: rid
+    float roof = 0.0;
+
+    // old: ri1 - ri4
+    QVector<float> surface = {0.0, 0.0, 0.0, 0.0};
 };
 
 #endif // STRUCTS_H

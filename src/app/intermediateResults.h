@@ -5,10 +5,6 @@
 
 struct IntermediateResults
 {
-    // Abfluesse nach Bagrov fuer Daecher (index 0) und Oberflaechenklassen
-    // 1 bis 4 (index 1 bis 4)
-    std::array<float,5> bagrovValues = {0.0, 0.0, 0.0, 0.0, 0.0};
-
     // Regenwasserabfluss in Qubikzentimeter pro Sekunde
     float surfaceRunoffFlow_ROWVOL = 0.0f;
 

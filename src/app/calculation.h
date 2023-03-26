@@ -124,10 +124,23 @@ private:
     void setBagrovValues(
         Precipitation& precipitation,
         PotentialEvaporation& potentialEvaporation,
-        std::array<float,5>& bagrovValues
+        BagrovValues& bagrovValues
     );
 
     void handleTotalAreaOfZero(AbimoInputRecord& input);
+
+    void calculateRunoffSealed(
+        AbimoInputRecord& input,
+        BagrovValues& bagrovValues,
+        RunoffSealed& runoffs
+    );
+
+    void calculateInfiltrationSealed(
+        AbimoInputRecord& input,
+        BagrovValues& bagrovValues,
+        RunoffSealed& runoffs,
+        InfiltrationSealed& infiltrationSealed
+    );
 
     float actualEvaporation(
         UsageTuple& usageTuple,

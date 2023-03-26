@@ -51,7 +51,7 @@ namespace helpers
         return (int) round(x);
     }
 
-    inline float vectorSum(const std::vector<float> x) {
+    inline float vectorSum(QVector<float> x) {
         float sum = 0.0;
         for (int i = 0; i < static_cast<int>(x.size()); i++) {
             sum += x[i];

@@ -204,7 +204,8 @@ void Calculation::doCalculationsFor(
 
     // Berechnung der Abfluesse RDV und R1V bis R4V fuer versiegelte
     // Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4
-    setBagrovValues(precipitation, potentialEvaporation, results.bagrovValues);
+    BagrovValues bagrovValues;
+    setBagrovValues(precipitation, potentialEvaporation, bagrovValues);
 
     // Set default area if total area is zero
     handleTotalAreaOfZero(input);
@@ -222,72 +223,13 @@ void Calculation::doCalculationsFor(
     // - fbant / fsant: ?
     // - RDV / RxV: Gesamtabfluss versiegelte Flaeche
 
-    // Verhaeltnis Bebauungsflaeche zu Gesamtflaeche
-    // Fraction of total area that is not allocated to roads
-    // old: fbant (ant = Anteil)
-    float areaFractionMain = input.fractionOfTotalArea(input.mainArea);
+    // Runoff of impervious surfaces
+    RunoffSealed runoffSealed;
+    calculateRunoffSealed(input, bagrovValues, runoffSealed);
 
-    // runoff from roof surfaces (Abfluss der Dachflaechen)
-    // old: rowd
-    float runoffRoofs =
-        (1.0F - m_initValues.getInfiltrationFactor(0)) * // 0 = roof!
-        input.mainFractionBuiltSealed *
-        input.builtSealedFractionConnected *
-        areaFractionMain *
-        results.bagrovValues[0]; // 0 = roof!
-
-    // Abflussvariablen der versiegelten Flaechen
-    // runoff variables of sealed surfaces
-    // Take care: for consistency use indices 1 to 4 only, do not use 0 (roofs)!
-    // old: row1 - row4
-    std::vector<float> runoffSealedSurfaces = {0, 0, 0, 0, 0};
-
-    // Verhaeltnis Strassenflaeche zu Gesamtflaeche
-    // Fraction of total area that is allocated to roads
-    // old: fsant (ant = Anteil)
-    float areaFractionRoad = input.fractionOfTotalArea(input.roadArea);
-
-    for (int i = 1; i < static_cast<int>(runoffSealedSurfaces.size()); i++) {
-
-        runoffSealedSurfaces[i] =
-            (1.0F - m_initValues.getInfiltrationFactor(i)) *
-            (
-                input.unbuiltSealedFractionSurface.at(i) *
-                input.unbuiltSealedFractionConnected *
-                input.mainFractionUnbuiltSealed *
-                areaFractionMain +
-                input.roadSealedFractionSurface.at(i) *
-                input.roadSealedFractionConnected *
-                input.roadFractionSealed *
-                areaFractionRoad
-            ) * results.bagrovValues[i];
-    }
-
-    // infiltration of/for/from? roof surfaces (Infiltration der Dachflaechen)
-    // old: rid
-    float infiltrationRoofs =
-        (1 - input.builtSealedFractionConnected) *
-        input.mainFractionBuiltSealed *
-        areaFractionMain *
-        results.bagrovValues[0]; // 0 = roof
-
-    // Infiltrationsvariablen der versiegelten Flaechen
-    // infiltration variables of sealed surfaces
-    // Take care: for consistency use indices 1 to 4 only, do not use 0 (roofs)!
-    // old: ri1 - ri4
-    std::vector<float> infiltrationSealedSurfaces = {0, 0, 0, 0, 0};
-
-    for (int i = 1; i < static_cast<int>(infiltrationSealedSurfaces.size()); i++) {
-
-        infiltrationSealedSurfaces[i] = (
-            input.unbuiltSealedFractionSurface.at(i) *
-            input.mainFractionUnbuiltSealed *
-            areaFractionMain +
-            input.roadSealedFractionSurface.at(i) *
-            input.roadFractionSealed *
-            areaFractionRoad
-        ) * results.bagrovValues[i] - runoffSealedSurfaces[i];
-    }
+    // Infiltration into impervious surfaces
+    InfiltrationSealed infiltrationSealed;
+    calculateInfiltrationSealed(input, bagrovValues, runoffSealed, infiltrationSealed);
 
     // Abfluss von unversiegelten Strassenflaechen
     // runoff from unsealed road surfaces
@@ -302,8 +244,8 @@ void Calculation::doCalculationsFor(
     // old: 0.89F * (1-vgs) * fsant * R4V;
     float infiltrationPerviousRoads =
             (1 - input.roadFractionSealed) *
-            areaFractionRoad *
-            results.bagrovValues[4];
+            input.areaFractionRoad() *
+            bagrovValues.surface.last();
 
     // percentage of total sealed area
     // share of roof area [%] 'PROBAU' +
@@ -336,8 +278,8 @@ void Calculation::doCalculationsFor(
     // calculate runoff 'ROW' for entire block patial area (FLGES +
     // STR_FLGES) (mm/a)
     results.surfaceRunoff_ROW = (
-        helpers::vectorSum(runoffSealedSurfaces) +
-        runoffRoofs +
+        helpers::vectorSum(runoffSealed.surface) +
+        runoffSealed.roof +
         runoffPerviousRoads
     );
 
@@ -349,8 +291,8 @@ void Calculation::doCalculationsFor(
     // calculate infiltration rate 'ri' for entire block partial area
     // (mm/a)
     results.infiltration_RI = (
-        helpers::vectorSum(infiltrationSealedSurfaces) +
-        infiltrationRoofs +
+        helpers::vectorSum(infiltrationSealed.surface) +
+        infiltrationSealed.roof +
         infiltrationPerviousRoads +
         infiltrationPerviousSurfaces
     );
@@ -550,7 +492,7 @@ float Calculation::initValueOrReportedDefaultValue(
 void Calculation::setBagrovValues(
     Precipitation& precipitation,
     PotentialEvaporation& potentialEvaporation,
-    std::array<float,5>& bagrovValues
+    BagrovValues& bagrovValues
 )
 {
     // ratio of precipitation to potential evaporation
@@ -564,10 +506,20 @@ void Calculation::setBagrovValues(
     // precipitation
 
     // index 0 = roof, indices 1 - 4 = surface classes 1 - 4
-    for (int i = 0; i < static_cast<int>(bagrovValues.size()); i++) {
-        bagrovValues[i] = precipitation.perYearCorrectedFloat -
+    int numSurfacClasses = static_cast<int>(bagrovValues.surface.size());
+
+    for (int i = 0; i < numSurfacClasses + 1; i++) {
+
+        float bagrovValue = precipitation.perYearCorrectedFloat -
             Bagrov::nbagro(m_initValues.getBagrovValue(i), xRatio) *
             potentialEvaporation.perYearFloat;
+
+        if (i == 0) {
+            bagrovValues.roof = bagrovValue;
+        }
+        else {
+            bagrovValues.surface[i - 1] = bagrovValue;
+        }
     }
 }
 
@@ -582,6 +534,65 @@ void Calculation::handleTotalAreaOfZero(AbimoInputRecord& input)
         m_counters.incrementRecordsProtocol();
         m_counters.incrementNoAreaGiven();
         input.mainArea = 100.0F;
+    }
+}
+
+void Calculation::calculateRunoffSealed(
+    AbimoInputRecord& input,
+    BagrovValues& bagrovValues,
+    RunoffSealed& runoffSealed
+)
+{
+    // runoff from roof surfaces (Abfluss der Dachflaechen)
+    // old: rowd
+    runoffSealed.roof =
+        (1.0F - m_initValues.getInfiltrationFactor(0)) * // 0 = roof!
+        input.mainFractionBuiltSealed *
+        input.builtSealedFractionConnected *
+        input.areaFractionMain() *
+        bagrovValues.roof;
+
+    for (int i = 0; i < static_cast<int>(runoffSealed.surface.size()); i++) {
+
+        runoffSealed.surface[i] =
+            (1.0F - m_initValues.getInfiltrationFactor(i + 1)) *
+            (
+                input.unbuiltSealedFractionSurface.at(i + 1) *
+                input.unbuiltSealedFractionConnected *
+                input.mainFractionUnbuiltSealed *
+                input.areaFractionMain() +
+                input.roadSealedFractionSurface.at(i + 1) *
+                input.roadSealedFractionConnected *
+                input.roadFractionSealed *
+                input.areaFractionRoad()
+            ) * bagrovValues.surface[i];
+    }
+}
+
+void Calculation::calculateInfiltrationSealed(
+    AbimoInputRecord& input,
+    BagrovValues& bagrovValues,
+    RunoffSealed& runoffSealed,
+    InfiltrationSealed& infiltrationSealed
+)
+{
+    infiltrationSealed.roof =
+        (1 - input.builtSealedFractionConnected) *
+        input.mainFractionBuiltSealed *
+        input.areaFractionMain() *
+        bagrovValues.roof;
+
+    for (int i = 0; i < static_cast<int>(infiltrationSealed.surface.size()); i++) {
+
+        infiltrationSealed.surface[i] = (
+            input.unbuiltSealedFractionSurface.at(i + 1) *
+            input.mainFractionUnbuiltSealed *
+            input.areaFractionMain() +
+            input.roadSealedFractionSurface.at(i + 1) *
+            input.roadFractionSealed *
+            input.areaFractionRoad()
+        ) * bagrovValues.surface[i] -
+        runoffSealed.surface[i];
     }
 }
 
