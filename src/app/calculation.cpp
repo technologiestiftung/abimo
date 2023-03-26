@@ -227,16 +227,6 @@ void Calculation::doCalculationsFor(
     Runoff runoff;
     calculateRunoffSealed(input, bagrovValues, runoff);
 
-    // Infiltration into impervious surfaces (?)
-    Infiltration infiltration;
-    calculateInfiltrationSealed(input, bagrovValues, runoff, infiltration);
-
-    // infiltration for/from unsealed road surfaces
-    infiltration.perviousRoads =
-        (1 - input.roadFractionSealed) *
-        input.areaFractionRoad() *
-        bagrovValues.surface.last();
-
     // Calculate runoff RUV for unsealed surfaces
     // runoff for unsealed partial surfaces
     runoff.unsealedSurface_RUV =
@@ -248,6 +238,16 @@ void Calculation::doCalculationsFor(
             precipitation
         );
 
+    // Infiltration into impervious surfaces (?)
+    Infiltration infiltration;
+    calculateInfiltrationSealed(input, bagrovValues, runoff, infiltration);
+
+    // infiltration for/from unsealed road surfaces
+    infiltration.perviousRoads =
+        (1 - input.roadFractionSealed) *
+        input.areaFractionRoad() *
+        bagrovValues.surface.last();
+
     // Infiltration unversiegelter Flaechen
     // infiltration of unsealed areas
     // old: riuv
@@ -256,18 +256,8 @@ void Calculation::doCalculationsFor(
         100.0F - input.mainPercentageSealed()
     ) / 100.0F * runoff.unsealedSurface_RUV;
 
-    // calculate runoff 'ROW' for entire block patial area (FLGES +
-    // STR_FLGES) (mm/a)
-    results.surfaceRunoff_ROW = (
-        helpers::vectorSum(runoff.sealedSurface) +
-        runoff.roof +
-        runoff.perviousRoads
-    );
-
-    // calculate volume 'rowvol' from runoff (qcm/s)
-    results.surfaceRunoffFlow_ROWVOL = input.yearlyHeightToVolumeFlow(
-        results.surfaceRunoff_ROW
-    );
+    // Set infiltration-related fields in output record
+    //=================================================
 
     // calculate infiltration rate 'ri' for entire block partial area
     // (mm/a)
@@ -278,25 +268,42 @@ void Calculation::doCalculationsFor(
         infiltration.perviousSurfaces
     );
 
-    // calculate volume 'rivol' from infiltration rate (qcm/s)
-    results.infiltrationFlow_RIVOL = input.yearlyHeightToVolumeFlow(
-        results.infiltration_RI
+    // Set runoff-related fields in output record
+    //===========================================
+
+    // calculate runoff 'ROW' for entire block patial area (FLGES +
+    // STR_FLGES) (mm/a)
+    results.surfaceRunoff_ROW = (
+        helpers::vectorSum(runoff.sealedSurface) +
+        runoff.roof +
+        runoff.perviousRoads
     );
 
     // calculate total system losses 'r' due to runoff and infiltration
     // for entire block partial area
-    results.totalRunoff_R =
-        results.surfaceRunoff_ROW +
-        results.infiltration_RI;
+    results.totalRunoff_R = results.surfaceRunoff_ROW + results.infiltration_RI;
 
-    // set totalRunoff in the result record
-    //resultRecord.totalRunoff = INT_ROUND(totalRunoff);
+    // Convert yearly heights to flows
+    //================================
+
+    // calculate volume 'rowvol' from runoff (qcm/s)
+    results.surfaceRunoffFlow_ROWVOL = input.yearlyHeightToVolumeFlow(
+        results.surfaceRunoff_ROW
+    );
+
+    // calculate volume 'rivol' from infiltration rate (qcm/s)
+    results.infiltrationFlow_RIVOL = input.yearlyHeightToVolumeFlow(
+        results.infiltration_RI
+    );
 
     // calculate volume of system losses 'rvol' due to runoff and
     // infiltration
     results.totalRunoffFlow_RVOL =
         results.surfaceRunoffFlow_ROWVOL +
         results.infiltrationFlow_RIVOL;
+
+    // Set evaporation in output record
+    //=================================
 
     // calculate evaporation 'VERDUNST' by subtracting 'R', the sum of
     // runoff and infiltration from precipitation of entire year,
