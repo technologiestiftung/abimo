@@ -225,10 +225,17 @@ void Calculation::doCalculationsFor(
 
     // Runoff of impervious (sealed) surfaces
     Runoff runoff;
+
+    // Infiltration into impervious surfaces (?)
+    Infiltration infiltration;
+
+    // Calculate runoff...
+    //====================
+
+    // ... from roofs and sealed surfaces
     calculateRunoffSealed(input, bagrovValues, runoff);
 
-    // Calculate runoff RUV for unsealed surfaces
-    // runoff for unsealed partial surfaces
+    // ... from unsealed surfaces
     runoff.unsealedSurface_RUV =
         precipitation.perYearCorrectedFloat -
         actualEvaporation(
@@ -238,20 +245,20 @@ void Calculation::doCalculationsFor(
             precipitation
         );
 
-    // Infiltration into impervious surfaces (?)
-    Infiltration infiltration;
+    // Calculate infiltration...
+    // =========================
+
+    // ... from sealed surfaces
     calculateInfiltrationSealed(input, bagrovValues, runoff, infiltration);
 
-    // infiltration for/from unsealed road surfaces
+    // ... from unsealed road surfaces
     infiltration.perviousRoads =
         (1 - input.roadFractionSealed) *
         input.areaFractionRoad() *
         bagrovValues.surface.last();
 
-    // Infiltration unversiegelter Flaechen
-    // infiltration of unsealed areas
+    // ... from unsealed non-road surfaces
     // old: riuv
-    // runoff for unsealed surfaces rowuv = 0 (???)
     infiltration.perviousSurfaces = (
         100.0F - input.mainPercentageSealed()
     ) / 100.0F * runoff.unsealedSurface_RUV;
@@ -262,8 +269,8 @@ void Calculation::doCalculationsFor(
     // calculate infiltration rate 'ri' for entire block partial area
     // (mm/a)
     results.infiltration_RI = (
-        helpers::vectorSum(infiltration.surface) +
         infiltration.roof +
+        helpers::vectorSum(infiltration.surface) +
         infiltration.perviousRoads +
         infiltration.perviousSurfaces
     );
@@ -274,8 +281,8 @@ void Calculation::doCalculationsFor(
     // calculate runoff 'ROW' for entire block patial area (FLGES +
     // STR_FLGES) (mm/a)
     results.surfaceRunoff_ROW = (
-        helpers::vectorSum(runoff.sealedSurface) +
         runoff.roof +
+        helpers::vectorSum(runoff.sealedSurface) +
         runoff.perviousRoads
     );
 
