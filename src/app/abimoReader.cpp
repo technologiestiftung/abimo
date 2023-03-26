@@ -11,6 +11,11 @@ AbimoReader::AbimoReader(const QString& file) : DbaseReader(file),
     // Child constructor code here
 }
 
+AbimoReader::~AbimoReader()
+{
+
+};
+
 QStringList AbimoReader::requiredFields()
 {
     return {
@@ -47,6 +52,7 @@ bool AbimoReader::checkAndRead()
     QString fileName = m_file.fileName();
     QString text;
 
+    // Call the checkAndRead() function of the parent class first
     bool succeeded = DbaseReader::checkAndRead();
 
     if (!succeeded) {
@@ -56,17 +62,19 @@ bool AbimoReader::checkAndRead()
     if (!isAbimoFile()) {
         text = "Die Datei '%1' ist kein valider 'Input File',\n";
         text += "Ueberpruefen Sie die Spaltennamen und die Vollstaendigkeit.";
-        m_fullError = text.arg(fileName);
+        m_error.textLong = text.arg(fileName);
         return false;
     }
 
-    m_fullError = "";
+    m_error.textLong = "";
     return true;
 }
 
 bool AbimoReader::isAbimoFile()
 {
-    return helpers::containsAll(m_fieldPositionMap, requiredFields());
+    QStringList fieldNames = AbimoReader::requiredFields();
+
+    return hasAllOfTheseFields(fieldNames);
 }
 
 void AbimoReader::fillRecord(int rowIndex, AbimoInputRecord& record, bool debug)
