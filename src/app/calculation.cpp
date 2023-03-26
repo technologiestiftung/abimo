@@ -209,20 +209,9 @@ void Calculation::doCalculationsFor(
     // Set default area if total area is zero
     handleTotalAreaOfZero(input);
 
-    // share of building development area / road area to total area
-
-    // Verhaeltnis Bebauungsflaeche zu Gesamtflaeche
-    // Fraction of total area that is not allocated to roads
-    // old: fbant (ant = Anteil)
-    float areaFractionMain = input.fractionOfTotalArea(input.mainArea);
-
-    // Verhaeltnis Strassenflaeche zu Gesamtflaeche
-    // Fraction of total area that is allocated to roads
-    // old: fsant (ant = Anteil)
-    float areaFractionRoad = input.fractionOfTotalArea(input.roadArea);
-
+    //
     // Runoff for sealed surfaces
-
+    //
     // Legende der Abflussberechnung der 4 Belagsklassen bzw. Dachklasse:
     // - rowd / rowx: Abfluss Dachflaeche / Abfluss Belagsflaeche x
     // - infdach / infbelx: Infiltrationsparameter Dachfl. / Belagsfl. x
@@ -232,6 +221,11 @@ void Calculation::doCalculationsFor(
     // - kd / kb / ks: Grad der Kanalisierung Dach / sonst. vers. Fl. / Strassenflaechen
     // - fbant / fsant: ?
     // - RDV / RxV: Gesamtabfluss versiegelte Flaeche
+
+    // Verhaeltnis Bebauungsflaeche zu Gesamtflaeche
+    // Fraction of total area that is not allocated to roads
+    // old: fbant (ant = Anteil)
+    float areaFractionMain = input.fractionOfTotalArea(input.mainArea);
 
     // runoff from roof surfaces (Abfluss der Dachflaechen)
     // old: rowd
@@ -247,6 +241,11 @@ void Calculation::doCalculationsFor(
     // Take care: for consistency use indices 1 to 4 only, do not use 0 (roofs)!
     // old: row1 - row4
     std::vector<float> runoffSealedSurfaces = {0, 0, 0, 0, 0};
+
+    // Verhaeltnis Strassenflaeche zu Gesamtflaeche
+    // Fraction of total area that is allocated to roads
+    // old: fsant (ant = Anteil)
+    float areaFractionRoad = input.fractionOfTotalArea(input.roadArea);
 
     for (int i = 1; i < static_cast<int>(runoffSealedSurfaces.size()); i++) {
 
