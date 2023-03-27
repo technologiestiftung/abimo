@@ -9,6 +9,7 @@
 #include <QDebug>
 #include <QString>
 #include <QTextStream>
+#include <QVector>
 
 #include "abimoReader.h"
 #include "abimoWriter.h"
@@ -86,6 +87,45 @@ void Calculation::runCalculation(
     logHandle.close();
 }
 
+int Calculation::calculateData(
+    QVector<AbimoInputRecord>& inputData,
+    QVector<AbimoOutputRecord>& outputData,
+    InitValues& initValues
+)
+{
+    // Current Abimo input record
+    AbimoInputRecord inputRecord;
+
+    // Current Abimo output record
+    AbimoOutputRecord outputRecord;
+
+    // Structure holding intermediate results
+    IntermediateResults results;
+
+    // loop over all block partial areas (= records/rows of input data)
+    for (int i = 0; i < inputData.size(); i++) {
+
+        inputRecord = inputData.at(i);
+
+        // usage = integer representing the type of area usage for the current
+        // block partial area
+        if (inputRecord.usage == 0) {
+            continue;
+        }
+
+        // Calculate and set result record fields to calculated values
+        doCalculationsFor(inputRecord, results, initValues);
+
+        fillResultRecord(inputRecord, results, outputRecord);
+
+        // Set the corresponding row in the result data structure
+        outputData.append(outputRecord);
+    }
+
+    // Return an error code (currently not set)
+    return 0;
+}
+
 // =============================================================================
 // Diese Funktion importiert die Datensaetze aus der DBASE-Datei FileName in das
 // DA Feld ein (GWD-Daten).
@@ -137,7 +177,7 @@ bool Calculation::calculate(QString& outputFile, bool debug)
             IntermediateResults results;
 
             // Calculate and set result record fields to calculated values
-            doCalculationsFor(inputRecord, results);
+            doCalculationsFor(inputRecord, results, m_initValues);
 
             fillResultRecord(inputRecord, results, outputRecord);
 
@@ -175,7 +215,8 @@ bool Calculation::calculate(QString& outputFile, bool debug)
 
 void Calculation::doCalculationsFor(
     AbimoInputRecord& input,
-    IntermediateResults& results
+    IntermediateResults& results,
+    InitValues& initValues
 )
 {
     // Based on the given input row, try to provide usage-specific information
@@ -190,12 +231,12 @@ void Calculation::doCalculationsFor(
 
     // Provide information on the precipitation
     Precipitation precipitation = getPrecipitation(
-        input.precipitationYear, input.precipitationSummer, m_initValues
+        input.precipitationYear, input.precipitationSummer, initValues
     );
 
     // Provide information on the potential evaporation
     PotentialEvaporation potentialEvaporation = getPotentialEvaporation(
-        usageTuple.usage, m_initValues, input.district, input.code
+        usageTuple.usage, initValues, input.district, input.code
     );
 
     //
@@ -308,7 +349,7 @@ void Calculation::doCalculationsFor(
     // multiplied by precipitation correction factor
     results.evaporation_VERDUNSTUN = (
         static_cast<float>(input.precipitationYear) *
-        m_initValues.getPrecipitationCorrectionFactor()
+        initValues.getPrecipitationCorrectionFactor()
     ) - results.totalRunoff_R;
 }
 

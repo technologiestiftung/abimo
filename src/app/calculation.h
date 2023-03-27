@@ -10,6 +10,7 @@
 #include <QObject>
 #include <QString>
 #include <QTextStream>
+#include <QVector>
 
 #include "abimoReader.h"
 #include "abimoWriter.h"
@@ -41,6 +42,12 @@ public:
         QString configFile,
         QString outputFile,
         bool debug = false
+    );
+
+    int calculateData(
+        QVector<AbimoInputRecord>& inputData,
+        QVector<AbimoOutputRecord>& outputData,
+        InitValues& initValues
     );
 
     // Main function to perform the calculation of the whole input table
@@ -90,7 +97,8 @@ private:
 
     void doCalculationsFor(
         AbimoInputRecord& input,
-        IntermediateResults& results
+        IntermediateResults& results,
+        InitValues& initValues
     );
 
     UsageTuple provideUsageInformation(AbimoInputRecord& input);
