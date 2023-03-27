@@ -44,7 +44,7 @@ public:
         bool debug = false
     );
 
-    int calculateData(
+    static int calculateData(
         QVector<AbimoInputRecord>& inputData,
         QVector<AbimoOutputRecord>& outputData,
         InitValues& initValues
@@ -95,69 +95,88 @@ private:
     // Methods
     //
 
-    void doCalculationsFor(
+    static void doCalculationsFor(
         AbimoInputRecord& input,
         IntermediateResults& results,
-        InitValues& initValues
+        InitValues& initValues,
+        UsageConfiguration& usageConfiguration,
+        QTextStream& protocolStream,
+        Counters& m_counters
     );
 
-    UsageTuple provideUsageInformation(AbimoInputRecord& input);
+    static UsageTuple provideUsageInformation(
+        AbimoInputRecord& input,
+        UsageConfiguration& usageConfiguration,
+        QTextStream& protocolStream,
+        InitValues& initValues,
+        Counters& counters
+    );
 
-    EvaporationRelevantVariables setEvaporationVars(
+    static EvaporationRelevantVariables setEvaporationVars(
         UsageTuple& usageTuple,
-        AbimoInputRecord& input
+        AbimoInputRecord& input,
+        UsageConfiguration usageConfiguration
     );
 
-    Precipitation getPrecipitation(
+    static Precipitation getPrecipitation(
         int precipitationYear,
         int precipitationSummer,
         InitValues& initValues
     );
 
-    PotentialEvaporation getPotentialEvaporation(
+    static PotentialEvaporation getPotentialEvaporation(
         Usage& usage,
         InitValues& initValues,
         int district,
-        QString code
+        QString code,
+        QTextStream& protocolStream,
+        Counters& counters
     );
 
-    float initValueOrReportedDefaultValue(
+    static float initValueOrReportedDefaultValue(
         int bez,
         QString code,
         QHash<int, int> &hash,
         int defaultValue,
-        QString name
+        QString name,
+        QTextStream& protocolStream,
+        Counters& counters
     );
 
-    void setBagrovValues(
+    static void setBagrovValues(
         Precipitation& precipitation,
         PotentialEvaporation& potentialEvaporation,
+        InitValues& initValues,
         BagrovValues& bagrovValues
     );
 
-    void handleTotalAreaOfZero(AbimoInputRecord& input);
+    static void handleTotalAreaOfZero(
+        AbimoInputRecord& input,
+        Counters& counters
+    );
 
-    void calculateRunoffSealed(
+    static void calculateRunoffSealed(
         AbimoInputRecord& input,
         BagrovValues& bagrovValues,
+        InitValues& initValues,
         Runoff& runoff
     );
 
-    void calculateInfiltrationSealed(
+    static void calculateInfiltrationSealed(
         AbimoInputRecord& input,
         BagrovValues& bagrovValues,
         Runoff& runoff,
         Infiltration& infiltrationSealed
     );
 
-    float actualEvaporation(
+    static float actualEvaporation(
         UsageTuple& usageTuple,
         PotentialEvaporation& potentialEvaporation,
         EvaporationRelevantVariables& evaporationVars,
         Precipitation& precipitation
     );
 
-    int fillResultRecord(
+    static int fillResultRecord(
         AbimoInputRecord& input,
         IntermediateResults& results,
         AbimoOutputRecord& output
