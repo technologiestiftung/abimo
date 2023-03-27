@@ -306,10 +306,9 @@ void Calculation::doCalculationsFor(
     // calculate evaporation 'VERDUNST' by subtracting 'R', the sum of
     // runoff and infiltration from precipitation of entire year,
     // multiplied by precipitation correction factor
-    results.evaporation_VERDUNSTUN = (
-        static_cast<float>(input.precipitationYear) *
-        m_initValues.getPrecipitationCorrectionFactor()
-    ) - results.totalRunoff_R;
+    results.evaporation_VERDUNSTUN =
+        precipitation.perYearCorrectedFloat -
+        results.totalRunoff_R;
 }
 
 UsageTuple Calculation::provideUsageInformation(AbimoInputRecord& input)
