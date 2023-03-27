@@ -31,9 +31,9 @@ public:
 
     // Constructor
     Calculation(
-        AbimoReader &dbaseReader,
-        InitValues &initValues,
-        QTextStream & protocolStream
+        AbimoReader& dbaseReader,
+        InitValues& initValues,
+        QTextStream& protocolStream
     );
 
     // Static function to perform a "batch run"
@@ -46,8 +46,7 @@ public:
 
     static int calculateData(
         QVector<AbimoInputRecord>& inputData,
-        QVector<AbimoOutputRecord>& outputData,
-        InitValues& initValues
+        QVector<AbimoOutputRecord>& outputData
     );
 
     // Main function to perform the calculation of the whole input table
@@ -100,16 +99,16 @@ private:
         IntermediateResults& results,
         InitValues& initValues,
         UsageConfiguration& usageConfiguration,
-        QTextStream& protocolStream,
-        Counters& m_counters
+        Counters& m_counters,
+        QTextStream& protocolStream
     );
 
     static UsageTuple provideUsageInformation(
         AbimoInputRecord& input,
         UsageConfiguration& usageConfiguration,
-        QTextStream& protocolStream,
         InitValues& initValues,
-        Counters& counters
+        Counters& counters,
+        QTextStream& protocolStream
     );
 
     static EvaporationRelevantVariables setEvaporationVars(
@@ -129,8 +128,8 @@ private:
         InitValues& initValues,
         int district,
         QString code,
-        QTextStream& protocolStream,
-        Counters& counters
+        Counters& counters,
+        QTextStream& protocolStream
     );
 
     static float initValueOrReportedDefaultValue(
@@ -139,8 +138,8 @@ private:
         QHash<int, int> &hash,
         int defaultValue,
         QString name,
-        QTextStream& protocolStream,
-        Counters& counters
+        Counters& counters,
+        QTextStream& protocolStream
     );
 
     static void setBagrovValues(

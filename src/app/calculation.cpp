@@ -89,8 +89,7 @@ void Calculation::runCalculation(
 
 int Calculation::calculateData(
     QVector<AbimoInputRecord>& inputData,
-    QVector<AbimoOutputRecord>& outputData,
-    InitValues& initValues
+    QVector<AbimoOutputRecord>& outputData
 )
 {
     // Current Abimo input record
@@ -102,8 +101,9 @@ int Calculation::calculateData(
     // Structure holding intermediate results
     IntermediateResults results;
 
+    InitValues initValues;
     UsageConfiguration usageConfiguration;
-    QTextStream protocolStream;
+    QTextStream protocolStream(stdout);
     Counters counters;
 
     // loop over all block partial areas (= records/rows of input data)
@@ -123,8 +123,8 @@ int Calculation::calculateData(
             results,
             initValues,
             usageConfiguration,
-            protocolStream,
-            counters
+            counters,
+            protocolStream
         );
 
         fillResultRecord(inputRecord, results, outputRecord);
@@ -193,8 +193,8 @@ bool Calculation::calculate(QString& outputFile, bool debug)
                 results,
                 m_initValues,
                 m_usageMappings,
-                m_protocolStream,
-                m_counters
+                m_counters,
+                m_protocolStream
             );
 
             fillResultRecord(inputRecord, results, outputRecord);
@@ -236,13 +236,13 @@ void Calculation::doCalculationsFor(
     IntermediateResults& results,
     InitValues& initValues,
     UsageConfiguration& usageConfiguration,
-    QTextStream& protocolStream,
-    Counters& counters
+    Counters& counters,
+    QTextStream& protocolStream
 )
 {
     // Based on the given input row, try to provide usage-specific information
     UsageTuple usageTuple = provideUsageInformation(
-        input, usageConfiguration, protocolStream, initValues, counters
+        input, usageConfiguration, initValues, counters, protocolStream
     );
 
     // Provide variables relevant to calculate evaporation (?)
@@ -263,8 +263,8 @@ void Calculation::doCalculationsFor(
         initValues,
         input.district,
         input.code,
-        protocolStream,
-        counters
+        counters,
+        protocolStream
     );
 
     //
@@ -388,9 +388,9 @@ void Calculation::doCalculationsFor(
 UsageTuple Calculation::provideUsageInformation(
     AbimoInputRecord& input,
     UsageConfiguration& usageConfiguration,
-    QTextStream& protocolStream,
     InitValues& initValues,
-    Counters& counters
+    Counters& counters,
+    QTextStream& protocolStream
 )
 {
     // declaration of yield power (ERT) and irrigation (BER) for agricultural or
@@ -498,8 +498,8 @@ PotentialEvaporation Calculation::getPotentialEvaporation(
     InitValues& initValues,
     int district,
     QString code,
-    QTextStream& protocolStream,
-    Counters& counters
+    Counters& counters,
+    QTextStream& protocolStream
 )
 {
     PotentialEvaporation result;
@@ -513,8 +513,8 @@ PotentialEvaporation Calculation::getPotentialEvaporation(
             initValues.hashEG,
             775,
             "EG",
-            protocolStream,
-            counters
+            counters,
+            protocolStream
         );
 
         // What about potentialEvaporationSummer?
@@ -527,8 +527,8 @@ PotentialEvaporation Calculation::getPotentialEvaporation(
             initValues.hashETP,
             660,
             "ETP",
-            protocolStream,
-            counters
+            counters,
+            protocolStream
         );
 
         result.inSummerInteger = initValueOrReportedDefaultValue(
@@ -537,8 +537,8 @@ PotentialEvaporation Calculation::getPotentialEvaporation(
             initValues.hashETPS,
             530,
             "ETPS",
-            protocolStream,
-            counters
+            counters,
+            protocolStream
         );
     }
 
@@ -554,8 +554,8 @@ float Calculation::initValueOrReportedDefaultValue(
         QHash<int,int> &hash,
         int defaultValue,
         QString name,
-        QTextStream& protocolStream,
-        Counters& counters
+        Counters& counters,
+        QTextStream& protocolStream
 )
 {
     // Take value from hash table (as read from xml file) if available
