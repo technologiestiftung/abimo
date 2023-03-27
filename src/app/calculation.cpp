@@ -87,6 +87,49 @@ void Calculation::runCalculation(
     logHandle.close();
 }
 
+void Calculation::runCalculationUsingData(
+    QString inputFile,
+    QString outputFile
+)
+{
+    // Open the input file
+    AbimoReader dbReader(inputFile);
+
+    // Try to read the raw (text) values into the dbReader object
+    if (!dbReader.checkAndRead()) {
+        abort();
+    }
+
+    QVector<AbimoInputRecord> inputData;
+    AbimoInputRecord inputRecord;
+
+    // Create input data: fill vector of AbimoInputRecord
+    for (int i = 0; i < dbReader.getHeader().numberOfRecords; i++) {
+        dbReader.fillRecord(i, inputRecord, false);
+        inputData.append(inputRecord);
+    }
+
+    QVector<AbimoOutputRecord> outputData;
+
+    // Do the calculations for the input data creating output data
+    Calculation::calculateData(inputData, outputData);
+
+    InitValues initValues;
+
+    // Provide an AbimoWriter object
+    AbimoWriter writer(outputFile, initValues);
+
+    AbimoOutputRecord outputRecord;
+
+    for (int i = 0; i < inputData.size(); i++) {
+        outputRecord = outputData.at(i);
+        writeResultRecord(outputRecord, writer);
+    }
+
+    // Write output data to dbf file
+    writer.write();
+}
+
 int Calculation::calculateData(
     QVector<AbimoInputRecord>& inputData,
     QVector<AbimoOutputRecord>& outputData
@@ -767,8 +810,7 @@ int Calculation::fillResultRecord(
 void Calculation::writeResultRecord(
     AbimoOutputRecord& record,
     AbimoWriter& writer
-) const
-{
+) {
     writer.addRecord();
     writer.setRecordField("CODE", record.code_CODE);
     writer.setRecordField("R", record.totalRunoff_R);

@@ -44,6 +44,11 @@ public:
         bool debug = false
     );
 
+    static void runCalculationUsingData(
+        QString inputFile,
+        QString outputFile
+    );
+
     static int calculateData(
         QVector<AbimoInputRecord>& inputData,
         QVector<AbimoOutputRecord>& outputData
@@ -181,10 +186,10 @@ private:
         AbimoOutputRecord& output
     );
 
-    void writeResultRecord(
+    static void writeResultRecord(
         AbimoOutputRecord& output,
         AbimoWriter& writer
-    ) const;
+    );
 
     int progressNumber(int i, int n, float max);
 };
