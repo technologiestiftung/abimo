@@ -22,11 +22,12 @@ QT += \
 CONFIG *= debug_and_release debug_and_release_target
 
 HEADERS += \
+    abimoInputRecord.h \
+    abimoOutputRecord.h \
     abimoReader.h \
-    abimoRecord.h \
+    abimoWriter.h \
     bagrov.h \
     calculation.h \
-    config.h \
     constants.h \
     counters.h \
     dbaseField.h \
@@ -36,17 +37,21 @@ HEADERS += \
     effectivenessUnsealed.h \
     helpers.h \
     initValues.h \
+    intermediateResults.h \
     main.h \
     mainWindow.h \
-    pdr.h \
-    saxHandler.h
+    saxHandler.h \
+    soilAndVegetation.h \
+    structs.h \
+    usageConfiguration.h
 
 SOURCES += \
+    abimoInputRecord.cpp \
+    abimoOutputRecord.cpp \
     abimoReader.cpp \
-    abimoRecord.cpp \
+    abimoWriter.cpp \
     bagrov.cpp \
     calculation.cpp \
-    config.cpp \
     counters.cpp \
     dbaseField.cpp \
     dbaseFile.cpp \
@@ -55,10 +60,12 @@ SOURCES += \
     effectivenessUnsealed.cpp \
     helpers.cpp \
     initValues.cpp \
+    intermediateResults.cpp \
     main.cpp \
     mainWindow.cpp \
-    pdr.cpp \
-    saxHandler.cpp
+    saxHandler.cpp \
+    soilAndVegetation.cpp \
+    usageConfiguration.cpp
 
 #RC_FILE += AbimoQt.rc
 #OTHER_FILES += release/config.xml

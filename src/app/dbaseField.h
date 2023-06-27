@@ -16,13 +16,15 @@ public:
     DbaseField();
     DbaseField(QByteArray);
     DbaseField(QString name, QString type, int numDecimalPlaces);
-    QString getName();
-    QString getType();
-    int getFieldLength();
-    int getDecimalCount();
+    QString getName() const;
+    QString getType() const;
+    int getFieldLength() const;
+    int getDecimalCount() const;
     void setFieldLength(int fieldLength);
     void set(QString name, QString type, int numDecimalPlaces);
-    static QString formatNumericString(QString s, int length, int decimalPlaces);
+    static void formatNumericString(
+        QString& s, int length, int digits, char fill, bool debug = true
+    );
 
 private:
     QString m_name;
