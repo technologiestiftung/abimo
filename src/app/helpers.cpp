@@ -204,6 +204,23 @@ QString helpers::formatFloat(float value, int length, int digits)
     return QString(buffer);
 }
 
+QString helpers::rightJustifiedNumber(QString value, int width, QChar fill)
+{
+    int length = value.length();
+
+    // If the string has already the desired width, return the string
+    if (length == width) {
+        return value;
+    }
+
+    QChar minus('-');
+
+    // Add zeros to the left of the string (after "minus" if applicable)
+    return value.startsWith(minus) ?
+        value.right(length - 1).rightJustified(width - 1, fill).prepend(minus) :
+        value.rightJustified(width, fill);
+}
+
 float helpers::roundFloat(float value, int digits)
 {
     float factor = pow(10, digits);

@@ -143,6 +143,7 @@ void DbaseWriter::writeFileData(QByteArray& data)
 
     QVector<QString> strings;
     QString string;
+    QChar fill('0');
 
     for (int i = 0; i < m_header.numberOfRecords; i++) {
 
@@ -154,17 +155,13 @@ void DbaseWriter::writeFileData(QByteArray& data)
 
             // Desired length of the string
             int length = fields[j].getFieldLength();
-            int digits = fields[j].getDecimalCount();
 
             string = strings.at(j);
 
             // Format the string so that it has the desired length
-            if (digits > 0) {
-                float value = helpers::stringToFloat(string, "");
-                string = helpers::formatFloat(value, length, digits);
-            } else {
-                string = string.rightJustified(length, QChar(0x30), true);
-            }
+            string = (fields[j].getDecimalCount() > 0) ?
+                helpers::rightJustifiedNumber(string, length, fill) :
+                string.rightJustified(length, fill, true);
 
             assert(string.length() == length);
 
