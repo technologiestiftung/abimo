@@ -189,6 +189,20 @@ float helpers::stringToFloat(QString string, QString context, bool debug)
     return result;
 }
 
+QString helpers::formatFloat(float value, int length, int digits)
+{
+    char format[16];
+    char buffer[64];
+
+    // Set "fmt" for the next "sprintf" call
+    qsnprintf(format, sizeof(format), "%%0%d.%df", length, digits);
+
+    // Use the format string when formatting the value with "sprintf"
+    qsnprintf(buffer, sizeof(buffer), (const char*) format, value);
+
+    return QString(buffer);
+}
+
 //
 // Find the index of a value in a sorted array
 //

@@ -31,6 +31,8 @@ namespace helpers
     int stringToInt(QString string, QString context, bool debug = false);
     float stringToFloat(QString string, QString context, bool debug = false);
 
+    QString formatFloat(float value, int length, int digits);
+
     inline float asFloat(int value) {
         return static_cast<float>(value);
     };

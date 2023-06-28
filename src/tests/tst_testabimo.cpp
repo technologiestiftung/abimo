@@ -26,6 +26,7 @@ private slots:
     void test_helpers_containsAll();
     void test_helpers_filesAreIdentical();
     void test_helpers_stringsAreEqual();
+    void test_helpers_formatFloat();
     void test_helpers_formatNumericString();
     void test_requiredFields();
     void test_dbaseReader();
@@ -99,6 +100,16 @@ void TestAbimo::test_helpers_stringsAreEqual()
 
 void test_stringManipulation(QString& s) {
     s = QString("a");
+}
+
+void TestAbimo::test_helpers_formatFloat()
+{
+    QCOMPARE(helpers::formatFloat(123.0, 4, 0), QString("0123"));
+    QCOMPARE(helpers::formatFloat(123.456, 5, 1), QString("123.5"));
+    QCOMPARE(helpers::formatFloat(123.456, 6, 1), QString("0123.5"));
+    QCOMPARE(helpers::formatFloat(123.456, 6, 2), QString("123.46"));
+    QCOMPARE(helpers::formatFloat(-123.4, 5, 0), QString("-0123"));
+    QCOMPARE(helpers::formatFloat(-123.456, 7, 1), QString("-0123.5"));
 }
 
 void TestAbimo::test_helpers_formatNumericString()
