@@ -1,4 +1,5 @@
 #include <vector>
+#include <math.h> // for pow()
 
 #include <QCommandLineParser>
 #include <QDateTime>
@@ -201,6 +202,12 @@ QString helpers::formatFloat(float value, int length, int digits)
     qsnprintf(buffer, sizeof(buffer), (const char*) format, value);
 
     return QString(buffer);
+}
+
+float helpers::roundFloat(float value, int digits)
+{
+    float factor = pow(10, digits);
+    return (float) round(factor * value) / factor;
 }
 
 //

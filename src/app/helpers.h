@@ -32,6 +32,7 @@ namespace helpers
     float stringToFloat(QString string, QString context, bool debug = false);
 
     QString formatFloat(float value, int length, int digits);
+    float roundFloat(float value, int digits);
 
     inline float asFloat(int value) {
         return static_cast<float>(value);
