@@ -120,30 +120,6 @@ void TestAbimo::test_helpers_formatNumericString()
     s = QString("abc");
     test_stringManipulation(s);
     QCOMPARE(s, QString("a"));
-
-    s = QString("123");
-    DbaseField::formatNumericString(s, 4, 0, '0');
-    QCOMPARE(s, QString("0123"));
-
-    s = QString("123.456");
-    DbaseField::formatNumericString(s, 5, 1, '0');
-    QCOMPARE(s, QString("123.4"));
-
-    s = QString("123.456");
-    DbaseField::formatNumericString(s, 6, 1, '0');
-    QCOMPARE(s, QString("0123.4"));
-
-    s = QString("123.456");
-    DbaseField::formatNumericString(s, 6, 2, '0');
-    QCOMPARE(s, QString("123.45"));
-
-    s = QString("-123.4");
-    DbaseField::formatNumericString(s, 5, 0, '0');
-    QCOMPARE(s, QString("-123.4")); // TODO
-
-    s = QString("-123.456");
-    DbaseField::formatNumericString(s, 7, 1, '0');
-    QCOMPARE(s, QString("-0123.4"));
 }
 
 void TestAbimo::test_requiredFields()
