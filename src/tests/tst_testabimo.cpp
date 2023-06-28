@@ -26,6 +26,7 @@ private slots:
     void test_helpers_containsAll();
     void test_helpers_filesAreIdentical();
     void test_helpers_stringsAreEqual();
+    void test_helpers_formatFloat();
     void test_helpers_formatNumericString();
     void test_requiredFields();
     void test_dbaseReader();
@@ -101,6 +102,16 @@ void test_stringManipulation(QString& s) {
     s = QString("a");
 }
 
+void TestAbimo::test_helpers_formatFloat()
+{
+    QCOMPARE(helpers::formatFloat(123.0, 4, 0), QString("0123"));
+    QCOMPARE(helpers::formatFloat(123.456, 5, 1), QString("123.5"));
+    QCOMPARE(helpers::formatFloat(123.456, 6, 1), QString("0123.5"));
+    QCOMPARE(helpers::formatFloat(123.456, 6, 2), QString("123.46"));
+    QCOMPARE(helpers::formatFloat(-123.4, 5, 0), QString("-0123"));
+    QCOMPARE(helpers::formatFloat(-123.456, 7, 1), QString("-0123.5"));
+}
+
 void TestAbimo::test_helpers_formatNumericString()
 {
     // Result string
@@ -109,30 +120,6 @@ void TestAbimo::test_helpers_formatNumericString()
     s = QString("abc");
     test_stringManipulation(s);
     QCOMPARE(s, QString("a"));
-
-    s = QString("123");
-    DbaseField::formatNumericString(s, 4, 0, '0');
-    QCOMPARE(s, QString("0123"));
-
-    s = QString("123.456");
-    DbaseField::formatNumericString(s, 5, 1, '0');
-    QCOMPARE(s, QString("123.4"));
-
-    s = QString("123.456");
-    DbaseField::formatNumericString(s, 6, 1, '0');
-    QCOMPARE(s, QString("0123.4"));
-
-    s = QString("123.456");
-    DbaseField::formatNumericString(s, 6, 2, '0');
-    QCOMPARE(s, QString("123.45"));
-
-    s = QString("-123.4");
-    DbaseField::formatNumericString(s, 5, 0, '0');
-    QCOMPARE(s, QString("-123.4")); // TODO
-
-    s = QString("-123.456");
-    DbaseField::formatNumericString(s, 7, 1, '0');
-    QCOMPARE(s, QString("-0123.4"));
 }
 
 void TestAbimo::test_requiredFields()
