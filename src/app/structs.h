@@ -75,7 +75,7 @@ struct EvaporationRelevantVariables {
 };
 
 // Abfluesse nach Bagrov
-struct BagrovValues {
+struct RunoffSealed {
 
     // Abfluesse nach Bagrov fuer Daecher
     float roof = 0.0;

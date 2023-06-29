@@ -160,11 +160,11 @@ private:
         QTextStream& protocolStream
     );
 
-    static void setBagrovValues(
+    static void setRunoffSealed(
         Precipitation& precipitation,
         PotentialEvaporation& potentialEvaporation,
         InitValues& initValues,
-        BagrovValues& bagrovValues
+        RunoffSealed& runoffSealed
     );
 
     static void handleTotalAreaOfZero(
@@ -174,14 +174,14 @@ private:
 
     static void calculateRunoffSealed(
         AbimoInputRecord& input,
-        BagrovValues& bagrovValues,
+        RunoffSealed& runoffSealed,
         InitValues& initValues,
         Runoff& runoff
     );
 
     static void calculateInfiltrationSealed(
         AbimoInputRecord& input,
-        BagrovValues& bagrovValues,
+        RunoffSealed& runoffSealed,
         Runoff& runoff,
         Infiltration& infiltrationSealed
     );

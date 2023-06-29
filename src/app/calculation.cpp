@@ -337,11 +337,11 @@ void Calculation::doCalculationsFor(
     // Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4
     // - RDV / RxV: Gesamtabfluss versiegelte Flaeche
 
-    setBagrovValues(
+    setRunoffSealed(
         precipitation,
         potentialEvaporation,
         initValues,
-        results.bagrovValues
+        results.runoffSealed
     );
 
     // Set default area if total area is zero
@@ -357,7 +357,7 @@ void Calculation::doCalculationsFor(
     //====================
 
     // ... from roofs and sealed surfaces
-    calculateRunoffSealed(input, results.bagrovValues, initValues, runoff);
+    calculateRunoffSealed(input, results.runoffSealed, initValues, runoff);
 
     // ... from unsealed surfaces
     runoff.unsealedSurface_RUV =
@@ -373,13 +373,13 @@ void Calculation::doCalculationsFor(
     // =========================
 
     // ... from sealed surfaces
-    calculateInfiltrationSealed(input, results.bagrovValues, runoff, infiltration);
+    calculateInfiltrationSealed(input, results.runoffSealed, runoff, infiltration);
 
     // ... from unsealed road surfaces
     infiltration.unsealedRoads =
         (1 - input.roadFractionSealed) *
         input.areaFractionRoad() *
-        results.bagrovValues.surface.last();
+        results.runoffSealed.surface.last();
 
     // ... from unsealed non-road surfaces
     // old: riuv
@@ -642,23 +642,23 @@ float Calculation::initValueOrReportedDefaultValue(
     return result;
 }
 
-void Calculation::setBagrovValues(
+void Calculation::setRunoffSealed(
     Precipitation& precipitation,
     PotentialEvaporation& potentialEvaporation,
     InitValues& initValues,
-    BagrovValues& bagrovValues
+    RunoffSealed& runoffSealed
 )
 {
     // index 0 = roof
-    bagrovValues.roof = Bagrov::runoffFromSealedSurface(
+    runoffSealed.roof = Bagrov::runoffFromSealedSurface(
         precipitation.perYearCorrectedFloat,
         potentialEvaporation.perYearFloat,
         initValues.getBagrovValue(0)
     );
 
     // indices 1 - 4 = surface classes 1 - 4
-    for (int i = 0; i < static_cast<int>(bagrovValues.surface.size()); i++) {
-        bagrovValues.surface[i] = Bagrov::runoffFromSealedSurface(
+    for (int i = 0; i < static_cast<int>(runoffSealed.surface.size()); i++) {
+        runoffSealed.surface[i] = Bagrov::runoffFromSealedSurface(
             precipitation.perYearCorrectedFloat,
             potentialEvaporation.perYearFloat,
             initValues.getBagrovValue(i + 1)
@@ -685,7 +685,7 @@ void Calculation::handleTotalAreaOfZero(
 
 void Calculation::calculateRunoffSealed(
     AbimoInputRecord& input,
-    BagrovValues& bagrovValues,
+    RunoffSealed& runoffSealed,
     InitValues& initValues,
     Runoff& runoff
 )
@@ -696,7 +696,7 @@ void Calculation::calculateRunoffSealed(
         input.mainFractionBuiltSealed *
         input.builtSealedFractionConnected *
         input.areaFractionMain() *
-        bagrovValues.roof;
+        runoffSealed.roof;
 
     for (int i = 0; i < static_cast<int>(runoff.sealedSurface.size()); i++) {
 
@@ -712,13 +712,13 @@ void Calculation::calculateRunoffSealed(
                 input.roadSealedFractionConnected *
                 input.roadFractionSealed *
                 input.areaFractionRoad()
-            ) * bagrovValues.surface[i];
+            ) * runoffSealed.surface[i];
     }
 }
 
 void Calculation::calculateInfiltrationSealed(
     AbimoInputRecord& input,
-    BagrovValues& bagrovValues,
+    RunoffSealed& runoffSealed,
     Runoff& runoff,
     Infiltration& infiltrationSealed
 )
@@ -727,7 +727,7 @@ void Calculation::calculateInfiltrationSealed(
         (1 - input.builtSealedFractionConnected) *
         input.mainFractionBuiltSealed *
         input.areaFractionMain() *
-        bagrovValues.roof;
+        runoffSealed.roof;
 
     for (int i = 0; i < static_cast<int>(infiltrationSealed.surface.size()); i++) {
 
@@ -738,7 +738,7 @@ void Calculation::calculateInfiltrationSealed(
             input.roadSealedFractionSurface.at(i + 1) *
             input.roadFractionSealed *
             input.areaFractionRoad()
-        ) * bagrovValues.surface[i] -
+        ) * runoffSealed.surface[i] -
         runoff.sealedSurface[i];
     }
 }
@@ -804,12 +804,12 @@ void Calculation::logResults(
 
     //m_prefix = inputRecord.code;
 
-    logVariable("bagrov_roof", results.bagrovValues.roof);
+    logVariable("bagrov_roof", results.runoffSealed.roof);
 
-    for (int i = 1; i < results.bagrovValues.surface.size(); i++) {
+    for (int i = 1; i < results.runoffSealed.surface.size(); i++) {
         logVariable(
             QString("bagrov_surface[%1]").arg(i),
-            results.bagrovValues.surface[i]
+            results.runoffSealed.surface[i]
         );
     }
 
