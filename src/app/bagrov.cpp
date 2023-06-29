@@ -49,6 +49,23 @@ const float Bagrov::aa[]= {
     6515.556685F   // 15
 };
 
+float Bagrov::runoffFromSealedSurface(
+    float precipitation,
+    float potentialEvaporation,
+    float bagrovValue
+)
+{
+    // Berechnung des Abflusses RxV fuer versiegelte Teilflaechen mittels
+    // Umrechnung potentieller Verdunstungen (potentialEvaporation) zu realen
+    // Verdunstungen ueber Umrechnungsfaktor yRatio und subtrahiert von
+    // Niederschlag (precipitation)
+
+    float xRatio = precipitation / potentialEvaporation;
+    float yRatio = nbagro(bagrovValue, xRatio);
+
+    return precipitation - yRatio * potentialEvaporation;
+}
+
 float Bagrov::nbagro(float bage, float x)
 {
     int i, ia, ie, j;

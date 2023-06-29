@@ -9,6 +9,12 @@
 class Bagrov
 {
 public:
+    static float runoffFromSealedSurface(
+        float potentialEvaporation,
+        float precipitation,
+        float bagrovValue
+    );
+
     static float nbagro(float bage, float x);
     static void bagrov(float *bagf, float *x0, float *y0);
 private:

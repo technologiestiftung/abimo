@@ -649,31 +649,20 @@ void Calculation::setBagrovValues(
     BagrovValues& bagrovValues
 )
 {
-    // ratio of precipitation to potential evaporation
-    float xRatio =
-        precipitation.perYearCorrectedFloat /
-        potentialEvaporation.perYearFloat;
+    // index 0 = roof
+    bagrovValues.roof = Bagrov::runoffFromSealedSurface(
+        precipitation.perYearCorrectedFloat,
+        potentialEvaporation.perYearFloat,
+        initValues.getBagrovValue(0)
+    );
 
-    // Berechnung des Abflusses RxV fuer versiegelte Teilflaechen mittels
-    // Umrechnung potentieller Verdunstungen potentialEvaporation zu realen
-    // ueber Umrechnungsfaktor yRatio und subtrahiert von Niederschlag
-    // precipitation
-
-    // index 0 = roof, indices 1 - 4 = surface classes 1 - 4
-    int numSurfacClasses = static_cast<int>(bagrovValues.surface.size());
-
-    for (int i = 0; i < numSurfacClasses + 1; i++) {
-
-        float bagrovValue = precipitation.perYearCorrectedFloat -
-            Bagrov::nbagro(initValues.getBagrovValue(i), xRatio) *
-            potentialEvaporation.perYearFloat;
-
-        if (i == 0) {
-            bagrovValues.roof = bagrovValue;
-        }
-        else {
-            bagrovValues.surface[i - 1] = bagrovValue;
-        }
+    // indices 1 - 4 = surface classes 1 - 4
+    for (int i = 0; i < static_cast<int>(bagrovValues.surface.size()); i++) {
+        bagrovValues.surface[i] = Bagrov::runoffFromSealedSurface(
+            precipitation.perYearCorrectedFloat,
+            potentialEvaporation.perYearFloat,
+            initValues.getBagrovValue(i + 1)
+        );
     }
 }
 
