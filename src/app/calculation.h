@@ -129,7 +129,7 @@ private:
     void logResults(AbimoInputRecord inputRecord, IntermediateResults results);
     void logVariable(QString name, float value);
 
-    static EvaporationRelevantVariables setEvaporationVars(
+    static EvaporationRelevantVariables getEvaporationVars(
         UsageTuple& usageTuple,
         AbimoInputRecord& input,
         UsageConfiguration usageConfiguration

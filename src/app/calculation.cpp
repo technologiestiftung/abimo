@@ -310,7 +310,7 @@ void Calculation::doCalculationsFor(
     // Provide variables relevant to calculate evaporation (?)
     // all values are 0.0 in case of water bodies -> TODO: may be not a good
     // name. It is more about soil properties
-    EvaporationRelevantVariables evaporationVars = setEvaporationVars(
+    EvaporationRelevantVariables evaporationVars = getEvaporationVars(
         usageTuple, input, usageConfiguration
     );
 
@@ -485,7 +485,7 @@ UsageTuple Calculation::provideUsageInformation(
     return result;
 }
 
-EvaporationRelevantVariables Calculation::setEvaporationVars(
+EvaporationRelevantVariables Calculation::getEvaporationVars(
     UsageTuple& usageTuple,
     AbimoInputRecord& input,
     UsageConfiguration usageConfiguration
