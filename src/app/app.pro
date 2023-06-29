@@ -3,6 +3,8 @@
     error( "Couldn't find the common.pri file!" )
 }
 
+QMAKE_CXXFLAGS += -std=c++11
+
 #TEMPLATE = app
 TEMPLATE = lib
 
