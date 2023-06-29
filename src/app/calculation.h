@@ -171,20 +171,6 @@ private:
         Counters& counters
     );
 
-    static void calculateRunoffSealed(
-        AbimoInputRecord& input,
-        RunoffSealed& runoffSealed,
-        InitValues& initValues,
-        Runoff& runoff
-    );
-
-    static void calculateInfiltrationSealed(
-        AbimoInputRecord& input,
-        RunoffSealed& runoffSealed,
-        Runoff& runoff,
-        Infiltration& infiltrationSealed
-    );
-
     static float actualEvaporation(
         UsageTuple& usageTuple,
         PotentialEvaporation& potentialEvaporation,

@@ -345,19 +345,37 @@ void Calculation::doCalculationsFor(
     // Set default area if total area is zero
     handleTotalAreaOfZero(input, counters);
 
-    // Runoff of impervious (sealed) surfaces
-    Runoff runoff;
-
-    // Infiltration into impervious surfaces (?)
-    Infiltration infiltration;
-
     // Calculate runoff...
     //====================
 
-    // ... from roofs and sealed surfaces
-    calculateRunoffSealed(input, results.runoffSealed, initValues, runoff);
+    Runoff runoff;
 
-    // ... from unsealed surfaces
+    // runoff from roof surfaces (Abfluss der Dachflaechen), old: rowd
+    runoff.roof =
+        (1.0F - initValues.getInfiltrationFactor(0)) * // 0 = roof!
+        input.mainFractionBuiltSealed *
+        input.builtSealedFractionConnected *
+        input.areaFractionMain() *
+        results.runoffSealed.roof;
+
+    // runoff from sealed surfaces
+    // Abfluss Belagsflaeche i + 1, old: row<i>
+    for (int i = 0; i < static_cast<int>(runoff.sealedSurface.size()); i++) {
+        runoff.sealedSurface[i] =
+            (1.0F - initValues.getInfiltrationFactor(i + 1)) *
+            (
+                input.unbuiltSealedFractionSurface.at(i + 1) *
+                input.unbuiltSealedFractionConnected *
+                input.mainFractionUnbuiltSealed *
+                input.areaFractionMain() +
+                input.roadSealedFractionSurface.at(i + 1) *
+                input.roadSealedFractionConnected *
+                input.roadFractionSealed *
+                input.areaFractionRoad()
+            ) * results.runoffSealed.surface[i];
+    }
+
+    // runoff from unsealed surfaces
     runoff.unsealedSurface_RUV =
         precipitation.perYearCorrectedFloat -
         actualEvaporation(
@@ -370,16 +388,36 @@ void Calculation::doCalculationsFor(
     // Calculate infiltration...
     // =========================
 
-    // ... from sealed surfaces
-    calculateInfiltrationSealed(input, results.runoffSealed, runoff, infiltration);
+    Infiltration infiltration;
 
-    // ... from unsealed road surfaces
+    // infiltration from roof (?)
+    infiltration.roof =
+        (1 - input.builtSealedFractionConnected) *
+        input.mainFractionBuiltSealed *
+        input.areaFractionMain() *
+        results.runoffSealed.roof;
+
+    // infiltration from sealed surfaces
+    for (int i = 0; i < static_cast<int>(infiltration.surface.size()); i++) {
+
+        infiltration.surface[i] = (
+            input.unbuiltSealedFractionSurface.at(i + 1) *
+            input.mainFractionUnbuiltSealed *
+            input.areaFractionMain() +
+            input.roadSealedFractionSurface.at(i + 1) *
+            input.roadFractionSealed *
+            input.areaFractionRoad()
+        ) * results.runoffSealed.surface[i] -
+        runoff.sealedSurface[i];
+    }
+
+    // infiltration from unsealed road surfaces
     infiltration.unsealedRoads =
         (1 - input.roadFractionSealed) *
         input.areaFractionRoad() *
         results.runoffSealed.surface.last();
 
-    // ... from unsealed non-road surfaces
+    // infiltration from unsealed non-road surfaces
     // old: riuv
     infiltration.unsealedSurfaces = (
         100.0F - input.mainPercentageSealed()
@@ -681,66 +719,6 @@ void Calculation::handleTotalAreaOfZero(
         counters.incrementRecordsProtocol();
         counters.incrementNoAreaGiven();
         input.mainArea = 100.0F;
-    }
-}
-
-void Calculation::calculateRunoffSealed(
-    AbimoInputRecord& input,
-    RunoffSealed& runoffSealed,
-    InitValues& initValues,
-    Runoff& runoff
-)
-{
-    // runoff from roof surfaces (Abfluss der Dachflaechen), old: rowd
-    runoff.roof =
-        (1.0F - initValues.getInfiltrationFactor(0)) * // 0 = roof!
-        input.mainFractionBuiltSealed *
-        input.builtSealedFractionConnected *
-        input.areaFractionMain() *
-        runoffSealed.roof;
-
-    for (int i = 0; i < static_cast<int>(runoff.sealedSurface.size()); i++) {
-
-        // Abfluss Belagsflaeche i + 1, old: row<i>
-        runoff.sealedSurface[i] =
-            (1.0F - initValues.getInfiltrationFactor(i + 1)) *
-            (
-                input.unbuiltSealedFractionSurface.at(i + 1) *
-                input.unbuiltSealedFractionConnected *
-                input.mainFractionUnbuiltSealed *
-                input.areaFractionMain() +
-                input.roadSealedFractionSurface.at(i + 1) *
-                input.roadSealedFractionConnected *
-                input.roadFractionSealed *
-                input.areaFractionRoad()
-            ) * runoffSealed.surface[i];
-    }
-}
-
-void Calculation::calculateInfiltrationSealed(
-    AbimoInputRecord& input,
-    RunoffSealed& runoffSealed,
-    Runoff& runoff,
-    Infiltration& infiltrationSealed
-)
-{
-    infiltrationSealed.roof =
-        (1 - input.builtSealedFractionConnected) *
-        input.mainFractionBuiltSealed *
-        input.areaFractionMain() *
-        runoffSealed.roof;
-
-    for (int i = 0; i < static_cast<int>(infiltrationSealed.surface.size()); i++) {
-
-        infiltrationSealed.surface[i] = (
-            input.unbuiltSealedFractionSurface.at(i + 1) *
-            input.mainFractionUnbuiltSealed *
-            input.areaFractionMain() +
-            input.roadSealedFractionSurface.at(i + 1) *
-            input.roadFractionSealed *
-            input.areaFractionRoad()
-        ) * runoffSealed.surface[i] -
-        runoff.sealedSurface[i];
     }
 }
 
