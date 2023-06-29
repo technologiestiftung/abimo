@@ -144,6 +144,9 @@ bool Calculation::calculate(QString& outputFile, bool debug)
             // Calculate and set result record fields to calculated values
             doCalculationsFor(inputRecord, results);
 
+            // Write all results to the log file
+            logResults(inputRecord, results);
+
             fillResultRecord(inputRecord, results, outputRecord);
 
             // Set the corresponding row in the result data structure
@@ -635,6 +638,37 @@ float Calculation::actualEvaporation(
     }
 
     return result;
+}
+
+void Calculation::logResults(
+        AbimoInputRecord inputRecord,
+        IntermediateResults results
+)
+{
+    m_prefix = inputRecord.code;
+
+    logVariable("bagrov_roof", results.bagrovValues.roof);
+
+    for (int i = 1; i < results.bagrovValues.surface.size(); i++) {
+        logVariable(
+            QString("bagrov_surface[%1]").arg(i),
+            results.bagrovValues.surface[i]
+        );
+    }
+
+    logVariable("surfaceRunoff_ROW", results.surfaceRunoff_ROW);
+    logVariable("surfaceRunoffFlow_ROWVOL", results.surfaceRunoffFlow_ROWVOL);
+    logVariable("infiltration_RI", results.infiltration_RI);
+    logVariable("infiltrationFlow_RIVOL", results.infiltrationFlow_RIVOL);
+    logVariable("totalRunoff_R", results.totalRunoff_R);
+    logVariable("totalRunoffFlow_RVOL", results.totalRunoffFlow_RVOL);
+    logVariable("evaporation_VERDUNSTUN", results.evaporation_VERDUNSTUN);
+}
+
+void Calculation::logVariable(QString name, float value)
+{
+    m_protocolStream << m_prefix << ";" << name << "=";
+    m_protocolStream << QString::number(value, 'g', 10) << endl;
 }
 
 int Calculation::fillResultRecord(
