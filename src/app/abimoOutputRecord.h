@@ -3,7 +3,7 @@
 
 #include <QString>
 
-class AbimoOutputRecord
+extern "C" class Q_DECL_EXPORT AbimoOutputRecord
 {
 public:
     AbimoOutputRecord();
