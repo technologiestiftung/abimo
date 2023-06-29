@@ -3,6 +3,8 @@
 // * of this repository (https://github.com/KWB-R/abimo).
 // ***************************************************************************
 
+#include <cfenv> // fegetround()
+
 #include <vector>
 
 #include <math.h>
@@ -189,6 +191,20 @@ int Calculation::calculateData(
 // =============================================================================
 bool Calculation::calculate(QString& outputFile, bool debug)
 {
+    // https://en.cppreference.com/w/cpp/numeric/fenv/feround
+
+    int oldMode = std::fegetround();
+
+    //int newMode = FE_DOWNWARD;
+    //int newMode = FE_UPWARD;
+    int newMode = FE_TONEAREST;
+    //int newMode = FE_TOWARDZERO;
+
+    int errCode = std::fesetround(newMode);
+
+    m_protocolStream << QString("std::fegetround() returned: %1").arg(oldMode) << endl;
+    m_protocolStream << QString("std::fesetround(%1) returned: %2").arg(newMode).arg(errCode) << errCode << endl;
+
     // Current Abimo record (represents one row of the input dbf file)
     AbimoInputRecord inputRecord;
     AbimoOutputRecord outputRecord;
@@ -239,6 +255,9 @@ bool Calculation::calculate(QString& outputFile, bool debug)
                 m_counters,
                 m_protocolStream
             );
+
+            // Write all results to the log file
+            logResults(inputRecord, results);
 
             fillResultRecord(inputRecord, results, outputRecord);
 
@@ -318,12 +337,11 @@ void Calculation::doCalculationsFor(
     // Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4
     // - RDV / RxV: Gesamtabfluss versiegelte Flaeche
 
-    BagrovValues bagrovValues;
     setBagrovValues(
         precipitation,
         potentialEvaporation,
         initValues,
-        bagrovValues
+        results.bagrovValues
     );
 
     // Set default area if total area is zero
@@ -339,7 +357,7 @@ void Calculation::doCalculationsFor(
     //====================
 
     // ... from roofs and sealed surfaces
-    calculateRunoffSealed(input, bagrovValues, initValues, runoff);
+    calculateRunoffSealed(input, results.bagrovValues, initValues, runoff);
 
     // ... from unsealed surfaces
     runoff.unsealedSurface_RUV =
@@ -355,13 +373,13 @@ void Calculation::doCalculationsFor(
     // =========================
 
     // ... from sealed surfaces
-    calculateInfiltrationSealed(input, bagrovValues, runoff, infiltration);
+    calculateInfiltrationSealed(input, results.bagrovValues, runoff, infiltration);
 
     // ... from unsealed road surfaces
     infiltration.unsealedRoads =
         (1 - input.roadFractionSealed) *
         input.areaFractionRoad() *
-        bagrovValues.surface.last();
+        results.bagrovValues.surface.last();
 
     // ... from unsealed non-road surfaces
     // old: riuv
@@ -786,6 +804,39 @@ float Calculation::actualEvaporation(
     }
 
     return result;
+}
+
+void Calculation::logResults(
+        AbimoInputRecord inputRecord,
+        IntermediateResults results
+)
+{
+    m_protocolStream << endl << "*** Code: " << inputRecord.code << endl;
+
+    //m_prefix = inputRecord.code;
+
+    logVariable("bagrov_roof", results.bagrovValues.roof);
+
+    for (int i = 1; i < results.bagrovValues.surface.size(); i++) {
+        logVariable(
+            QString("bagrov_surface[%1]").arg(i),
+            results.bagrovValues.surface[i]
+        );
+    }
+
+    logVariable("surfaceRunoff_ROW", results.surfaceRunoff_ROW);
+    logVariable("surfaceRunoffFlow_ROWVOL", results.surfaceRunoffFlow_ROWVOL);
+    logVariable("infiltration_RI", results.infiltration_RI);
+    logVariable("infiltrationFlow_RIVOL", results.infiltrationFlow_RIVOL);
+    logVariable("totalRunoff_R", results.totalRunoff_R);
+    logVariable("totalRunoffFlow_RVOL", results.totalRunoffFlow_RVOL);
+    logVariable("evaporation_VERDUNSTUN", results.evaporation_VERDUNSTUN);
+}
+
+void Calculation::logVariable(QString name, float value)
+{
+    //m_protocolStream << m_prefix << ";" <<
+    m_protocolStream << name << "=" << QString::number(value, 'g', 10) << endl;
 }
 
 int Calculation::fillResultRecord(

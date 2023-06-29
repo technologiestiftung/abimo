@@ -1,10 +1,12 @@
 #ifndef INTERMEDIATERESULTS_H
 #define INTERMEDIATERESULTS_H
 
-#include <array>
+#include "structs.h"
 
 struct IntermediateResults
 {
+    BagrovValues bagrovValues;
+
     // Langjaehriger MW des Regenwasserabflusses [mm/a] 003 N
     float surfaceRunoff_ROW = 0.0f;
 

@@ -95,6 +95,9 @@ private:
     // Variable to control whether to stop processing
     bool m_continueProcessing;
 
+    // Current prefix to be used in log file
+    QString m_prefix;
+
     //
     // Methods
     //
@@ -115,6 +118,9 @@ private:
         Counters& counters,
         QTextStream& protocolStream
     );
+
+    void logResults(AbimoInputRecord inputRecord, IntermediateResults results);
+    void logVariable(QString name, float value);
 
     static EvaporationRelevantVariables setEvaporationVars(
         UsageTuple& usageTuple,

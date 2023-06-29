@@ -140,8 +140,10 @@ int DbaseWriter::writeFileHeaderField(
 void DbaseWriter::writeFileData(QByteArray& data)
 {
     const QVector<DbaseField>& fields = getFieldDefinitions();
+
     QVector<QString> strings;
-    char fill = '0';
+    QString string;
+    QChar fill('0');
 
     for (int i = 0; i < m_header.numberOfRecords; i++) {
 
@@ -151,17 +153,19 @@ void DbaseWriter::writeFileData(QByteArray& data)
 
         for (int j = 0; j < fields.size(); j++) {
 
-            DbaseField::formatNumericString(
-                strings[j],
-                fields[j].getFieldLength(),
-                fields[j].getDecimalCount(),
-                fill,
-                false
-            );
+            // Desired length of the string
+            int length = fields[j].getFieldLength();
 
-            assert(strings[j].length() == fields[j].getFieldLength());
+            string = strings.at(j);
 
-            data.append(strings[j]);
+            // Format the string so that it has the desired length
+            string = (fields[j].getDecimalCount() > 0) ?
+                helpers::rightJustifiedNumber(string, length, fill) :
+                string.rightJustified(length, fill, true);
+
+            assert(string.length() == length);
+
+            data.append(string);
         }
     }
 
@@ -225,23 +229,22 @@ void DbaseWriter::setRecordField(int i, QString& value)
 {
     m_record.last()[i] = QString(value);
 
-    if (value.size() > m_fields[i].getFieldLength()) {
-        m_fields[i].setFieldLength(value.size());
+    // Update the maximum field length
+    int length = value.size();
+
+    if (length > m_fields[i].getFieldLength()) {
+        m_fields[i].setFieldLength(length);
     }
 }
 
 void DbaseWriter::setRecordField(int i, float value)
-{    
-    int decimalCount = m_fields[i].getDecimalCount();
+{
+    int digits = m_fields[i].getDecimalCount();
+    QString string;
 
-    // round
-    value *= pow(10, decimalCount);
-    value = round(value);
-    value *= pow(10, -decimalCount);
+    string.setNum(helpers::roundFloat(value, digits), 'f', digits);
 
-    QString valueStr;
-    valueStr.setNum(value, 'f', decimalCount);
-    setRecordField(i, valueStr);
+    setRecordField(i, string);
 }
 
 void DbaseWriter::setRecordField(const char* name, QString value)
