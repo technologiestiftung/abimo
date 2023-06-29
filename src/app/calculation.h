@@ -84,6 +84,9 @@ private:
     // Variable to control whether to stop processing
     bool m_continueProcessing;
 
+    // Current prefix to be used in log file
+    QString m_prefix;
+
     //
     // Methods
     //
@@ -92,6 +95,9 @@ private:
         AbimoInputRecord& input,
         IntermediateResults& results
     );
+
+    void logResults(AbimoInputRecord inputRecord, IntermediateResults results);
+    void logVariable(QString name, float value);
 
     UsageTuple provideUsageInformation(AbimoInputRecord& input);
 
