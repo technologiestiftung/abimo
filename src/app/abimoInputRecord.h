@@ -7,7 +7,7 @@
 #include "helpers.h"
 
 // Fraction indicates numbers between 0 and 1 (instead of percentages)
-class AbimoInputRecord
+extern "C" class Q_DECL_EXPORT AbimoInputRecord
 {
 public:
     AbimoInputRecord();
