@@ -307,10 +307,9 @@ void Calculation::doCalculationsFor(
         input, usageConfiguration, initValues, counters, protocolStream
     );
 
-    // Provide variables relevant to calculate evaporation (?)
-    // all values are 0.0 in case of water bodies -> TODO: may be not a good
-    // name. It is more about soil properties
-    EvaporationRelevantVariables evaporationVars = getEvaporationVars(
+    // Provide soil properties that are required to calculate evaporation (?)
+    // all values are 0.0 in case of water bodies
+    SoilProperties soilProperties = getSoilProperties(
         usageTuple, input, usageConfiguration
     );
 
@@ -364,7 +363,7 @@ void Calculation::doCalculationsFor(
         actualEvaporation(
             usageTuple,
             potentialEvaporation,
-            evaporationVars,
+            soilProperties,
             precipitation
         );
 
@@ -485,14 +484,14 @@ UsageTuple Calculation::getUsageTuple(
     return result;
 }
 
-EvaporationRelevantVariables Calculation::getEvaporationVars(
+SoilProperties Calculation::getSoilProperties(
     UsageTuple& usageTuple,
     AbimoInputRecord& input,
     UsageConfiguration usageConfiguration
 )
 {
     // Initialise variables that are relevant to calculate evaporation
-    EvaporationRelevantVariables result;
+    SoilProperties result;
 
     result.depthToWaterTable = input.depthToWaterTable;
 
@@ -748,7 +747,7 @@ void Calculation::calculateInfiltrationSealed(
 float Calculation::actualEvaporation(
     UsageTuple& usageTuple,
     PotentialEvaporation& potentialEvaporation,
-    EvaporationRelevantVariables& evaporationVars,
+    SoilProperties& evaporationVars,
     Precipitation& precipitation
 )
 {

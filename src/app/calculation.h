@@ -129,7 +129,7 @@ private:
     void logResults(AbimoInputRecord inputRecord, IntermediateResults results);
     void logVariable(QString name, float value);
 
-    static EvaporationRelevantVariables getEvaporationVars(
+    static SoilProperties getSoilProperties(
         UsageTuple& usageTuple,
         AbimoInputRecord& input,
         UsageConfiguration usageConfiguration
@@ -188,7 +188,7 @@ private:
     static float actualEvaporation(
         UsageTuple& usageTuple,
         PotentialEvaporation& potentialEvaporation,
-        EvaporationRelevantVariables& evaporationVars,
+        SoilProperties& evaporationVars,
         Precipitation& precipitation
     );
 

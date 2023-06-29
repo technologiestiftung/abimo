@@ -58,7 +58,7 @@ struct Precipitation {
     float inSummerFloat;
 };
 
-struct EvaporationRelevantVariables {
+struct SoilProperties {
 
     // nFK-Wert (ergibt sich aus Bodenart) ID_NFK neu
     // water holding capacity (= nutzbare Feldkapazitaet)
