@@ -3,7 +3,7 @@
 // * of this repository (https://github.com/KWB-R/abimo).
 // ***************************************************************************
 
-#include <fenv.h> // fegetround()
+#include <cfenv> // fegetround()
 
 #include <vector>
 
@@ -47,9 +47,6 @@ void Calculation::runCalculation(
         bool debug
 )
 {
-    qDebug() <<
-          "fegetround() returns: " << fegetround() << "\n";
-
     // Open the input file
     AbimoReader dbReader(inputFile);
 
@@ -100,6 +97,20 @@ void Calculation::runCalculation(
 // =============================================================================
 bool Calculation::calculate(QString& outputFile, bool debug)
 {
+    // https://en.cppreference.com/w/cpp/numeric/fenv/feround
+
+    int oldMode = std::fegetround();
+
+    //int newMode = FE_DOWNWARD;
+    //int newMode = FE_UPWARD;
+    int newMode = FE_TONEAREST;
+    //int newMode = FE_TOWARDZERO;
+
+    int errCode = std::fesetround(newMode);
+
+    m_protocolStream << QString("std::fegetround() returned: %1").arg(oldMode) << endl;
+    m_protocolStream << QString("std::fesetround(%1) returned: %2").arg(newMode).arg(errCode) << errCode << endl;
+
     // Current Abimo record (represents one row of the input dbf file)
     AbimoInputRecord inputRecord;
     AbimoOutputRecord outputRecord;
@@ -645,7 +656,9 @@ void Calculation::logResults(
         IntermediateResults results
 )
 {
-    m_prefix = inputRecord.code;
+    m_protocolStream << endl << "*** Code: " << inputRecord.code << endl;
+
+    //m_prefix = inputRecord.code;
 
     logVariable("bagrov_roof", results.bagrovValues.roof);
 
@@ -667,8 +680,8 @@ void Calculation::logResults(
 
 void Calculation::logVariable(QString name, float value)
 {
-    m_protocolStream << m_prefix << ";" << name << "=";
-    m_protocolStream << QString::number(value, 'g', 10) << endl;
+    //m_protocolStream << m_prefix << ";" <<
+    m_protocolStream << name << "=" << QString::number(value, 'g', 10) << endl;
 }
 
 int Calculation::fillResultRecord(
