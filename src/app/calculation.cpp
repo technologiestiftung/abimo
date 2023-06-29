@@ -3,6 +3,8 @@
 // * of this repository (https://github.com/KWB-R/abimo).
 // ***************************************************************************
 
+#include <fenv.h> // fegetround()
+
 #include <vector>
 
 #include <math.h>
@@ -45,6 +47,9 @@ void Calculation::runCalculation(
         bool debug
 )
 {
+    qDebug() <<
+          "fegetround() returns: " << fegetround() << "\n";
+
     // Open the input file
     AbimoReader dbReader(inputFile);
 
