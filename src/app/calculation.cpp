@@ -337,11 +337,10 @@ void Calculation::doCalculationsFor(
     // Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4
     // - RDV / RxV: Gesamtabfluss versiegelte Flaeche
 
-    setRunoffSealed(
+    results.runoffSealed = getRunoffSealed(
         precipitation,
         potentialEvaporation,
-        initValues,
-        results.runoffSealed
+        initValues
     );
 
     // Set default area if total area is zero
@@ -642,13 +641,14 @@ float Calculation::initValueOrReportedDefaultValue(
     return result;
 }
 
-void Calculation::setRunoffSealed(
+RunoffSealed Calculation::getRunoffSealed(
     Precipitation& precipitation,
     PotentialEvaporation& potentialEvaporation,
-    InitValues& initValues,
-    RunoffSealed& runoffSealed
+    InitValues& initValues
 )
 {
+    RunoffSealed runoffSealed;
+
     // index 0 = roof
     runoffSealed.roof = Bagrov::runoffFromSealedSurface(
         precipitation.perYearCorrectedFloat,
@@ -664,6 +664,8 @@ void Calculation::setRunoffSealed(
             initValues.getBagrovValue(i + 1)
         );
     }
+
+    return runoffSealed;
 }
 
 void Calculation::handleTotalAreaOfZero(

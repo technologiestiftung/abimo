@@ -160,11 +160,10 @@ private:
         QTextStream& protocolStream
     );
 
-    static void setRunoffSealed(
+    static RunoffSealed getRunoffSealed(
         Precipitation& precipitation,
         PotentialEvaporation& potentialEvaporation,
-        InitValues& initValues,
-        RunoffSealed& runoffSealed
+        InitValues& initValues
     );
 
     static void handleTotalAreaOfZero(
