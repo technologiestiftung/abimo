@@ -303,7 +303,7 @@ void Calculation::doCalculationsFor(
 )
 {
     // Based on the given input row, try to provide usage-specific information
-    UsageTuple usageTuple = provideUsageInformation(
+    UsageTuple usageTuple = getUsageTuple(
         input, usageConfiguration, initValues, counters, protocolStream
     );
 
@@ -445,7 +445,7 @@ void Calculation::doCalculationsFor(
         results.totalRunoff_R;
 }
 
-UsageTuple Calculation::provideUsageInformation(
+UsageTuple Calculation::getUsageTuple(
     AbimoInputRecord& input,
     UsageConfiguration& usageConfiguration,
     InitValues& initValues,

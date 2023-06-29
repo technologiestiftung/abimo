@@ -118,7 +118,7 @@ private:
     // Methods
     //
 
-    static UsageTuple provideUsageInformation(
+    static UsageTuple getUsageTuple(
         AbimoInputRecord& input,
         UsageConfiguration& usageConfiguration,
         InitValues& initValues,
