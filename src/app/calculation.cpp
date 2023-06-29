@@ -211,8 +211,7 @@ void Calculation::doCalculationsFor(
     // Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4
     // - RDV / RxV: Gesamtabfluss versiegelte Flaeche
 
-    BagrovValues bagrovValues;
-    setBagrovValues(precipitation, potentialEvaporation, bagrovValues);
+    setBagrovValues(precipitation, potentialEvaporation, results.bagrovValues);
 
     // Set default area if total area is zero
     handleTotalAreaOfZero(input);
@@ -227,7 +226,7 @@ void Calculation::doCalculationsFor(
     //====================
 
     // ... from roofs and sealed surfaces
-    calculateRunoffSealed(input, bagrovValues, runoff);
+    calculateRunoffSealed(input, results.bagrovValues, runoff);
 
     // ... from unsealed surfaces
     runoff.unsealedSurface_RUV =
@@ -243,13 +242,13 @@ void Calculation::doCalculationsFor(
     // =========================
 
     // ... from sealed surfaces
-    calculateInfiltrationSealed(input, bagrovValues, runoff, infiltration);
+    calculateInfiltrationSealed(input, results.bagrovValues, runoff, infiltration);
 
     // ... from unsealed road surfaces
     infiltration.unsealedRoads =
         (1 - input.roadFractionSealed) *
         input.areaFractionRoad() *
-        bagrovValues.surface.last();
+        results.bagrovValues.surface.last();
 
     // ... from unsealed non-road surfaces
     // old: riuv
