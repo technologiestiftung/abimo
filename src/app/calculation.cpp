@@ -114,7 +114,7 @@ void Calculation::runCalculationUsingData(
     QVector<AbimoOutputRecord> outputData;
 
     // Do the calculations for the input data creating output data
-    Calculation::calculateData(inputData, outputData);
+    calculateData(inputData, outputData);
 
     InitValues initValues;
 
@@ -132,7 +132,7 @@ void Calculation::runCalculationUsingData(
     writer.write();
 }
 
-int Calculation::calculateData(
+int calculateData(
     QVector<AbimoInputRecord>& inputData,
     QVector<AbimoOutputRecord>& outputData
 )
@@ -163,7 +163,7 @@ int Calculation::calculateData(
         }
 
         // Calculate and set result record fields to calculated values
-        doCalculationsFor(
+        Calculation::doCalculationsFor(
             inputRecord,
             results,
             initValues,
@@ -172,7 +172,7 @@ int Calculation::calculateData(
             protocolStream
         );
 
-        fillResultRecord(inputRecord, results, outputRecord);
+        Calculation::fillResultRecord(inputRecord, results, outputRecord);
 
         // Set the corresponding row in the result data structure
         outputData.append(outputRecord);

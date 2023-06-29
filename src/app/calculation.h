@@ -23,6 +23,12 @@
 #include "intermediateResults.h"
 #include "soilAndVegetation.h"
 
+// Main function using data structures, not files
+extern "C" Q_DECL_EXPORT int calculateData(
+    QVector<AbimoInputRecord>& inputData,
+    QVector<AbimoOutputRecord>& outputData
+);
+
 class Calculation : public QObject
 {
     Q_OBJECT
@@ -49,11 +55,6 @@ public:
         QString outputFile
     );
 
-    static int calculateData(
-        QVector<AbimoInputRecord>& inputData,
-        QVector<AbimoOutputRecord>& outputData
-    );
-
     // Main function to perform the calculation of the whole input table
     bool calculate(QString& outputFile, bool debug = false);
 
@@ -63,6 +64,21 @@ public:
 
     // Function to be called to stop a running calculation
     void stopProcessing();
+
+    static void doCalculationsFor(
+        AbimoInputRecord& input,
+        IntermediateResults& results,
+        InitValues& initValues,
+        UsageConfiguration& usageConfiguration,
+        Counters& m_counters,
+        QTextStream& protocolStream
+    );
+
+    static int fillResultRecord(
+        AbimoInputRecord& input,
+        IntermediateResults& results,
+        AbimoOutputRecord& output
+    );
 
 signals:
     void processSignal(int, QString);
@@ -101,15 +117,6 @@ private:
     //
     // Methods
     //
-
-    static void doCalculationsFor(
-        AbimoInputRecord& input,
-        IntermediateResults& results,
-        InitValues& initValues,
-        UsageConfiguration& usageConfiguration,
-        Counters& m_counters,
-        QTextStream& protocolStream
-    );
 
     static UsageTuple provideUsageInformation(
         AbimoInputRecord& input,
@@ -184,12 +191,6 @@ private:
         PotentialEvaporation& potentialEvaporation,
         EvaporationRelevantVariables& evaporationVars,
         Precipitation& precipitation
-    );
-
-    static int fillResultRecord(
-        AbimoInputRecord& input,
-        IntermediateResults& results,
-        AbimoOutputRecord& output
     );
 
     static void writeResultRecord(
