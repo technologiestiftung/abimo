@@ -740,7 +740,7 @@ float Calculation::actualEvaporation(
     // Determine effectivity/effectiveness ??? parameter (old???: bag) for
     // unsealed surfaces
     // Modul Raster abgespeckt (???)
-    float effectivityParameter = EffectivenessUnsealed::getEffectivityParameter(
+    float effectivity = EffectivenessUnsealed::getEffectivityParameter(
         usageTuple,
         evaporationVars.usableFieldCapacity,
         precipitation.inSummerFloat,
@@ -748,31 +748,21 @@ float Calculation::actualEvaporation(
         evaporationVars.meanPotentialCapillaryRiseRate
     );
 
-//    // Calculate the x-factor of bagrov relation: x = (P + KR + BER)/ETP
-//    // Then get the y-factor: y = fbag(n, x)
-//    // ratio of real evaporation to potential evaporation
-//    float yRatio = Bagrov::yRatio(
-//        effectivityParameter,
-//        (
-//            precipitation.perYearCorrectedFloat +
-//            evaporationVars.meanPotentialCapillaryRiseRate +
-//            usageTuple.irrigation
-//        ) / potentialEvaporation.perYearFloat
-//    );
-
+    // Use the Bagrov relation with xRatio = (P + KR + BER)/ETP to calculate
+    // the real evapotranspiration
     float result = Bagrov::realEvapoTranspiration(
         precipitation.perYearCorrectedFloat +
             evaporationVars.meanPotentialCapillaryRiseRate +
             usageTuple.irrigation,
         potentialEvaporation.perYearFloat,
-        effectivityParameter
+        effectivity
     );
 
     float tas = evaporationVars.potentialCapillaryRise_TAS;
 
     if (tas < 0) {
-        result += (potentialEvaporation.perYearFloat - result) *
-            static_cast<float>(exp(evaporationVars.depthToWaterTable / tas));
+        float factor = exp(evaporationVars.depthToWaterTable / tas);
+        result += (potentialEvaporation.perYearFloat - result) * factor;
     }
 
     return result;
