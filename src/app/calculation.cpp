@@ -586,7 +586,7 @@ PotentialEvaporation Calculation::getPotentialEvaporation(
     // Parameter for the city districts
     if (usage == Usage::waterbody_G) {
 
-        result.perYearInteger = initValueOrReportedDefaultValue(
+        result.perYearInteger = getInitialValueOrDefault(
             district,
             code,
             initValues.hashEG,
@@ -600,7 +600,7 @@ PotentialEvaporation Calculation::getPotentialEvaporation(
         result.inSummerInteger = -1;
     }
     else {
-        result.perYearInteger = initValueOrReportedDefaultValue(
+        result.perYearInteger = getInitialValueOrDefault(
             district,
             code,
             initValues.hashETP,
@@ -610,7 +610,7 @@ PotentialEvaporation Calculation::getPotentialEvaporation(
             protocolStream
         );
 
-        result.inSummerInteger = initValueOrReportedDefaultValue(
+        result.inSummerInteger = getInitialValueOrDefault(
             district,
             code,
             initValues.hashETPS,
@@ -627,7 +627,7 @@ PotentialEvaporation Calculation::getPotentialEvaporation(
     return result;
 }
 
-float Calculation::initValueOrReportedDefaultValue(
+float Calculation::getInitialValueOrDefault(
         int district,
         QString code,
         QHash<int,int> &hash,
@@ -645,15 +645,9 @@ float Calculation::initValueOrReportedDefaultValue(
     // Default
     float result = hash.contains(0) ? hash.value(0) : defaultValue;
 
-    QString districtString;
-    districtString.setNum(district);
-
-    QString resultString;
-    resultString.setNum(result);
-
-    protocolStream << QString(
-        "\r\n%1 unbekannt fuer %2 von Bezirk %3\r\n%4=%5 angenommen\r\n"
-    ).arg(name, code, districtString, name, resultString);
+    protocolStream << name << " unknown for " << code <<
+        " (district: " << district << ") -> " <<
+        name << "=" << result << " assumed." << endl;
 
     counters.incrementRecordsProtocol();
 

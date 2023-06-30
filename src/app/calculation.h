@@ -150,7 +150,7 @@ private:
         QTextStream& protocolStream
     );
 
-    static float initValueOrReportedDefaultValue(
+    static float getInitialValueOrDefault(
         int bez,
         QString code,
         QHash<int, int> &hash,
