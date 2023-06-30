@@ -302,20 +302,20 @@ void Calculation::doCalculationsFor(
     QTextStream& protocolStream
 )
 {
-    // Based on the given input row, try to provide usage-specific information
-    UsageTuple usageTuple = getUsageTuple(
-        input, usageConfiguration, initValues, counters, protocolStream
-    );
-
-    // Provide soil properties that are required to calculate evaporation (?)
-    // all values are 0.0 in case of water bodies
-    SoilProperties soilProperties = getSoilProperties(
-        usageTuple, input, usageConfiguration
-    );
-
     // Provide information on the precipitation
     Precipitation precipitation = getPrecipitation(
-        input.precipitationYear, input.precipitationSummer, initValues
+        input.precipitationYear,
+        input.precipitationSummer,
+        initValues
+    );
+
+    // Based on the given input row, try to provide usage-specific information
+    UsageTuple usageTuple = getUsageTuple(
+        input,
+        usageConfiguration,
+        initValues,
+        counters,
+        protocolStream
     );
 
     // Provide information on the potential evaporation
@@ -342,13 +342,13 @@ void Calculation::doCalculationsFor(
         initValues
     );
 
-    // Set default area if total area is zero
-    handleTotalAreaOfZero(input, counters);
-
     // Calculate runoff...
     //====================
 
     Runoff runoff;
+
+    // Set default area if total area is zero
+    handleTotalAreaOfZero(input, counters);
 
     // runoff from roof surfaces (Abfluss der Dachflaechen), old: rowd
     runoff.roof =
@@ -359,6 +359,7 @@ void Calculation::doCalculationsFor(
         results.runoffSealed.roof;
 
     // runoff from sealed surfaces
+
     // Abfluss Belagsflaeche i + 1, old: row<i>
     for (int i = 0; i < static_cast<int>(runoff.sealedSurface.size()); i++) {
         runoff.sealedSurface[i] =
@@ -376,6 +377,15 @@ void Calculation::doCalculationsFor(
     }
 
     // runoff from unsealed surfaces
+
+    // Provide soil properties. They are required to calculate tha actual
+    // evapotranspiration. In the case of water bodies, all values are 0.0.
+    SoilProperties soilProperties = getSoilProperties(
+        usageTuple,
+        input,
+        usageConfiguration
+    );
+
     runoff.unsealedSurface_RUV =
         precipitation.perYearCorrectedFloat -
         actualEvaporation(
@@ -465,7 +475,7 @@ void Calculation::doCalculationsFor(
         results.infiltration_RI
     );
 
-    // calculate volume of system losses 'rvol' due to runoff and
+    // calculate volume of "system losses" 'rvol' due to surface runoff and
     // infiltration
     results.totalRunoffFlow_RVOL =
         results.surfaceRunoffFlow_ROWVOL +
