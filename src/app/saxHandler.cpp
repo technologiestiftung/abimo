@@ -19,11 +19,14 @@ bool SaxHandler::startElement(
     const QXmlAttributes &attribs
 )
 {
-    int digits;
-
     if (qName == "section") {
+
         m_parameterGroup = nameToParameterGroup(attribs.value("name"));
-        return (m_parameterGroup != ParameterGroup::None && m_parameterGroup != ParameterGroup::Invalid);
+
+        return (
+            m_parameterGroup != ParameterGroup::None &&
+            m_parameterGroup != ParameterGroup::Invalid
+        );
     }
 
     if (qName == "item") {
@@ -34,6 +37,7 @@ bool SaxHandler::startElement(
         switch (m_parameterGroup) {
 
         case ParameterGroup::Infiltrationsfaktoren:
+
             initValues.setInfiltrationFactor(
                 surfaceNameToIndex(key),
                 value.toFloat()
@@ -41,6 +45,7 @@ bool SaxHandler::startElement(
             break;
 
         case ParameterGroup::Bagrovwerte :
+
             initValues.setBagrovValue(
                 surfaceNameToIndex(key),
                 value.toFloat()
@@ -48,46 +53,41 @@ bool SaxHandler::startElement(
             break;
 
         case ParameterGroup::Nachkomma :
-            digits = value.toInt();
-            if (key == "R")
-                initValues.setDigitsTotalRunoff_R(digits);
-            else if (key == "ROW")
-                initValues.setDigitsSurfaceRunoff_ROW(digits);
-            else if (key == "RI")
-                initValues.setDigitsInfiltration_RI(digits);
-            else if (key == "RVOL")
-                initValues.setDigitsTotalRunoffFlow_RVOL(digits);
-            else if (key == "ROWVOL")
-                initValues.setDigitsSurfaceRunoffFlow_ROWVOL(digits);
-            else if (key == "RIVOL")
-                initValues.setDigitsInfiltrationFlow_RIVOL(digits);
-            else if (key == "FLAECHE")
-                initValues.setDigitsTotalArea_FLAECHE(digits);
-            else if (key == "VERDUNSTUNG")
-                initValues.setDigitsEvaporation_VERDUNSTUN(digits);
+
+            initValues.setResultDigits(
+                nameToOutputColumn(key),
+                value.toInt()
+            );
             break;
 
         case ParameterGroup::Diverse :
-            if (key == "BERtoZero")
+
+            if (key == "BERtoZero") {
                 initValues.setIrrigationToZero(value == "true");
-            else if (key == "NIEDKORRF")
+            }
+            else if (key == "NIEDKORRF") {
                 initValues.setPrecipitationCorrectionFactor(value.toFloat());
+            }
             break;
 
         case ParameterGroup::GewVerd :
+
             potentialEvaporationEntry(attribs, "eg", 13);
             break;
 
         case ParameterGroup::PotVerd :
+
             potentialEvaporationEntry(attribs, "etp", 11);
             potentialEvaporationEntry(attribs, "etps", 12);
             break;
 
         case ParameterGroup::None:
+
             qDebug() << "state is still 'None'";
             return false;
 
         case ParameterGroup::Invalid:
+
             qDebug() << "state is 'Invalid'";
             return false;
         }
@@ -98,27 +98,47 @@ bool SaxHandler::startElement(
 
 ParameterGroup SaxHandler::nameToParameterGroup(QString name)
 {
-    QHash<QString, ParameterGroup> hash;
+    QHash <QString, ParameterGroup> hash({
+        {"Infiltrationsfaktoren", ParameterGroup::Infiltrationsfaktoren},
+        {"Bagrovwerte", ParameterGroup::Bagrovwerte},
+        {"ErgebnisNachkommaStellen", ParameterGroup::Nachkomma},
+        {"Diverse", ParameterGroup::Diverse},
+        {"Gewaesserverdunstung" , ParameterGroup::GewVerd},
+        {"PotentielleVerdunstung", ParameterGroup::PotVerd}
+    });
 
-    hash["Infiltrationsfaktoren"] = ParameterGroup::Infiltrationsfaktoren;
-    hash["Bagrovwerte"] = ParameterGroup::Bagrovwerte;
-    hash["ErgebnisNachkommaStellen"] = ParameterGroup::Nachkomma;
-    hash["Diverse"] = ParameterGroup::Diverse;
-    hash["Gewaesserverdunstung" ] = ParameterGroup::GewVerd;
-    hash["PotentielleVerdunstung"] = ParameterGroup::PotVerd;
+    return name.isEmpty() ?
+        ParameterGroup::None :
+        hash.contains(name) ? hash[name] : ParameterGroup::Invalid;
+}
 
-    return name.isEmpty() ? ParameterGroup::None : hash[name];
+OutputColumn SaxHandler::nameToOutputColumn(QString name)
+{
+    QHash <QString, OutputColumn> hash({
+        {"R", OutputColumn::TotalRunoff_R},
+        {"ROW", OutputColumn::SurfaceRunoff_ROW},
+        {"RI", OutputColumn::Infiltration_RI},
+        {"RVOL", OutputColumn::TotalRunoffFlow_RVOL},
+        {"ROWVOL", OutputColumn::SurfaceRunoffFlow_ROWVOL},
+        {"RIVOL", OutputColumn::InfiltrationFlow_RIVOL},
+        {"FLAECHE", OutputColumn::TotalArea_FLAECHE},
+        {"VERDUNSTUNG", OutputColumn::Evaporation_VERDUNSTUN}
+    });
+
+    return name.isEmpty() ?
+        OutputColumn::None :
+        hash.contains(name) ? hash[name] : OutputColumn::Invalid;
 }
 
 int SaxHandler::surfaceNameToIndex(QString name)
 {
-    QHash <QString, int> hash;
-
-    hash["Dachflaechen"] = 0;
-    hash["Belaglsklasse1"] = 1;
-    hash["Belaglsklasse2"] = 2;
-    hash["Belaglsklasse3"] = 3;
-    hash["Belaglsklasse4"] = 4;
+    QHash <QString, int> hash({
+        {"Dachflaechen", 0},
+        {"Belaglsklasse1", 1},
+        {"Belaglsklasse2", 2},
+        {"Belaglsklasse3", 3},
+        {"Belaglsklasse4", 4},
+    });
 
     return hash[name];
 }

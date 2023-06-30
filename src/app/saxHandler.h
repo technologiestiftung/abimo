@@ -45,6 +45,8 @@ private:
         const QXmlAttributes &attribs, QString name, int index
     );
     static ParameterGroup nameToParameterGroup(QString name);
+    static OutputColumn nameToOutputColumn(QString name);
+
     int surfaceNameToIndex(QString name);
 };
 

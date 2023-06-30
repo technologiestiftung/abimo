@@ -22,6 +22,19 @@ enum struct Usage: char {
     unknown = '?'
 };
 
+enum struct OutputColumn {
+    None = 0,
+    TotalRunoff_R = 10,
+    SurfaceRunoff_ROW = 11,
+    Infiltration_RI = 12,
+    TotalRunoffFlow_RVOL = 13,
+    SurfaceRunoffFlow_ROWVOL = 14,
+    InfiltrationFlow_RIVOL = 15,
+    TotalArea_FLAECHE = 16,
+    Evaporation_VERDUNSTUN = 17,
+    Invalid = 99
+};
+
 struct IntegerRange {
     int from;
     int to;
