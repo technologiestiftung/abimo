@@ -12,11 +12,16 @@ public:
     static float runoffFromSealedSurface(
         float potentialEvaporation,
         float precipitation,
-        float bagrovValue
+        float efficiency
     );
-
-    static float nbagro(float bage, float x);
+    static float realEvapoTranspiration(
+        float precipitation,
+        float potentialEvaporation,
+        float efficiency
+    );
+    static float yRatio(float bage, float x);
     static void bagrov(float *bagf, float *x0, float *y0);
+
 private:
     const static float aa[];
 };

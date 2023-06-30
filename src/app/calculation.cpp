@@ -748,27 +748,31 @@ float Calculation::actualEvaporation(
         evaporationVars.meanPotentialCapillaryRiseRate
     );
 
-    // Calculate the x-factor of bagrov relation: x = (P + KR + BER)/ETP
-    // Then get the y-factor: y = fbag(n, x)
-    // ratio of real evaporation to potential evaporation
-    float yRatio = Bagrov::nbagro(
-        effectivityParameter,
-        (
-            precipitation.perYearCorrectedFloat +
+//    // Calculate the x-factor of bagrov relation: x = (P + KR + BER)/ETP
+//    // Then get the y-factor: y = fbag(n, x)
+//    // ratio of real evaporation to potential evaporation
+//    float yRatio = Bagrov::yRatio(
+//        effectivityParameter,
+//        (
+//            precipitation.perYearCorrectedFloat +
+//            evaporationVars.meanPotentialCapillaryRiseRate +
+//            usageTuple.irrigation
+//        ) / potentialEvaporation.perYearFloat
+//    );
+
+    float result = Bagrov::realEvapoTranspiration(
+        precipitation.perYearCorrectedFloat +
             evaporationVars.meanPotentialCapillaryRiseRate +
-            usageTuple.irrigation
-        ) / potentialEvaporation.perYearFloat
+            usageTuple.irrigation,
+        potentialEvaporation.perYearFloat,
+        effectivityParameter
     );
 
-    // Get the real evapotransporation using estimated y-factor
-    float result = yRatio * potentialEvaporation.perYearFloat;
+    float tas = evaporationVars.potentialCapillaryRise_TAS;
 
-    if (evaporationVars.potentialCapillaryRise_TAS < 0) {
+    if (tas < 0) {
         result += (potentialEvaporation.perYearFloat - result) *
-            static_cast<float>(
-                exp(evaporationVars.depthToWaterTable /
-                evaporationVars.potentialCapillaryRise_TAS)
-            );
+            static_cast<float>(exp(evaporationVars.depthToWaterTable / tas));
     }
 
     return result;
