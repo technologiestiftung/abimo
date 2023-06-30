@@ -30,6 +30,7 @@ public:
     void setIrrigationToZero(bool v);
     void setPrecipitationCorrectionFactor(float v);
     float getInfiltrationFactor(int index) const;
+    float getRunoffFactor(int index) const;
     float getBagrovValue(int index) const;
     int getDigitsTotalRunoff_R() const;
     int getDigitsSurfaceRunoff_ROW() const;

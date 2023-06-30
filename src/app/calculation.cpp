@@ -365,7 +365,7 @@ void Calculation::doCalculationsFor(
 
     // runoff from roof surfaces (Abfluss der Dachflaechen), old: rowd
     runoff.roof =
-        (1.0F - initValues.getInfiltrationFactor(0)) * // 0 = roof!
+        initValues.getRunoffFactor(0) * // 0 = roof!
         input.mainFractionBuiltSealed *
         input.builtSealedFractionConnected *
         input.areaFractionMain() *
@@ -376,7 +376,7 @@ void Calculation::doCalculationsFor(
     // Abfluss Belagsflaeche i + 1, old: row<i>
     for (int i = 0; i < static_cast<int>(runoff.sealedSurface.size()); i++) {
         runoff.sealedSurface[i] =
-            (1.0F - initValues.getInfiltrationFactor(i + 1)) *
+            initValues.getRunoffFactor(i + 1) *
             (
                 input.unbuiltSealedFractionSurface.at(i + 1) *
                 input.unbuiltSealedFractionConnected *

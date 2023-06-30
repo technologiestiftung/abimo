@@ -137,6 +137,10 @@ float InitValues::getInfiltrationFactor(int index) const {
     return infiltrationFactors.at(index);
 }
 
+float InitValues::getRunoffFactor(int index) const {
+    return 1.0F - infiltrationFactors.at(index);
+}
+
 float InitValues::getBagrovValue(int index) const {
     return bagrovValues.at(index);
 }
