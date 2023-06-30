@@ -191,21 +191,12 @@ int InitValues::getCountSets() const {
 
 void InitValues::putToHashOfType(QString districts, int value, int hashType) {
 
-    if (hashType == 11) {
-        putToReferencedHash(districts, value, hashETP);
-    }
-    else if (hashType == 12) {
-        putToReferencedHash(districts, value, hashETPS);
-    }
-    else if (hashType == 13) {
-        putToReferencedHash(districts, value, hashEG);
-    }
-}
+    QHash<int, QHash<int, int>*> hashPointers;
 
-void InitValues::putToReferencedHash(
-    QString districts, int value, QHash<int, int> &hash
-)
-{
+    hashPointers[11] = &hashETP;
+    hashPointers[12] = &hashETPS;
+    hashPointers[13] = &hashEG;
+
     QVector<int> numbers;
 
     if (districts.length() == 0) {
@@ -216,6 +207,6 @@ void InitValues::putToReferencedHash(
     }
 
     for (int i = 0; i < numbers.size(); i++) {
-        hash[numbers.at(i)] = value;
+        (*hashPointers[hashType])[numbers.at(i)] = value;
     }
 }

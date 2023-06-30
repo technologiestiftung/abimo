@@ -86,8 +86,6 @@ private:
     float precipitationCorrectionFactor; // old: niedKorrF
 
     int countSets;
-
-    void putToReferencedHash(QString districts, int value, QHash<int, int> &hash);
 };
 
 #endif
