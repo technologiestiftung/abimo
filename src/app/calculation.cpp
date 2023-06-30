@@ -492,6 +492,33 @@ void Calculation::doCalculationsFor(
         results.totalRunoff_R;
 }
 
+Precipitation Calculation::getPrecipitation(
+    int precipitationYear,
+    int precipitationSummer,
+    InitValues& initValues
+)
+{
+    Precipitation result;
+
+    // Set integer fields (originally from input dbf)
+    result.perYearInteger = precipitationYear;
+    result.inSummerInteger = precipitationSummer;
+
+    // Set float fields
+
+    // Correct the (non-summer) precipitation (at ground level)
+    result.perYearCorrectedFloat = static_cast<float>(
+        precipitationYear * initValues.getPrecipitationCorrectionFactor()
+    );
+
+    // No correction for summer precipitation!
+    result.inSummerFloat = static_cast<float>(
+        precipitationSummer
+    );
+
+    return result;
+}
+
 UsageTuple Calculation::getUsageTuple(
     AbimoInputRecord& input,
     UsageConfiguration& usageConfiguration,
@@ -528,74 +555,6 @@ UsageTuple Calculation::getUsageTuple(
         counters.incrementIrrigationForcedToZero();
         result.irrigation = 0;
     }
-
-    return result;
-}
-
-SoilProperties Calculation::getSoilProperties(
-    UsageTuple& usageTuple,
-    AbimoInputRecord& input,
-    UsageConfiguration usageConfiguration
-)
-{
-    // Initialise variables that are relevant to calculate evaporation
-    SoilProperties result;
-
-    result.depthToWaterTable = input.depthToWaterTable;
-
-    // Nothing to do for waterbodies
-    if (usageTuple.usage == Usage::waterbody_G) {
-        return result;
-    }
-
-    // Feldkapazitaet
-    result.usableFieldCapacity = SoilAndVegetation::estimateWaterHoldingCapacity(
-        input.fieldCapacity_30,
-        input.fieldCapacity_150,
-        usageTuple.usage == Usage::forested_W
-    );
-
-    // pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS
-    // potentielle Aufstiegshoehe
-    result.potentialCapillaryRise_TAS = result.depthToWaterTable -
-        usageConfiguration.getRootingDepth(usageTuple.usage, usageTuple.yield);
-
-    // mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres
-    // Kapillarer Aufstieg pro Jahr ID_KR neu, old: KR
-    result.meanPotentialCapillaryRiseRate =
-        SoilAndVegetation::getMeanPotentialCapillaryRiseRate(
-            result.potentialCapillaryRise_TAS,
-            result.usableFieldCapacity,
-            usageTuple.usage,
-            usageTuple.yield
-        );
-
-    return result;
-}
-
-Precipitation Calculation::getPrecipitation(
-    int precipitationYear,
-    int precipitationSummer,
-    InitValues& initValues
-)
-{
-    Precipitation result;
-
-    // Set integer fields (originally from input dbf)
-    result.perYearInteger = precipitationYear;
-    result.inSummerInteger = precipitationSummer;
-
-    // Set float fields
-
-    // Correct the (non-summer) precipitation (at ground level)
-    result.perYearCorrectedFloat = static_cast<float>(
-        precipitationYear * initValues.getPrecipitationCorrectionFactor()
-    );
-
-    // No correction for summer precipitation!
-    result.inSummerFloat = static_cast<float>(
-        precipitationSummer
-    );
 
     return result;
 }
@@ -730,6 +689,47 @@ void Calculation::handleTotalAreaOfZero(
         counters.incrementNoAreaGiven();
         input.mainArea = 100.0F;
     }
+}
+
+SoilProperties Calculation::getSoilProperties(
+    UsageTuple& usageTuple,
+    AbimoInputRecord& input,
+    UsageConfiguration usageConfiguration
+)
+{
+    // Initialise variables that are relevant to calculate evaporation
+    SoilProperties result;
+
+    result.depthToWaterTable = input.depthToWaterTable;
+
+    // Nothing to do for waterbodies
+    if (usageTuple.usage == Usage::waterbody_G) {
+        return result;
+    }
+
+    // Feldkapazitaet
+    result.usableFieldCapacity = SoilAndVegetation::estimateWaterHoldingCapacity(
+        input.fieldCapacity_30,
+        input.fieldCapacity_150,
+        usageTuple.usage == Usage::forested_W
+    );
+
+    // pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS
+    // potentielle Aufstiegshoehe
+    result.potentialCapillaryRise_TAS = result.depthToWaterTable -
+        usageConfiguration.getRootingDepth(usageTuple.usage, usageTuple.yield);
+
+    // mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres
+    // Kapillarer Aufstieg pro Jahr ID_KR neu, old: KR
+    result.meanPotentialCapillaryRiseRate =
+        SoilAndVegetation::getMeanPotentialCapillaryRiseRate(
+            result.potentialCapillaryRise_TAS,
+            result.usableFieldCapacity,
+            usageTuple.usage,
+            usageTuple.yield
+        );
+
+    return result;
 }
 
 float Calculation::actualEvaporation(
