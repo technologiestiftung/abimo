@@ -336,11 +336,21 @@ void Calculation::doCalculationsFor(
     // Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4
     // - RDV / RxV: Gesamtabfluss versiegelte Flaeche
 
-    results.runoffSealed = getRunoffSealed(
-        precipitation,
-        potentialEvaporation,
-        initValues
+    // index 0 = roof
+    results.runoffSealed.roof = Bagrov::runoffFromSealedSurface(
+        precipitation.perYearCorrectedFloat,
+        potentialEvaporation.perYearFloat,
+        initValues.getBagrovValue(0)
     );
+
+    // indices 1 - 4 = surface classes 1 - 4
+    for (int i = 0; i < static_cast<int>(results.runoffSealed.surface.size()); i++) {
+        results.runoffSealed.surface[i] = Bagrov::runoffFromSealedSurface(
+            precipitation.perYearCorrectedFloat,
+            potentialEvaporation.perYearFloat,
+            initValues.getBagrovValue(i + 1)
+        );
+    }
 
     // Calculate runoff...
     //====================
@@ -645,33 +655,6 @@ float Calculation::initValueOrReportedDefaultValue(
     counters.incrementRecordsProtocol();
 
     return result;
-}
-
-RunoffSealed Calculation::getRunoffSealed(
-    Precipitation& precipitation,
-    PotentialEvaporation& potentialEvaporation,
-    InitValues& initValues
-)
-{
-    RunoffSealed runoffSealed;
-
-    // index 0 = roof
-    runoffSealed.roof = Bagrov::runoffFromSealedSurface(
-        precipitation.perYearCorrectedFloat,
-        potentialEvaporation.perYearFloat,
-        initValues.getBagrovValue(0)
-    );
-
-    // indices 1 - 4 = surface classes 1 - 4
-    for (int i = 0; i < static_cast<int>(runoffSealed.surface.size()); i++) {
-        runoffSealed.surface[i] = Bagrov::runoffFromSealedSurface(
-            precipitation.perYearCorrectedFloat,
-            potentialEvaporation.perYearFloat,
-            initValues.getBagrovValue(i + 1)
-        );
-    }
-
-    return runoffSealed;
 }
 
 void Calculation::handleTotalAreaOfZero(

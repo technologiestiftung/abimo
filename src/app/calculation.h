@@ -160,12 +160,6 @@ private:
         QTextStream& protocolStream
     );
 
-    static RunoffSealed getRunoffSealed(
-        Precipitation& precipitation,
-        PotentialEvaporation& potentialEvaporation,
-        InitValues& initValues
-    );
-
     static void handleTotalAreaOfZero(
         AbimoInputRecord& input,
         Counters& counters
