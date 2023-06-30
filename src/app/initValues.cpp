@@ -13,6 +13,7 @@
 #include "helpers.h"
 #include "initValues.h"
 #include "saxHandler.h"
+#include "structs.h" // IntegerRange
 
 InitValues::InitValues():
 
@@ -201,26 +202,20 @@ void InitValues::putToHashOfType(QString districts, int value, int hashType) {
     }
 }
 
-void InitValues::putToReferencedHash(QString districts, int value, QHash<int, int> &hash) {
+void InitValues::putToReferencedHash(
+    QString districts, int value, QHash<int, int> &hash
+)
+{
+    QVector<int> numbers;
 
     if (districts.length() == 0) {
-        districts = "0";
+        numbers.append(0);
+    }
+    else {
+        numbers = helpers::rangesStringToIntegerSequence(districts);
     }
 
-    QStringList districtList = districts.split(",", QString::SkipEmptyParts);
-
-    for (int i = 0; i < districtList.size(); ++i) {
-        QString districtRange = districtList.at(i).trimmed();
-        if (districtRange.contains("-")) {
-            QStringList rangeLimits = districtRange.split("-", QString::SkipEmptyParts);
-            int minId = rangeLimits.at(0).trimmed().toInt();
-            int maxId = rangeLimits.at(1).trimmed().toInt();
-            for (int id = minId; id <= maxId; ++id) {
-                hash[id] = value;
-            }
-        }
-        else {
-            hash[districtRange.toInt()] = value;
-        }
+    for (int i = 0; i < numbers.size(); i++) {
+        hash[numbers.at(i)] = value;
     }
 }

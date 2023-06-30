@@ -22,6 +22,11 @@ enum struct Usage: char {
     unknown = '?'
 };
 
+struct IntegerRange {
+    int from;
+    int to;
+};
+
 struct UsageResult {
     int tupleIndex;
     QString message;
