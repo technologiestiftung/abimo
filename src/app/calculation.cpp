@@ -302,21 +302,20 @@ void Calculation::doCalculationsFor(
     QTextStream& protocolStream
 )
 {
-    // Based on the given input row, try to provide usage-specific information
-    UsageTuple usageTuple = provideUsageInformation(
-        input, usageConfiguration, initValues, counters, protocolStream
-    );
-
-    // Provide variables relevant to calculate evaporation (?)
-    // all values are 0.0 in case of water bodies -> TODO: may be not a good
-    // name. It is more about soil properties
-    EvaporationRelevantVariables evaporationVars = setEvaporationVars(
-        usageTuple, input, usageConfiguration
-    );
-
     // Provide information on the precipitation
     Precipitation precipitation = getPrecipitation(
-        input.precipitationYear, input.precipitationSummer, initValues
+        input.precipitationYear,
+        input.precipitationSummer,
+        initValues
+    );
+
+    // Based on the given input row, try to provide usage-specific information
+    UsageTuple usageTuple = getUsageTuple(
+        input,
+        usageConfiguration,
+        initValues,
+        counters,
+        protocolStream
     );
 
     // Provide information on the potential evaporation
@@ -334,54 +333,114 @@ void Calculation::doCalculationsFor(
     //
 
     // Berechnung der Abfluesse RDV und R1V bis R4V fuer versiegelte
-    // Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4
+    // Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4.
+    // Die reale Verdunstung wird vom Niederschlag subtrahiert.
     // - RDV / RxV: Gesamtabfluss versiegelte Flaeche
 
-    setBagrovValues(
-        precipitation,
-        potentialEvaporation,
-        initValues,
-        results.bagrovValues
-    );
+    // index 0 = roof
+    results.runoffSealed.roof = precipitation.perYearCorrectedFloat -
+        Bagrov::realEvapoTranspiration(
+            precipitation.perYearCorrectedFloat,
+            potentialEvaporation.perYearFloat,
+            initValues.getBagrovValue(0)
+        );
 
-    // Set default area if total area is zero
-    handleTotalAreaOfZero(input, counters);
-
-    // Runoff of impervious (sealed) surfaces
-    Runoff runoff;
-
-    // Infiltration into impervious surfaces (?)
-    Infiltration infiltration;
+    // indices 1 - 4 = surface classes 1 - 4
+    for (int i = 0; i < static_cast<int>(results.runoffSealed.surface.size()); i++) {
+        results.runoffSealed.surface[i] = precipitation.perYearCorrectedFloat -
+            Bagrov::realEvapoTranspiration(
+                precipitation.perYearCorrectedFloat,
+                potentialEvaporation.perYearFloat,
+                initValues.getBagrovValue(i + 1)
+            );
+    }
 
     // Calculate runoff...
     //====================
 
-    // ... from roofs and sealed surfaces
-    calculateRunoffSealed(input, results.bagrovValues, initValues, runoff);
+    Runoff runoff;
 
-    // ... from unsealed surfaces
+    // Set default area if total area is zero
+    handleTotalAreaOfZero(input, counters);
+
+    // runoff from roof surfaces (Abfluss der Dachflaechen), old: rowd
+    runoff.roof =
+        initValues.getRunoffFactor(0) * // 0 = roof!
+        input.mainFractionBuiltSealed *
+        input.builtSealedFractionConnected *
+        input.areaFractionMain() *
+        results.runoffSealed.roof;
+
+    // runoff from sealed surfaces
+
+    // Abfluss Belagsflaeche i + 1, old: row<i>
+    for (int i = 0; i < static_cast<int>(runoff.sealedSurface.size()); i++) {
+        runoff.sealedSurface[i] =
+            initValues.getRunoffFactor(i + 1) *
+            (
+                input.unbuiltSealedFractionSurface.at(i + 1) *
+                input.unbuiltSealedFractionConnected *
+                input.mainFractionUnbuiltSealed *
+                input.areaFractionMain() +
+                input.roadSealedFractionSurface.at(i + 1) *
+                input.roadSealedFractionConnected *
+                input.roadFractionSealed *
+                input.areaFractionRoad()
+            ) * results.runoffSealed.surface[i];
+    }
+
+    // runoff from unsealed surfaces
+
+    // Provide soil properties. They are required to calculate tha actual
+    // evapotranspiration. In the case of water bodies, all values are 0.0.
+    SoilProperties soilProperties = getSoilProperties(
+        usageTuple,
+        input,
+        usageConfiguration
+    );
+
     runoff.unsealedSurface_RUV =
         precipitation.perYearCorrectedFloat -
         actualEvaporation(
             usageTuple,
             potentialEvaporation,
-            evaporationVars,
+            soilProperties,
             precipitation
         );
 
     // Calculate infiltration...
     // =========================
 
-    // ... from sealed surfaces
-    calculateInfiltrationSealed(input, results.bagrovValues, runoff, infiltration);
+    Infiltration infiltration;
 
-    // ... from unsealed road surfaces
+    // infiltration from roof (?)
+    infiltration.roof =
+        (1 - input.builtSealedFractionConnected) *
+        input.mainFractionBuiltSealed *
+        input.areaFractionMain() *
+        results.runoffSealed.roof;
+
+    // infiltration from sealed surfaces
+    for (int i = 0; i < static_cast<int>(infiltration.surface.size()); i++) {
+
+        infiltration.surface[i] = (
+            input.unbuiltSealedFractionSurface.at(i + 1) *
+            input.mainFractionUnbuiltSealed *
+            input.areaFractionMain() +
+            input.roadSealedFractionSurface.at(i + 1) *
+            input.roadFractionSealed *
+            input.areaFractionRoad()
+        ) * results.runoffSealed.surface[i] -
+        runoff.sealedSurface[i];
+    }
+
+    // infiltration from unsealed road surfaces
     infiltration.unsealedRoads =
         (1 - input.roadFractionSealed) *
         input.areaFractionRoad() *
-        results.bagrovValues.surface.last();
+        results.runoffSealed.surface.last();
 
-    // ... from unsealed non-road surfaces
+    // infiltration from unsealed non-road surfaces
     // old: riuv
     infiltration.unsealedSurfaces = (
         100.0F - input.mainPercentageSealed()
@@ -429,7 +488,7 @@ void Calculation::doCalculationsFor(
         results.infiltration_RI
     );
 
-    // calculate volume of system losses 'rvol' due to runoff and
+    // calculate volume of "system losses" 'rvol' due to surface runoff and
     // infiltration
     results.totalRunoffFlow_RVOL =
         results.surfaceRunoffFlow_ROWVOL +
@@ -446,7 +505,34 @@ void Calculation::doCalculationsFor(
         results.totalRunoff_R;
 }
 
-UsageTuple Calculation::provideUsageInformation(
+Precipitation Calculation::getPrecipitation(
+    int precipitationYear,
+    int precipitationSummer,
+    InitValues& initValues
+)
+{
+    Precipitation result;
+
+    // Set integer fields (originally from input dbf)
+    result.perYearInteger = precipitationYear;
+    result.inSummerInteger = precipitationSummer;
+
+    // Set float fields
+
+    // Correct the (non-summer) precipitation (at ground level)
+    result.perYearCorrectedFloat = static_cast<float>(
+        precipitationYear * initValues.getPrecipitationCorrectionFactor()
+    );
+
+    // No correction for summer precipitation!
+    result.inSummerFloat = static_cast<float>(
+        precipitationSummer
+    );
+
+    return result;
+}
+
+UsageTuple Calculation::getUsageTuple(
     AbimoInputRecord& input,
     UsageConfiguration& usageConfiguration,
     InitValues& initValues,
@@ -486,14 +572,113 @@ UsageTuple Calculation::provideUsageInformation(
     return result;
 }
 
-EvaporationRelevantVariables Calculation::setEvaporationVars(
+PotentialEvaporation Calculation::getPotentialEvaporation(
+    Usage& usage,
+    InitValues& initValues,
+    int district,
+    QString code,
+    Counters& counters,
+    QTextStream& protocolStream
+)
+{
+    PotentialEvaporation result;
+
+    // Parameter for the city districts
+    if (usage == Usage::waterbody_G) {
+
+        result.perYearInteger = getInitialValueOrDefault(
+            district,
+            code,
+            initValues.hashEG,
+            775,
+            "EG",
+            counters,
+            protocolStream
+        );
+
+        // What about potentialEvaporationSummer?
+        result.inSummerInteger = -1;
+    }
+    else {
+        result.perYearInteger = getInitialValueOrDefault(
+            district,
+            code,
+            initValues.hashETP,
+            660,
+            "ETP",
+            counters,
+            protocolStream
+        );
+
+        result.inSummerInteger = getInitialValueOrDefault(
+            district,
+            code,
+            initValues.hashETPS,
+            530,
+            "ETPS",
+            counters,
+            protocolStream
+        );
+    }
+
+    // no more correction with 1.1
+    result.perYearFloat = static_cast<float>(result.perYearInteger);
+
+    return result;
+}
+
+float Calculation::getInitialValueOrDefault(
+        int district,
+        QString code,
+        QHash<int,int> &hash,
+        int defaultValue,
+        QString name,
+        Counters& counters,
+        QTextStream& protocolStream
+)
+{
+    // Take value from hash table (as read from xml file) if available
+    if (hash.contains(district)) {
+        return hash.value(district);
+    }
+
+    // Default
+    float result = hash.contains(0) ? hash.value(0) : defaultValue;
+
+    protocolStream << name << " unknown for " << code <<
+        " (district: " << district << ") -> " <<
+        name << "=" << result << " assumed." << endl;
+
+    counters.incrementRecordsProtocol();
+
+    return result;
+}
+
+void Calculation::handleTotalAreaOfZero(
+    AbimoInputRecord& input,
+    Counters& counters
+)
+{
+    // if sum of total building development area and road area is
+    // inconsiderably small it is assumed, that the area is unknown and
+    // 100 % building development area will be given by default
+    if (input.totalArea_FLAECHE() < 0.0001) {
+        // *protokollStream << "\r\nDie Flaeche des Elements " +
+        // record.CODE + " ist 0 \r\nund wird automatisch auf 100 gesetzt\r\n";
+        counters.incrementRecordsProtocol();
+        counters.incrementNoAreaGiven();
+        input.mainArea = 100.0F;
+    }
+}
+
+SoilProperties Calculation::getSoilProperties(
     UsageTuple& usageTuple,
     AbimoInputRecord& input,
     UsageConfiguration usageConfiguration
 )
 {
     // Initialise variables that are relevant to calculate evaporation
-    EvaporationRelevantVariables result;
+    SoilProperties result;
 
     result.depthToWaterTable = input.depthToWaterTable;
 
@@ -527,237 +712,10 @@ EvaporationRelevantVariables Calculation::setEvaporationVars(
     return result;
 }
 
-Precipitation Calculation::getPrecipitation(
-    int precipitationYear,
-    int precipitationSummer,
-    InitValues& initValues
-)
-{
-    Precipitation result;
-
-    // Set integer fields (originally from input dbf)
-    result.perYearInteger = precipitationYear;
-    result.inSummerInteger = precipitationSummer;
-
-    // Set float fields
-
-    // Correct the (non-summer) precipitation (at ground level)
-    result.perYearCorrectedFloat = static_cast<float>(
-        precipitationYear * initValues.getPrecipitationCorrectionFactor()
-    );
-
-    // No correction for summer precipitation!
-    result.inSummerFloat = static_cast<float>(
-        precipitationSummer
-    );
-
-    return result;
-}
-
-PotentialEvaporation Calculation::getPotentialEvaporation(
-    Usage& usage,
-    InitValues& initValues,
-    int district,
-    QString code,
-    Counters& counters,
-    QTextStream& protocolStream
-)
-{
-    PotentialEvaporation result;
-
-    // Parameter for the city districts
-    if (usage == Usage::waterbody_G) {
-
-        result.perYearInteger = initValueOrReportedDefaultValue(
-            district,
-            code,
-            initValues.hashEG,
-            775,
-            "EG",
-            counters,
-            protocolStream
-        );
-
-        // What about potentialEvaporationSummer?
-        result.inSummerInteger = -1;
-    }
-    else {
-        result.perYearInteger = initValueOrReportedDefaultValue(
-            district,
-            code,
-            initValues.hashETP,
-            660,
-            "ETP",
-            counters,
-            protocolStream
-        );
-
-        result.inSummerInteger = initValueOrReportedDefaultValue(
-            district,
-            code,
-            initValues.hashETPS,
-            530,
-            "ETPS",
-            counters,
-            protocolStream
-        );
-    }
-
-    // no more correction with 1.1
-    result.perYearFloat = static_cast<float>(result.perYearInteger);
-
-    return result;
-}
-
-float Calculation::initValueOrReportedDefaultValue(
-        int district,
-        QString code,
-        QHash<int,int> &hash,
-        int defaultValue,
-        QString name,
-        Counters& counters,
-        QTextStream& protocolStream
-)
-{
-    // Take value from hash table (as read from xml file) if available
-    if (hash.contains(district)) {
-        return hash.value(district);
-    }
-
-    // Default
-    float result = hash.contains(0) ? hash.value(0) : defaultValue;
-
-    QString districtString;
-    districtString.setNum(district);
-
-    QString resultString;
-    resultString.setNum(result);
-
-    protocolStream << QString(
-        "\r\n%1 unbekannt fuer %2 von Bezirk %3\r\n%4=%5 angenommen\r\n"
-    ).arg(name, code, districtString, name, resultString);
-
-    counters.incrementRecordsProtocol();
-
-    return result;
-}
-
-void Calculation::setBagrovValues(
-    Precipitation& precipitation,
-    PotentialEvaporation& potentialEvaporation,
-    InitValues& initValues,
-    BagrovValues& bagrovValues
-)
-{
-    // ratio of precipitation to potential evaporation
-    float xRatio =
-        precipitation.perYearCorrectedFloat /
-        potentialEvaporation.perYearFloat;
-
-    // Berechnung des Abflusses RxV fuer versiegelte Teilflaechen mittels
-    // Umrechnung potentieller Verdunstungen potentialEvaporation zu realen
-    // ueber Umrechnungsfaktor yRatio und subtrahiert von Niederschlag
-    // precipitation
-
-    // index 0 = roof, indices 1 - 4 = surface classes 1 - 4
-    int numSurfacClasses = static_cast<int>(bagrovValues.surface.size());
-
-    for (int i = 0; i < numSurfacClasses + 1; i++) {
-
-        float bagrovValue = precipitation.perYearCorrectedFloat -
-            Bagrov::nbagro(initValues.getBagrovValue(i), xRatio) *
-            potentialEvaporation.perYearFloat;
-
-        if (i == 0) {
-            bagrovValues.roof = bagrovValue;
-        }
-        else {
-            bagrovValues.surface[i - 1] = bagrovValue;
-        }
-    }
-}
-
-void Calculation::handleTotalAreaOfZero(
-    AbimoInputRecord& input,
-    Counters& counters
-)
-{
-    // if sum of total building development area and road area is
-    // inconsiderably small it is assumed, that the area is unknown and
-    // 100 % building development area will be given by default
-    if (input.totalArea_FLAECHE() < 0.0001) {
-        // *protokollStream << "\r\nDie Flaeche des Elements " +
-        // record.CODE + " ist 0 \r\nund wird automatisch auf 100 gesetzt\r\n";
-        counters.incrementRecordsProtocol();
-        counters.incrementNoAreaGiven();
-        input.mainArea = 100.0F;
-    }
-}
-
-void Calculation::calculateRunoffSealed(
-    AbimoInputRecord& input,
-    BagrovValues& bagrovValues,
-    InitValues& initValues,
-    Runoff& runoff
-)
-{
-    // runoff from roof surfaces (Abfluss der Dachflaechen), old: rowd
-    runoff.roof =
-        (1.0F - initValues.getInfiltrationFactor(0)) * // 0 = roof!
-        input.mainFractionBuiltSealed *
-        input.builtSealedFractionConnected *
-        input.areaFractionMain() *
-        bagrovValues.roof;
-
-    for (int i = 0; i < static_cast<int>(runoff.sealedSurface.size()); i++) {
-
-        // Abfluss Belagsflaeche i + 1, old: row<i>
-        runoff.sealedSurface[i] =
-            (1.0F - initValues.getInfiltrationFactor(i + 1)) *
-            (
-                input.unbuiltSealedFractionSurface.at(i + 1) *
-                input.unbuiltSealedFractionConnected *
-                input.mainFractionUnbuiltSealed *
-                input.areaFractionMain() +
-                input.roadSealedFractionSurface.at(i + 1) *
-                input.roadSealedFractionConnected *
-                input.roadFractionSealed *
-                input.areaFractionRoad()
-            ) * bagrovValues.surface[i];
-    }
-}
-
-void Calculation::calculateInfiltrationSealed(
-    AbimoInputRecord& input,
-    BagrovValues& bagrovValues,
-    Runoff& runoff,
-    Infiltration& infiltrationSealed
-)
-{
-    infiltrationSealed.roof =
-        (1 - input.builtSealedFractionConnected) *
-        input.mainFractionBuiltSealed *
-        input.areaFractionMain() *
-        bagrovValues.roof;
-
-    for (int i = 0; i < static_cast<int>(infiltrationSealed.surface.size()); i++) {
-
-        infiltrationSealed.surface[i] = (
-            input.unbuiltSealedFractionSurface.at(i + 1) *
-            input.mainFractionUnbuiltSealed *
-            input.areaFractionMain() +
-            input.roadSealedFractionSurface.at(i + 1) *
-            input.roadFractionSealed *
-            input.areaFractionRoad()
-        ) * bagrovValues.surface[i] -
-        runoff.sealedSurface[i];
-    }
-}
-
 float Calculation::actualEvaporation(
     UsageTuple& usageTuple,
     PotentialEvaporation& potentialEvaporation,
-    EvaporationRelevantVariables& evaporationVars,
+    SoilProperties& evaporationVars,
     Precipitation& precipitation
 )
 {
@@ -772,7 +730,7 @@ float Calculation::actualEvaporation(
     // Determine effectivity/effectiveness ??? parameter (old???: bag) for
     // unsealed surfaces
     // Modul Raster abgespeckt (???)
-    float effectivityParameter = EffectivenessUnsealed::getEffectivityParameter(
+    float effectivity = EffectivenessUnsealed::getEffectivityParameter(
         usageTuple,
         evaporationVars.usableFieldCapacity,
         precipitation.inSummerFloat,
@@ -780,27 +738,21 @@ float Calculation::actualEvaporation(
         evaporationVars.meanPotentialCapillaryRiseRate
     );
 
-    // Calculate the x-factor of bagrov relation: x = (P + KR + BER)/ETP
-    // Then get the y-factor: y = fbag(n, x)
-    // ratio of real evaporation to potential evaporation
-    float yRatio = Bagrov::nbagro(
-        effectivityParameter,
-        (
-            precipitation.perYearCorrectedFloat +
+    // Use the Bagrov relation with xRatio = (P + KR + BER)/ETP to calculate
+    // the real evapotranspiration
+    float result = Bagrov::realEvapoTranspiration(
+        precipitation.perYearCorrectedFloat +
             evaporationVars.meanPotentialCapillaryRiseRate +
-            usageTuple.irrigation
-        ) / potentialEvaporation.perYearFloat
+            usageTuple.irrigation,
+        potentialEvaporation.perYearFloat,
+        effectivity
     );
 
-    // Get the real evapotransporation using estimated y-factor
-    float result = yRatio * potentialEvaporation.perYearFloat;
+    float tas = evaporationVars.potentialCapillaryRise_TAS;
 
-    if (evaporationVars.potentialCapillaryRise_TAS < 0) {
-        result += (potentialEvaporation.perYearFloat - result) *
-            static_cast<float>(
-                exp(evaporationVars.depthToWaterTable /
-                evaporationVars.potentialCapillaryRise_TAS)
-            );
+    if (tas < 0) {
+        float factor = exp(evaporationVars.depthToWaterTable / tas);
+        result += (potentialEvaporation.perYearFloat - result) * factor;
     }
 
     return result;
@@ -815,12 +767,12 @@ void Calculation::logResults(
 
     //m_prefix = inputRecord.code;
 
-    logVariable("bagrov_roof", results.bagrovValues.roof);
+    logVariable("bagrov_roof", results.runoffSealed.roof);
 
-    for (int i = 1; i < results.bagrovValues.surface.size(); i++) {
+    for (int i = 1; i < results.runoffSealed.surface.size(); i++) {
         logVariable(
             QString("bagrov_surface[%1]").arg(i),
-            results.bagrovValues.surface[i]
+            results.runoffSealed.surface[i]
         );
     }
 

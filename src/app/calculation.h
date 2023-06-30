@@ -118,7 +118,7 @@ private:
     // Methods
     //
 
-    static UsageTuple provideUsageInformation(
+    static UsageTuple getUsageTuple(
         AbimoInputRecord& input,
         UsageConfiguration& usageConfiguration,
         InitValues& initValues,
@@ -129,7 +129,7 @@ private:
     void logResults(AbimoInputRecord inputRecord, IntermediateResults results);
     void logVariable(QString name, float value);
 
-    static EvaporationRelevantVariables setEvaporationVars(
+    static SoilProperties getSoilProperties(
         UsageTuple& usageTuple,
         AbimoInputRecord& input,
         UsageConfiguration usageConfiguration
@@ -150,7 +150,7 @@ private:
         QTextStream& protocolStream
     );
 
-    static float initValueOrReportedDefaultValue(
+    static float getInitialValueOrDefault(
         int bez,
         QString code,
         QHash<int, int> &hash,
@@ -160,36 +160,15 @@ private:
         QTextStream& protocolStream
     );
 
-    static void setBagrovValues(
-        Precipitation& precipitation,
-        PotentialEvaporation& potentialEvaporation,
-        InitValues& initValues,
-        BagrovValues& bagrovValues
-    );
-
     static void handleTotalAreaOfZero(
         AbimoInputRecord& input,
         Counters& counters
     );
 
-    static void calculateRunoffSealed(
-        AbimoInputRecord& input,
-        BagrovValues& bagrovValues,
-        InitValues& initValues,
-        Runoff& runoff
-    );
-
-    static void calculateInfiltrationSealed(
-        AbimoInputRecord& input,
-        BagrovValues& bagrovValues,
-        Runoff& runoff,
-        Infiltration& infiltrationSealed
-    );
-
     static float actualEvaporation(
         UsageTuple& usageTuple,
         PotentialEvaporation& potentialEvaporation,
-        EvaporationRelevantVariables& evaporationVars,
+        SoilProperties& evaporationVars,
         Precipitation& precipitation
     );
 

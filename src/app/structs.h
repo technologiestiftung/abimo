@@ -22,6 +22,24 @@ enum struct Usage: char {
     unknown = '?'
 };
 
+enum struct OutputColumn {
+    None = 0,
+    TotalRunoff_R = 10,
+    SurfaceRunoff_ROW = 11,
+    Infiltration_RI = 12,
+    TotalRunoffFlow_RVOL = 13,
+    SurfaceRunoffFlow_ROWVOL = 14,
+    InfiltrationFlow_RIVOL = 15,
+    TotalArea_FLAECHE = 16,
+    Evaporation_VERDUNSTUN = 17,
+    Invalid = 99
+};
+
+struct IntegerRange {
+    int from;
+    int to;
+};
+
 struct UsageResult {
     int tupleIndex;
     QString message;
@@ -58,7 +76,7 @@ struct Precipitation {
     float inSummerFloat;
 };
 
-struct EvaporationRelevantVariables {
+struct SoilProperties {
 
     // nFK-Wert (ergibt sich aus Bodenart) ID_NFK neu
     // water holding capacity (= nutzbare Feldkapazitaet)
@@ -75,7 +93,7 @@ struct EvaporationRelevantVariables {
 };
 
 // Abfluesse nach Bagrov
-struct BagrovValues {
+struct RunoffSealed {
 
     // Abfluesse nach Bagrov fuer Daecher
     float roof = 0.0;

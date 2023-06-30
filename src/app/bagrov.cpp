@@ -49,7 +49,24 @@ const float Bagrov::aa[]= {
     6515.556685F   // 15
 };
 
-float Bagrov::nbagro(float bage, float x)
+// Umrechnung potentieller Verdunstungen (potentialEvaporation) zu realen
+// Verdunstungen ueber Umrechnungsfaktor yRatio
+float Bagrov::realEvapoTranspiration(
+    float precipitation, // P or P + KR + BER
+    float potentialEvaporation, // ETP
+    float efficiency // n
+)
+{
+    // Calculate the x-factor of the Bagrov relation
+    float xRatio = precipitation / potentialEvaporation;
+
+    // Estimate the y-factor (ratio of real evaporation to potential
+    // evaporation) and calculate the real evapotransporation using the
+    // estimated y-factor
+    return yRatio(efficiency, xRatio) * potentialEvaporation;
+}
+
+float Bagrov::yRatio(float bage, float x)
 {
     int i, ia, ie, j;
     float bag, bag_plus_one, reciprocal_bag_plus_one;
