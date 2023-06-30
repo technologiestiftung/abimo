@@ -46,6 +46,7 @@ private:
     static ParameterGroup nameToState(QString name);
     void setInfiltrationFactor(QString key, float value);
     void setBagrovValue(QString key, float value);
+    int surfaceNameToIndex(QString name);
     void setDigits(QString key, int value);
     void setDiverse(QString key, QString value);
 

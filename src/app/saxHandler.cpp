@@ -70,63 +70,39 @@ bool SaxHandler::startElement(
 
 ParameterGroup SaxHandler::nameToState(QString name)
 {
-    if (name == "Infiltrationsfaktoren") {
-        return ParameterGroup::Infiltrationsfaktoren;
-    }
+    QHash<QString, ParameterGroup> hash;
 
-    if (name == "Bagrovwerte") {
-        return ParameterGroup::Bagrovwerte;
-    }
+    hash["Infiltrationsfaktoren"] = ParameterGroup::Infiltrationsfaktoren;
+    hash["Bagrovwerte"] = ParameterGroup::Bagrovwerte;
+    hash["ErgebnisNachkommaStellen"] = ParameterGroup::Nachkomma;
+    hash["Diverse"] = ParameterGroup::Diverse;
+    hash["Gewaesserverdunstung" ] = ParameterGroup::GewVerd;
+    hash["PotentielleVerdunstung"] = ParameterGroup::PotVerd;
 
-    if (name == "ErgebnisNachkommaStellen") {
-        return ParameterGroup::Nachkomma;
-    }
-
-    if (name == "Diverse") {
-        return ParameterGroup::Diverse;
-    }
-
-    if (name == "Gewaesserverdunstung") {
-        return ParameterGroup::GewVerd;
-    }
-
-    if (name == "PotentielleVerdunstung") {
-        return ParameterGroup::PotVerd;
-    }
-
-    if (name.isEmpty()) {
-        return ParameterGroup::None;
-    }
-
-    return ParameterGroup::Invalid;
+    return name.isEmpty() ? ParameterGroup::None : hash[name];
 }
 
 void SaxHandler::setInfiltrationFactor(QString key, float value)
 {
-    if (key == "Dachflaechen")
-        initValues.setInfiltrationFactor(0, value);
-    else if (key == "Belaglsklasse1")
-        initValues.setInfiltrationFactor(1, value);
-    else if (key == "Belaglsklasse2")
-        initValues.setInfiltrationFactor(2, value);
-    else if (key == "Belaglsklasse3")
-        initValues.setInfiltrationFactor(3, value);
-    else if (key == "Belaglsklasse4")
-        initValues.setInfiltrationFactor(4, value);
+    initValues.setInfiltrationFactor(surfaceNameToIndex(key), value);
 }
 
 void SaxHandler::setBagrovValue(QString key, float value)
 {
-    if (key == "Dachflaechen")
-        initValues.setBagrovValue(0, value); // 0 = roof
-    else if (key == "Belaglsklasse1")
-        initValues.setBagrovValue(1, value);
-    else if (key == "Belaglsklasse2")
-        initValues.setBagrovValue(2, value);
-    else if (key == "Belaglsklasse3")
-        initValues.setBagrovValue(3, value);
-    else if (key == "Belaglsklasse4")
-        initValues.setBagrovValue(4, value);
+    initValues.setBagrovValue(surfaceNameToIndex(key), value);
+}
+
+int SaxHandler::surfaceNameToIndex(QString name)
+{
+    QHash <QString, int> hash;
+
+    hash["Dachflaechen"] = 0;
+    hash["Belaglsklasse1"] = 1;
+    hash["Belaglsklasse2"] = 2;
+    hash["Belaglsklasse3"] = 3;
+    hash["Belaglsklasse4"] = 4;
+
+    return hash[name];
 }
 
 void SaxHandler::setDigits(QString key, int value)
