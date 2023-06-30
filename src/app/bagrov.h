@@ -9,11 +9,6 @@
 class Bagrov
 {
 public:
-    static float runoffFromSealedSurface(
-        float potentialEvaporation,
-        float precipitation,
-        float efficiency
-    );
     static float realEvapoTranspiration(
         float precipitation,
         float potentialEvaporation,

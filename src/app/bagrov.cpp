@@ -49,21 +49,6 @@ const float Bagrov::aa[]= {
     6515.556685F   // 15
 };
 
-float Bagrov::runoffFromSealedSurface(
-    float precipitation,
-    float potentialEvaporation,
-    float efficiency
-)
-{
-    // Berechnung des Abflusses RxV fuer versiegelte Teilflaechen aus
-    // realer Verdunstung, die vom Niederschlag subtrahiert wird
-    return precipitation - realEvapoTranspiration(
-        precipitation,
-        potentialEvaporation,
-        efficiency
-    );
-}
-
 // Umrechnung potentieller Verdunstungen (potentialEvaporation) zu realen
 // Verdunstungen ueber Umrechnungsfaktor yRatio
 float Bagrov::realEvapoTranspiration(

@@ -333,23 +333,26 @@ void Calculation::doCalculationsFor(
     //
 
     // Berechnung der Abfluesse RDV und R1V bis R4V fuer versiegelte
-    // Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4
+    // Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4.
+    // Die reale Verdunstung wird vom Niederschlag subtrahiert.
     // - RDV / RxV: Gesamtabfluss versiegelte Flaeche
 
     // index 0 = roof
-    results.runoffSealed.roof = Bagrov::runoffFromSealedSurface(
-        precipitation.perYearCorrectedFloat,
-        potentialEvaporation.perYearFloat,
-        initValues.getBagrovValue(0)
-    );
+    results.runoffSealed.roof = precipitation.perYearCorrectedFloat -
+        Bagrov::realEvapoTranspiration(
+            precipitation.perYearCorrectedFloat,
+            potentialEvaporation.perYearFloat,
+            initValues.getBagrovValue(0)
+        );
 
     // indices 1 - 4 = surface classes 1 - 4
     for (int i = 0; i < static_cast<int>(results.runoffSealed.surface.size()); i++) {
-        results.runoffSealed.surface[i] = Bagrov::runoffFromSealedSurface(
-            precipitation.perYearCorrectedFloat,
-            potentialEvaporation.perYearFloat,
-            initValues.getBagrovValue(i + 1)
-        );
+        results.runoffSealed.surface[i] = precipitation.perYearCorrectedFloat -
+            Bagrov::realEvapoTranspiration(
+                precipitation.perYearCorrectedFloat,
+                potentialEvaporation.perYearFloat,
+                initValues.getBagrovValue(i + 1)
+            );
     }
 
     // Calculate runoff...
