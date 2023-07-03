@@ -126,7 +126,13 @@ private:
         QTextStream& protocolStream
     );
 
-    void logResults(AbimoInputRecord inputRecord, IntermediateResults results);
+    void logResults(
+        AbimoInputRecord& inputRecord,
+        IntermediateResults& results,
+        bool logBagrovIntermediates = false
+    );
+
+    void logVariable(QString name, int value);
     void logVariable(QString name, float value);
 
     static SoilProperties getSoilProperties(

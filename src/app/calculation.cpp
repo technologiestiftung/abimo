@@ -257,7 +257,12 @@ bool Calculation::calculate(QString& outputFile, bool debug)
             );
 
             // Write all results to the log file
-            logResults(inputRecord, results);
+            logResults(
+                inputRecord,
+                results,
+                // Should Bagrov intermediates be logged?
+                inputRecord.code == "1000536281000000"
+            );
 
             fillResultRecord(inputRecord, results, outputRecord);
 
@@ -342,7 +347,8 @@ void Calculation::doCalculationsFor(
         Bagrov::realEvapoTranspiration(
             precipitation.perYearCorrectedFloat,
             potentialEvaporation.perYearFloat,
-            initValues.getBagrovValue(0)
+            initValues.getBagrovValue(0),
+            results.bagrovIntermediates
         );
 
     // indices 1 - 4 = surface classes 1 - 4
@@ -351,7 +357,8 @@ void Calculation::doCalculationsFor(
             Bagrov::realEvapoTranspiration(
                 precipitation.perYearCorrectedFloat,
                 potentialEvaporation.perYearFloat,
-                initValues.getBagrovValue(i + 1)
+                initValues.getBagrovValue(i + 1),
+                results.bagrovIntermediates
             );
     }
 
@@ -739,13 +746,16 @@ float Calculation::actualEvaporation(
     );
 
     // Use the Bagrov relation with xRatio = (P + KR + BER)/ETP to calculate
-    // the real evapotranspiration
+    // the real evapotranspiration    
+    BagrovIntermediates throwAway;
+
     float result = Bagrov::realEvapoTranspiration(
         precipitation.perYearCorrectedFloat +
             evaporationVars.meanPotentialCapillaryRiseRate +
             usageTuple.irrigation,
         potentialEvaporation.perYearFloat,
-        effectivity
+        effectivity,
+        throwAway
     );
 
     float tas = evaporationVars.potentialCapillaryRise_TAS;
@@ -759,13 +769,38 @@ float Calculation::actualEvaporation(
 }
 
 void Calculation::logResults(
-        AbimoInputRecord inputRecord,
-        IntermediateResults results
+        AbimoInputRecord& inputRecord,
+        IntermediateResults& results,
+        bool logBagrovIntermediates
 )
 {
     m_protocolStream << endl << "*** Code: " << inputRecord.code << endl;
 
     //m_prefix = inputRecord.code;
+
+    if (logBagrovIntermediates) {
+        logVariable("bagrov_i", results.bagrovIntermediates.i);
+        logVariable("bagrov_j", results.bagrovIntermediates.j);
+        logVariable("bagrov_a", results.bagrovIntermediates.a);
+        logVariable("bagrov_a0", results.bagrovIntermediates.a0);
+        logVariable("bagrov_a1", results.bagrovIntermediates.a1);
+        logVariable("bagrov_a2", results.bagrovIntermediates.a2);
+        logVariable("bagrov_b", results.bagrovIntermediates.b);
+        logVariable("bagrov_bag", results.bagrovIntermediates.bag);
+        logVariable("bagrov_bag_plus_one", results.bagrovIntermediates.bag_plus_one);
+        logVariable("bagrov_c", results.bagrovIntermediates.c);
+        logVariable("bagrov_epa", results.bagrovIntermediates.epa);
+        logVariable("bagrov_eyn", results.bagrovIntermediates.eyn);
+        logVariable("bagrov_h", results.bagrovIntermediates.h);
+        logVariable("bagrov_h13", results.bagrovIntermediates.h13);
+        logVariable("bagrov_h23", results.bagrovIntermediates.h23);
+        logVariable("bagrov_reciprocal_bag_plus_one", results.bagrovIntermediates.reciprocal_bag_plus_one);
+        logVariable("bagrov_sum_1", results.bagrovIntermediates.sum_1);
+        logVariable("bagrov_sum_2", results.bagrovIntermediates.sum_2);
+        logVariable("bagrov_w", results.bagrovIntermediates.w);
+        logVariable("bagrov_x", results.bagrovIntermediates.x);
+        logVariable("bagrov_y0", results.bagrovIntermediates.y0);
+    }
 
     logVariable("bagrov_roof", results.runoffSealed.roof);
 
@@ -783,6 +818,11 @@ void Calculation::logResults(
     logVariable("totalRunoff_R", results.totalRunoff_R);
     logVariable("totalRunoffFlow_RVOL", results.totalRunoffFlow_RVOL);
     logVariable("evaporation_VERDUNSTUN", results.evaporation_VERDUNSTUN);
+}
+
+void Calculation::logVariable(QString name, int value)
+{
+    m_protocolStream << name << "=" << value << endl;
 }
 
 void Calculation::logVariable(QString name, float value)

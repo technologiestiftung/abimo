@@ -146,4 +146,28 @@ struct Infiltration {
     float unsealedRoads = 0.0;
 };
 
+struct BagrovIntermediates {
+    int i = -1;
+    int j = -1;
+    float a = -1.0;
+    float a0 = -1.0;
+    float a1 = -1.0;
+    float a2 = -1.0;
+    float b = -1.0;
+    float bag = -1.0;
+    float bag_plus_one = -1.0;
+    float c = -1.0;
+    float epa = -1.0;
+    float eyn = -1.0;
+    float h = -1.0;
+    float h13 = -1.0;
+    float h23 = -1.0;
+    float reciprocal_bag_plus_one = -1.0;
+    float sum_1 = -1.0;
+    float sum_2 = -1.0;
+    float w = -1.0;
+    float x = -1.0;
+    float y0 = -1.0;
+};
+
 #endif // STRUCTS_H
