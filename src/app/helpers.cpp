@@ -10,6 +10,7 @@
 #include <QStringList>
 
 #include "helpers.h"
+#include "structs.h"
 
 QString helpers::nowString()
 {
@@ -267,4 +268,37 @@ float helpers::interpolate(
     }
 
     return 0.0;
+}
+
+QVector<int> helpers::rangesStringToIntegerSequence(QString s)
+{
+    QVector<int> sequence;
+
+    QStringList parts = s.trimmed().split(",", QString::SkipEmptyParts);
+
+    for (int i = 0; i < parts.size(); i++) {
+
+        IntegerRange range = splitRangeString(parts.at(i));
+
+        for (int value = range.from; value <= range.to; value++) {
+            sequence.append(value);
+        }
+    }
+
+    return sequence;
+}
+
+IntegerRange helpers::splitRangeString(QString s)
+{
+    IntegerRange range;
+
+    QStringList ab = s.trimmed().split('-', QString::SkipEmptyParts);
+
+    // Number of parts after splitting must be one or two
+    assert(ab.length() <= 2);
+
+    range.from = ab.at(0).trimmed().toInt();
+    range.to = ab.at(ab.length() > 1 ? 1 : 0).trimmed().toInt();
+
+    return range;
 }

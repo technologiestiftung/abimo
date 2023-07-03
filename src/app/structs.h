@@ -22,6 +22,24 @@ enum struct Usage: char {
     unknown = '?'
 };
 
+enum struct OutputColumn {
+    None = 0,
+    TotalRunoff_R = 10,
+    SurfaceRunoff_ROW = 11,
+    Infiltration_RI = 12,
+    TotalRunoffFlow_RVOL = 13,
+    SurfaceRunoffFlow_ROWVOL = 14,
+    InfiltrationFlow_RIVOL = 15,
+    TotalArea_FLAECHE = 16,
+    Evaporation_VERDUNSTUN = 17,
+    Invalid = 99
+};
+
+struct IntegerRange {
+    int from;
+    int to;
+};
+
 struct UsageResult {
     int tupleIndex;
     QString message;
@@ -58,7 +76,7 @@ struct Precipitation {
     float inSummerFloat;
 };
 
-struct EvaporationRelevantVariables {
+struct SoilProperties {
 
     // nFK-Wert (ergibt sich aus Bodenart) ID_NFK neu
     // water holding capacity (= nutzbare Feldkapazitaet)
@@ -75,7 +93,7 @@ struct EvaporationRelevantVariables {
 };
 
 // Abfluesse nach Bagrov
-struct BagrovValues {
+struct RunoffSealed {
 
     // Abfluesse nach Bagrov fuer Daecher
     float roof = 0.0;
@@ -126,6 +144,30 @@ struct Infiltration {
     // old: riuvs
     // old: 0.89F * (1-vgs) * fsant * R4V;
     float unsealedRoads = 0.0;
+};
+
+struct BagrovIntermediates {
+    int i = -1;
+    int j = -1;
+    float a = -1.0;
+    float a0 = -1.0;
+    float a1 = -1.0;
+    float a2 = -1.0;
+    float b = -1.0;
+    float bag = -1.0;
+    float bag_plus_one = -1.0;
+    float c = -1.0;
+    float epa = -1.0;
+    float eyn = -1.0;
+    float h = -1.0;
+    float h13 = -1.0;
+    float h23 = -1.0;
+    float reciprocal_bag_plus_one = -1.0;
+    float sum_1 = -1.0;
+    float sum_2 = -1.0;
+    float w = -1.0;
+    float x = -1.0;
+    float y0 = -1.0;
 };
 
 #endif // STRUCTS_H

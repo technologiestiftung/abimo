@@ -260,12 +260,14 @@ void writeBagrovTable(float bag_min, float bag_max, float bag_step,
     float bag = bag_min;
     QString str;
 
+    BagrovIntermediates bagrovIntermediates;
+
     while(bag <= bag_max) {
 
         float x = x_min;
 
         while (x <= x_max) {
-            y = bagrov.nbagro(bag, x);
+            y = bagrov.yRatio(bag, x, bagrovIntermediates);
             qStdOut() << str.sprintf("%0.1f", bag) << ","
                       << str.sprintf("%0.2f", x) << ","
                       << y << "\n";

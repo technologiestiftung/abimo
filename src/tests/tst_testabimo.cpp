@@ -205,6 +205,12 @@ void TestAbimo::test_calc()
     QVERIFY(dbfHeadersAreIdentical(tmpOut_config.fileName(), refOut_config.fileName()));
     QVERIFY(dbfStringsAreIdentical(tmpOut_config.fileName(), refOut_config.fileName()));
 
+    // Run the simulation without config file using the alternative function
+    Calculation::runCalculationUsingData(inputFile.fileName(), tmpOut_noConfig.fileName());
+    QVERIFY(tmpOut_noConfig.size() == refOut_noConfig.size());
+    QVERIFY(dbfHeadersAreIdentical(tmpOut_noConfig.fileName(), refOut_noConfig.fileName()));
+    QVERIFY(dbfStringsAreIdentical(tmpOut_noConfig.fileName(), refOut_noConfig.fileName()));
+
     // file created using the GUI
     //QString file_tmp = dataFilePath("abimo_2019_mitstrassen_out2.dbf", true);
     //QVERIFY(dbfStringsAreIdentical(file_tmp, outFile_noConfig));
