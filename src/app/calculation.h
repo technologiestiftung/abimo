@@ -55,6 +55,14 @@ public:
         QString outputFile
     );
 
+    static QVector<AbimoInputRecord> readAbimoInputData(QString inputFile);
+
+    static void writeAbimoOutputData(
+        QVector<AbimoOutputRecord>& outputData,
+        InitValues& initValues,
+        QString outputFile
+    );
+
     // Main function to perform the calculation of the whole input table
     bool calculate(QString& outputFile, bool debug = false);
 

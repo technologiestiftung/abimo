@@ -94,6 +94,26 @@ void Calculation::runCalculationUsingData(
     QString outputFile
 )
 {
+    // Input data structure: vector of objects of class AbimoInputRecord
+    QVector<AbimoInputRecord> inputData;
+
+    // Output data structure: vector of objects of class AbimoOutputRecord
+    QVector<AbimoOutputRecord> outputData;
+
+    // Read dbf file into input data structure
+    inputData = readAbimoInputData(inputFile);
+
+    // Do the calculations for the input data creating output data
+    calculateData(inputData, outputData);
+
+    InitValues initValues;
+
+    // Write the model results to the output dbf file
+    writeAbimoOutputData(outputData, initValues, outputFile);
+}
+
+QVector<AbimoInputRecord> Calculation::readAbimoInputData(QString inputFile)
+{
     // Open the input file
     AbimoReader dbReader(inputFile);
 
@@ -102,7 +122,7 @@ void Calculation::runCalculationUsingData(
         abort();
     }
 
-    QVector<AbimoInputRecord> inputData;
+    QVector<AbimoInputRecord> inputData = readAbimoInputData(inputFile);
     AbimoInputRecord inputRecord;
 
     // Create input data: fill vector of AbimoInputRecord
@@ -111,19 +131,21 @@ void Calculation::runCalculationUsingData(
         inputData.append(inputRecord);
     }
 
-    QVector<AbimoOutputRecord> outputData;
+    return inputData;
+}
 
-    // Do the calculations for the input data creating output data
-    calculateData(inputData, outputData);
-
-    InitValues initValues;
-
+void Calculation::writeAbimoOutputData(
+    QVector<AbimoOutputRecord>& outputData,
+    InitValues& initValues,
+    QString outputFile
+)
+{
     // Provide an AbimoWriter object
     AbimoWriter writer(outputFile, initValues);
 
     AbimoOutputRecord outputRecord;
 
-    for (int i = 0; i < inputData.size(); i++) {
+    for (int i = 0; i < outputData.size(); i++) {
         outputRecord = outputData.at(i);
         writeResultRecord(outputRecord, writer);
     }
