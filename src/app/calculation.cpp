@@ -122,7 +122,7 @@ QVector<AbimoInputRecord> Calculation::readAbimoInputData(QString inputFile)
         abort();
     }
 
-    QVector<AbimoInputRecord> inputData = readAbimoInputData(inputFile);
+    QVector<AbimoInputRecord> inputData;
     AbimoInputRecord inputRecord;
 
     // Create input data: fill vector of AbimoInputRecord
