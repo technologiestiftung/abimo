@@ -14,8 +14,8 @@
 
 #define UPPER_LIMIT_EYN 0.7F
 
-#define ONE_THIRD 1.0F / 3.0F
-#define TWO_THIRDS 2.0F / 3.0F
+#define ONE_THIRD (float) (1.0/3.0) //1.0F / 3.0F
+#define TWO_THIRDS (float) (2.0/3.0) //2.0F / 3.0F
 
 /*
  =======================================================================================================================
