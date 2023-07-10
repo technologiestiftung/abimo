@@ -190,6 +190,12 @@ void TestAbimo::test_calc()
     QFile refOut_noConfig(dataFilePath("abimo_2019_mitstrassenout_3.2.1_default-config.dbf"));
     QFile refOut_config(dataFilePath("abimo_2019_mitstrassenout_3.2.1_xml-config.dbf"));
 
+    // Run the simulation without config file using the alternative function
+    Calculation::runCalculationUsingData(inputFile.fileName(), tmpOut_noConfig.fileName());
+    QVERIFY(tmpOut_noConfig.size() == refOut_noConfig.size());
+    QVERIFY(dbfHeadersAreIdentical(tmpOut_noConfig.fileName(), refOut_noConfig.fileName()));
+    QVERIFY(dbfStringsAreIdentical(tmpOut_noConfig.fileName(), refOut_noConfig.fileName()));
+
     // Run the simulation without config file
     Calculation::runCalculation(inputFile.fileName(), "", tmpOut_noConfig.fileName(), false);
     QVERIFY(tmpOut_noConfig.size() == refOut_noConfig.size());
@@ -204,12 +210,6 @@ void TestAbimo::test_calc()
     QVERIFY(tmpOut_config.size() == refOut_config.size());
     QVERIFY(dbfHeadersAreIdentical(tmpOut_config.fileName(), refOut_config.fileName()));
     QVERIFY(dbfStringsAreIdentical(tmpOut_config.fileName(), refOut_config.fileName()));
-
-    // Run the simulation without config file using the alternative function
-    Calculation::runCalculationUsingData(inputFile.fileName(), tmpOut_noConfig.fileName());
-    QVERIFY(tmpOut_noConfig.size() == refOut_noConfig.size());
-    QVERIFY(dbfHeadersAreIdentical(tmpOut_noConfig.fileName(), refOut_noConfig.fileName()));
-    QVERIFY(dbfStringsAreIdentical(tmpOut_noConfig.fileName(), refOut_noConfig.fileName()));
 
     // file created using the GUI
     //QString file_tmp = dataFilePath("abimo_2019_mitstrassen_out2.dbf", true);
