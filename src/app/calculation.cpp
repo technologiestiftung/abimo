@@ -355,9 +355,14 @@ void Calculation::doCalculationsFor(
         protocolStream
     );
 
+    // Set default area if total area is zero
+    handleTotalAreaOfZero(input, counters);
+
     //
     // Do the Bagrov-calculation for sealed surfaces...
     //
+
+    Runoff runoff;
 
     // Berechnung der Abfluesse RDV und R1V bis R4V fuer versiegelte
     // Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4.
@@ -365,6 +370,8 @@ void Calculation::doCalculationsFor(
     // - RDV / RxV: Gesamtabfluss versiegelte Flaeche
 
     // index 0 = roof
+
+    // Theoretical total runoff assuming that the whole area is a roof
     results.runoffSealed.roof = precipitation.perYearCorrectedFloat -
         Bagrov::realEvapoTranspiration(
             precipitation.perYearCorrectedFloat,
@@ -373,26 +380,7 @@ void Calculation::doCalculationsFor(
             results.bagrovIntermediates
         );
 
-    // indices 1 - 4 = surface classes 1 - 4
-    for (int i = 0; i < static_cast<int>(results.runoffSealed.surface.size()); i++) {
-        results.runoffSealed.surface[i] = precipitation.perYearCorrectedFloat -
-            Bagrov::realEvapoTranspiration(
-                precipitation.perYearCorrectedFloat,
-                potentialEvaporation.perYearFloat,
-                initValues.getBagrovValue(i + 1),
-                results.bagrovIntermediates
-            );
-    }
-
-    // Calculate runoff...
-    //====================
-
-    Runoff runoff;
-
-    // Set default area if total area is zero
-    handleTotalAreaOfZero(input, counters);
-
-    // runoff from roof surfaces (Abfluss der Dachflaechen), old: rowd
+    // Actual runoff from roof surfaces (Abfluss der Dachflaechen), old: rowd
     runoff.roof =
         initValues.getRunoffFactor(0) * // 0 = roof!
         input.mainFractionBuiltSealed *
@@ -402,8 +390,22 @@ void Calculation::doCalculationsFor(
 
     // runoff from sealed surfaces
 
-    // Abfluss Belagsflaeche i + 1, old: row<i>
-    for (int i = 0; i < static_cast<int>(runoff.sealedSurface.size()); i++) {
+    // indices 1 - 4 = surface classes 1 - 4
+    for (int i = 0; i < static_cast<int>(results.runoffSealed.surface.size()); i++) {
+
+        // Theoretical total runoff assuming that the whole area is sealed and
+        // connected
+        results.runoffSealed.surface[i] = precipitation.perYearCorrectedFloat -
+            Bagrov::realEvapoTranspiration(
+                precipitation.perYearCorrectedFloat,
+                potentialEvaporation.perYearFloat,
+                initValues.getBagrovValue(i + 1),
+                results.bagrovIntermediates
+            );
+
+        // Runoff from the actual partial areas that are sealed and connected
+        // (road and non-road) areas
+        // Abfluss Belagsflaeche i + 1, old: row<i>
         runoff.sealedSurface[i] =
             initValues.getRunoffFactor(i + 1) *
             (
