@@ -333,7 +333,7 @@ void Calculation::doCalculationsFor(
     Precipitation precipitation = getPrecipitation(
         input.precipitationYear,
         input.precipitationSummer,
-        initValues
+        initValues.getPrecipitationCorrectionFactor()
     );
 
     // Based on the given input row, try to provide usage-specific information
@@ -533,7 +533,7 @@ void Calculation::doCalculationsFor(
 Precipitation Calculation::getPrecipitation(
     int precipitationYear,
     int precipitationSummer,
-    InitValues& initValues
+    float correctionFactor
 )
 {
     Precipitation result;
@@ -546,7 +546,7 @@ Precipitation Calculation::getPrecipitation(
 
     // Correct the (non-summer) precipitation (at ground level)
     result.perYearCorrectedFloat = static_cast<float>(
-        precipitationYear * initValues.getPrecipitationCorrectionFactor()
+        precipitationYear * correctionFactor
     );
 
     // No correction for summer precipitation!

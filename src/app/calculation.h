@@ -151,7 +151,7 @@ private:
     static Precipitation getPrecipitation(
         int precipitationYear,
         int precipitationSummer,
-        InitValues& initValues
+        float correctionFactor
     );
 
     static PotentialEvaporation getPotentialEvaporation(
