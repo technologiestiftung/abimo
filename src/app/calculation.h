@@ -129,7 +129,7 @@ private:
     static UsageTuple getUsageTuple(
         AbimoInputRecord& input,
         UsageConfiguration& usageConfiguration,
-        InitValues& initValues,
+        bool overrideIrrigationWithZero,
         Counters& counters,
         QTextStream& protocolStream
     );

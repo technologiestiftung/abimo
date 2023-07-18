@@ -340,7 +340,7 @@ void Calculation::doCalculationsFor(
     UsageTuple usageTuple = getUsageTuple(
         input,
         usageConfiguration,
-        initValues,
+        initValues.getIrrigationToZero(),
         counters,
         protocolStream
     );
@@ -560,7 +560,7 @@ Precipitation Calculation::getPrecipitation(
 UsageTuple Calculation::getUsageTuple(
     AbimoInputRecord& input,
     UsageConfiguration& usageConfiguration,
-    InitValues& initValues,
+    bool overrideIrrigationWithZero,
     Counters& counters,
     QTextStream& protocolStream
 )
@@ -587,7 +587,7 @@ UsageTuple Calculation::getUsageTuple(
     UsageTuple result = usageConfiguration.getUsageTuple(usageResult.tupleIndex);
 
     // Override irrigation value with zero if the corresponding option is set
-    if (initValues.getIrrigationToZero() && result.irrigation != 0) {
+    if (overrideIrrigationWithZero && result.irrigation != 0) {
         //*protokollStream << "Erzwinge BER=0 fuer Code: " << input.code <<
         //", Wert war:" << usageTuple.irrigation << " \r\n";
         counters.incrementIrrigationForcedToZero();
