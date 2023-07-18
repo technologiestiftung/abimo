@@ -26,6 +26,7 @@ public:
 
     static float estimateWaterHoldingCapacity(int f30, int f150, bool isForest);
     static int estimateDaysOfGrowth(Usage usage, int yield);
+    static float getRootingDepth(Usage usage, int yield);
 };
 
 #endif

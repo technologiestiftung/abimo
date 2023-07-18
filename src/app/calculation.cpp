@@ -422,11 +422,7 @@ void Calculation::doCalculationsFor(
 
     // Provide soil properties. They are required to calculate tha actual
     // evapotranspiration. In the case of water bodies, all values are 0.0.
-    SoilProperties soilProperties = getSoilProperties(
-        usageTuple,
-        input,
-        usageConfiguration
-    );
+    SoilProperties soilProperties = getSoilProperties(usageTuple, input);
 
     runoff.unsealedSurface_RUV =
         precipitation.perYearCorrectedFloat -
@@ -702,8 +698,7 @@ void Calculation::handleTotalAreaOfZero(
 
 SoilProperties Calculation::getSoilProperties(
     UsageTuple& usageTuple,
-    AbimoInputRecord& input,
-    UsageConfiguration usageConfiguration
+    AbimoInputRecord& input
 )
 {
     // Initialise variables that are relevant to calculate evaporation
@@ -726,7 +721,10 @@ SoilProperties Calculation::getSoilProperties(
     // pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS
     // potentielle Aufstiegshoehe
     result.potentialCapillaryRise_TAS = result.depthToWaterTable -
-        usageConfiguration.getRootingDepth(usageTuple.usage, usageTuple.yield);
+        SoilAndVegetation::getRootingDepth(
+            usageTuple.usage,
+            usageTuple.yield
+        );
 
     // mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres
     // Kapillarer Aufstieg pro Jahr ID_KR neu, old: KR

@@ -145,8 +145,7 @@ private:
 
     static SoilProperties getSoilProperties(
         UsageTuple& usageTuple,
-        AbimoInputRecord& input,
-        UsageConfiguration usageConfiguration
+        AbimoInputRecord& input
     );
 
     static Precipitation getPrecipitation(
