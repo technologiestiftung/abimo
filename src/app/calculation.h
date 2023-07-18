@@ -144,8 +144,11 @@ private:
     void logVariable(QString name, float value);
 
     static SoilProperties getSoilProperties(
-        UsageTuple& usageTuple,
-        AbimoInputRecord& input
+        Usage usage,
+        int yield,
+        float depthToWaterTable,
+        int fieldCapacity_30,
+        int fieldCapacity_150
     );
 
     static Precipitation getPrecipitation(

@@ -424,7 +424,13 @@ void Calculation::doCalculationsFor(
 
     // Provide soil properties. They are required to calculate tha actual
     // evapotranspiration. In the case of water bodies, all values are 0.0.
-    SoilProperties soilProperties = getSoilProperties(usageTuple, input);
+    SoilProperties soilProperties = getSoilProperties(
+        usageTuple.usage,
+        usageTuple.yield,
+        input.depthToWaterTable,
+        input.fieldCapacity_30,
+        input.fieldCapacity_150
+    );
 
     runoff.unsealedSurface_RUV =
         precipitation.perYearCorrectedFloat -
@@ -699,33 +705,36 @@ void Calculation::handleTotalAreaOfZero(
 }
 
 SoilProperties Calculation::getSoilProperties(
-    UsageTuple& usageTuple,
-    AbimoInputRecord& input
+    Usage usage,
+    int yield,
+    float depthToWaterTable,
+    int fieldCapacity_30,
+    int fieldCapacity_150
 )
 {
     // Initialise variables that are relevant to calculate evaporation
     SoilProperties result;
 
-    result.depthToWaterTable = input.depthToWaterTable;
+    result.depthToWaterTable = depthToWaterTable;
 
     // Nothing to do for waterbodies
-    if (usageTuple.usage == Usage::waterbody_G) {
+    if (usage == Usage::waterbody_G) {
         return result;
     }
 
     // Feldkapazitaet
     result.usableFieldCapacity = SoilAndVegetation::estimateWaterHoldingCapacity(
-        input.fieldCapacity_30,
-        input.fieldCapacity_150,
-        usageTuple.usage == Usage::forested_W
+        fieldCapacity_30,
+        fieldCapacity_150,
+        usage == Usage::forested_W
     );
 
     // pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS
     // potentielle Aufstiegshoehe
     result.potentialCapillaryRise_TAS = result.depthToWaterTable -
         SoilAndVegetation::getRootingDepth(
-            usageTuple.usage,
-            usageTuple.yield
+            usage,
+            yield
         );
 
     // mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres
@@ -734,8 +743,8 @@ SoilProperties Calculation::getSoilProperties(
         SoilAndVegetation::getMeanPotentialCapillaryRiseRate(
             result.potentialCapillaryRise_TAS,
             result.usableFieldCapacity,
-            usageTuple.usage,
-            usageTuple.yield
+            usage,
+            yield
         );
 
     return result;
