@@ -347,8 +347,8 @@ void Calculation::doCalculationsFor(
 
     // Provide information on the potential evaporation
     PotentialEvaporation potentialEvaporation = getPotentialEvaporation(
-        usageTuple.usage,
         initValues,
+        usageTuple.usage == Usage::waterbody_G,
         input.district,
         input.code,
         counters,
@@ -598,8 +598,8 @@ UsageTuple Calculation::getUsageTuple(
 }
 
 PotentialEvaporation Calculation::getPotentialEvaporation(
-    Usage& usage,
     InitValues& initValues,
+    bool isWaterbody,
     int district,
     QString code,
     Counters& counters,
@@ -609,7 +609,7 @@ PotentialEvaporation Calculation::getPotentialEvaporation(
     PotentialEvaporation result;
 
     // Parameter for the city districts
-    if (usage == Usage::waterbody_G) {
+    if (isWaterbody) {
 
         result.perYearInteger = getInitialValueOrDefault(
             district,

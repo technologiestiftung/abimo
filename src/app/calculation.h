@@ -155,8 +155,8 @@ private:
     );
 
     static PotentialEvaporation getPotentialEvaporation(
-        Usage& usage,
         InitValues& initValues,
+        bool isWaterbody,
         int district,
         QString code,
         Counters& counters,
