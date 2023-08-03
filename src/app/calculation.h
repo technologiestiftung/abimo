@@ -127,11 +127,13 @@ private:
     //
 
     static UsageTuple getUsageTuple(
-        AbimoInputRecord& input,
+        int usage,
+        int type,
         UsageConfiguration& usageConfiguration,
         bool overrideIrrigationWithZero,
         Counters& counters,
-        QTextStream& protocolStream
+        QTextStream& protocolStream,
+        QString code // just for information in protocolStream
     );
 
     void logResults(

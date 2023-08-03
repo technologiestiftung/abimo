@@ -338,11 +338,13 @@ void Calculation::doCalculationsFor(
 
     // Based on the given input row, try to provide usage-specific information
     UsageTuple usageTuple = getUsageTuple(
-        input,
+        input.usage,
+        input.type,
         usageConfiguration,
         initValues.getIrrigationToZero(),
         counters,
-        protocolStream
+        protocolStream,
+        input.code
     );
 
     // Provide information on the potential evaporation
@@ -566,19 +568,21 @@ Precipitation Calculation::getPrecipitation(
 }
 
 UsageTuple Calculation::getUsageTuple(
-    AbimoInputRecord& input,
+    int usage,
+    int type,
     UsageConfiguration& usageConfiguration,
     bool overrideIrrigationWithZero,
     Counters& counters,
-    QTextStream& protocolStream
+    QTextStream& protocolStream,
+    QString code // just for information in protocolStream
 )
 {
     // declaration of yield power (ERT) and irrigation (BER) for agricultural or
     // gardening purposes
     UsageResult usageResult = usageConfiguration.getUsageResult(
-        input.usage,
-        input.type,
-        input.code
+        usage,
+        type,
+        code
     );
 
     if (usageResult.tupleIndex < 0) {
@@ -596,7 +600,7 @@ UsageTuple Calculation::getUsageTuple(
 
     // Override irrigation value with zero if the corresponding option is set
     if (overrideIrrigationWithZero && result.irrigation != 0) {
-        //*protokollStream << "Erzwinge BER=0 fuer Code: " << input.code <<
+        //*protokollStream << "Erzwinge BER=0 fuer Code: " << code <<
         //", Wert war:" << usageTuple.irrigation << " \r\n";
         counters.incrementIrrigationForcedToZero();
         result.irrigation = 0;
