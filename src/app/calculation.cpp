@@ -94,6 +94,26 @@ void Calculation::runCalculationUsingData(
     QString outputFile
 )
 {
+    // Input data structure: vector of objects of class AbimoInputRecord
+    QVector<AbimoInputRecord> inputData;
+
+    // Output data structure: vector of objects of class AbimoOutputRecord
+    QVector<AbimoOutputRecord> outputData;
+
+    // Read dbf file into input data structure
+    inputData = readAbimoInputData(inputFile);
+
+    // Do the calculations for the input data creating output data
+    calculateData(inputData, outputData);
+
+    InitValues initValues;
+
+    // Write the model results to the output dbf file
+    writeAbimoOutputData(outputData, initValues, outputFile);
+}
+
+QVector<AbimoInputRecord> Calculation::readAbimoInputData(QString inputFile)
+{
     // Open the input file
     AbimoReader dbReader(inputFile);
 
@@ -111,19 +131,21 @@ void Calculation::runCalculationUsingData(
         inputData.append(inputRecord);
     }
 
-    QVector<AbimoOutputRecord> outputData;
+    return inputData;
+}
 
-    // Do the calculations for the input data creating output data
-    calculateData(inputData, outputData);
-
-    InitValues initValues;
-
+void Calculation::writeAbimoOutputData(
+    QVector<AbimoOutputRecord>& outputData,
+    InitValues& initValues,
+    QString outputFile
+)
+{
     // Provide an AbimoWriter object
     AbimoWriter writer(outputFile, initValues);
 
     AbimoOutputRecord outputRecord;
 
-    for (int i = 0; i < inputData.size(); i++) {
+    for (int i = 0; i < outputData.size(); i++) {
         outputRecord = outputData.at(i);
         writeResultRecord(outputRecord, writer);
     }
@@ -311,31 +333,38 @@ void Calculation::doCalculationsFor(
     Precipitation precipitation = getPrecipitation(
         input.precipitationYear,
         input.precipitationSummer,
-        initValues
+        initValues.getPrecipitationCorrectionFactor()
     );
 
     // Based on the given input row, try to provide usage-specific information
     UsageTuple usageTuple = getUsageTuple(
-        input,
+        input.usage,
+        input.type,
         usageConfiguration,
-        initValues,
+        initValues.getIrrigationToZero(),
         counters,
-        protocolStream
+        protocolStream,
+        input.code
     );
 
     // Provide information on the potential evaporation
     PotentialEvaporation potentialEvaporation = getPotentialEvaporation(
-        usageTuple.usage,
         initValues,
+        usageTuple.usage == Usage::waterbody_G,
         input.district,
         input.code,
         counters,
         protocolStream
     );
 
+    // Set default area if total area is zero
+    handleTotalAreaOfZero(input, counters);
+
     //
     // Do the Bagrov-calculation for sealed surfaces...
     //
+
+    Runoff runoff;
 
     // Berechnung der Abfluesse RDV und R1V bis R4V fuer versiegelte
     // Teilflaechen und unterschiedliche Bagrovwerte ND und N1 bis N4.
@@ -343,6 +372,8 @@ void Calculation::doCalculationsFor(
     // - RDV / RxV: Gesamtabfluss versiegelte Flaeche
 
     // index 0 = roof
+
+    // Theoretical total runoff assuming that the whole area is a roof
     results.runoffSealed.roof = precipitation.perYearCorrectedFloat -
         Bagrov::realEvapoTranspiration(
             precipitation.perYearCorrectedFloat,
@@ -351,26 +382,7 @@ void Calculation::doCalculationsFor(
             results.bagrovIntermediates
         );
 
-    // indices 1 - 4 = surface classes 1 - 4
-    for (int i = 0; i < static_cast<int>(results.runoffSealed.surface.size()); i++) {
-        results.runoffSealed.surface[i] = precipitation.perYearCorrectedFloat -
-            Bagrov::realEvapoTranspiration(
-                precipitation.perYearCorrectedFloat,
-                potentialEvaporation.perYearFloat,
-                initValues.getBagrovValue(i + 1),
-                results.bagrovIntermediates
-            );
-    }
-
-    // Calculate runoff...
-    //====================
-
-    Runoff runoff;
-
-    // Set default area if total area is zero
-    handleTotalAreaOfZero(input, counters);
-
-    // runoff from roof surfaces (Abfluss der Dachflaechen), old: rowd
+    // Actual runoff from roof surfaces (Abfluss der Dachflaechen), old: rowd
     runoff.roof =
         initValues.getRunoffFactor(0) * // 0 = roof!
         input.mainFractionBuiltSealed *
@@ -380,8 +392,22 @@ void Calculation::doCalculationsFor(
 
     // runoff from sealed surfaces
 
-    // Abfluss Belagsflaeche i + 1, old: row<i>
-    for (int i = 0; i < static_cast<int>(runoff.sealedSurface.size()); i++) {
+    // indices 1 - 4 = surface classes 1 - 4
+    for (int i = 0; i < static_cast<int>(results.runoffSealed.surface.size()); i++) {
+
+        // Theoretical total runoff assuming that the whole area is sealed and
+        // connected
+        results.runoffSealed.surface[i] = precipitation.perYearCorrectedFloat -
+            Bagrov::realEvapoTranspiration(
+                precipitation.perYearCorrectedFloat,
+                potentialEvaporation.perYearFloat,
+                initValues.getBagrovValue(i + 1),
+                results.bagrovIntermediates
+            );
+
+        // Runoff from the actual partial areas that are sealed and connected
+        // (road and non-road) areas
+        // Abfluss Belagsflaeche i + 1, old: row<i>
         runoff.sealedSurface[i] =
             initValues.getRunoffFactor(i + 1) *
             (
@@ -401,9 +427,11 @@ void Calculation::doCalculationsFor(
     // Provide soil properties. They are required to calculate tha actual
     // evapotranspiration. In the case of water bodies, all values are 0.0.
     SoilProperties soilProperties = getSoilProperties(
-        usageTuple,
-        input,
-        usageConfiguration
+        usageTuple.usage,
+        usageTuple.yield,
+        input.depthToWaterTable,
+        input.fieldCapacity_30,
+        input.fieldCapacity_150
     );
 
     runoff.unsealedSurface_RUV =
@@ -515,7 +543,7 @@ void Calculation::doCalculationsFor(
 Precipitation Calculation::getPrecipitation(
     int precipitationYear,
     int precipitationSummer,
-    InitValues& initValues
+    float correctionFactor
 )
 {
     Precipitation result;
@@ -528,7 +556,7 @@ Precipitation Calculation::getPrecipitation(
 
     // Correct the (non-summer) precipitation (at ground level)
     result.perYearCorrectedFloat = static_cast<float>(
-        precipitationYear * initValues.getPrecipitationCorrectionFactor()
+        precipitationYear * correctionFactor
     );
 
     // No correction for summer precipitation!
@@ -540,19 +568,21 @@ Precipitation Calculation::getPrecipitation(
 }
 
 UsageTuple Calculation::getUsageTuple(
-    AbimoInputRecord& input,
+    int usage,
+    int type,
     UsageConfiguration& usageConfiguration,
-    InitValues& initValues,
+    bool overrideIrrigationWithZero,
     Counters& counters,
-    QTextStream& protocolStream
+    QTextStream& protocolStream,
+    QString code // just for information in protocolStream
 )
 {
     // declaration of yield power (ERT) and irrigation (BER) for agricultural or
     // gardening purposes
     UsageResult usageResult = usageConfiguration.getUsageResult(
-        input.usage,
-        input.type,
-        input.code
+        usage,
+        type,
+        code
     );
 
     if (usageResult.tupleIndex < 0) {
@@ -569,8 +599,8 @@ UsageTuple Calculation::getUsageTuple(
     UsageTuple result = usageConfiguration.getUsageTuple(usageResult.tupleIndex);
 
     // Override irrigation value with zero if the corresponding option is set
-    if (initValues.getIrrigationToZero() && result.irrigation != 0) {
-        //*protokollStream << "Erzwinge BER=0 fuer Code: " << input.code <<
+    if (overrideIrrigationWithZero && result.irrigation != 0) {
+        //*protokollStream << "Erzwinge BER=0 fuer Code: " << code <<
         //", Wert war:" << usageTuple.irrigation << " \r\n";
         counters.incrementIrrigationForcedToZero();
         result.irrigation = 0;
@@ -580,8 +610,8 @@ UsageTuple Calculation::getUsageTuple(
 }
 
 PotentialEvaporation Calculation::getPotentialEvaporation(
-    Usage& usage,
     InitValues& initValues,
+    bool isWaterbody,
     int district,
     QString code,
     Counters& counters,
@@ -591,7 +621,7 @@ PotentialEvaporation Calculation::getPotentialEvaporation(
     PotentialEvaporation result;
 
     // Parameter for the city districts
-    if (usage == Usage::waterbody_G) {
+    if (isWaterbody) {
 
         result.perYearInteger = getInitialValueOrDefault(
             district,
@@ -679,32 +709,37 @@ void Calculation::handleTotalAreaOfZero(
 }
 
 SoilProperties Calculation::getSoilProperties(
-    UsageTuple& usageTuple,
-    AbimoInputRecord& input,
-    UsageConfiguration usageConfiguration
+    Usage usage,
+    int yield,
+    float depthToWaterTable,
+    int fieldCapacity_30,
+    int fieldCapacity_150
 )
 {
     // Initialise variables that are relevant to calculate evaporation
     SoilProperties result;
 
-    result.depthToWaterTable = input.depthToWaterTable;
+    result.depthToWaterTable = depthToWaterTable;
 
     // Nothing to do for waterbodies
-    if (usageTuple.usage == Usage::waterbody_G) {
+    if (usage == Usage::waterbody_G) {
         return result;
     }
 
     // Feldkapazitaet
     result.usableFieldCapacity = SoilAndVegetation::estimateWaterHoldingCapacity(
-        input.fieldCapacity_30,
-        input.fieldCapacity_150,
-        usageTuple.usage == Usage::forested_W
+        fieldCapacity_30,
+        fieldCapacity_150,
+        usage == Usage::forested_W
     );
 
     // pot. Aufstiegshoehe TAS = FLUR - mittl. Durchwurzelungstiefe TWS
     // potentielle Aufstiegshoehe
     result.potentialCapillaryRise_TAS = result.depthToWaterTable -
-        usageConfiguration.getRootingDepth(usageTuple.usage, usageTuple.yield);
+        SoilAndVegetation::getRootingDepth(
+            usage,
+            yield
+        );
 
     // mittlere pot. kapillare Aufstiegsrate kr (mm/d) des Sommerhalbjahres
     // Kapillarer Aufstieg pro Jahr ID_KR neu, old: KR
@@ -712,8 +747,8 @@ SoilProperties Calculation::getSoilProperties(
         SoilAndVegetation::getMeanPotentialCapillaryRiseRate(
             result.potentialCapillaryRise_TAS,
             result.usableFieldCapacity,
-            usageTuple.usage,
-            usageTuple.yield
+            usage,
+            yield
         );
 
     return result;

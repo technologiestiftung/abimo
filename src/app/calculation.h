@@ -55,6 +55,14 @@ public:
         QString outputFile
     );
 
+    static QVector<AbimoInputRecord> readAbimoInputData(QString inputFile);
+
+    static void writeAbimoOutputData(
+        QVector<AbimoOutputRecord>& outputData,
+        InitValues& initValues,
+        QString outputFile
+    );
+
     // Main function to perform the calculation of the whole input table
     bool calculate(QString& outputFile, bool debug = false);
 
@@ -119,11 +127,13 @@ private:
     //
 
     static UsageTuple getUsageTuple(
-        AbimoInputRecord& input,
+        int usage,
+        int type,
         UsageConfiguration& usageConfiguration,
-        InitValues& initValues,
+        bool overrideIrrigationWithZero,
         Counters& counters,
-        QTextStream& protocolStream
+        QTextStream& protocolStream,
+        QString code // just for information in protocolStream
     );
 
     void logResults(
@@ -136,20 +146,22 @@ private:
     void logVariable(QString name, float value);
 
     static SoilProperties getSoilProperties(
-        UsageTuple& usageTuple,
-        AbimoInputRecord& input,
-        UsageConfiguration usageConfiguration
+        Usage usage,
+        int yield,
+        float depthToWaterTable,
+        int fieldCapacity_30,
+        int fieldCapacity_150
     );
 
     static Precipitation getPrecipitation(
         int precipitationYear,
         int precipitationSummer,
-        InitValues& initValues
+        float correctionFactor
     );
 
     static PotentialEvaporation getPotentialEvaporation(
-        Usage& usage,
         InitValues& initValues,
+        bool isWaterbody,
         int district,
         QString code,
         Counters& counters,
