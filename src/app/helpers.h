@@ -11,6 +11,8 @@
 #include <QStringList>
 #include <QVector>
 
+#include "structs.h"
+
 namespace helpers
 {
     QString nowString();
@@ -63,6 +65,9 @@ namespace helpers
         }
         return sum;
     }
+
+    QVector<int> rangesStringToIntegerSequence(QString s);
+    IntegerRange splitRangeString(QString s);
 
 };
 

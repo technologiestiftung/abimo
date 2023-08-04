@@ -5,7 +5,7 @@
 
 struct IntermediateResults
 {
-    BagrovValues bagrovValues;
+    RunoffSealed runoffSealed;
 
     // Langjaehriger MW des Regenwasserabflusses [mm/a] 003 N
     float surfaceRunoff_ROW = 0.0f;
@@ -26,6 +26,8 @@ struct IntermediateResults
     float totalRunoffFlow_RVOL = 0.0f;
 
     float evaporation_VERDUNSTUN = 0.0f;
+
+    BagrovIntermediates bagrovIntermediates;
 };
 
 #endif // INTERMEDIATERESULTS_H

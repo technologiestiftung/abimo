@@ -172,13 +172,12 @@ void TestAbimo::test_xmlReader()
 void TestAbimo::test_config_getTWS()
 {
     // Create configuration object
-    UsageConfiguration config;
-    QVERIFY(qFuzzyCompare(config.getRootingDepth(Usage::vegetationless_D, 50), 0.2F));
-    QVERIFY(qFuzzyCompare(config.getRootingDepth(Usage::agricultural_L, 50), 0.6F));
-    QVERIFY(qFuzzyCompare(config.getRootingDepth(Usage::agricultural_L, 51), 0.7F));
-    QVERIFY(qFuzzyCompare(config.getRootingDepth(Usage::horticultural_K, 50), 0.7F));
-    QVERIFY(qFuzzyCompare(config.getRootingDepth(Usage::forested_W, 50), 1.0F));
-    QVERIFY(qFuzzyCompare(config.getRootingDepth(Usage::unknown, 50), 0.2F));
+    QVERIFY(qFuzzyCompare(SoilAndVegetation::getRootingDepth(Usage::vegetationless_D, 50), 0.2F));
+    QVERIFY(qFuzzyCompare(SoilAndVegetation::getRootingDepth(Usage::agricultural_L, 50), 0.6F));
+    QVERIFY(qFuzzyCompare(SoilAndVegetation::getRootingDepth(Usage::agricultural_L, 51), 0.7F));
+    QVERIFY(qFuzzyCompare(SoilAndVegetation::getRootingDepth(Usage::horticultural_K, 50), 0.7F));
+    QVERIFY(qFuzzyCompare(SoilAndVegetation::getRootingDepth(Usage::forested_W, 50), 1.0F));
+    QVERIFY(qFuzzyCompare(SoilAndVegetation::getRootingDepth(Usage::unknown, 50), 0.2F));
 }
 
 void TestAbimo::test_calc()
@@ -189,6 +188,12 @@ void TestAbimo::test_calc()
     QFile tmpOut_config(dataFilePath("tmp_out_config.dbf", false));
     QFile refOut_noConfig(dataFilePath("abimo_2019_mitstrassenout_3.2.1_default-config.dbf"));
     QFile refOut_config(dataFilePath("abimo_2019_mitstrassenout_3.2.1_xml-config.dbf"));
+
+    // Run the simulation without config file using the alternative function
+    Calculation::runCalculationUsingData(inputFile.fileName(), tmpOut_noConfig.fileName());
+    QVERIFY(tmpOut_noConfig.size() == refOut_noConfig.size());
+    QVERIFY(dbfHeadersAreIdentical(tmpOut_noConfig.fileName(), refOut_noConfig.fileName()));
+    QVERIFY(dbfStringsAreIdentical(tmpOut_noConfig.fileName(), refOut_noConfig.fileName()));
 
     // Run the simulation without config file
     Calculation::runCalculation(inputFile.fileName(), "", tmpOut_noConfig.fileName(), false);

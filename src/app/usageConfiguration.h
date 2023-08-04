@@ -11,7 +11,6 @@ class UsageConfiguration
 public:
 
     UsageConfiguration();
-    float getRootingDepth(Usage usage, int yield);
     UsageResult getUsageResult(int usageID, int type, QString code);
     UsageTuple getUsageTuple(int tupleID);
 

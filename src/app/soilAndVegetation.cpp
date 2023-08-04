@@ -94,3 +94,28 @@ float SoilAndVegetation::estimateWaterHoldingCapacity(int f30, int f150, bool is
         0.75F * static_cast<float>(isForest ? f150 : f30) +
         0.25F * static_cast<float>(isForest ? f30 : f150);
 }
+
+//==============================================================================
+//    Bestimmung der Durchwurzelungstiefe TWS
+//==============================================================================
+float SoilAndVegetation::getRootingDepth(Usage usage, int yield)
+{
+    // Zuordnung Durchwurzelungstiefe in Abhaengigkeit der Nutzung
+    switch(usage) {
+
+        // D - Devastierung
+        case Usage::vegetationless_D: return 0.2F;
+
+        // L - landwirtschaftliche Nutzung
+        case Usage::agricultural_L: return (yield <= 50) ? 0.6F : 0.7F;
+
+        // K - Kleingaerten
+        case Usage::horticultural_K: return 0.7F;
+
+        // W - Wald
+        case Usage::forested_W: return 1.0F;
+
+        // Other
+        default: return 0.2F;
+    }
+}

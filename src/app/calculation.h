@@ -10,6 +10,7 @@
 #include <QObject>
 #include <QString>
 #include <QTextStream>
+#include <QVector>
 
 #include "abimoReader.h"
 #include "abimoWriter.h"
@@ -22,6 +23,12 @@
 #include "intermediateResults.h"
 #include "soilAndVegetation.h"
 
+// Main function using data structures, not files
+extern "C" Q_DECL_EXPORT int calculateData(
+    QVector<AbimoInputRecord>& inputData,
+    QVector<AbimoOutputRecord>& outputData
+);
+
 class Calculation : public QObject
 {
     Q_OBJECT
@@ -30,9 +37,9 @@ public:
 
     // Constructor
     Calculation(
-        AbimoReader &dbaseReader,
-        InitValues &initValues,
-        QTextStream & protocolStream
+        AbimoReader& dbaseReader,
+        InitValues& initValues,
+        QTextStream& protocolStream
     );
 
     // Static function to perform a "batch run"
@@ -41,6 +48,19 @@ public:
         QString configFile,
         QString outputFile,
         bool debug = false
+    );
+
+    static void runCalculationUsingData(
+        QString inputFile,
+        QString outputFile
+    );
+
+    static QVector<AbimoInputRecord> readAbimoInputData(QString inputFile);
+
+    static void writeAbimoOutputData(
+        QVector<AbimoOutputRecord>& outputData,
+        InitValues& initValues,
+        QString outputFile
     );
 
     // Main function to perform the calculation of the whole input table
@@ -52,6 +72,21 @@ public:
 
     // Function to be called to stop a running calculation
     void stopProcessing();
+
+    static void doCalculationsFor(
+        AbimoInputRecord& input,
+        IntermediateResults& results,
+        InitValues& initValues,
+        UsageConfiguration& usageConfiguration,
+        Counters& m_counters,
+        QTextStream& protocolStream
+    );
+
+    static int fillResultRecord(
+        AbimoInputRecord& input,
+        IntermediateResults& results,
+        AbimoOutputRecord& output
+    );
 
 signals:
     void processSignal(int, QString);
@@ -91,80 +126,74 @@ private:
     // Methods
     //
 
-    void doCalculationsFor(
-        AbimoInputRecord& input,
-        IntermediateResults& results
+    static UsageTuple getUsageTuple(
+        int usage,
+        int type,
+        UsageConfiguration& usageConfiguration,
+        bool overrideIrrigationWithZero,
+        Counters& counters,
+        QTextStream& protocolStream,
+        QString code // just for information in protocolStream
     );
 
-    void logResults(AbimoInputRecord inputRecord, IntermediateResults results);
+    void logResults(
+        AbimoInputRecord& inputRecord,
+        IntermediateResults& results,
+        bool logBagrovIntermediates = false
+    );
+
+    void logVariable(QString name, int value);
     void logVariable(QString name, float value);
 
-    UsageTuple provideUsageInformation(AbimoInputRecord& input);
-
-    EvaporationRelevantVariables setEvaporationVars(
-        UsageTuple& usageTuple,
-        AbimoInputRecord& input
+    static SoilProperties getSoilProperties(
+        Usage usage,
+        int yield,
+        float depthToWaterTable,
+        int fieldCapacity_30,
+        int fieldCapacity_150
     );
 
-    Precipitation getPrecipitation(
+    static Precipitation getPrecipitation(
         int precipitationYear,
         int precipitationSummer,
-        InitValues& initValues
+        float correctionFactor
     );
 
-    PotentialEvaporation getPotentialEvaporation(
-        Usage& usage,
+    static PotentialEvaporation getPotentialEvaporation(
         InitValues& initValues,
+        bool isWaterbody,
         int district,
-        QString code
+        QString code,
+        Counters& counters,
+        QTextStream& protocolStream
     );
 
-    float initValueOrReportedDefaultValue(
+    static float getInitialValueOrDefault(
         int bez,
         QString code,
         QHash<int, int> &hash,
         int defaultValue,
-        QString name
+        QString name,
+        Counters& counters,
+        QTextStream& protocolStream
     );
 
-    void setBagrovValues(
-        Precipitation& precipitation,
-        PotentialEvaporation& potentialEvaporation,
-        BagrovValues& bagrovValues
-    );
-
-    void handleTotalAreaOfZero(AbimoInputRecord& input);
-
-    void calculateRunoffSealed(
+    static void handleTotalAreaOfZero(
         AbimoInputRecord& input,
-        BagrovValues& bagrovValues,
-        Runoff& runoff
+        Counters& counters
     );
 
-    void calculateInfiltrationSealed(
-        AbimoInputRecord& input,
-        BagrovValues& bagrovValues,
-        Runoff& runoff,
-        Infiltration& infiltrationSealed
-    );
-
-    float actualEvaporation(
+    static float actualEvaporation(
         UsageTuple& usageTuple,
         PotentialEvaporation& potentialEvaporation,
-        EvaporationRelevantVariables& evaporationVars,
+        SoilProperties& evaporationVars,
         Precipitation& precipitation
     );
 
-    int fillResultRecord(
-        AbimoInputRecord& input,
-        IntermediateResults& results,
-        AbimoOutputRecord& output
-    );
-
-    void writeResultRecord(
+    static void writeResultRecord(
         AbimoOutputRecord& output,
         AbimoWriter& writer
-    ) const;
+    );
 
     int progressNumber(int i, int n, float max);
 };
