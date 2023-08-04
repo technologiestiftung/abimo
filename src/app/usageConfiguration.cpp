@@ -168,31 +168,6 @@ void UsageConfiguration::initUsageAndTypeToTupleHash()
     type2tuple.clear(); type2tuple[-2] = 12; usageHash[200] = type2tuple;
 }
 
-//==============================================================================
-//    Bestimmung der Durchwurzelungstiefe TWS
-//==============================================================================
-float UsageConfiguration::getRootingDepth(Usage usage, int yield)
-{
-    // Zuordnung Durchwurzelungstiefe in Abhaengigkeit der Nutzung
-    switch(usage) {
-
-        // D - Devastierung
-        case Usage::vegetationless_D: return 0.2F;
-
-        // L - landwirtschaftliche Nutzung
-        case Usage::agricultural_L: return (yield <= 50) ? 0.6F : 0.7F;
-
-        // K - Kleingaerten
-        case Usage::horticultural_K: return 0.7F;
-
-        // W - Wald
-        case Usage::forested_W: return 1.0F;
-
-        // Other
-        default: return 0.2F;
-    }
-}
-
 UsageResult UsageConfiguration::getUsageResult(int usageID, int type, QString code)
 {
     if (!usageHash.contains(usageID)) {
