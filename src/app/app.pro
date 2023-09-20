@@ -29,6 +29,7 @@ HEADERS += \
     abimoReader.h \
     abimoWriter.h \
     bagrov.h \
+    bindings.h \
     calculation.h \
     constants.h \
     counters.h \
@@ -53,6 +54,7 @@ SOURCES += \
     abimoReader.cpp \
     abimoWriter.cpp \
     bagrov.cpp \
+    bindings.cpp \
     calculation.cpp \
     counters.cpp \
     dbaseField.cpp \

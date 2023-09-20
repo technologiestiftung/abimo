@@ -37,6 +37,7 @@ HEADERS += \
     $$INCDIR/abimoReader.h \
     $$INCDIR/abimoWriter.h \
     $$INCDIR/bagrov.h \
+    $$INCDIR/bindings.h \
     $$INCDIR/calculation.h\
     $$INCDIR/counters.h\
     $$INCDIR/dbaseField.h \
@@ -57,6 +58,7 @@ SOURCES += \
     $$INCDIR/abimoReader.cpp \
     $$INCDIR/abimoWriter.cpp \
     $$INCDIR/bagrov.cpp \
+    $$INCDIR/bindings.cpp \
     $$INCDIR/calculation.cpp \
     $$INCDIR/counters.cpp \
     $$INCDIR/dbaseField.cpp \
