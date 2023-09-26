@@ -3,10 +3,10 @@
 /**
  * Transform a 2D array of integers into a QVector of AbimoInputRecord objects.
  */
-QVector<AbimoInputRecord>* array2AbimoInputVector(int array[][25], int numRows) {
+QVector<AbimoInputRecord>* array2AbimoInputVector(int array[][25], int numRecords) {
     QVector<AbimoInputRecord>* abimoInputVector = new QVector<AbimoInputRecord>();
 
-    for (int i = 0; i < numRows; i++) {
+    for (int i = 0; i < numRecords; i++) {
         int* row = array[i];
 
         // Create an AbimoInputRecord object and set its properties
@@ -58,4 +58,25 @@ QVector<AbimoInputRecord>* array2AbimoInputVector(int array[][25], int numRows) 
     }
 
     return abimoInputVector;
+};
+
+/**
+ * Create a QVector of AbimoOutputRecord objects
+ */
+QVector<AbimoOutputRecord>* createAbimoOutputRecordVector(int numRecords) {
+    QVector<AbimoOutputRecord>* records = new QVector<AbimoOutputRecord>;
+    records->resize(numRecords);
+
+    for (int i = 0; i < numRecords; ++i) {
+        (*records)[i] = AbimoOutputRecord();
+    }
+
+    return records;
+};
+
+/**
+ * Delete a QVector of AbimoOutputRecord objects
+ */
+void deleteAbimoOutputRecordVector(QVector<AbimoOutputRecord>* records) {
+    delete records;
 };

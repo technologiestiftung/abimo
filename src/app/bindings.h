@@ -3,10 +3,19 @@
 
 #include <QVector>
 #include "abimoInputRecord.h"
+#include "abimoOutputRecord.h"
 
-extern "C" Q_DECL_EXPORT  QVector<AbimoInputRecord>* array2AbimoInputVector(
+extern "C" Q_DECL_EXPORT QVector<AbimoInputRecord>* array2AbimoInputVector(
     int array[][25],
-    int numRows
+    int numRecords
+);
+
+extern "C" Q_DECL_EXPORT QVector<AbimoOutputRecord>* createAbimoOutputRecordVector(
+    int numRecords
+);
+
+extern "C" Q_DECL_EXPORT void deleteAbimoOutputRecordVector(
+    QVector<AbimoOutputRecord>* records
 );
 
 #endif // ABIMO_CONVERTER_H
