@@ -14,6 +14,10 @@ extern "C" Q_DECL_EXPORT QVector<AbimoOutputRecord>* createAbimoOutputRecordVect
     int numRecords
 );
 
+extern "C" Q_DECL_EXPORT void deleteAbimoInputRecordVector(
+    QVector<AbimoInputRecord>* records
+);
+
 extern "C" Q_DECL_EXPORT void deleteAbimoOutputRecordVector(
     QVector<AbimoOutputRecord>* records
 );

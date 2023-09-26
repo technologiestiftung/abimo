@@ -53,7 +53,7 @@ QVector<AbimoInputRecord>* array2AbimoInputVector(int array[][25], int numRecord
         // Add the record to the vector
         abimoInputVector->append(*record);
 
-        // Remember to delete the record if it's no longer needed
+        // Delete the record
         delete record;
     }
 
@@ -72,6 +72,13 @@ QVector<AbimoOutputRecord>* createAbimoOutputRecordVector(int numRecords) {
     }
 
     return records;
+};
+
+/**
+ * Delete a QVector of AbimoInputRecord objects
+ */
+void deleteAbimoInputRecordVector(QVector<AbimoInputRecord>* records) {
+    delete records;
 };
 
 /**
